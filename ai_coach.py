@@ -1,12 +1,10 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
-from predict_readiness import predict_latest
 
 # Load API Key
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-
 
 
 def construct_prompt(ctx):
@@ -71,6 +69,7 @@ def generate_coach_advice(context, n_days=1):
         return response.text
     except Exception as e:
         return f"Error contacting AI Coach: {e}"
+
 def generate_trend_analysis(df_recent):
     """Analyzes the last 30 days of history."""
     if not api_key:
@@ -103,14 +102,3 @@ def generate_trend_analysis(df_recent):
         return response.text
     except Exception as e:
         return f"Error analyzing trends: {e}"
-
-if __name__ == "__main__":
-    # Get context from the predictor
-    context = predict_latest()
-
-    
-    if context:
-        advice = generate_coach_advice(context)
-        print("\n" + "="*20 + " COACH ADVICE " + "="*20)
-        print(advice)
-        print("="*54)

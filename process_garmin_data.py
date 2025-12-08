@@ -1,234 +1,154 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from xgboost import XGBRegressor
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
 from sklearn.metrics import mean_absolute_error, r2_score
-import json
-import ast
 import joblib
+import json
+import os
+import numpy as np
 
-# aja -> python process_garmin_data.py
-
-def load_data():
-    """Lataa kaikki Garmin-datat CSV-tiedostoista."""
+def main_process():
     print("Loading data...")
-    df_summary = pd.read_csv("garmin_daily_summary.csv")
-    df_summary["date"] = pd.to_datetime(df_summary["date"]).dt.date
-    
     try:
+        df_summary = pd.read_csv("garmin_daily_summary.csv")
         df_sleep = pd.read_csv("garmin_sleep_data.csv")
-        # Sleep data might need day adjustment if the sleep date refers to the night before or morning of
-        # Usually Garmin sleep date is the day you woke up.
-        if 'calendarDate' in df_sleep.columns:
-             df_sleep['date'] = pd.to_datetime(df_sleep['calendarDate']).dt.date
-        elif 'date' in df_sleep.columns:
-             df_sleep['date'] = pd.to_datetime(df_sleep['date']).dt.date
-    except FileNotFoundError:
-        print("Warning: Sleep data not found.")
-        df_sleep = pd.DataFrame()
-
-    try:
         df_activities = pd.read_csv("garmin_activities.csv")
-        # Activity start time
-        if 'startTimeLocal' in df_activities.columns:
-            df_activities['date'] = pd.to_datetime(df_activities['startTimeLocal']).dt.date
-    except FileNotFoundError:
-        print("Warning: Activity data not found.")
-        df_activities = pd.DataFrame()
+    except FileNotFoundError as e:
+        print(f"Error: Missing data file. {e}")
+        return
+
+    # --- Preprocessing ---
+    # Convert dates
+    df_summary['date'] = pd.to_datetime(df_summary['date'])
+    
+    # Consolidate Sleep (handle differing column names from API)
+    if 'calendarDate' in df_sleep.columns:
+        df_sleep['date'] = pd.to_datetime(df_sleep['calendarDate'])
+    elif 'date' in df_sleep.columns:
+        df_sleep['date'] = pd.to_datetime(df_sleep['date'])
         
-    try:
-        df_hr = pd.read_csv("garmin_hr_timeseries.csv")
-    except FileNotFoundError:
-        df_hr = pd.DataFrame()
-        
-    return df_summary, df_sleep, df_activities
+    # Consolidate Activities (Aggregate per day)
+    # Check if 'startTimeLocal' exists
+    if 'startTimeLocal' in df_activities.columns:
+         df_activities['date'] = pd.to_datetime(df_activities['startTimeLocal']).dt.date
+         df_activities['date'] = pd.to_datetime(df_activities['date'])
+         
+    # Group activities by date
+    # Sum calories, duration
+    activity_aggs = df_activities.groupby('date').agg({
+        'calories': 'sum',
+        'duration': 'sum', # seconds
+        'averageHR': 'mean'
+    }).rename(columns={'calories': 'workout_calories', 'duration': 'workout_duration_seconds', 'averageHR': 'workout_avg_hr'}).reset_index()
 
-def process_sleep_data(df_sleep):
-    """Prosessoi unidata päivittäisiksi tunnusluvuiksi."""
-    if df_sleep.empty:
-        return pd.DataFrame()
-    
-    print("Processing sleep data...")
-    df_sleep_daily = df_sleep.copy()
-    
-    # Muunnetaan sekunnit minuuteiksi
-    time_cols = ['totalSleepSeconds', 'deepSleepSeconds', 'lightSleepSeconds', 'remSleepSeconds', 'awakeSleepSeconds', 'unmeasurableSleepSeconds']
-    
-    for col in time_cols:
-        if col in df_sleep_daily.columns:
-            df_sleep_daily[col.replace('Seconds', '_minutes')] = df_sleep_daily[col] / 60.0
-    
-    features = ['date']
-    features += [c.replace('Seconds', '_minutes') for c in time_cols if c in df_sleep_daily.columns]
-    if 'sleepScoreFeedback' in df_sleep_daily.columns:
-        features.append('sleepScoreFeedback')
-        
-    possible_score_cols = ['sleepScore', 'overallSleepScore', 'quality'] 
-    for c in possible_score_cols:
-        if c in df_sleep_daily.columns:
-            features.append(c)
-            
-    df_sleep_agg = df_sleep_daily[features].groupby('date').first().reset_index()
-    return df_sleep_agg
+    # --- Merging ---
+    df_merged = pd.merge(df_summary, df_sleep, on='date', how='left', suffixes=('', '_sleep'))
+    df_merged = pd.merge(df_merged, activity_aggs, on='date', how='left')
 
-def process_activity_data(df_activities):
-    """Prosessoi aktiviteettidata päivittäisiksi tunnusluvuiksi."""
-    if df_activities.empty:
-        return pd.DataFrame()
+    # Fill NaNs where appropriate
+    df_merged['workout_calories'] = df_merged['workout_calories'].fillna(0)
+    df_merged['workout_duration_seconds'] = df_merged['workout_duration_seconds'].fillna(0)
+    
+    # Feature Engineering: Sleep Minutes
+    if 'totalSleepSeconds' in df_merged.columns:
+        df_merged['totalSleep_minutes'] = df_merged['totalSleepSeconds'] / 60
+    elif 'sleepingSeconds' in df_merged.columns:
+        df_merged['totalSleep_minutes'] = df_merged['sleepingSeconds'] / 60
+    else:
+        df_merged['totalSleep_minutes'] = 0
 
-    print("Processing activity data...")
-    aggs = {}
-    if 'duration' in df_activities.columns:
-        aggs['duration'] = 'sum'
-    if 'calories' in df_activities.columns:
-        aggs['calories'] = 'sum'
-    if 'averageHeartRate' in df_activities.columns:
-        aggs['averageHeartRate'] = 'mean'
-    if 'maxHeartRate' in df_activities.columns:
-        aggs['maxHeartRate'] = 'max'
-    if 'steps' in df_activities.columns:
-        aggs['steps'] = 'sum'
-    if 'distance' in df_activities.columns:
-        aggs['distance'] = 'sum'
-        
-    if not aggs:
-        return pd.DataFrame()
+    # Sort
+    df_merged = df_merged.sort_values('date')
 
-    df_act_daily = df_activities.groupby('date').agg(aggs).reset_index()
+    # --- Rolling Averages & Lags ---
+    # 7-day Load
+    df_merged['workout_calories_roll_7d'] = df_merged['workout_calories'].rolling(7, min_periods=1).mean()
     
-    rename_map = {
-        'duration': 'workout_duration_seconds',
-        'calories': 'workout_calories',
-        'averageHeartRate': 'workout_avg_hr',
-        'maxHeartRate': 'workout_max_hr',
-        'steps': 'workout_steps',
-        'distance': 'workout_distance'
-    }
-    df_act_daily.rename(columns=rename_map, inplace=True)
-    
-    if 'workout_duration_seconds' in df_act_daily.columns:
-         df_act_daily['workout_minutes'] = df_act_daily['workout_duration_seconds'] / 60.0
-    
-    df_count = df_activities.groupby('date').size().reset_index(name='activity_count')
-    df_act_daily = pd.merge(df_act_daily, df_count, on='date', how='left')
-    
-    return df_act_daily
+    # Lags (Previous Day)
+    lag_cols = ['bodyBatteryChargedValue', 'averageStressLevel', 'totalSteps', 'totalSleep_minutes']
+    for col in lag_cols:
+        if col in df_merged.columns:
+            df_merged[f'{col}_lag_1'] = df_merged[col].shift(1)
 
-def run_feature_analysis(df, target='bodyBatteryChargedValue'):
-    """Ajaa feature importance -analyysin XGBoostilla ja optimoi hyperparametrit."""
-    print("Running feature analysis with optimization...")
+    # Clean
+    df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
     
-    X = df.drop(columns=['date', target, 'bodyBatteryDrainedValue'], errors='ignore')
-    X = X.select_dtypes(include=[np.number])
-    y = df[target]
+    # Save Features
+    df_merged.to_csv("garmin_merged_features.csv", index=False)
+    print("Saved merged features.")
+
+    # --- Training with GridSearchCV & Cross-Validation ---
+    print("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
     
-    # Split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    target = 'bodyBatteryChargedValue'
     
-    # Define Parameter Grid
+    # Drop non-numeric for X
+    drop_cols = ['date', 'bodyBatteryChargedValue', 'bodyBatteryDrainedValue', 'calendarDate', 'calendarDate_sleep']
+    
+    X = df_merged.drop(columns=[c for c in drop_cols if c in df_merged.columns])
+    X = X.select_dtypes(include=['number'])
+    y = df_merged[target]
+
+    # TimeSeries Split for "Time-Aware" Validation
+    # We don't shuffle because order matters in time series
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
+
+    # Parameter Grid (Focused for speed but effective)
     param_grid = {
-        'n_estimators': [50, 100, 200],
-        'max_depth': [3, 5, 7],
-        'learning_rate': [0.01, 0.05, 0.1, 0.2],
-        'subsample': [0.8, 1.0],
-        'colsample_bytree': [0.8, 1.0]
+        'n_estimators': [100, 200, 300],
+        'learning_rate': [0.01, 0.03, 0.05],
+        'max_depth': [3, 4, 5],
+        'subsample': [0.8],
+        'colsample_bytree': [0.8]
     }
     
     xgb = XGBRegressor(random_state=42)
     
-    # Grid Search
-    print("Tuning hyperparameters (this might take a moment)...")
-    grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, cv=3, scoring='neg_mean_absolute_error', n_jobs=-1)
+    # Use TimeSeriesSplit for CV (folds respect time order)
+    tscv = TimeSeriesSplit(n_splits=3)
+    
+    grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
+                               cv=tscv, n_jobs=-1, scoring='r2', verbose=1)
+    
     grid_search.fit(X_train, y_train)
     
+    best_model = grid_search.best_estimator_
     print(f"Best Parameters: {grid_search.best_params_}")
-    
-    # Use best model
-    model = grid_search.best_estimator_
-    
-    # Eval
-    preds = model.predict(X_test)
+    print(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
+
+    preds = best_model.predict(X_test)
     mae = mean_absolute_error(y_test, preds)
     r2 = r2_score(y_test, preds)
     
-    print(f"Model Performance: MAE={mae:.2f}, R2={r2:.2f}")
+    print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}")
+
+    # Save Model
+    joblib.dump(best_model, "xgb_model.pkl")
+    
+    # --- Feature Importance ---
+    importance = best_model.feature_importances_
+    feature_names = X.columns.tolist()
+    feat_imp_dict = dict(zip(feature_names, [float(x) for x in importance]))
+    
+    # Sort by importance
+    feat_imp_dict = dict(sorted(feat_imp_dict.items(), key=lambda item: item[1], reverse=True))
+    
+    with open("feature_importance.json", "w") as f:
+        json.dump(feat_imp_dict, f, indent=4)
+        
+    print("Feature importance saved.")
+    print("Top 3 Features:", list(feat_imp_dict.keys())[:3])
     
     # Save Metrics
-    metrics = {"mae": mae, "r2": r2, "last_trained": str(pd.Timestamp.now().date())}
+    metrics = {
+        "mae": mae,
+        "r2": r2,
+        "last_trained": str(pd.Timestamp.now().date())
+    }
     with open("model_metrics.json", "w") as f:
         json.dump(metrics, f)
     
-    importance = pd.DataFrame({
-        'feature': X.columns,
-        'importance': model.feature_importances_
-    }).sort_values(by='importance', ascending=False)
-    
-    print("\nTop 10 Features impacting Body Battery Charging:")
-    print(importance.head(10))
-    
-    return model, importance
-
-def add_lag_features(df):
-    """Calculates lag and rolling average features."""
-    if df.empty:
-        return df
-        
-    print("Adding lag features...")
-    df = df.sort_values(by='date')
-    
-    rolling_cols = ['totalSleepSeconds', 'activeSeconds', 'averageStressLevel', 'workout_calories', 'totalSteps', 'restingHeartRate']
-    rolling_cols = [c for c in rolling_cols if c in df.columns]
-    
-    for col in rolling_cols:
-        df[f'{col}_roll_3d'] = df[col].rolling(window=3, min_periods=1).mean()
-        df[f'{col}_roll_7d'] = df[col].rolling(window=7, min_periods=1).mean()
-        
-    lag_cols = ['bodyBatteryChargedValue', 'totalSleepSeconds', 'totalSteps', 'averageStressLevel', 'bodyBatteryMostRecentValue']
-    lag_cols = [c for c in lag_cols if c in df.columns]
-    
-    for col in lag_cols:
-        df[f'{col}_lag_1'] = df[col].shift(1)
-        
-    return df
-
-def main_process():
-    df_summary, df_sleep_raw, df_activities_raw = load_data()
-    
-    if df_summary.empty:
-        print("No summary data, cannot proceed.")
-        return
-
-    df_sleep = process_sleep_data(df_sleep_raw)
-    df_activities = process_activity_data(df_activities_raw)
-    
-    print("Merging data...")
-    df_merged = df_summary.copy()
-    
-    if not df_sleep.empty:
-        df_merged = pd.merge(df_merged, df_sleep, on='date', how='left')
-        
-    if not df_activities.empty:
-        df_merged = pd.merge(df_merged, df_activities, on='date', how='left')
-        
-    act_cols = ['workout_minutes', 'workout_calories', 'workout_steps', 'workout_distance', 'activity_count']
-    for c in act_cols:
-        if c in df_merged.columns:
-            df_merged[c] = df_merged[c].fillna(0)
-    
-    df_merged = add_lag_features(df_merged)
-            
-    df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue'])
-    df_merged = df_merged.iloc[1:] 
-    
-    model, importance = run_feature_analysis(df_merged)
-    
-    df_merged.to_csv("garmin_merged_features.csv", index=False)
-    print("Saved merged dataset to garmin_merged_features.csv")
-    
-    joblib.dump(model, "xgb_bodybattery.pkl")
-    print("Saved trained model to xgb_bodybattery.pkl")
+    print("Model and metrics saved.")
 
 if __name__ == "__main__":
     main_process()

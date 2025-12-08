@@ -1,89 +1,56 @@
 import pandas as pd
-import numpy as np
 import joblib
-from process_garmin_data import load_data, process_sleep_data, process_activity_data, add_lag_features
+import pandas as pd
+from datetime import timedelta
 
 def predict_latest():
-    print("--- Garmin Recovery Predictor ---")
-    
     # 1. Load Model
     try:
-        model = joblib.load("xgb_bodybattery.pkl")
-        print("Model loaded successfully.")
-    except FileNotFoundError:
-        print("Error: Model file 'xgb_bodybattery.pkl' not found. Run process_garmin_data.py first.")
+        model = joblib.load("xgb_model.pkl")
+    except:
         return None
 
-    # 2. Load Top-up Data
-    # In a real deployed scenario, we would stream this. 
-    # Here we reload the CSVs which populate the history including 'today' (if fetched).
-    df_summary, df_sleep_raw, df_activities_raw = load_data()
-    
-    if df_summary.empty:
-        print("Error: No data available.")
+    # 2. Load latest features
+    try:
+        df = pd.read_csv("garmin_merged_features.csv")
+    except:
         return None
-
-    # 3. Process Data (Replicating the pipeline)
-    df_sleep = process_sleep_data(df_sleep_raw)
-    df_activities = process_activity_data(df_activities_raw)
     
-    df_merged = df_summary.copy()
-    if not df_sleep.empty:
-        df_merged = pd.merge(df_merged, df_sleep, on='date', how='left')
-    if not df_activities.empty:
-        df_merged = pd.merge(df_merged, df_activities, on='date', how='left')
+    if df.empty:
+        return None
         
-    act_cols = ['workout_minutes', 'workout_calories', 'workout_steps', 'workout_distance', 'activity_count']
-    for c in act_cols:
-        if c in df_merged.columns:
-            df_merged[c] = df_merged[c].fillna(0)
-            
-    # 4. Feature Engineering (Lags/Rolling)
-    # Critical: Use the whole history to calculate the rolling window for the last day
-    df_processed = add_lag_features(df_merged)
+    # Sort and take last row
+    df['date'] = pd.to_datetime(df['date'])
+    df = df.sort_values('date')
+    latest_row = df.tail(1)
+    latest_date = latest_row['date'].dt.date.values[0]
     
-    # 5. Select Latest Day
-    # We want the very last row, assuming it represents "Today" (or the latest sync)
-    latest_row = df_processed.iloc[-1:].copy()
-    latest_date = latest_row['date'].values[0]
-    print(f"Predicting for date: {latest_date}")
+    # Prepare input X
+    X = latest_row.drop(columns=['date', 'bodyBatteryChargedValue', 'bodyBatteryDrainedValue'], errors='ignore')
+    X = X.select_dtypes(include=['number'])
     
-    # 6. Prepare Features for Model
-    # We need to ensure columns match training features
-    # Get model features from the importance attribute if available, or just align columns
-    # XGBoost usually handles extra columns by ignoring them, but missing columns are an issue.
-    # Ideally, we should save feature_names with the model.
-    # For now, we drop the known non-features.
+    # Re-align columns to match model
+    # (In a robust prod system we would save column names with model)
+    model_booster = model.get_booster()
+    model_columns = model_booster.feature_names
     
-    features = latest_row.drop(columns=['date', 'bodyBatteryChargedValue', 'bodyBatteryDrainedValue'], errors='ignore')
-    features = features.select_dtypes(include=[np.number])
+    # Add missing cols as 0
+    for col in model_columns:
+        if col not in X.columns:
+            X[col] = 0
     
-    # 7. Predict
-    prediction = model.predict(features)[0]
+    # Order columns
+    X = X[model_columns]
     
-    print(f"\n> PREDICTED Body Battery Charge: {prediction:.1f}")
+    # Predict
+    prediction = model.predict(X)[0]
     
-    # Context for User
-    actual = latest_row.get('bodyBatteryChargedValue', np.nan)
-    if not isinstance(actual, (int, float)) or np.isnan(actual).any():
-        print("(Actual value not yet fully known or missing)")
-    else:
-        # If the row has the target (e.g. historical day), show it
-        actual_val = actual.values[0]
-        print(f"> ACTUAL Body Battery Charge:    {actual_val}")
-        print(f"> Difference: {prediction - actual_val:.1f}")
-
-    # Return context for AI Coach
-    # NOTE: df_merged has columns replaced: e.g. totalSleepSeconds -> totalSleep_minutes
-    sleep_col = 'totalSleep_minutes'
-    if sleep_col in latest_row:
-        sleep_hours = float(latest_row[sleep_col].values[0] / 60.0)
-    elif 'totalSleepSeconds' in latest_row:
-        sleep_hours = float(latest_row['totalSleepSeconds'].values[0] / 3600.0)
+    # Extract Sleep duration nicely
+    sleep_hours = 0
+    if 'totalSleep_minutes' in latest_row:
+        sleep_hours = latest_row['totalSleep_minutes'].values[0] / 60.0
     elif 'sleepingSeconds' in latest_row:
-        sleep_hours = float(latest_row['sleepingSeconds'].values[0] / 3600.0)
-    else:
-        sleep_hours = 0.0
+        sleep_hours = latest_row['sleepingSeconds'].values[0] / 3600.0
 
     context = {
         "date": str(latest_date),
@@ -96,6 +63,3 @@ def predict_latest():
         "yesterday_charge": float(latest_row['bodyBatteryChargedValue_lag_1'].values[0]) if 'bodyBatteryChargedValue_lag_1' in latest_row else 0,
     }
     return context
-
-if __name__ == "__main__":
-    predict_latest()

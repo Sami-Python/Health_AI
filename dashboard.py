@@ -1,39 +1,31 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import json
 import os
+import json
 from predict_readiness import predict_latest
 from ai_coach import generate_coach_advice, generate_trend_analysis
 
-# Page Config
-st.set_page_config(
-    page_title="Garmin AI Coach",
-    page_icon="🏃",
-    layout="wide",
-    initial_sidebar_state="expanded" 
-)
+# --- Configuration & Styles ---
+st.set_page_config(page_title="Garmin AI Coach", page_icon="🏃", layout="wide")
 
-# --- CSS for Mobile / Styling ---
-# Dark theme optimization: Lighter cards, white text.
 st.markdown("""
 <style>
     .metric-card {
-        background-color: #333333;
+        background-color: #262730;
         padding: 20px;
         border-radius: 10px;
-        margin-bottom: 10px;
-        text-align: center;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        text_align: center;
+        margin-bottom: 20px;
     }
     .metric-value {
-        font-size: 2rem;
+        font-size: 36px;
         font-weight: bold;
-        color: #ffffff;
+        color: white;
     }
     .metric-label {
-        color: #cccccc;
-        font-size: 0.9rem;
+        font-size: 14px;
+        color: #b0b0b0;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -206,50 +198,61 @@ st.subheader("📊 Historical Trends")
 df = load_historical_data()
 
 if not df.empty:
-    df_recent = df.sort_values('date').tail(30)
+    # Loading indicator that stays until charts are ready
+    status_msg = st.empty()
+    status_msg.info(f"Analysoidaan {len(df)} päivän historiaa...")
     
-    tab1, tab2 = st.tabs(["Recovery & Sleep", "Activity Impact"])
-    
-    with tab1:
-        plot_df = df_recent.copy()
+    try:
+        df_recent = df.sort_values('date').tail(30)
         
-        # Consistent Sleep processing
-        if 'totalSleep_minutes' in plot_df.columns:
-             plot_df['Sleep (min)'] = plot_df['totalSleep_minutes']
-        elif 'sleepingSeconds' in plot_df.columns:
-            plot_df['Sleep (min)'] = plot_df['sleepingSeconds'] / 60.0
-        else:
-            plot_df['Sleep (min)'] = 0
+        tab1, tab2 = st.tabs(["Recovery & Sleep", "Activity Impact"])
+        
+        with tab1:
+            plot_df = df_recent.copy()
+            
+            # Consistent Sleep processing
+            if 'totalSleep_minutes' in plot_df.columns:
+                 plot_df['Sleep (min)'] = plot_df['totalSleep_minutes']
+            elif 'sleepingSeconds' in plot_df.columns:
+                plot_df['Sleep (min)'] = plot_df['sleepingSeconds'] / 60.0
+            else:
+                plot_df['Sleep (min)'] = 0
 
-        # Create thicker line chart
-        fig = px.line(plot_df, x='date', y=['bodyBatteryChargedValue', 'Sleep (min)'], 
-                      title="Body Battery Charge vs. Sleep",
-                      color_discrete_map={"bodyBatteryChargedValue": "#4CAF50", "Sleep (min)": "#2196F3"})
-        
-        fig.update_traces(line=dict(width=3), mode='lines+markers') # Thicker lines
-        fig.update_layout(
-            hovermode="x unified",
-            font=dict(size=14), # Increased font size
-            legend=dict(font=dict(size=14))
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-        
-    with tab2:
-        y_col = 'bodyBatteryChargedValue'
-        x_col = 'workout_calories' if 'workout_calories' in df_recent.columns else 'activeKilocalories'
-        color_col = 'averageStressLevel' if 'averageStressLevel' in df_recent.columns else None
-        
-        fig2 = px.scatter(df_recent, x=x_col, y=y_col,
-                          color=color_col,
-                          title="Workout Load vs. Next Day Charge",
-                          size_max=20)
-        fig2.update_traces(marker=dict(size=12, line=dict(width=1, color='DarkSlateGrey')))
-        fig2.update_layout(
-            font=dict(size=14),
-            legend=dict(font=dict(size=14))
-        )
-        st.plotly_chart(fig2, use_container_width=True)
+            # Create thicker line chart
+            fig = px.line(plot_df, x='date', y=['bodyBatteryChargedValue', 'Sleep (min)'], 
+                          title="Body Battery Charge vs. Sleep",
+                          color_discrete_map={"bodyBatteryChargedValue": "#4CAF50", "Sleep (min)": "#2196F3"})
+            
+            fig.update_traces(line=dict(width=3), mode='lines+markers') # Thicker lines
+            fig.update_layout(
+                hovermode="x unified",
+                font=dict(size=14), # Increased font size
+                legend=dict(font=dict(size=14))
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+        with tab2:
+            y_col = 'bodyBatteryChargedValue'
+            x_col = 'workout_calories' if 'workout_calories' in df_recent.columns else 'activeKilocalories'
+            color_col = 'averageStressLevel' if 'averageStressLevel' in df_recent.columns else None
+            
+            fig2 = px.scatter(df_recent, x=x_col, y=y_col,
+                              color=color_col,
+                              title="Workout Load vs. Next Day Charge",
+                              size_max=20)
+            fig2.update_traces(marker=dict(size=12, line=dict(width=1, color='DarkSlateGrey')))
+            fig2.update_layout(
+                font=dict(size=14),
+                legend=dict(font=dict(size=14))
+            )
+            st.plotly_chart(fig2, use_container_width=True)
+            
+    except Exception as e:
+        st.error(f"Virhe grafiikan piirrossa: {e}")
+    finally:
+        # Clear loading message once rendered (or failed)
+        status_msg.empty()
 
     # --- AI Trend Analysis ---
     st.divider()
@@ -292,7 +295,5 @@ if not df.empty:
             st.markdown(cached_analysis)
         else:
             st.info("Ei tallennettua analyysiä. Paina nappia generoidaksesi.")
-                
-
 else:
-    st.info("No historical data found.")
+    st.error("Ei historia-dataa saatavilla (garmin_merged_features.csv). Aja 'process_garmin_data.py' ensin.")
