@@ -67,31 +67,128 @@ def fetch_daily_heart_rate(client: Garmin, start: date, end: date) -> pd.DataFra
 
     return pd.DataFrame(records)
 
+
+def fetch_sleep_data(client: Garmin, start: date, end: date) -> pd.DataFrame:
+    """Fetch daily sleep data between start and end dates."""
+    days = (end - start).days + 1
+    records: List[Dict[str, Any]] = []
+
+    for i in range(days):
+        d = start + timedelta(days=i)
+        iso = d.isoformat()
+        try:
+            sleep_data = client.get_sleep_data(iso)
+        except Exception as e:
+            print(f"Failed to get sleep data for {iso}: {e}")
+            continue
+
+        if not sleep_data:
+            continue
+
+        records.append({"date": iso, "raw_sleep_data": sleep_data})
+
+    if not records:
+        return pd.DataFrame()
+
+    return pd.DataFrame(records)
+
+
+def fetch_activities(client: Garmin, start: date, end: date) -> pd.DataFrame:
+    """Fetch activities between start and end dates."""
+    days = (end - start).days + 1
+    records: List[Dict[str, Any]] = []
+
+    for i in range(days):
+        d = start + timedelta(days=i)
+        iso = d.isoformat()
+        try:
+            # Get activities for the specific date
+            activities = client.get_activities_by_date(iso, iso)
+        except Exception as e:
+            print(f"Failed to get activities for {iso}: {e}")
+            continue
+
+        if not activities:
+            continue
+
+        # Store each activity with its date
+        for activity in activities:
+            activity["fetch_date"] = iso
+            records.append(activity)
+
+    if not records:
+        return pd.DataFrame()
+
+    return pd.DataFrame(records)
+
+
+def get_latest_date(filename):
+    """Returns the latest date found in the CSV, or None."""
+    if not os.path.exists(filename):
+        return None
+    try:
+        df = pd.read_csv(filename)
+        if 'date' in df.columns:
+            return pd.to_datetime(df['date']).max().date()
+        if 'calendarDate' in df.columns:
+            return pd.to_datetime(df['calendarDate']).max().date()
+    except Exception as e:
+        print(f"Error reading {filename}: {e}")
+    return None
+
+def update_csv(new_df, filename, key_col='date'):
+    """Updates existing CSV with new data, handling duplicates."""
+    if new_df is None or new_df.empty:
+        return
+
+    if os.path.exists(filename):
+        try:
+            old_df = pd.read_csv(filename)
+            combined = pd.concat([old_df, new_df], ignore_index=True)
+            combined = combined.drop_duplicates(subset=[key_col], keep='last')
+            combined.to_csv(filename, index=False)
+            print(f"Updated {filename}: Added {len(new_df)} new rows (Total: {len(combined)})")
+        except Exception as e:
+            print(f"Error updating {filename}: {e}. Overwriting...")
+            new_df.to_csv(filename, index=False)
+    else:
+        new_df.to_csv(filename, index=False)
+        print(f"Created {filename} with {len(new_df)} rows")
+
 def main():
     client = get_garmin_client()
 
-    # Last 90 days including today
-    end = date.today()
-    start = end - timedelta(days=89)
-
-    # Päiväkohtainen summary-data
-    df_summary = fetch_daily_summary(client, start, end)
-    if df_summary is not None and not df_summary.empty:
-        summary_path = "garmin_daily_summary.csv"
-        df_summary.to_csv(summary_path, index=False)
-        print(f"Saved {len(df_summary)} rows to {summary_path}")
+    today = date.today()
+    last_sync = get_latest_date("garmin_daily_summary.csv")
+    
+    if last_sync:
+        start = last_sync + timedelta(days=1)
+        print(f"Found existing data up to {last_sync}. Fetching from {start}...")
     else:
-        print("No summary data returned from Garmin.")
+        start = today - timedelta(days=360)
+        print(f"No existing data. Fetching full history from {start}...")
 
-    # Päivittäinen HR-data
-    df_hr = fetch_daily_heart_rate(client, start, end)
-    if df_hr is not None and not df_hr.empty:
-        hr_path = "garmin_hr_timeseries.csv"
-        df_hr.to_csv(hr_path, index=False)
-        print(f"Saved {len(df_hr)} rows to {hr_path}")
-    else:
-        print("No HR data returned from Garmin.")
+    if start > today:
+        print("Data is already up to date!")
+        return
 
+    # 1. Summary
+    df_summary = fetch_daily_summary(client, start, today)
+    update_csv(df_summary, "garmin_daily_summary.csv")
+
+    # 2. HR
+    df_hr = fetch_daily_heart_rate(client, start, today)
+    update_csv(df_hr, "garmin_hr_timeseries.csv")
+
+    # 3. Sleep
+    df_sleep = fetch_sleep_data(client, start, today)
+    update_csv(df_sleep, "garmin_sleep_data.csv")
+
+    # 4. Activities
+    df_activities = fetch_activities(client, start, today)
+    # Use 'activityId' as key if available, else 'date' (fallback)
+    key = 'activityId' if (df_activities is not None and 'activityId' in df_activities.columns) else 'date'
+    update_csv(df_activities, "garmin_activities.csv", key_col=key)
 
 if __name__ == "__main__":
     main()

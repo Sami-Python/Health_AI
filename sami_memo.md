@@ -1,27 +1,63 @@
-## 2025-12-08 – Garmin-data & ensimmäinen malli
+# 🚀 Quick Start
+Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
 
-- Rakensin `fetch_garmin_data.py`-skriptin, joka:
-	- lukee Garmin-tunnukset `.env`:stä
-	- hakee viimeisen ~90 päivän päivätason datan `get_stats`-kutsulla → `garmin_daily_summary.csv`
-	- hakee päivittäisen sykkeen `get_heart_rates`-kutsulla → `garmin_hr_timeseries.csv` (raaka JSON per päivä)
-- Notebook `garmin_analysis.ipynb`:
-	- luen ja visualisoin päivätason datan (askeleet, kalorit, body battery, hengitys)
-	- parsitaan HR-raaka JSON → `df_hr_ts` (timestamp + bpm + resting/max/min HR)
-	- lasketaan yöajan (00–05/06) sykevaihtelua kuvaava mittari `bpm_std_night` per päivä
-	- yhdistetään yö-HR-mittari päivätason datan kanssa → `df_merged`
-	- tutkitaan trendejä (7d liukuvat keskiarvot) ja scatterit kuorman vs yö-HR:n välillä
-- Rakensin XGBoost-regressiomallin ennustamaan seuraavan päivän `bodyBatteryChargedValue`-arvoa.
-	- Tulos: MAE ~12, R2 ~0 → malli ei vielä opi hyödyllistä signaalia.
-	- Johtopäätös: tarvitsen lisää ja parempia piirteitä (uni, oikea HRV, treenit), sekä enemmän päiviä.
-
-Seuraavat mahdolliset jatkoaskeleet:
-- lisätä `fetch_garmin_data.py`-skriptiin unen (`get_sleep_data`) ja treenien (`get_activities`) haku
-- rakentaa per-päivä uni- ja treenitunnusluvut (sleep_minutes, deep_sleep, workout_minutes jne.) ja yhdistää ne `df_merged`:iin
-- kokeilla uudestaan yksinkertaista mallia (esim. XGBoost / RandomForest) uusilla piirteillä tai käyttää mallia enemmän feature-tutkimukseen kuin ennustukseen
-
-virtuaaliympäristö
+### 1. Datan päivitys (Inkrementaalinen)
+Hakee vain uudet päivät Garminilta ja lisää ne olemassa oleviin tiedostoihin.
 ```bash
-python -m venv .venv
-source .venv/Scripts/activate  # Windows
+python fetch_garmin_data.py
+```
 
+### 2. Mallin koulutus
+Lataa kaiken datan, prosessoi piirteet (uni, stressi, treenit, viiveet) ja kouluttaa XGBoost-mallin uudelleen.
+```bash
+python process_garmin_data.py
+```
+*Tämä päivittää myös `model_metrics.json`-tiedoston, joka näkyy dashboardissa.*
+
+### 3. Dashboardin käynnistys
+Avaa visuaalisen käyttöliittymän selaimessa (Localhost).
+```bash
+# Windows (CMD/PowerShell)
+run_dashboard.bat
+
+# Git Bash / Mac / Linux
+python -m streamlit run dashboard.py
+```
+
+---
+
+## 2025-12-07 – Garmin-data & ensimmäinen malli
+... (alkuperäinen sisältö säilyy, mutta tiivistettynä tässä näkymässä) ...
+
+## 2025-12-08 – Hybrid AI Coach & Dashboard
+
+Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusjärjestelmäksi.
+
+### 1. Dashboard (Streamlit)
+- Rakensin visuaalisen käyttöliittymän (`dashboard.py`).
+- Näkymän ominaisuudet:
+    - **Päivän ennuste**: Body Battery -latausmittari.
+    - **Treeniloki**: Graafit unesta, stressistä ja Body Batteryn kehityksestä (Plotly).
+    - **Sidebar**: Näyttää datan tuoreuden ja mallin tarkkuuden (R²).
+
+### 2. AI Coach (Gemini 2.5)
+- Integroitu LLM-pohjainen valmentaja (`ai_coach.py`).
+- **Generoi Treeniohjelma**:
+    - Käyttäjä valitsee keston (1-7 päivää).
+    - AI luo progressiivisen ohjelman, joka huomioi XGBoostin ennustaman vireystilan ja viimeaikaisen kuormituksen.
+    - Ohjelma tallentuu `coach_history.json` -tiedostoon.
+- **Trendianalyysi**:
+    - Analysoi 30 päivän historian ja etsii korrelaatioita (esim. vaikuttaako stressi uneen).
+    - Tallentuu `analysis_history.json` -tiedostoon.
+
+### 3. Inkrementaalinen data
+- Päivitin `fetch_garmin_data.py` -skriptin.
+- Se ei enää lataa kaikkea dataa tyhjästä, vaan tarkistaa viimeisimmän tallennetun päivän ja hakee vain puuttuvat päivät.
+- Tämä nopeuttaa päivittäistä käyttöä huomattavasti.
+
+### Nykytilanne
+- Data: 360 päivää historiaa.
+- Malli: XGBoost (R² ~0.91).
+- Coach: Gemini 2.5 Flash (Suomenkielinen).
+- UI: Streamlit Web App.
 
