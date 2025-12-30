@@ -1,6 +1,11 @@
 # 🚀 Quick Start
 Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
 
+```
+source .venv/Scripts/activate
+```
+
+
 ### 1. Datan päivitys (Inkrementaalinen)
 Hakee vain uudet päivät Garminilta ja lisää ne olemassa oleviin tiedostoihin.
 ```bash
@@ -61,3 +66,18 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
 - Coach: Gemini 2.5 Flash (Suomenkielinen).
 - UI: Streamlit Web App.
 
+
+### Joulukuu 8. - "The Great Restoration & Upgrade" 🛠️
+*   **Kriisi:** Tärkeät tiedostot poistuivat vahingossa.
+*   **Ratkaisu:** Palautimme kaiken (`dashboard.py`, `process_garmin_data.py`, jne.) "muistista" ja välimuistista.
+*   **Päivitys (Model 2.0):**
+    *   Malli rakennettiin uudelleen tyhjästä paremmaksi.
+    *   Lisätty **Cross-Validation (TimeSeriesSplit)** ja **GridSearchCV**.
+    *   Tulos: **R² 0.83** (MAE 3.80). Tämä on tieteellisesti validimpi kuin aiempi "haamu-0.91".
+    *   **Feature Importance:** Tunnistettu tärkeimmät tekijät: `bodyBatteryHighestValue`, `bodyBatteryDuringSleep`.
+*   **Dashboard:**
+    *   Nimetty uudelleen: *"Sami's AI Coach"* 🏃
+    *   Korjattu "loading state" -jumitus `st.empty()` ja `try-except` -logiikalla.
+    *   Historiatrendit palautettu ja varmistettu.
+
+Järjestelmä on nyt vakaampi kuin koskaan. "Lessons learned": Parempi versionhallinta (Git) olisi estänyt sydämentykytykset!

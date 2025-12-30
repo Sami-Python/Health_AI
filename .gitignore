@@ -8,4 +8,5 @@ data/
 outputs/
 logs/
 .vscode/
+*.csv
 .venv

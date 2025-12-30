@@ -7,7 +7,7 @@ from predict_readiness import predict_latest
 from ai_coach import generate_coach_advice, generate_trend_analysis
 
 # --- Configuration & Styles ---
-st.set_page_config(page_title="Garmin AI Coach", page_icon="🏃", layout="wide")
+st.set_page_config(page_title="Sami's AI Coach", page_icon="🏃", layout="wide")
 
 st.markdown("""
 <style>
@@ -96,7 +96,7 @@ st.sidebar.info("Model is updated manually via terminal.")
 
 # --- Main App ---
 
-st.title("🏃 Garmin AI Coach")
+st.title("🏃 Sami's AI Coach")
 st.caption("Data-Driven Recovery & Performance Optimization")
 
 # 1. Predict Today
