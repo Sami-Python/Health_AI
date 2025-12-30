@@ -80,4 +80,22 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
     *   Korjattu "loading state" -jumitus `st.empty()` ja `try-except` -logiikalla.
     *   Historiatrendit palautettu ja varmistettu.
 
-Järjestelmä on nyt vakaampi kuin koskaan. "Lessons learned": Parempi versionhallinta (Git) olisi estänyt sydämentykytykset!
+
+## 2025-12-30 – Mallin päivitys ja analyysi
+
+### Mallin tarkkuus
+- **MAE (Mean Absolute Error):** 3.39
+- **R² (Selitysaste):** 0.86
+
+### Laatu ja Tulokset
+Malli on tällä hetkellä erittäin laadukas. R²-arvo 0.86 tarkoittaa, että malli pystyy selittämään 86% Body Batteryn vaihtelusta, mikä on korkea luku fysiologiselle datalle. Keskimääräinen virhe (MAE) on vain n. 3.4 yksikköä.
+
+Kuvista näemme:
+1.  **Merkittävimmät tekijät:** Uusi `poor_night_flag` (huono yöuni) nousi heti tärkeimmäksi muuttujaksi. Tämä kertoo, että unen laadun raja-arvo (< 45 pistettä) on kriittinen päivän vireystilalle.
+2.  **Ennustekyky:** Pisteparvivisualisointi osoittaa, että ennusteet seuraavat todellisia arvoja tiiviisti lineaarisesti.
+
+![Feature Importance](Health_AI/outputs/feature_importance.png)
+*(Mitkä tekijät vaikuttavat eniten)*
+
+![Model Performance](Health_AI/outputs/model_performance.png)
+*(Ennuste vs Todellinen - mitä lähempänä punaista viivaa pisteet ovat, sen parempi)*

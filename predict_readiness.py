@@ -61,5 +61,6 @@ def predict_latest():
         "recent_load": float(latest_row['workout_calories_roll_7d'].values[0]) if 'workout_calories_roll_7d' in latest_row else 0,
         "yesterday_steps": float(latest_row['totalSteps_lag_1'].values[0]) if 'totalSteps_lag_1' in latest_row else 0,
         "yesterday_charge": float(latest_row['bodyBatteryChargedValue_lag_1'].values[0]) if 'bodyBatteryChargedValue_lag_1' in latest_row else 0,
+        "poor_night_flag": int(latest_row['poor_night_flag'].values[0]) if 'poor_night_flag' in latest_row else 0,
     }
     return context

@@ -6,6 +6,8 @@ import joblib
 import json
 import os
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def main_process():
     print("Loading data...")
@@ -20,6 +22,12 @@ def main_process():
     # --- Preprocessing ---
     # Convert dates
     df_summary['date'] = pd.to_datetime(df_summary['date'])
+
+    # Feature Engineering: Poor Night Flag
+    if 'bodyBatteryDuringSleep' in df_summary.columns:
+        df_summary['poor_night_flag'] = (df_summary['bodyBatteryDuringSleep'] < 45).astype(int)
+    else:
+        df_summary['poor_night_flag'] = 0
     
     # Consolidate Sleep (handle differing column names from API)
     if 'calendarDate' in df_sleep.columns:
@@ -149,6 +157,29 @@ def main_process():
         json.dump(metrics, f)
     
     print("Model and metrics saved.")
+
+    # --- Plotting & Saving Images ---
+    # 1. Feature Importance Plot
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
+    plt.title('Top 10 Feature Importance')
+    plt.xlabel('Importance')
+    plt.tight_layout()
+    plt.savefig('Health_AI/outputs/feature_importance.png')
+    plt.close()
+
+    # 2. Prediction vs Actual Plot (Scatter)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(y_test, preds, alpha=0.5)
+    plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
+    plt.xlabel('Actual')
+    plt.ylabel('Predicted')
+    plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
+    plt.tight_layout()
+    plt.savefig('Health_AI/outputs/model_performance.png')
+    plt.close()
+
+    print("Plots saved to Health_AI/outputs/")
 
 if __name__ == "__main__":
     main_process()

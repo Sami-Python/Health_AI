@@ -4,7 +4,16 @@ import plotly.express as px
 import os
 import json
 from predict_readiness import predict_latest
+from predict_readiness import predict_latest
+from predict_readiness import predict_latest
 from ai_coach import generate_coach_advice, generate_trend_analysis
+import db_manager # New DB Manager
+import fetch_garmin_data
+import process_garmin_data
+import time
+
+# Initialize DB
+db_manager.init_db()
 
 # --- Configuration & Styles ---
 st.set_page_config(page_title="Sami's AI Coach", page_icon="🏃", layout="wide")
@@ -87,6 +96,22 @@ else:
     st.sidebar.warning("Model metrics not found.")
 
 st.sidebar.divider()
+st.sidebar.subheader("🚀 Actions")
+if st.sidebar.button("🔄 Päivitä Data"):
+    with st.spinner("Haetaan uutta dataa Garminilta..."):
+        try:
+            fetch_garmin_data.main()
+            st.success("Data haettu!")
+            
+            with st.spinner("Koulutetaan mallia & analysoidaan..."):
+                process_garmin_data.main_process()
+                st.success("Malli on koulutettu!")
+                time.sleep(1)
+                st.rerun()
+        except Exception as e:
+            st.error(f"Virhe päivityksessä: {e}")
+
+st.sidebar.divider()
 st.sidebar.subheader("🧠 Active Models")
 st.sidebar.markdown("**Recovery Prediction:** `XGBoost (Gradient Boosting Regressor)`")
 st.sidebar.markdown("**Coach & Trends:** `Gemini 2.5 Flash`")
@@ -112,7 +137,7 @@ ctx = st.session_state.prediction_context
 
 if ctx:
     # --- Top Metrics Row ---
-    c1, c2, c3 = st.columns(3)
+    c1, c2, c3, c4 = st.columns(4)
     
     # Body Battery Gauge
     bb_val = ctx['predicted_charge']
@@ -143,6 +168,17 @@ if ctx:
             <div class="metric-value">{load_7d:.0f} kcal</div>
         </div>
         """, unsafe_allow_html=True)
+
+    with c4:
+        is_poor = ctx.get('poor_night_flag', 0) == 1
+        status_text = "POOR" if is_poor else "OK"
+        status_color = "#F44336" if is_poor else "#4CAF50"
+        st.markdown(f"""
+        <div class="metric-card" style="border: 2px solid {status_color}" title="Kertoo putosiko Body Battery yön aikana alle 45.">
+            <div class="metric-label">Night Quality</div>
+            <div class="metric-value" style="color: {status_color}">{status_text}</div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # --- Detail Expander ---
     with st.expander("ℹ️ Mihin ennuste (52) perustuu?"):
@@ -161,23 +197,18 @@ if ctx:
         # Duration Selection
         n_days = st.slider("Suunnitelman kesto (päiviä)", 1, 7, 1, help="Valitse kuinka monelle päivälle haluat treeniohjelman.")
         
-        # Load existing coach advice
-        coach_file = "coach_history.json"
+        # Load existing coach advice from DB
         cached_advice = ""
-        if os.path.exists(coach_file):
-            with open(coach_file, "r") as f:
-                try:
-                    cached_advice = json.load(f).get("content", "")
-                except:
-                    pass
+        latest_plan = db_manager.get_latest_plan()
+        if latest_plan:
+            cached_advice = latest_plan.get("content", "")
 
         if st.button("Generoi Treeniohjelma"):
             with st.spinner(f"Coach is thinking... (Generoidaan {n_days} pv suunnitelma)"):
                 advice = generate_coach_advice(ctx, n_days=n_days)
                 
-                # Save
-                with open(coach_file, "w") as f:
-                    json.dump({"content": advice, "date": str(pd.Timestamp.now())}, f)
+                # Save to DB
+                db_manager.save_plan(ctx, advice)
                 
                 st.success("Plan Generated!")
                 st.markdown(advice)
@@ -205,7 +236,7 @@ if not df.empty:
     try:
         df_recent = df.sort_values('date').tail(30)
         
-        tab1, tab2 = st.tabs(["Recovery & Sleep", "Activity Impact"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Recovery & Sleep", "Activity Impact", "🔬 Model Analysis", "📜 Valmennushistoria"])
         
         with tab1:
             plot_df = df_recent.copy()
@@ -247,6 +278,63 @@ if not df.empty:
                 legend=dict(font=dict(size=14))
             )
             st.plotly_chart(fig2, use_container_width=True)
+
+            # Duplicate chart removed
+
+        with tab3:
+            st.markdown("### 🔬 Mallin Analyysi")
+            st.markdown("Nämä kuvaajat kertovat, mihin mallin ennusteet perustuvat ja kuinka tarkkoja ne ovat.")
+            
+            mc1, mc2 = st.columns(2)
+            
+            with mc1:
+                if os.path.exists("Health_AI/outputs/feature_importance.png"):
+                    st.image("Health_AI/outputs/feature_importance.png", caption="Feature Importance (Mitkä asiat vaikuttavat eniten?)", use_container_width=True)
+                else:
+                    st.warning("Feature importance image not found.")
+                    
+            with mc2:
+                 if os.path.exists("Health_AI/outputs/model_performance.png"):
+                    st.image("Health_AI/outputs/model_performance.png", caption="Ennuste (Y) vs Todellinen (X)", use_container_width=True)
+                 else:
+                    st.warning("Model performance image not found.")
+        
+        with tab4:
+             st.markdown("### 📜 Aiemmat Valmennusohjelmat")
+             history = db_manager.get_recent_plans(limit=10)
+             
+             if not history:
+                 st.info("Ei aiempaa historiaa.")
+             
+             for plan in history:
+                 with st.container():
+                     # Parse timestamp nicely
+                     ts_str = str(plan['timestamp']).split('.')[0]
+                     st.markdown(f"**📅 {ts_str}** | Ennuste: `{plan['charge']}`")
+                     
+                     with st.expander("Avaa ohjelma", expanded=False):
+                         st.info(plan['advice'])
+                     
+                     # Status actions
+                     status = plan.get('status', 'PENDING')
+                     
+                     # Check if status is None (legacy data)
+                     if status is None: 
+                         status = 'PENDING'
+
+                     if status == 'PENDING':
+                         c_h1, c_h2, c_h3 = st.columns([1, 1, 3])
+                         if c_h1.button("✅ Tehty", key=f"done_{plan['id']}"):
+                             db_manager.update_plan_status(plan['id'], "DONE")
+                             st.rerun()
+                         if c_h2.button("⏭️ Väliin", key=f"skip_{plan['id']}"):
+                              db_manager.update_plan_status(plan['id'], "SKIPPED")
+                              st.rerun()
+                     else:
+                         color = "green" if status == "DONE" else "orange"
+                         st.markdown(f"Status: **:{color}[{status}]**")
+                     
+                     st.divider()
             
     except Exception as e:
         st.error(f"Virhe grafiikan piirrossa: {e}")

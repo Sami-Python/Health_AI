@@ -17,6 +17,7 @@ def construct_prompt(ctx):
     - Uniscore: {ctx['sleep_score']}
     - Eilisen stressitaso: {ctx['yesterday_stress']}
     - Viimeaikaie kuormitus (7pv keskiarvo): {ctx['recent_load']:.0f}
+    - Huono yö (BodyBattery < 45 yöllä): {'KYLLÄ' if ctx.get('poor_night_flag') == 1 else 'EI'}
     
     Tulkintaohje:
     - Charge < 40: Heikko palautuminen -> Suosittele lepoa tai aktiivista palautumista.

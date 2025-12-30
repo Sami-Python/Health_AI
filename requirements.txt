@@ -8,3 +8,7 @@ ipykernel
 google-generativeai
 
 
+
+shap
+seaborn
+duckdb
