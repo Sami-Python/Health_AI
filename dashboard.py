@@ -51,7 +51,7 @@ st.markdown("""
 @st.cache_data
 def load_historical_data():
     try:
-        df = pd.read_csv("garmin_merged_features.csv")
+        df = pd.read_csv("Health_AI/data/garmin_merged_features.csv")
         df['date'] = pd.to_datetime(df['date'])
         return df
     except FileNotFoundError:
@@ -296,4 +296,4 @@ if not df.empty:
         else:
             st.info("Ei tallennettua analyysiä. Paina nappia generoidaksesi.")
 else:
-    st.error("Ei historia-dataa saatavilla (garmin_merged_features.csv). Aja 'process_garmin_data.py' ensin.")
+    st.error("Ei historia-dataa saatavilla (Health_AI/data/garmin_merged_features.csv). Aja 'process_garmin_data.py' ensin.")

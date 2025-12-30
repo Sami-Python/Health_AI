@@ -10,9 +10,9 @@ import numpy as np
 def main_process():
     print("Loading data...")
     try:
-        df_summary = pd.read_csv("garmin_daily_summary.csv")
-        df_sleep = pd.read_csv("garmin_sleep_data.csv")
-        df_activities = pd.read_csv("garmin_activities.csv")
+        df_summary = pd.read_csv("Health_AI/data/garmin_daily_summary.csv")
+        df_sleep = pd.read_csv("Health_AI/data/garmin_sleep_data.csv")
+        df_activities = pd.read_csv("Health_AI/data/garmin_activities.csv")
     except FileNotFoundError as e:
         print(f"Error: Missing data file. {e}")
         return
@@ -74,7 +74,7 @@ def main_process():
     df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
     
     # Save Features
-    df_merged.to_csv("garmin_merged_features.csv", index=False)
+    df_merged.to_csv("Health_AI/data/garmin_merged_features.csv", index=False)
     print("Saved merged features.")
 
     # --- Training with GridSearchCV & Cross-Validation ---
@@ -123,7 +123,7 @@ def main_process():
     print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}")
 
     # Save Model
-    joblib.dump(best_model, "xgb_model.pkl")
+    joblib.dump(best_model, "Health_AI/models/xgb_model.pkl")
     
     # --- Feature Importance ---
     importance = best_model.feature_importances_

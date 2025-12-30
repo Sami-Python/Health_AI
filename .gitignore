@@ -9,4 +9,5 @@ outputs/
 logs/
 .vscode/
 *.csv
+*.pkl
 .venv

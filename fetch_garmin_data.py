@@ -159,7 +159,7 @@ def main():
     client = get_garmin_client()
 
     today = date.today()
-    last_sync = get_latest_date("garmin_daily_summary.csv")
+    last_sync = get_latest_date("Health_AI/data/garmin_daily_summary.csv")
     
     if last_sync:
         start = last_sync + timedelta(days=1)
@@ -174,21 +174,21 @@ def main():
 
     # 1. Summary
     df_summary = fetch_daily_summary(client, start, today)
-    update_csv(df_summary, "garmin_daily_summary.csv")
+    update_csv(df_summary, "Health_AI/data/garmin_daily_summary.csv")
 
     # 2. HR
     df_hr = fetch_daily_heart_rate(client, start, today)
-    update_csv(df_hr, "garmin_hr_timeseries.csv")
+    update_csv(df_hr, "Health_AI/data/garmin_hr_timeseries.csv")
 
     # 3. Sleep
     df_sleep = fetch_sleep_data(client, start, today)
-    update_csv(df_sleep, "garmin_sleep_data.csv")
+    update_csv(df_sleep, "Health_AI/data/garmin_sleep_data.csv")
 
     # 4. Activities
     df_activities = fetch_activities(client, start, today)
     # Use 'activityId' as key if available, else 'date' (fallback)
     key = 'activityId' if (df_activities is not None and 'activityId' in df_activities.columns) else 'date'
-    update_csv(df_activities, "garmin_activities.csv", key_col=key)
+    update_csv(df_activities, "Health_AI/data/garmin_activities.csv", key_col=key)
 
 if __name__ == "__main__":
     main()

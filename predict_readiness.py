@@ -6,13 +6,13 @@ from datetime import timedelta
 def predict_latest():
     # 1. Load Model
     try:
-        model = joblib.load("xgb_model.pkl")
+        model = joblib.load("Health_AI/models/xgb_model.pkl")
     except:
         return None
 
     # 2. Load latest features
     try:
-        df = pd.read_csv("garmin_merged_features.csv")
+        df = pd.read_csv("Health_AI/data/garmin_merged_features.csv")
     except:
         return None
     
