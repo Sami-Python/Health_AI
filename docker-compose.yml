@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app       # Hot reload code
-      - ./:/data             # Access to health_ai.db in root (mounted to /data)
+      - ./:/data             # Access to health_ai.db (still needed briefly?)
     environment:
       - DB_FILE_PATH=/data/health_ai.db
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service_account_key.json

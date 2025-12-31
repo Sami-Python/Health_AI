@@ -13,3 +13,4 @@ logs/
 .venv
 .png
 
+backend/service_account_key.json

@@ -163,7 +163,10 @@ Aloitettiin sovelluksen modernisointi kohti skaalautuvaa arkkitehtuuria.
 - **Frontend/Backend jako:** Eriytettiin logiikka erilliseen `backend/` -sovellukseen (FastAPI).
 - **Docker:** Backend on kontitettu ja ajetaan `docker-compose`:n avulla.
 - **Hybrid Database:** Päätettiin pysyä vielä DuckDB:ssä, mutta backend lukee sitä jaetun Docker-volumen kautta (`/data/health_ai.db`).
-- **Dashboard:** Etusivun näkymät (Seuraava treeni, Viikkokuorma) hakevat nyt datan API:n kautta (`api_client.py`).
+- **Dashboard:** Etusivun näkymät (Seuraava treeni, Viikkokuorma, Aktiiviset Tavoitteet) hakevat nyt datan **Firestoresta** API:n kautta.
+- **Security:** Lisätty Rate Limiting (`slowapi`) ja Service Account Key -hallinta.
+
+Projekti on nyt "Hybrid Cloud" -tilassa: Kriittinen uusi data (Tavoitteet) on pilvessä, vanha data (Treenihistoria) on lokaalisti. 🌩️🏠
 
 Tämä mahdollistaa tulevaisuudessa Frontendin vaihtamisen (esim. React/Mobiili) ilman, että logiikkaan tarvitsee koskea.
 
