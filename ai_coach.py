@@ -7,63 +7,89 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
 
-def construct_prompt(ctx):
+def construct_prompt(ctx, compliance_history="", preference_feedback=""):
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
     Urheilijan tilanne tänään ({ctx['date']}):
     - Ennustettu valmius (Body Battery): {ctx['predicted_charge']:.0f}/100
     - Unen kesto: {ctx['sleep_hours']:.1f} tuntia
-    - Uniscore: {ctx['sleep_score']}
-    - Eilisen stressitaso: {ctx['yesterday_stress']}
     - Viimeaikaie kuormitus (7pv keskiarvo): {ctx['recent_load']:.0f}
-    - Huono yö (BodyBattery < 45 yöllä): {'KYLLÄ' if ctx.get('poor_night_flag') == 1 else 'EI'}
-    
-    Tulkintaohje:
-    - Charge < 40: Heikko palautuminen -> Suosittele lepoa tai aktiivista palautumista.
-    - Charge 40-70: Kohtalainen -> PK-lenkki tai ylläpitävä treeni.
-    - Charge > 70: Hyvä -> Vihreä valo koville tehoille (intervallit/voima).
+    - Viime aikojen toteutus: {compliance_history}
+    - Palautteet: {preference_feedback}
     
     Tehtävä:
-    Kirjoita ytimekäs ja motivoiva treenisuunnitelma tälle päivälle suomeksi.
-    1. Analysoi palautumisen tila yhdellä lauseella.
-    2. Määrää päivän treeni (Laji, Kesto, Teho).
-    3. Anna yksi ravinto- tai elämäntapavinkki tälle päivälle.
-    """
-
-def construct_multi_day_prompt(ctx, n_days):
-    return f"""
-    Olet huippu-urheiluun erikoistunut valmentaja.
+    Luo tarkka ja ammattimainen treenisuunnitelma tälle päivälle JSON-muodossa.
     
-    Urheilijan lähtötilanne (Päivä 1):
-    - Body Battery: {ctx['predicted_charge']:.0f}/100
-    - Viimeaikaie kuormitus: {ctx['recent_load']:.0f}
-    
-    Tehtävä:
-    Luo progressiivinen treenisuunnitelma seuraavalle {n_days} päivälle.
-    Lähtötaso (Päivä 1) määrää ensimmäisen päivän, ja siitä eteenpäin ohjelman tulisi olla järkevästi jaksotettu (rasitus ja lepo).
-    
-    Format:
-    Päivä 1: [Treeni] - [Perustelu]
-    Päivä 2: [Treeni]
-    ...
+    Format (JSON):
+    [
+        {{
+            "day": 1,
+            "activity": "Laji (esim. Juoksu)",
+            "description": "Treenin tavoite",
+            "structure_summary": "ERITTÄIN LYHYT kaava (Max 15 sanaa). Esim: '10min VR + 40min PK + 5min VR'",
+            "detailed_steps": [
+                "Alkulämmittely: 10min ...",
+                "Työosuus: 40min ...",
+                "Loppuverryttely: 5min ..."
+            ],
+            "tips": "Vinkki"
+        }}
+    ]
     
     Kieli: Suomi.
     """
 
-def generate_coach_advice(context, n_days=1):
+def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_feedback=""):
+    return f"""
+    Olet huippu-urheiluun erikoistunut valmentaja.
+    
+    Urheilijan lähtötilanne:
+    - Body Battery: {ctx['predicted_charge']:.0f}/100
+    - Kuormitus: {ctx['recent_load']:.0f}
+    - Viime aikojen toteutus: {compliance_history}
+    - Palautteet: {preference_feedback}
+    
+    Tehtävä:
+    Luo progressiivinen ja YKSITYISKOHTAINEN treenisuunnitelma {n_days} päivälle JSON-muodossa.
+    
+    Format (JSON):
+    [
+        {{
+            "day": 1,
+            "activity": "Laji",
+            "description": "Lyhyt kuvaus tavoitteesta",
+            "structure_summary": "ERITTÄIN LYHYT kaava (Max 15 sanaa). Esim: '4x4min VK2'",
+            "detailed_steps": [
+                "Alkulämmittely: ...",
+                "Työosuus: ...",
+                "Loppuverryttely: ..."
+            ],
+            "tips": "Vinkki"
+        }},
+        {{
+            "day": 2,
+            ...
+        }}
+    ]
+    
+    Kieli: Suomi.
+    """
+
+def generate_coach_advice(context, n_days=1, compliance_history=""):
     """Generates advice using Gemini."""
     if not api_key:
         return "Error: No API Key found in .env file."
 
     print(f"Calling Gemini Coach (Days: {n_days})...")
     genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    # Using response_mime_type to enforce JSON
+    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
     
     if n_days > 1:
-        prompt = construct_multi_day_prompt(context, n_days)
+        prompt = construct_multi_day_prompt(context, n_days, compliance_history)
     else:
-        prompt = construct_prompt(context)
+        prompt = construct_prompt(context, compliance_history)
     
     try:
         response = model.generate_content(prompt)

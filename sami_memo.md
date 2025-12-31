@@ -26,7 +26,7 @@ Avaa visuaalisen käyttöliittymän selaimessa (Localhost).
 run_dashboard.bat
 
 # Git Bash / Mac / Linux
-python -m streamlit run dashboard.py
+streamlit run dashboard.py
 ```
 
 ---

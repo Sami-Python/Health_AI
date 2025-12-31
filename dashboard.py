@@ -11,52 +11,128 @@ import db_manager # New DB Manager
 import fetch_garmin_data
 import process_garmin_data
 import time
+from streamlit_calendar import calendar # New Calendar
+import base64
 
 # Initialize DB
 db_manager.init_db()
 
 # --- Configuration & Styles ---
-st.set_page_config(page_title="Sami's AI Coach", page_icon="🏃", layout="wide")
+st.set_page_config(page_title="Personal AI Coach", page_icon="🏃", layout="wide")
 
 st.markdown("""
 <style>
+    /* Global Variables & Fonts */
+    :root {
+        --primary-color: #4CAF50;
+        --secondary-color: #262730;
+        /* Light theme friendly colors */
+        --card-bg: #ffffff; 
+        --card-border: #f0f2f6;
+        --text-color: #31333F;
+        --subtext-color: #555;
+    }
+
+    /* Metric Cards (Top Row) */
     .metric-card {
-        background-color: #262730;
+        background: var(--card-bg);
         padding: 20px;
-        border-radius: 10px;
-        text_align: center;
+        border-radius: 12px;
+        text-align: center;
         margin-bottom: 20px;
+        border: 1px solid var(--card-border);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Softer shadow */
+        transition: transform 0.2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     .metric-value {
-        font-size: 36px;
-        font-weight: bold;
-        color: white;
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--text-color); /* Dark text */
+        margin-top: 5px;
     }
     .metric-label {
-        font-size: 14px;
-        color: #b0b0b0;
+        font-size: 13px;
+        color: #888;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
+        font-weight: 600;
     }
-    /* Sidebar Text Size Increase */
-    [data-testid="stSidebar"] {
-        font_size: 1.2rem;
-    }
-    [data-testid="stSidebar"] .stMarkdown p {
-        font-size: 1.1rem !important;
-    }
+
+    /* Sidebar & Text */
+    /* Removed manual sidebar styling to respect user theme preferences */
+    
+    /* Modern Buttons */
     .stButton>button {
         width: 100%;
-        background-color: #FF4B4B;
-        color: white;
-        height: 60px;
-        font-size: 20px;
-        border-radius: 10px;
+        border-radius: 8px;
+        height: 50px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+    }
+    .stButton>button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    /* Workout Cards (HTML Containers) */
+    .workout-card {
+        background: var(--card-bg);
+        border-radius: 16px; 
+        padding: 20px; 
+        margin-bottom: 15px;
+        border: 1px solid var(--card-border);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .workout-card h4 {
+        margin-top: 0;
+        font-weight: 700;
+        color: var(--text-color);
+    }
+    .structure-box {
+        background-color: #f8f9fa; 
+        padding: 12px; 
+        border-radius: 8px; 
+        margin: 10px 0;
+        border-left: 3px solid #4CAF50;
     }
 </style>
 """, unsafe_allow_html=True)
 
+
+
+
+
 # --- Helper Functions ---
+@st.cache_data
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+def add_bg_from_local(image_file):
+    try:
+        bin_str = get_base64_of_bin_file(image_file)
+        page_bg_img = f"""
+        <style>
+        .stApp {{
+            /* Linear gradient overlay to make it lighter/faded */
+            background-image: linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url("data:image/png;base64,{bin_str}");
+            background-size: cover;
+            background-position: center top 50px; /* Moved up from 200px */
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        </style>
+        """
+        st.markdown(page_bg_img, unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass # Fail silently if image not found
+
 @st.cache_data
 def load_historical_data():
     try:
@@ -72,6 +148,9 @@ def load_metrics():
             return json.load(f)
     except FileNotFoundError:
         return None
+
+# Add background image
+add_bg_from_local("Health_AI/data/pictures/web_tausta.png")
 
 # --- Load Data Early for Sidebar Info ---
 df = load_historical_data()
@@ -121,7 +200,11 @@ st.sidebar.info("Model is updated manually via terminal.")
 
 # --- Main App ---
 
-st.title("🏃 Sami's AI Coach")
+# Side bar
+# ... (omitted)
+
+# Main Title
+st.markdown("<h1 style='text-align: left; color: #333;'>🏃 Personal AI Coach</h1>", unsafe_allow_html=True)
 st.caption("Data-Driven Recovery & Performance Optimization")
 
 # 1. Predict Today
@@ -191,33 +274,177 @@ if ctx:
         st.caption("*Luku 52 on mallin arvio siitä, kuinka paljon Body Battery latautuu näillä lähtötiedoilla.*")
 
     # --- AI Coach Section ---
-    with st.expander("🤖 Coach Advice (Treeniohjelma)", expanded=True):
+    st.divider()
+    
+    coach_tab1, coach_tab2 = st.tabs(["📋 Nykyinen ohjelma", "📅 Kalenteri"])
+    
+    with coach_tab1:
         st.markdown("### 🏃 Päivän Treeniohjelma")
         
         # Duration Selection
         n_days = st.slider("Suunnitelman kesto (päiviä)", 1, 7, 1, help="Valitse kuinka monelle päivälle haluat treeniohjelman.")
         
         # Load existing coach advice from DB
-        cached_advice = ""
         latest_plan = db_manager.get_latest_plan()
-        if latest_plan:
-            cached_advice = latest_plan.get("content", "")
-
+        
         if st.button("Generoi Treeniohjelma"):
             with st.spinner(f"Coach is thinking... (Generoidaan {n_days} pv suunnitelma)"):
-                advice = generate_coach_advice(ctx, n_days=n_days)
+                # Fetch compliance history for context
+                compliance_history = db_manager.get_compliance_stats()
                 
-                # Save to DB
-                db_manager.save_plan(ctx, advice)
+                # Generate advice (now returns JSON string)
+                advice_json_str = generate_coach_advice(ctx, n_days=n_days, compliance_history=compliance_history)
                 
-                st.success("Plan Generated!")
-                st.markdown(advice)
-                cached_advice = advice # Update view immediately
-        
-        # Display existing if available (and not just generated to avoid dupes, logic handles via variable)
-        elif cached_advice:
-            st.info("💡 Viimeisin ohjelma:")
-            st.markdown(cached_advice)
+                try:
+                    # Clean up JSON string if it contains markdown formatting
+                    clean_json = advice_json_str.replace("```json", "").replace("```", "").strip()
+                    advice_data = json.loads(clean_json)
+                    
+                    # Convert back to string for legacy storage/display if needed, but we rely on daily_workouts now
+                    advice_text = "Tarkastele päiväkohtaisia treenejä."
+                    
+                    # Save Plan & Daily Workouts
+                    plan_id = db_manager.save_plan(ctx, advice_text)
+                    db_manager.save_daily_workouts(plan_id, advice_data)
+                    
+                    st.success("Ohjelma luotu! Katso alta.")
+                    st.rerun()
+                    
+                except json.JSONDecodeError:
+                    st.error("Virhe tekoälyn vastauksen käsittelyssä. Yritä uudelleen.")
+                    st.text(advice_json_str) # Debug view
+
+        # Display latest plan workouts
+        if latest_plan:
+            workouts = db_manager.get_plan_workouts(latest_plan['id'])
+            
+            if not workouts:
+                # Fallback for old plans without granular workouts
+                st.info("💡 Vanha tekstimuotoinen ohjelma:")
+                st.markdown(latest_plan['content'])
+            else:
+                st.markdown(f"**📅 Luotu:** {latest_plan['date']}")
+                
+                for w in workouts:
+                    content = w['content']
+                    day_num = content.get('day', w['day'])
+                    activity = content.get('activity', 'Treeni')
+                    desc = content.get('description', '')
+                    
+                    # Handle new vs old structure fields
+                    # Old: 'structure' (single string)
+                    # New: 'structure_summary' (string) + 'detailed_steps' (list)
+                    
+                    structure_summary = content.get('structure_summary', content.get('structure', ''))
+                    detailed_steps = content.get('detailed_steps', [])
+                    
+                    # Fallback if detailed_steps is empty but we have old structure string
+                    if not detailed_steps and content.get('structure'):
+                        detailed_steps = [content.get('structure')]
+
+                    tips = content.get('tips', '')
+                    status = w['status']
+                    
+                    # Determine border/bg logic for CSS only (or inline override)
+                    # We'll use the .workout-card class but inject specific border colors via inline style for status
+                    
+                    status_color = "#4CAF50" if status == "DONE" else "#EF5350" if status == "SKIPPED" else "#ddd"
+                    
+                    # NOTE: Indentation in st.markdown can be interpreted as code blocks. 
+                    # We remove indentation for the HTML string to strictly render as HTML.
+                    # Colors updated for LIGHT theme (Dark text)
+                    html_content = f"""
+<div class="workout-card" style="border-left: 5px solid {status_color};">
+<h4 style="color:#333; margin:0;">Päivä {day_num}: {activity}</h4>
+<p style="margin: 8px 0; color: #555; font-size: 1.05rem;">{desc}</p>
+<div class="structure-box">
+<span style="color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">KESTO & TEHO</span><br>
+<span style="font-weight: 500; font-size: 1.1rem; color: #000;">{structure_summary}</span>
+</div>
+</div>
+"""
+                    with st.container():
+                        st.markdown(html_content, unsafe_allow_html=True)
+                        
+                        # Detailed instructions in expander
+                        if detailed_steps:
+                            with st.expander("Tarkemmat ohjeet", expanded=False):
+                                for step in detailed_steps:
+                                    st.markdown(f"- {step}")
+                                if tips:
+                                    st.info(f"💡 Vinkki: {tips}")
+                        
+                        # Buttons for Pending
+                        if status == 'PENDING':
+                            c1, c2, c3 = st.columns([1, 1, 4])
+                            if c1.button("✅ Tehty", key=f"d_{w['id']}"):
+                                db_manager.update_workout_status(w['id'], "DONE")
+                                st.rerun()
+                            if c2.button("⏭️ Väliin", key=f"s_{w['id']}"):
+                                db_manager.update_workout_status(w['id'], "SKIPPED")
+                                st.rerun()
+                        else:
+                            st.caption(f"Status: **{status}**")
+                            
+                            # Preference UI (Only show for completed/processed items, or always? Let's show always for feedback)
+                            # But effectively we want feedback on completed items mostly.
+                            # Let's show it always below status.
+                            
+                            current_pref = w.get('preference', 0)
+                            st.write("---")
+                            
+                            # Confirmation / Thank you message
+                            if current_pref > 0:
+                                st.success("✅ Kiitos palautteesta! Tämä tieto välitetään tulevien treeniohjelmien suunnitteluun.")
+
+                            st.markdown("**Arvioi treeni (toive jatkoon):**")
+                            
+                            # 3 columns for 1, 2, 3 stars
+                            b1, b2, b3, _ = st.columns([1,1,1,3])
+                            
+                            def set_pref(wid, val):
+                                db_manager.update_workout_preference(wid, val)
+                                st.rerun()
+
+                            # Use type="primary" to highlight the selected one
+                            t1 = "primary" if current_pref == 1 else "secondary"
+                            t2 = "primary" if current_pref == 2 else "secondary"
+                            t3 = "primary" if current_pref == 3 else "secondary"
+                            
+                            lbl1 = "⭐" 
+                            lbl2 = "⭐⭐" 
+                            lbl3 = "⭐⭐⭐" 
+                            
+                            if b1.button(lbl1, key=f"p1_{w['id']}", help="Vähemmän näitä", type=t1):
+                                set_pref(w['id'], 1)
+                            if b2.button(lbl2, key=f"p2_{w['id']}", help="Neutraali / OK", type=t2):
+                                set_pref(w['id'], 2)
+                            if b3.button(lbl3, key=f"p3_{w['id']}", help="Enemmän näitä", type=t3):
+                                set_pref(w['id'], 3)
+                                
+                            if current_pref == 1:
+                                st.caption("Tallennettu: *Vähemmän näitä*")
+                            elif current_pref == 3:
+                                st.caption("Tallennettu: *Enemmän näitä!*")
+    
+    with coach_tab2:
+        st.subheader("📅 Treenikalenteri")
+        try:
+            events = db_manager.get_calendar_events()
+            
+            calendar_options = {
+                "headerToolbar": {
+                    "left": "today prev,next",
+                    "center": "title",
+                    "right": "dayGridMonth,timeGridWeek"
+                },
+                "initialView": "dayGridMonth",
+                "height": 650,
+            }
+            
+            calendar(events=events, options=calendar_options)
+        except Exception as e:
+            st.error(f"Kalenterin latausvirhe: {e}")
 
 else:
     st.warning("No prediction available. Check data files.")
@@ -279,8 +506,6 @@ if not df.empty:
             )
             st.plotly_chart(fig2, use_container_width=True)
 
-            # Duplicate chart removed
-
         with tab3:
             st.markdown("### 🔬 Mallin Analyysi")
             st.markdown("Nämä kuvaajat kertovat, mihin mallin ennusteet perustuvat ja kuinka tarkkoja ne ovat.")
@@ -313,26 +538,17 @@ if not df.empty:
                      st.markdown(f"**📅 {ts_str}** | Ennuste: `{plan['charge']}`")
                      
                      with st.expander("Avaa ohjelma", expanded=False):
-                         st.info(plan['advice'])
-                     
-                     # Status actions
-                     status = plan.get('status', 'PENDING')
-                     
-                     # Check if status is None (legacy data)
-                     if status is None: 
-                         status = 'PENDING'
-
-                     if status == 'PENDING':
-                         c_h1, c_h2, c_h3 = st.columns([1, 1, 3])
-                         if c_h1.button("✅ Tehty", key=f"done_{plan['id']}"):
-                             db_manager.update_plan_status(plan['id'], "DONE")
-                             st.rerun()
-                         if c_h2.button("⏭️ Väliin", key=f"skip_{plan['id']}"):
-                              db_manager.update_plan_status(plan['id'], "SKIPPED")
-                              st.rerun()
-                     else:
-                         color = "green" if status == "DONE" else "orange"
-                         st.markdown(f"Status: **:{color}[{status}]**")
+                         # Try to fetch granular workouts first
+                         workouts = db_manager.get_plan_workouts(plan['id'])
+                         if workouts:
+                            for w in workouts:
+                                content = w['content']
+                                activity = content.get('activity', 'Treeni')
+                                status = w['status']
+                                icon = "✅" if status == "DONE" else "⏭️" if status == "SKIPPED" else "⏳"
+                                st.markdown(f"{icon} **Päivä {w['day']}:** {activity}")
+                         else:
+                            st.info(plan['advice'])
                      
                      st.divider()
             
@@ -349,14 +565,8 @@ if not df.empty:
         st.subheader("🤖 Trendianalyysi (30 pv)")
         
         # 1. Load existing analysis
-        analysis_file = "analysis_history.json"
-        cached_analysis = ""
-        if os.path.exists(analysis_file):
-            with open(analysis_file, "r") as f:
-                try:
-                    cached_analysis = json.load(f).get("content", "")
-                except:
-                    pass
+        latest_analysis = db_manager.get_latest_analysis()
+        cached_analysis = latest_analysis['content'] if latest_analysis else ""
                     
         # 3. Generate Button (Full Width)
         if st.button("🔴 Analysoi Trendit", help="Generoi uusi analyysi (Gemini 2.5)"):
@@ -371,8 +581,7 @@ if not df.empty:
                 new_analysis = generate_trend_analysis(analysis_df)
                 
                 # Save
-                with open(analysis_file, "w") as f:
-                    json.dump({"content": new_analysis, "date": str(pd.Timestamp.now())}, f)
+                db_manager.save_analysis(new_analysis)
                 
                 cached_analysis = new_analysis
                 st.success("Analyysi valmis! Katso alta:")
