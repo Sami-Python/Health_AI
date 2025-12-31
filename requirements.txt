@@ -12,3 +12,6 @@ google-generativeai
 shap
 seaborn
 duckdb
+streamlit
+plotly
+streamlit-calendar
