@@ -1,12 +1,19 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from typing import List, Optional
-import db_manager
+import firestore_manager as db_manager # Alias to keep code changes minimal
 import json
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Health AI API", version="0.1.0")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @app.get("/")
-def read_root():
+@limiter.limit("5/minute")
+def read_root(request: Request):
     return {"message": "Health AI API is running! (DuckDB Version)"}
 
 @app.get("/health")
@@ -14,7 +21,8 @@ def health_check():
     return {"status": "ok"}
 
 @app.get("/goals")
-def get_goals():
+@limiter.limit("10/minute")
+def get_goals(request: Request):
     try:
         goals = db_manager.get_active_goals()
         return goals
@@ -22,7 +30,8 @@ def get_goals():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/next-workout")
-def get_next_workout_endpoint():
+@limiter.limit("20/minute")
+def get_next_workout_endpoint(request: Request):
     try:
         workout = db_manager.get_next_workout()
         if not workout:
@@ -32,7 +41,8 @@ def get_next_workout_endpoint():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/workouts/weekly-status")
-def get_weekly_status():
+@limiter.limit("10/minute")
+def get_weekly_status(request: Request):
     try:
         current_load, planned_load, breakdown = db_manager.get_weekly_load_status()
         return {

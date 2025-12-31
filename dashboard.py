@@ -327,10 +327,22 @@ with coach_tab0:
                 
                 st.metric("Toteutunut Kuormitus", f"{pct}%", f"{total_done} / {planned} Au")
                 st.progress(pct / 100)
-                st.caption(f"Yhteensä {total_done} kuormitusyksikköä tällä viikolla.")
+                
+             # --- Active Goals Section ---
+             st.markdown("### 🎯 Aktiiviset Tavoitteet")
+             goals = api_client.get_active_goals()
+             if goals:
+                 for g in goals:
+                     g_type = g.get('type', 'Muu')
+                     g_target = g.get('target', '?')
+                     g_desc = g.get('description', '')
+                     if 'target_value' in g: # Support Firestore field name
+                          g_target = g['target_value']
+                     
+                     st.info(f"**{g_desc}**\n\nTavoite: {g_target} ({g_type})")
              else:
-                st.caption("Ei dataa.")
-
+                 st.caption("Ei aktiivisia tavoitteita.")
+             
 with coach_tab1:
         st.markdown("### 🏃 Päivän Treeniohjelma")
         

@@ -8,14 +8,12 @@ Nykyinen Streamlit + lokaali Python-skripti ei skaalaudu.
 - [x] **Backend-valinta:** Ota käyttöön FastAPI (Python) tai Node.js API:n rakentamiseen.
 - [x] **API-suunnittelu:** Määrittele REST tai GraphQL rajapinta Fronendin käyttöön.
 - [x] **Kontitus:** Paketoi sovellus Docker-konteiksi (Backend, Frontend).
-- [ ] **Hosting:** Valmistele Kubernetes tai Cloud Run ympäristö.
+- [ ] **Hosting:** Valmistele Cloud Run tai yksinkertainen VPS (Docker Compose) ympäristö. (Riittää sadoille käyttäjille)
 
 ## 2. Tietokanta (Multi-User & Scalability)
 Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
-- [-] **DB-migraatio:** Vaihda DuckDB -> PostgreSQL. (SKIP: Pysytään toistaiseksi DuckDB:ssä "Hybridimallilla")
-- [ ] **Skaalautuvuus:** Salli satojen yhtäaikaisten yhteyksien käsittely (Connection pooling).
-- [ ] **Time-Series Data:** Harkitse InfluxDB/TimescaleDB sensoridatalle jos tarpeen.
-- [ ] **Data Isolation:** Implementoi Row-Level Security ja `user_id` jokaiseen tauluun.
+- [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Aloitettu: Home View & Goals siirretty)
+- [ ] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin.
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [ ] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
@@ -27,7 +25,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
 - [ ] **Mallien optimointi:** Vaihda kevyempään malliin (esim. Gemini Flash) rutiinitehtävissä.
 - [ ] **Välimuisti (Caching):** Implementoi vastausten välimuisti samanlaisille kyselyille.
-- [ ] **Rate Limiting:** Rajoita API-kutsujen määrää per käyttäjä väärinkäytösten estämiseksi.
+- [x] **Rate Limiting:** Rajoita API-kutsujen määrää per käyttäjä väärinkäytösten estämiseksi. (Toteutettu: slowapi)
 
 ## 5. Frontend (Käyttökokemus)
 Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
