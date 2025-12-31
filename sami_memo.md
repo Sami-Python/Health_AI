@@ -99,3 +99,38 @@ Kuvista näemme:
 
 ![Model Performance](Health_AI/outputs/model_performance.png)
 *(Ennuste vs Todellinen - mitä lähempänä punaista viivaa pisteet ovat, sen parempi)*
+
+## 2025-12-31 – UI Visuals & Calendar Uudistus 🖌️📅
+
+Tänään keskityttiin käyttöliittymän modernisointiin ja käytettävyyden parantamiseen.
+
+### 1. Kalenterinäkymä (`streamlit-calendar`)
+- Lisättiin dashboardiin uusi "Kalenteri"-välilehti.
+- Näyttää visuaalisesti tehdyt (Vihreä), väliin jätetyt (Punainen) ja tulevat treenit.
+- Mahdollistaa treenihistorian hahmottamisen yhdellä silmäyksellä.
+
+### 2. Visuaalinen ilme (UI/UX)
+- Siirryttiin "Personal AI Coach" -brändäykseen.
+- **Light Theme -ystävällinen design:**
+    - Kortit muutettu valkoisiksi pehmeillä varjoilla.
+    - Teksti tummanharmaata parhaan luettavuuden takaamiseksi.
+    - Lisätty `structure-box` -elementti, joka korostaa treenin ytimen.
+- **Taustakuva:** Lisätty `web_tausta.png` haaleana ja tyylikkäänä taustana (`linear-gradient` overlay), joka tuo sovellukseen syvyyttä ilman että se häiritsee lukemista.
+
+Sovelus tuntuu nyt paljon enemmän modernilta web-sovellukselta kuin "pelkältä databoardilta". Seuraavaksi vuorossa tavoitteiden asettaminen! 🎯
+
+### Phase 2: Intelligence & Goals (Tavoitteet & Älykkyys) 🧠🎯
+
+Illan aikana toteutettiin ja viimeisteltiin Phase 2, joka toi sovellukseen tavoitteellisuuden.
+
+**1. Tavoitteiden Asettaminen (Goal Setting):**
+- Dashboardiin lisätty "Tavoitteet"-välilehti.
+- Käyttäjä voi asettaa erityyppisiä tavoitteita: **Juoksu, Pyöräily, Uinti, Kuntosali** sekä määrällisiä tavoitteita (km/h).
+- Tavoitteet tallentuvat DuckDB-tietokantaan (`goals`-taulu).
+
+**2. Älykkyys (Intelligence Integration):**
+- **Kontekstikietoisuus:** AI Coach (Gemini) hakee nyt aktiiviset tavoitteet ennen treeniohjelman luontia.
+- **Lajikohtaisuus:** Jos tavoitteena on esim. "Pyöräily", prompti pakottaa tekoälyn painottamaan pyöräilyä treeniohjelmassa.
+- **Palautejärjestelmä:** Treenien yhteydessä annettu palaute (Enemmän/Vähemmän näitä) syötetään tekoälylle, jotta se oppii käyttäjän mieltymykset.
+
+Valmis kokonaisuus tukee nyt sekä datalähtöistä palautumista että tavoitteellista treenaamista.

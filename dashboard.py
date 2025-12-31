@@ -13,6 +13,7 @@ import process_garmin_data
 import time
 from streamlit_calendar import calendar # New Calendar
 import base64
+from datetime import datetime, timedelta
 
 # Initialize DB
 db_manager.init_db()
@@ -218,67 +219,122 @@ if 'prediction_context' not in st.session_state:
 
 ctx = st.session_state.prediction_context
 
-if ctx:
-    # --- Top Metrics Row ---
-    c1, c2, c3, c4 = st.columns(4)
-    
-    # Body Battery Gauge
-    bb_val = ctx['predicted_charge']
-    bb_color = "#4CAF50" if bb_val >= 70 else "#FF9800" if bb_val >= 40 else "#F44336" # Hex for clear green/orange/red
-    
-    with c1:
-        st.markdown(f"""
-        <div class="metric-card" style="border: 2px solid {bb_color}" title="Ennuste huomisen Body Battery -lataukselle (0-100). Perustuu uneen, stressiin ja aktiivisuuteen.">
-            <div class="metric-label">Predicted Charge</div>
-            <div class="metric-value" style="color: {bb_color}">{bb_val:.0f}</div>
-        </div>
-        """, unsafe_allow_html=True)
 
-    with c2:
-        sleep_h = ctx['sleep_hours']
-        st.markdown(f"""
-        <div class="metric-card" title="Viime yön unien kokonaiskesto tunteina.">
-            <div class="metric-label">Sleep Duration</div>
-            <div class="metric-value">{sleep_h:.1f} h</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # Metrics moved to Home Tab
 
-    with c3:
-        load_7d = ctx['recent_load']
-        st.markdown(f"""
-        <div class="metric-card" title="7 päivän keskiarvo aktiivisista kaloreista. Kertoo treenikuormituksen tasosta.">
-            <div class="metric-label">7-Day Load</div>
-            <div class="metric-value">{load_7d:.0f} kcal</div>
-        </div>
-        """, unsafe_allow_html=True)
 
-    with c4:
-        is_poor = ctx.get('poor_night_flag', 0) == 1
-        status_text = "POOR" if is_poor else "OK"
-        status_color = "#F44336" if is_poor else "#4CAF50"
-        st.markdown(f"""
-        <div class="metric-card" style="border: 2px solid {status_color}" title="Kertoo putosiko Body Battery yön aikana alle 45.">
-            <div class="metric-label">Night Quality</div>
-            <div class="metric-value" style="color: {status_color}">{status_text}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # --- Detail Expander ---
-    with st.expander("ℹ️ Mihin ennuste (52) perustuu?"):
-        st.write("Ennuste on laskettu XGBoost-mallilla käyttäen seuraavia tietoja:")
-        dc1, dc2, dc3, dc4 = st.columns(4)
-        dc1.metric("Eilinen Stressi", f"{ctx.get('yesterday_stress', 0):.0f}", help="Stressitaso 0-100 (Eilinen)")
-        dc2.metric("Eilinen Body Battery", f"{ctx.get('yesterday_charge', 0):.0f}", help="Lataus eilen")
-        dc3.metric("Eilinen Aktiivisuus", f"{ctx.get('yesterday_steps', 0):.0f}", "Askeleet")
-        dc4.metric("Unen Kesto", f"{ctx.get('sleep_hours', 0):.1f} h", "Viime yö")
-        st.caption("*Luku 52 on mallin arvio siitä, kuinka paljon Body Battery latautuu näillä lähtötiedoilla.*")
+# --- AI Coach Section ---
+st.divider()
 
-    # --- AI Coach Section ---
-    st.divider()
-    
-    coach_tab1, coach_tab2 = st.tabs(["📋 Nykyinen ohjelma", "📅 Kalenteri"])
-    
-    with coach_tab1:
+coach_tab0, coach_tab1, coach_tab2, coach_tab3, coach_tab4 = st.tabs(["🏠 Etusivu", "📋 Ohjelma", "📅 Kalenteri", "➕ Kirjaa", "🎯 Tavoitteet"])
+
+with coach_tab0:
+        if not ctx:
+             st.warning("No prediction available. Check data files.")
+        
+        if ctx:
+            st.markdown("### 👋 Tervetuloa Sami!")
+            
+            # --- Top Metrics Row (Moved here) ---
+            c1, c2, c3, c4 = st.columns(4)
+            
+            # Body Battery Gauge
+            bb_val = ctx['predicted_charge']
+            bb_color = "#4CAF50" if bb_val >= 70 else "#FF9800" if bb_val >= 40 else "#F44336"
+            
+            with c1:
+                st.markdown(f"""
+                <div class="metric-card" style="border: 2px solid {bb_color}">
+                    <div class="metric-label">Battery Charge</div>
+                    <div class="metric-value" style="color: {bb_color}">{bb_val:.0f}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with c2:
+                sleep_h = ctx['sleep_hours']
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Sleep Duration</div>
+                    <div class="metric-value">{sleep_h:.1f} h</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            with c3:
+                load_7d = ctx['recent_load']
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">7-Day Load</div>
+                    <div class="metric-value">{load_7d:.0f} kcal</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with c4:
+                is_poor = ctx.get('poor_night_flag', 0) == 1
+                status_text = "POOR" if is_poor else "OK"
+                status_color = "#F44336" if is_poor else "#4CAF50"
+                st.markdown(f"""
+                <div class="metric-card" style="border: 2px solid {status_color}">
+                    <div class="metric-label">Night Quality</div>
+                    <div class="metric-value" style="color: {status_color}">{status_text}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with st.expander("ℹ️ Statistiikan tiedot", expanded=False):
+                st.write("Datan lähde: Garmin Connect. Ennuste perustuu edellisten päivien kuormitusdataan.")
+
+        st.divider()
+        
+        # --- Next Workout & Weekly Status ---
+        col_next, col_weekly = st.columns([3, 2])
+        
+        with col_next:
+            st.markdown("### 🔜 Seuraava Treeni")
+            next_w = db_manager.get_next_workout()
+            if next_w:
+                content = next_w['content']
+                w_act = content.get("activity", "Treeni")
+                w_desc = content.get("description", "")
+                w_dur = content.get("duration_min", "?")
+                w_struct = content.get("structure_summary", "")
+                # Format Date
+                try:
+                    w_date_obj = datetime.strptime(next_w['date'].split(' ')[0], '%Y-%m-%d')
+                    date_display = w_date_obj.strftime('%d.%m. (Tänään)' if w_date_obj.date() == datetime.now().date() else '%d.%m.%Y')
+                except:
+                    date_display = next_w['date']
+                    
+                st.markdown(f"""
+                <div class="workout-card" style="border-left: 6px solid #FF9800; background-color: #fff8e1;">
+                    <h3 style="margin:0; color: #E65100;">{w_act} <span style="font-size: 0.8em; color: #666;">({date_display})</span></h3>
+                    <p style="font-size: 1.1rem; font-weight: bold; margin: 10px 0;">⏱️ {w_dur} min &nbsp;|&nbsp; {w_struct}</p>
+                    <p>{w_desc}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("Ei tulevia treenejä kalenterissa. Generoi uusi ohjelma!")
+                
+        with col_weekly:
+             st.markdown("### 📅 Viikon Tilanne")
+             weekly_stats = db_manager.get_weekly_stats()
+             if weekly_stats:
+                dates = sorted(weekly_stats.keys())
+                done = sum([weekly_stats[d]['done'] for d in dates])
+                manual = sum([weekly_stats[d]['manual'] for d in dates])
+                planned = sum([weekly_stats[d]['planned'] for d in dates])
+                total_done = done + manual
+                
+                if planned > 0:
+                    pct = min(int((total_done / planned) * 100), 100)
+                else:
+                    pct = 0
+                
+                st.metric("Toteutunut Kuormitus", f"{pct}%", f"{total_done} / {planned} Au")
+                st.progress(pct / 100)
+                st.caption(f"Yhteensä {total_done} kuormitusyksikköä tällä viikolla.")
+             else:
+                st.caption("Ei dataa.")
+
+with coach_tab1:
         st.markdown("### 🏃 Päivän Treeniohjelma")
         
         # Duration Selection
@@ -289,11 +345,12 @@ if ctx:
         
         if st.button("Generoi Treeniohjelma"):
             with st.spinner(f"Coach is thinking... (Generoidaan {n_days} pv suunnitelma)"):
-                # Fetch compliance history for context
+                # Fetch compliance and preference history
                 compliance_history = db_manager.get_compliance_stats()
+                preference_history = db_manager.get_preference_history()
                 
                 # Generate advice (now returns JSON string)
-                advice_json_str = generate_coach_advice(ctx, n_days=n_days, compliance_history=compliance_history)
+                advice_json_str = generate_coach_advice(ctx, n_days=n_days, compliance_history=compliance_history, preference_feedback=preference_history)
                 
                 try:
                     # Clean up JSON string if it contains markdown formatting
@@ -427,7 +484,7 @@ if ctx:
                             elif current_pref == 3:
                                 st.caption("Tallennettu: *Enemmän näitä!*")
     
-    with coach_tab2:
+with coach_tab2:
         st.subheader("📅 Treenikalenteri")
         try:
             events = db_manager.get_calendar_events()
@@ -446,8 +503,95 @@ if ctx:
         except Exception as e:
             st.error(f"Kalenterin latausvirhe: {e}")
 
-else:
-    st.warning("No prediction available. Check data files.")
+with coach_tab3:
+        st.subheader("➕ Kirjaa Manuaalinen Treeni")
+        st.info("Kirjaa treeni, jota ei ollut ohjelmassa tai jonka teit ilman älykelloa.")
+        
+        with st.form("manual_entry_form"):
+            m_date = st.date_input("Päivämäärä", value=datetime.now())
+            m_activity = st.selectbox("Laji", ["Juoksu", "Hiihto", "Kuntosali", "Pyöräily", "Uinti", "Kävely", "Muu"])
+            m_duration = st.number_input("Kesto (min)", min_value=1, value=45, step=5)
+            m_rpe = st.slider("Rasittavuus (RPE 1-10)", 1, 10, 5, help="1 = Todella kevyt, 10 = Maksimi")
+            m_notes = st.text_area("Muistiinpanot", placeholder="Fiilikset, sykkeet jne.")
+            
+            if st.form_submit_button("Tallenna Treeni"):
+                db_manager.log_manual_workout(m_date, m_activity, m_duration, m_rpe, m_notes)
+                st.success("Treeni tallennettu!")
+                st.rerun()
+
+with coach_tab4:
+        st.subheader("🎯 Aseta Tavoitteet")
+        
+        # 1. Add New Goal
+        with st.expander("➕ Lisää uusi tavoite", expanded=False):
+            with st.form("add_goal_form"):
+                g_type = st.selectbox("Tavoitteen tyyppi", [
+                    "Juoksu",
+                    "Hiihto",
+                    "Pyöräily",
+                    "Uinti",
+                    "Kuntosali",
+                    "Viikkokilometrit (Yleinen)", 
+                    "Viikon Treenitunnit", 
+                    "Unen Keskiarvo (7pv)", 
+                    "Painonpudotus / Kehonkoostumus"
+                ])
+                g_target = st.text_input("Tavoitearvo (esim. 30 km, 8h, 80/100)")
+                g_desc = st.text_area("Lisätiedot / Kuvaus", placeholder="Esim. Juokse 30km tällä viikolla rauhallisella sykkeellä.")
+                # Default 7 days from now
+                default_end = datetime.now() + timedelta(days=7)
+                g_end = st.date_input("Määräpäivä", value=default_end)
+                
+                if st.form_submit_button("Tallenna Tavoite"):
+                    if g_target:
+                        db_manager.add_goal(g_type, g_target, g_end, g_desc)
+                        st.success("Tavoite tallennettu!")
+                        st.rerun()
+                    else:
+                        st.error("Täytä tavoitearvo.")
+
+        # 2. Active Goals List
+        st.markdown("### 🏆 Aktiiviset Tavoitteet")
+        active_goals = db_manager.get_active_goals()
+        
+        if not active_goals:
+            st.info("Ei aktiivisia tavoitteita. Aseta uusi tavoite yltä.")
+        
+        for g in active_goals:
+            # Calculate time remaining
+            try:
+                # Handle both datetime and string dates from DB
+                if isinstance(g['end'], str):
+                    end_date_obj = datetime.strptime(g['end'].split(' ')[0], '%Y-%m-%d')
+                else:
+                    end_date_obj = g['end']
+                    
+                days_left = (end_date_obj - datetime.now()).days
+            except:
+                days_left = "?"
+                end_date_obj = datetime.now()
+
+            end_str = end_date_obj.strftime('%d.%m.%Y')
+            
+            with st.container():
+                st.markdown(f"""
+                <div class="workout-card" style="border-left: 5px solid #2196F3;">
+                    <h4 style="margin:0;">{g['type']}</h4>
+                    <p style="font-size: 1.2rem; font-weight: bold; margin: 5px 0;">🎯 {g['target']}</p>
+                    <p style="color:#666;">{g['description']}</p>
+                    <p style="font-size: 0.9rem; color: {'#F44336' if isinstance(days_left, int) and days_left < 1 else '#4CAF50'}">⏳ Aikaa jäljellä: {days_left} pv ({end_str})</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                gc1, gc2, _ = st.columns([1, 1, 3])
+                if gc1.button("✅ Valmis", key=f"g_done_{g['id']}"):
+                    db_manager.complete_goal(g['id'], True)
+                    st.rerun()
+                if gc2.button("❌ Epäonnistui", key=f"g_fail_{g['id']}"):
+                    db_manager.complete_goal(g['id'], False)
+                    st.rerun()
+
+
 
 st.divider()
 
@@ -463,7 +607,7 @@ if not df.empty:
     try:
         df_recent = df.sort_values('date').tail(30)
         
-        tab1, tab2, tab3, tab4 = st.tabs(["Recovery & Sleep", "Activity Impact", "🔬 Model Analysis", "📜 Valmennushistoria"])
+        tab1, tab2, tab5, tab3, tab4 = st.tabs(["Recovery & Sleep", "Activity Impact", "📊 Viikon Kuormitus", "🔬 Model Analysis", "📜 Valmennushistoria"])
         
         with tab1:
             plot_df = df_recent.copy()
@@ -489,7 +633,40 @@ if not df.empty:
             )
             
             st.plotly_chart(fig, use_container_width=True)
+
+        with tab5:
+            st.markdown("### 📊 Viikon Kuormitus (Suunniteltu vs Toteutunut)")
+            weekly_stats = db_manager.get_weekly_stats()
             
+            if weekly_stats:
+                # Convert dict to easy dataframe for Plotly
+                # Dict structure: {'2023-12-31': {'planned': 0, 'done': 0, 'manual': 0}}
+                dates = sorted(weekly_stats.keys())
+                planned = [weekly_stats[d]['planned'] for d in dates]
+                done = [weekly_stats[d]['done'] for d in dates]
+                manual = [weekly_stats[d]['manual'] for d in dates]
+                
+                import plotly.graph_objects as go
+                
+                fig3 = go.Figure()
+                fig3.add_trace(go.Bar(name='Suunniteltu', x=dates, y=planned, marker_color='#BDBDBD'))
+                fig3.add_trace(go.Bar(name='Tehty (Ohjelma)', x=dates, y=done, marker_color='#4CAF50'))
+                fig3.add_trace(go.Bar(name='Tehty (Manuaalinen)', x=dates, y=manual, marker_color='#2196F3'))
+                
+                fig3.update_layout(barmode='group', title="Viikon Kuormitus (Load = Kesto * Teho)", yaxis_title="Kuormitusyksiköt (Au)")
+                st.plotly_chart(fig3, use_container_width=True)
+                
+                # Compliance donut
+                total_planned = sum(planned)
+                total_done = sum(done) + sum(manual)
+                if total_planned > 0:
+                    comp_rate = min(total_done / total_planned * 100, 100) # Cap at 100 visually or show overachievement?
+                    st.metric("Toteutunut Kuormitus %", f"{comp_rate:.0f}%", f"{total_done} / {total_planned} yksikköä")
+                else:
+                    st.info("Ei suunniteltuja treenejä tälle ajalle.")
+            else:
+                st.info("Ei dataa.")
+                        
         with tab2:
             y_col = 'bodyBatteryChargedValue'
             x_col = 'workout_calories' if 'workout_calories' in df_recent.columns else 'activeKilocalories'

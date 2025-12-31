@@ -1,13 +1,14 @@
 import os
 import google.generativeai as genai
 from dotenv import load_dotenv
+import db_manager
 
 # Load API Key
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
 
-def construct_prompt(ctx, compliance_history="", preference_feedback=""):
+def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals=""):
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
@@ -17,16 +18,21 @@ def construct_prompt(ctx, compliance_history="", preference_feedback=""):
     - Viimeaikaie kuormitus (7pv keskiarvo): {ctx['recent_load']:.0f}
     - Viime aikojen toteutus: {compliance_history}
     - Palautteet: {preference_feedback}
+    - AKTIIVISET TAVOITTEET: {active_goals}
     
     Tehtävä:
     Luo tarkka ja ammattimainen treenisuunnitelma tälle päivälle JSON-muodossa.
     
+    TÄRKEÄÄ: Jos 'AKTIIVISET TAVOITTEET' mainitsee tietyn lajin (esim. Juoksu, Pyöräily), painota ohjelmassa kyseistä lajia.
+
     Format (JSON):
     [
         {{
             "day": 1,
             "activity": "Laji (esim. Juoksu)",
             "description": "Treenin tavoite",
+            "duration_min": 45,
+            "load_estimate": 60,
             "structure_summary": "ERITTÄIN LYHYT kaava (Max 15 sanaa). Esim: '10min VR + 40min PK + 5min VR'",
             "detailed_steps": [
                 "Alkulämmittely: 10min ...",
@@ -36,11 +42,13 @@ def construct_prompt(ctx, compliance_history="", preference_feedback=""):
             "tips": "Vinkki"
         }}
     ]
+
+    * load_estimate: Arvioitu kuormitus 0-100 (TSS-tyyppinen).
     
     Kieli: Suomi.
     """
 
-def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_feedback=""):
+def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_feedback="", active_goals=""):
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
@@ -49,16 +57,21 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
     - Kuormitus: {ctx['recent_load']:.0f}
     - Viime aikojen toteutus: {compliance_history}
     - Palautteet: {preference_feedback}
+    - AKTIIVISET TAVOITTEET: {active_goals}
     
     Tehtävä:
     Luo progressiivinen ja YKSITYISKOHTAINEN treenisuunnitelma {n_days} päivälle JSON-muodossa.
     
+    TÄRKEÄÄ: Jos 'AKTIIVISET TAVOITTEET' mainitsee tietyn lajin (esim. Juoksu, Pyöräily), painota ohjelmassa kyseistä lajia.
+
     Format (JSON):
     [
         {{
             "day": 1,
             "activity": "Laji",
             "description": "Lyhyt kuvaus tavoitteesta",
+            "duration_min": 60,
+            "load_estimate": 70,
             "structure_summary": "ERITTÄIN LYHYT kaava (Max 15 sanaa). Esim: '4x4min VK2'",
             "detailed_steps": [
                 "Alkulämmittely: ...",
@@ -73,10 +86,12 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
         }}
     ]
     
+    * load_estimate: Arvioitu kuormitus 0-100 (TSS-tyyppinen).
+    
     Kieli: Suomi.
     """
 
-def generate_coach_advice(context, n_days=1, compliance_history=""):
+def generate_coach_advice(context, n_days=1, compliance_history="", preference_feedback=""):
     """Generates advice using Gemini."""
     if not api_key:
         return "Error: No API Key found in .env file."
@@ -86,10 +101,18 @@ def generate_coach_advice(context, n_days=1, compliance_history=""):
     # Using response_mime_type to enforce JSON
     model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
     
-    if n_days > 1:
-        prompt = construct_multi_day_prompt(context, n_days, compliance_history)
+    # Fetch Active Goals
+    goals_list = db_manager.get_active_goals()
+    goals_text = ""
+    if goals_list:
+        goals_text = "\n".join([f"- {g['type']}: {g['target']} ({g['description']})" for g in goals_list])
     else:
-        prompt = construct_prompt(context, compliance_history)
+        goals_text = "Ei asetettuja tavoitteita."
+
+    if n_days > 1:
+        prompt = construct_multi_day_prompt(context, n_days, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
+    else:
+        prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
     
     try:
         response = model.generate_content(prompt)
