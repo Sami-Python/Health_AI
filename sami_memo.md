@@ -134,3 +134,24 @@ Illan aikana toteutettiin ja viimeisteltiin Phase 2, joka toi sovellukseen tavoi
 - **Palautejärjestelmä:** Treenien yhteydessä annettu palaute (Enemmän/Vähemmän näitä) syötetään tekoälylle, jotta se oppii käyttäjän mieltymykset.
 
 Valmis kokonaisuus tukee nyt sekä datalähtöistä palautumista että tavoitteellista treenaamista.
+
+### Phase 3: Data & Analytics (Data & Analytiikka) 📊
+Laajennettiin sovellusta manuaalisella datalla ja analytiikalla.
+- **Manuaalinen Kirjaus:** Lisätty mahdollisuus kirjata treenejä (esim. Hiihto, Kuntosali), jotka eivät olleet ohjelmassa.
+- **Viikon Kuormitus:** Uusi graafi näyttää "Suunniteltu vs Tehty" -kuormituksen (Load Units = Kesto * Teho).
+- **Tietokanta:** Päivitetty schema tukemaan tarkempaa seurantaa.
+
+### Phase 4: Optimization (Optimointi - Etusivu) 🏠
+Dashboardin rakenne uusittiin täysin käyttäjäystävällisemmäksi.
+- **Uusi "Etusivu":** Kokoaa tärkeimmät tiedot (Body Battery, Uni, Seuraava treeni) yhteen näkymään.
+- **Next Workout Card:** Näyttää selkeästi seuraavan harjoituksen tiedot heti avatessa.
+- **Selkeys:** Välilehdet organisoitu loogisemmin (Etusivu, Ohjelma, Kalenteri, Kirjaa, Tavoitteet).
+
+### Phase 5: CI/CD & Quality 🛡️
+Projekti on nyt ammattimaisesti testattu ja automatisoitu.
+- **GitHub Actions:** CI-putki ajaa automaattisesti lintauksen (Ruff) ja testit (Pytest) jokaisen Pushin yhteydessä.
+- **Unit Tests (`tests/`):**
+    - `test_backend.py`: Testaa tietokannan toiminnan (Tavoitteet, Treenien kirjaus).
+    - `test_model.py`: "Smoke test" XGBoost-mallille (varmistaa että malli latautuu ja ennustaa).
+    
+Projekti on nyt erittäin kattava ja vakaa kokonaisuus! 🚀
