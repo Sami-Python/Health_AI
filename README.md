@@ -1,4 +1,4 @@
-# Personal AI Coach 🏃‍♂️🤖
+# Personal AI Coach
 
 **Personal AI Coach** on älykäs, dataohjautuva valmennusjärjestelmä, joka auttaa optimoimaan palautumista ja harjoittelua.
 
