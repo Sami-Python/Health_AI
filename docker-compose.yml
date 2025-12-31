@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: health_ai_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app       # Hot reload code
+      - ./:/data             # Access to health_ai.db in root (mounted to /data)
+    environment:
+      - DB_FILE_PATH=/data/health_ai.db

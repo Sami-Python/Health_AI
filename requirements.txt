@@ -1,8 +1,9 @@
 garminconnect
 python-dotenv
 pandas
-xgboost 
-scikit-learn
+xgboost
+psycopg2-binary
+requests
 matplotlib
 ipykernel
 google-generativeai
@@ -15,3 +16,4 @@ duckdb
 streamlit
 plotly
 streamlit-calendar
+
