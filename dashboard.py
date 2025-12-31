@@ -4,8 +4,6 @@ import plotly.express as px
 import os
 import json
 from predict_readiness import predict_latest
-from predict_readiness import predict_latest
-from predict_readiness import predict_latest
 from ai_coach import generate_coach_advice, generate_trend_analysis
 import db_manager # New DB Manager
 import fetch_garmin_data
