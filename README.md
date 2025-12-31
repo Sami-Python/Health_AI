@@ -22,8 +22,19 @@ Se yhdistää:
 *   **Backend / AI:** Python, XGBoost, Google Gemini API
 *   **Tietokanta:** DuckDB
 
-## Käynnistys
-Aja projektin juuressa:
-```bash
-streamlit run dashboard.py
-```
+## Käynnistys (Local Development)
+
+1.  **Aktivoi ympäristö:** `source .venv/Scripts/activate`
+2.  **Käynnistä Backend (API):**
+    ```bash
+    docker-compose up -d
+    ```
+3.  **Käynnistä Frontend (Dashboard):**
+    ```bash
+    streamlit run dashboard.py
+    ```
+
+## Arkkitehtuuri
+*   **Frontend:** Streamlit (Port 8501) - Käyttöliittymä, hakee dataa API:sta.
+*   **Backend:** FastAPI (Port 8000) - Hoitaa datan käsittelyn ja tietokantakutsut.
+*   **Database:** DuckDB (Local file) - Jaettu Frontendin ja Backendin kesken (Hybridimalli).

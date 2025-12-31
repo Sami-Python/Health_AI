@@ -6,6 +6,7 @@ import json
 from predict_readiness import predict_latest
 from ai_coach import generate_coach_advice, generate_trend_analysis
 import db_manager # New DB Manager
+import api_client # Frontend API Client
 import fetch_garmin_data
 import process_garmin_data
 import time
@@ -287,19 +288,19 @@ with coach_tab0:
         
         with col_next:
             st.markdown("### 🔜 Seuraava Treeni")
-            next_w = db_manager.get_next_workout()
+            next_w = api_client.get_next_workout()
             if next_w:
-                content = next_w['content']
+                content = next_w.get('content', {})
                 w_act = content.get("activity", "Treeni")
                 w_desc = content.get("description", "")
                 w_dur = content.get("duration_min", "?")
                 w_struct = content.get("structure_summary", "")
                 # Format Date
                 try:
-                    w_date_obj = datetime.strptime(next_w['date'].split(' ')[0], '%Y-%m-%d')
+                    w_date_obj = datetime.strptime(next_w.get('date', '').split(' ')[0], '%Y-%m-%d')
                     date_display = w_date_obj.strftime('%d.%m. (Tänään)' if w_date_obj.date() == datetime.now().date() else '%d.%m.%Y')
                 except:
-                    date_display = next_w['date']
+                    date_display = next_w.get('date', '?')
                     
                 st.markdown(f"""
                 <div class="workout-card" style="border-left: 6px solid #FF9800; background-color: #fff8e1;">
@@ -309,17 +310,15 @@ with coach_tab0:
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                st.info("Ei tulevia treenejä kalenterissa. Generoi uusi ohjelma!")
+                st.info("Ei tulevia treenejä (API) tai ei yhteyttä.")
                 
         with col_weekly:
              st.markdown("### 📅 Viikon Tilanne")
-             weekly_stats = db_manager.get_weekly_stats()
-             if weekly_stats:
-                dates = sorted(weekly_stats.keys())
-                done = sum([weekly_stats[d]['done'] for d in dates])
-                manual = sum([weekly_stats[d]['manual'] for d in dates])
-                planned = sum([weekly_stats[d]['planned'] for d in dates])
-                total_done = done + manual
+             w_stats = api_client.get_weekly_status()
+             
+             if w_stats:
+                total_done = w_stats.get('current_load', 0)
+                planned = w_stats.get('planned_load', 0)
                 
                 if planned > 0:
                     pct = min(int((total_done / planned) * 100), 100)
