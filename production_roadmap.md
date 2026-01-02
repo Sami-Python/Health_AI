@@ -9,14 +9,17 @@ Nykyinen Streamlit + lokaali Python-skripti ei skaalaudu.
 - [x] **API-suunnittelu:** Määrittele REST tai GraphQL rajapinta Fronendin käyttöön.
 - [x] **Kontitus:** Paketoi sovellus Docker-konteiksi (Backend, Frontend).
 - [ ] **Hosting:** Valmistele Cloud Run tai yksinkertainen VPS (Docker Compose) ympäristö. (Riittää sadoille käyttäjille)
+- [ ] **Secrets:** Ota käyttöön Google Secret Manager API-avaimille ja service account -konfiguraatioille.
 
 ## 2. Tietokanta (Multi-User & Scalability)
 Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Aloitettu: Home View & Goals siirretty)
-- [ ] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin.
+- [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä)
+- [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa.
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
-- [ ] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
+- [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
+- [x] **Backend Middleware:** Implementoi `main.py`:hyn middleware, joka verifioi Firebase ID -tokenin jokaisessa pyynnössä.
 - [ ] **Kirjautuminen:** Toteuta Google/Apple/Email -kirjautumisvaihtoehdot.
 - [ ] **Tietosuoja (GDPR):** Varmista datan salaus (At-Rest & In-Transit).
 - [ ] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi").
@@ -30,9 +33,16 @@ Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
 ## 5. Frontend (Käyttökokemus)
 Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [ ] **Moderni Web-kehys:** Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä.
+- [ ] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `web`.
 - [ ] **Mobiilisovellus:** Harkitse React Nativea tai Flutteria natiivia kokemusta varten.
+- [ ] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`.
 - [ ] **Notifikaatiot:** Lisää Push-ilmoitukset (treenimuistutukset).
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin.
+
+## 5.5 Frontend Features (Next.js)
+- [ ] **Goal Management:** Mahdollisuus lisätä ja poistaa tavoitteita.
+- [ ] **Workout Logging:** Lomake treenien lisäämiseen.
+- [ ] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
 
 ## 6. DevOps & Monitoring
 - [ ] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD).
@@ -43,4 +53,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ### MVP -> Beta (Ensimmäiset askeleet)
 - [-] Konfiguroi PostgreSQL-tietokanta. (SKIP)
 - [x] Luo uusi FastAPI-projekti Backuiksi.
-- [ ] Integroi Firebase Auth.
+- [x] Integroi Firebase Auth.
+- [ ] Konfiguroi Secret Manager.
+- [x] Päivitä Firestore-haut tukemaan multi-user -mallia (user_id).
+- [x] Alusta Next.js -projekti frontendille (web). (Kansio olemassa, mutta projekti on tyhjä scaffold)
+- [x] Implementoi Frontendin perusrakenne (Authentication, API Client).
+    - [x] Asenna kirjastot (Firebase SDK, Lucide Icons).
+    - [x] Konfiguroi Firebase Client (web).
+    - [x] Toteuta Login-sivu ja Auth Context.
+    - [x] Testaa yhteys backendiin (Protected Route).
+- [ ] Implementoi "Add Goal" -toiminnallisuus (Create).
+- [ ] Tuo Dashboardin ulkoasu (CSS/Tailwind) samalle tasolle kuin Streamlit-versiossa.
+- [ ] Alusta Flutter-projekti (mobile).

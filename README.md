@@ -34,7 +34,10 @@ Se yhdistää:
     streamlit run dashboard.py
     ```
 
-## Arkkitehtuuri
+## Arkkitehtuuri (Hybrid Cloud)
 *   **Frontend:** Streamlit (Port 8501) - Käyttöliittymä, hakee dataa API:sta.
-*   **Backend:** FastAPI (Port 8000) - Hoitaa datan käsittelyn ja tietokantakutsut.
-*   **Database:** DuckDB (Local file) - Jaettu Frontendin ja Backendin kesken (Hybridimalli).
+*   **Backend:** FastAPI (Port 8000) - Hoitaa datan käsittelyn, suojattu Rate Limitingillä (`slowapi`).
+*   **Database:**
+    *   **DuckDB (Local):** Historiallinen data ja treenisuunnitelmat.
+    *   **Firestore (Cloud):** Etusivun reaaliaikainen data (Tulevat treenit, Tavoitteet).
+*   **Authentication:** Service Account Key (Backend -> Firestore).
