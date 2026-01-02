@@ -9,7 +9,7 @@ from datetime import datetime
 # Local execution might need adjustments unless running from 'backend/' folder.
 cred_path = str(os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "service_account_key.json"))
 
-print(f"🔑 Using credentials from: {cred_path}")
+print(f"Using credentials from: {cred_path}")
 
 try:
     if not firebase_admin._apps:
@@ -17,10 +17,15 @@ try:
         firebase_admin.initialize_app(cred)
     
     db = firestore.client()
-    print("✅ Connected to Firestore.")
+    print("Connected to Firestore.")
+
+    # Get test user ID from env or use default
+    user_id = os.getenv("TEST_USER_ID", "test_user_123")
+    print(f"Seeding data for User ID: {user_id}")
 
     # 1. Add Dummy Workout
     workout_data = {
+        "user_id": user_id,
         "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": "PENDING",
         "content": {
@@ -38,6 +43,7 @@ try:
 
     # 2. Add Dummy Goal
     goal_data = {
+        "user_id": user_id,
         "type": "weekly_load",
         "target_value": "400",
         "status": "ACTIVE",
@@ -47,10 +53,10 @@ try:
     }
     # Add to 'goals' collection
     db.collection("goals").add(goal_data)
-    print("✅ Added 'goals' document.")
+    print("Added 'goals' document.")
 
-    print("\n🚀 Seeding complete! Check your Dashboard.")
+    print("\nSeeding complete! Check your Dashboard.")
 
 except Exception as e:
-    print(f"\n❌ Error: {e}")
+    print(f"\nError: {e}")
     print("Varmista, että 'service_account_key.json' on oikeassa paikassa.")

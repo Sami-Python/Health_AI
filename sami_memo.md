@@ -171,3 +171,48 @@ Projekti on nyt "Hybrid Cloud" -tilassa: Kriittinen uusi data (Tavoitteet) on pi
 Tämä mahdollistaa tulevaisuudessa Frontendin vaihtamisen (esim. React/Mobiili) ilman, että logiikkaan tarvitsee koskea.
 
 
+
+## 2026-01-02 – Backend Security Hardening 🔒
+
+Tänään varmistettiin backendin tietoturva "Production Readiness" -hengessä. Koska siirrymme monen käyttäjän malliin, datan eristäminen on kriittistä.
+
+### 1. Firebase Authentication
+- Implementoitu `AuthMiddleware` (`auth_middleware.py`), joka tarkistaa jokaisesta API-kutsusta Bearer-tokenin.
+- Token validoidaan Firebase Admin SDK:lla. Virheellisestä tokenista seuraa välitön 401 Unauthorized.
+
+### 2. Data Isolation (`user_id`)
+- Päivitetty `firestore_manager.py` niin, että *jokainen* tietokantahaku sisältää pakollisen `where('user_id', '==', uid)` -filtterin.
+- Tämä estää sen, että käyttäjä A voisi vahingossa (tai tahallaan) nähdä käyttäjän B treenejä.
+
+### 3. Verifikaatio
+Luotiin automaattiset testiskriptit (`backend/tests/`) ja ajettiin ne onnistuneesti:
+- `verify_firestore_isolation.py`: Simuloi "tunkeilijaa" ja varmisti, että hänelle ei palauteta dataa.
+- `verify_api_auth.py`: Pommitti API:a ilman tokenia ja varmisti, että portit pysyvät kiinni.
+
+Tietoturva on nyt kunnossa backendin puolella. 🛡️
+
+## 2026-01-02 – Frontend: Next.js & Firebase Auth ⚛️🔥
+
+Iltapäivällä siirryimme Frontendiin (`web`-kansio).
+
+### 1. Perusrakenne (Scaffolding)
+- Asennettiin Next.js, TailwindCSS, ja tarvittavat kirjastot (`firebase`, `lucide-react`).
+- Konfiguroitiin `.env.local` Firebase-avaimilla.
+
+### 2. Autentikaatio (Auth Context)
+- Luotiin React Context (`AuthContext.tsx`), joka:
+    - Hallinnoi käyttäjän tilaa (User | null).
+    - Tarjoaa `signInWithGoogle` -funktion.
+    - Kuuntelee `onAuthStateChanged` -tapahtumia.
+
+### 3. Integraatio Backendin kanssa
+- Backend vaati CORS-asetukset (`localhost:3000` sallittu).
+- Dashboard kutsuu nyt backendiä (`/goals`) käyttäjän ID-tokenilla (`Authorization: Bearer <token>`).
+- **Tulos:** Frontti ja Backki juttelevat keskenään turvallisesti! 🎉
+
+### Lopetustoimet & Seuraavat askeleet
+- **Tietoturvatarkistus:** Varmistettu, että `.gitignore` sulkee pois `.env`, `.env.local`, ja `service_account_key.json` -tiedostot. Secrets ovat turvassa eikä niitä mene GitHubiin.
+- **Seuraavat askeleet:**
+    1.  Toteutetaan frontendille "Lisää tavoite" -lomake, jotta saamme dataa tietokantaan.
+    2.  Parannetaan Dashboardin ulkoasua.
+

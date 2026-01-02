@@ -3,3 +3,6 @@ uvicorn
 duckdb
 slowapi
 firebase-admin
+httpx
+requests
+python-dotenv
