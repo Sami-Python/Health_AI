@@ -42,6 +42,25 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
 
 ### 1. Dashboard (Streamlit)
 - Rakensin visuaalisen käyttöliittymän (`dashboard.py`).
+- **Refined Goal Features**:
+    - **Back**: Updated `GoalCreate` model (`period_type`, `target_date`) and AI prompt context.
+    - **Front**: Enhanced `AddGoalForm` with dynamic fields (Date Picker, Unit Dropdown) and better UX.
+
+- **Dashboard Visualization**:
+    - **Back**: Wired up `db_manager` (DuckDB) to new endpoints (`/readiness`, `/next-workout`).
+    - **Front**: Built `StatCard` component and integrated metrics grid into the main dashboard.
+    - **Qa**: Frontend build passed. Backend tests created but skipped due to local env issues.
+
+- **Streamlit Migration (Feature Parity)**:
+    - **Back**: Added endpoints for Manual Workouts (`/workouts/manual`), Data Refresh (`/system/refresh`), and History (`/plans/history`).
+    - **Front**: Added "Log Workout" modal (form) and "Refresh Data" button to Dashboard.
+    - **Front**: Added "Recent Coaching Plans" list.
+    - **Migrated**: Essential features (refresh, manual log, history) are now providing parity with legacy `dashboard.py`.
+
+- **Dashboard Visualizations (Phase 5)**:
+    - **Performance**: Implemented CTL (Chronic Load), ATL (Acute Load), and TSB (Form) calculations using 42d/7d rolling averages.
+    - **Charts**: Integrated `Recharts` to display visual trends for Recovery (Body Battery vs Sleep), Load, and Performance.
+    - **Tech**: Backend uses `pandas` to process CSV history; Frontend uses `ResponsiveContainer`/`ComposedChart` for responsive analytics.
 - Näkymän ominaisuudet:
     - **Päivän ennuste**: Body Battery -latausmittari.
     - **Treeniloki**: Graafit unesta, stressistä ja Body Batteryn kehityksestä (Plotly).
@@ -215,4 +234,37 @@ Iltapäivällä siirryimme Frontendiin (`web`-kansio).
 - **Seuraavat askeleet:**
     1.  Toteutetaan frontendille "Lisää tavoite" -lomake, jotta saamme dataa tietokantaan.
     2.  Parannetaan Dashboardin ulkoasua.
+
+
+## 2026-01-05 – Full Stack Feature: Add Goals & Start-up Fixes 🎯
+
+Tänään saimme ensimmäisen "Full Stack" -toiminnallisuuden valmiiksi, jossa data kulkee käyttöliittymästä tietokantaan asti.
+
+### 1. Add Goal -toiminnallisuus
+Käyttäjä voi nyt luoda uusia tavoitteita suoraan Dashboardilta.
+- **Backend:**
+    - Luotu endpoint `POST /goals`.
+    - `firestore_manager.py`: Lisätty `add_goal`-funktio, joka tallentaa tavoitteen Firestoreen käyttäjän ID:llä eristettynä.
+- **Frontend:**
+    - `AddGoalForm.tsx`: Moderni lomake tavoitteiden syöttämiseen (Laji, Määrä, Yksikkö).
+    - Integroitu Dashboardiin niin, että lista päivittyy heti lisäyksen jälkeen ilman sivun latausta.
+
+### 2. Laadunvarmistus
+- Kirjoitettu `backend/tests/test_endpoints.py`, joka testaa API:n toiminnan.
+- Testit käyttävät **Mockingia**, eli ne eivät vaadi oikeaa tietokantayhteyttä toimiakseen. Tämä nopeuttaa kehitystä ja CI-putkea.
+
+### 3. Bugikorjaukset & Käytettävyys
+- **Porttikorjaus:** Frontend yritti kutsua porttia `8001`, mutta Docker pyörii portissa `8000`. Tämä korjattiin configiin.
+- **Käynnistys:** Selkeytettiin, että Next.js-frontend ajetaan `web`-kansiossa komennolla `npm run dev` ja backend `docker-compose up`.
+
+### 4. Vianetsintä & Viimeistely
+- **Data Refresh**: Korjattu ongelma, jossa "Refresh"-nappi ei päivittänyt tietoja. Syynä oli puuttuvat ympäristömuuttujat (`.env`) Dockerissa ja väärä työhakemisto (`CWD`) skriptejä ajettaessa. Korjattu pakottamalla polku `/data`-kansioon.
+- **Riippuvuudet**: Lisätty puuttuvat kirjastot (`pandas`, `garminconnect`, `xgboost`) Docker-konteineriin.
+- **UX**: Lisätty selitteet ("hover tooltips") kuvaajille ja korjattu asetteluongelma, jossa kuvaajat menivät päällekkäin.
+
+### 5. AI Insights (Phase 6)
+- **Ominaisuus**: Päivittäinen AI-valmentaja ("Your Personal AI Coach is ready for you") Dashboardin yläreunassa.
+- **Tekoäly**: Käyttää Gemini API:a analysoimaan TSB:n (vireystila), Body Batteryn ja unidataa.
+- **Backend**: Uusi endpoint `/ai/insight`, joka laskee kontekstin ja kutsuu `ai_coach.py`. Lisätty Rate Limiting (`slowapi`) ja dynaaminen polunhaku kirjastolle.
+- **Frontend**: Näyttävä `AIInsightCard` komponentti, jossa on latausanimaatiot ja virheenkäsittely.
 

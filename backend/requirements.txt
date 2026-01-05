@@ -6,3 +6,12 @@ firebase-admin
 httpx
 requests
 python-dotenv
+pandas
+numpy
+garminconnect
+xgboost
+scikit-learn
+joblib
+matplotlib
+seaborn
+google-generativeai

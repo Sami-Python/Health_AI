@@ -112,6 +112,28 @@ def update_plan_status(plan_id, new_status):
     con.execute("UPDATE training_plans SET status = ? WHERE id = ?", (new_status, plan_id))
     con.close()
 
+def get_latest_readiness():
+    """Retrieves the most recent projected Body Battery charge."""
+    con = duckdb.connect(DB_FILE)
+    try:
+        result = con.execute("""
+            SELECT predicted_charge, timestamp FROM training_plans 
+            ORDER BY timestamp DESC 
+            LIMIT 1
+        """).fetchone()
+        
+        if result:
+            return {
+                "readiness": result[0],
+                "date": str(result[1])
+            }
+        return None
+    except Exception as e:
+        print(f"Error fetching readiness: {e}")
+        return None
+    finally:
+        con.close()
+
 def get_latest_plan():
     """Retrieves the most recent training plan."""
     con = duckdb.connect(DB_FILE)

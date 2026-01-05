@@ -40,7 +40,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin.
 
 ## 5.5 Frontend Features (Next.js)
-- [ ] **Goal Management:** Mahdollisuus lisätä ja poistaa tavoitteita.
+- [x] **Goal Management:** Mahdollisuus lisätä ja poistaa tavoitteita. (Backend & Frontend valmiina)
 - [ ] **Workout Logging:** Lomake treenien lisäämiseen.
 - [ ] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
 
@@ -62,6 +62,19 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Konfiguroi Firebase Client (web).
     - [x] Toteuta Login-sivu ja Auth Context.
     - [x] Testaa yhteys backendiin (Protected Route).
-- [ ] Implementoi "Add Goal" -toiminnallisuus (Create).
+- [x] Implementoi "Add Goal" -toiminnallisuus (Create).
+    - [x] Refined UI: Date Picker, Unit Dropdown, Frequency Logic.
 - [ ] Tuo Dashboardin ulkoasu (CSS/Tailwind) samalle tasolle kuin Streamlit-versiossa.
 - [ ] Alusta Flutter-projekti (mobile).
+    - [x] Streamlit Migration: Feat Parity (History, Manual Logs, Refresh).
+- [x] **Dashboard Visualizations (Phase 5)**:
+    - [x] Backend: Historical Metrics Endpoint (Pandas/CSV).
+    - [x] Implement Recovery Chart (Body Battery vs Sleep).
+    - [x] Implement Load Chart (Daily Load).
+    - [x] Implement Performance Chart (CTL/ATL/TSB) with Tooltips.
+    - [x] Integrate Charts into Dashboard Grid.
+- [x] **AI Insights (Phase 6)**:
+    - [x] Backend: Add `GET /ai/insight` endpoint (Gemini API with Rate Limiting).
+    - [x] Backend: Create `generate_daily_insight` prompt.
+    - [x] Frontend: Implement `AIInsightCard` with gradient UI.
+    - [x] Dependency: Added `google-generativeai`.

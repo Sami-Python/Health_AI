@@ -35,7 +35,12 @@ def get_active_goals(user_id: str):
     """Fetches active goals for specific user."""
     try:
         docs = db.collection('goals').where('user_id', '==', user_id).where('status', '==', 'ACTIVE').stream()
-        return [d.to_dict() for d in docs]
+        goals = []
+        for d in docs:
+            g = d.to_dict()
+            g['id'] = d.id
+            goals.append(g)
+        return goals
     except Exception as e:
          print(f"Firestore Error: {e}")
          return []
@@ -45,3 +50,20 @@ def get_weekly_load_status(user_id: str):
     # This is complex in NoSQL. For now returning empty skeleton.
     # This is complex in NoSQL. For now returning empty skeleton.
     return 0, 0, {}
+
+def add_goal(user_id: str, goal_data: dict):
+    """Adds a new goal for the specific user."""
+    try:
+        # Add user_id to goal_data ensuring ownership
+        goal_data['user_id'] = user_id
+        if 'status' not in goal_data:
+            goal_data['status'] = 'ACTIVE'
+        
+        # Add timestamp
+        goal_data['created_at'] = firestore.SERVER_TIMESTAMP
+
+        db.collection('goals').add(goal_data)
+        return True
+    except Exception as e:
+        print(f"Firestore Error: {e}")
+        return False

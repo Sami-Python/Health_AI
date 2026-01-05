@@ -105,7 +105,16 @@ def generate_coach_advice(context, n_days=1, compliance_history="", preference_f
     goals_list = db_manager.get_active_goals()
     goals_text = ""
     if goals_list:
-        goals_text = "\n".join([f"- {g['type']}: {g['target']} ({g['description']})" for g in goals_list])
+        lines = []
+        for g in goals_list:
+            activity = g.get('activity_type', 'Unknown')
+            value = g.get('target_value', 0)
+            unit = g.get('target_unit', '')
+            period = g.get('period_type', g.get('frequency', 'weekly'))
+            date_str = f"- Date: {g.get('target_date')}" if g.get('target_date') else ""
+            desc = f"({g.get('description', '')})" if g.get('description') else ""
+            lines.append(f"- {activity}: {value} {unit} ({period}) {date_str} {desc}")
+        goals_text = "\n".join(lines)
     else:
         goals_text = "Ei asetettuja tavoitteita."
 
@@ -152,3 +161,37 @@ def generate_trend_analysis(df_recent):
         return response.text
     except Exception as e:
         return f"Error analyzing trends: {e}"
+
+def generate_daily_insight(ctx):
+    """
+    Generates a short, daily coaching insight (1-2 sentences) based on metrics.
+    """
+    if not api_key:
+        return "API Key missing. Cannot generate insight."
+        
+    prompt = f"""
+    Olet huippu-urheiluun erikoistunut valmentaja.
+    
+    Analysoi seuraavat mittarit ja anna YKSI TAI KAKSI tiivistä, motivoivaa lausetta siitä, miten urheilijan tulisi tänään toimia (levätä, treenata kovaa, palautella?).
+    
+    Mittarit:
+    - TSB (Training Stress Balance / Vireystila): {ctx.get('tsb', 0)} (Positiivinen = Tuore, Negatiivinen = Rasittunut)
+    - Body Battery (Lataus): {ctx.get('readiness', 0)}/100
+    - Uni: {ctx.get('sleep_min', 0) / 60:.1f} tuntia
+    - Krooninen kuormitus (CTL): {ctx.get('ctl', 0)}
+    
+    Ohje:
+    - Pidä vastaus erittäin lyhyenä (max 30 sanaa).
+    - Ole suora ja selkeä.
+    - Kieli: Suomi.
+    """
+    
+    try:
+        genai.configure(api_key=api_key)
+        # Using flash model for speed and cost effectiveness for simple insights
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content(prompt)
+        return response.text.replace('"', '').strip() # Clean quotes
+    except Exception as e:
+        print(f"Insight Error: {e}")
+        return "Tänään on hyvä päivä kuunnella kehoa."
