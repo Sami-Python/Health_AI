@@ -32,6 +32,13 @@ graph TD
     %% Käyttöliittymä
     subgraph "Application Layer"
         Dashboard[dashboard.py<br/>Streamlit UI]
+        WebFrontend[Next.js App<br/>web/]
+    end
+
+    %% Backend Services
+    subgraph "Backend Services"
+        FastAPI[FastAPI<br/>backend/]
+        Firestore[(Firestore<br/>Cloud DB)]
     end
 
     %% Data Flow
@@ -49,6 +56,11 @@ graph TD
     
     %% UI Flow
     User <-->|Vuorovaikutus| Dashboard
+    User <-->|Vuorovaikutus| WebFrontend
+    
+    WebFrontend <-->|REST API / Auth| FastAPI
+    FastAPI <-->|Write/Read| Firestore
+    
     Dashboard -->|Hakee ennusteen| Predictor
     Dashboard -->|Pyytää neuvoa| CoachLogic
     
@@ -66,31 +78,29 @@ graph TD
 ## Komponentit
 
 ### 1. Data Layer (Tietovarasto)
-*   **CSV-tiedostot (`Health_AI/data/`):** Pääasiallinen raakadatan varasto. Sisältää päivittäiset yhteenvedot, unidataa ja aktiviteetit. Helppo lukea Pandasilta.
-*   **DuckDB (`health_ai.db`):** Kevyt, tiedostopohjainen SQL-tietokanta. Käytetään generoitujen treeniohjelmien ja coachin neuvojen pysyvään tallennukseen ja historiaan.
-*   **Secret Management (`.env`):** Säilyttää API-avaimet (Garmin, Gemini) turvallisesti poissa koodista.
+*   **CSV-tiedostot (`Health_AI/data/`):** Pääasiallinen raakadatan varasto. Sisältää päivittäiset yhteenvedot, unidataa ja aktiviteetit.
+*   **DuckDB (`health_ai.db`):** Lokaali tietokanta historialliselle datalle ja treeniohjelmille.
+*   **Firestore (Cloud):** Käyttäjäkohtainen pilvitietokanta. Säilyttää tavoitteet (`goals`) ja tulevaisuuden dataa. Turvattu Security Ruleilla.
 
 ### 2. Machine Learning Core (Älykkyys)
-*   **Datan haku (`fetch_garmin_data.py`):** Inkrementaalinen lataus Garmin Connectista. Hakee vain puuttuvat päivät.
-*   **Mallinnus (`process_garmin_data.py`):**
-    *   **Preprocessing:** Datan puhdistus, yhdistäminen ja "Feature Engineering" (esim. `poor_night_flag`, liukuvat keskiarvot).
-    *   **Training:** XGBoost Regressor -mallin koulutus `GridSearchCV`:llä ja aikasarja-ristivalidoinnilla (TimeSeriesSplit).
-    *   **Output:** Tallentaa mallin (`.pkl`) ja analyysikuvat (`.png`).
-*   **Ennustaminen (`predict_readiness.py`):** Itsenäinen moduuli, joka lataa mallin ja uusimman datan antaakseen ennusteen dashboardille.
-*   **AI Coach (`ai_coach.py`):** Kommunikoi Google Gemini API:n kanssa. Rakentaa dynaamisia prompteja perustuen käyttäjän fysiologiseen tilaan (Body Battery, Stressi, Unen laatu).
+*   **Backend API (`backend/`):** FastAPI-palvelin, joka toimii porttina kaikelle uudelle toiminnallisuudelle.
+    *   **Auth:** Firebase ID Token verifikaatio middlewarena.
+    *   **Endpoints:** `/goals`, `/next-workout`, jne.
+*   **Datan haku (`fetch_garmin_data.py`):** Inkrementaalinen lataus Garmin Connectista.
+*   **Mallinnus (`process_garmin_data.py`):** XGBoost-mallin koulutus ja ylläpito.
+*   **AI Coach (`ai_coach.py`):** Kommunikoi Google Gemini API:n kanssa.
 
 ### 3. Application Layer (Käyttöliittymä)
-*   **Dashboard (`dashboard.py`):** Streamlitillä rakennettu verkkosovellus.
-    *   Näyttää reaaliaikaiset mittarit ja ennusteet.
-    *   Visualisoi trendit interaktiivisilla graafeilla (Plotly).
-    *   Tarjoaa käyttöliittymän AI Coachille treeniohjelmien luontiin.
-    *   Sisältää "Model Analysis" -näkymän mallin laadun tarkkailuun.
+*   **Web Frontend (`web/`):** Moderni Next.js -sovellus (React).
+    *   Toimii pääasiallisena käyttöliittymänä tavoitteiden hallintaan.
+    *   Viestii Backend API:n kanssa (Port 8000).
+*   **Dashboard (`dashboard.py`):** (Legacy/Admin) Streamlit-näkymä syvälliseen data-analyysiin.
 
 ## Teknologia-stack
-*   **Kieli:** Python 3.12
-*   **ML:** XGBoost, Scikit-learn, SHAP
+*   **Kieli:** Python 3.12, TypeScript
+*   **ML:** XGBoost, Scikit-learn
 *   **AI:** Google Gemini 2.5 Flash
-*   **Data:** Pandas, DuckDB
-*   **Visualisointi:** Plotly, Matplotlib, Seaborn
-*   **Backend/Frontend:** Streamlit
-*   **Infra:** Windows, Python Virtual Environment (`.venv`)
+*   **Backend:** FastAPI, Firebase Admin SDK
+*   **Frontend:** Next.js, TailwindCSS
+*   **Data:** Pandas, DuckDB, Firestore
+*   **Infra:** Docker, Docker Compose

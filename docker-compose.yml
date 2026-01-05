@@ -12,3 +12,5 @@ services:
     environment:
       - DB_FILE_PATH=/data/health_ai.db
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service_account_key.json
+    env_file:
+      - .env
