@@ -9,9 +9,9 @@ Se yhdistää:
 
 ## Ominaisuudet
 *   **Älykäs Dashboard:** Reaaliaikainen näkymä palautumisen tilasta ja treenihistoriasta.
-*   **Treenikalenteri:** Visuaalinen yleisnäkymä menneisiin ja tuleviin harjoituksiin.
-*   **Adaptiivinen AI Coach:** Valmentaja, joka huomioi väsymyksen ja muokkaa ohjelmaa dynaamisesti (esim. keventää treeniä huonosti nukutun yön jälkeen).
-*   **Tavoitteellisuus:** Aseta tavoitteita (Juoksu, Hiihto, Pyöräily, Uinti, Kuntosali) ja AI rakentaa ohjelman tukemaan niitä.
+*   **Treenikalenteri:** Visuaalinen yleisnäkymä (Kuukausi/Viikko), jossa erottuvat tehdyt ja suunnitellut treenit.
+*   **Adaptiivinen AI Coach:** Valmentaja, joka huomioi väsymyksen ja luo uuden ohjelman yhdellä klikkauksella.
+*   **Tavoitteellisuus:** Täysi hallinta tavoitteille (Lisää/Muokkaa/Poista) eri lajeissa (Juoksu, Hiihto, Pyöräily, etc.).
 *   **Data & Analytiikka:** Kirjaa manuaaliset treenit ja seuraa "Suunniteltu vs Toteutunut" -kuormitusta viikkotasolla.
 *   **Home View:** Keskitetty etusivu, joka näyttää heti palautumisen tilan ja seuraavan treenin.
 *   **Tarkka Ennustemalli:** Omatuntoon perustuvaa arviota tarkempi koneoppimismalli vireystilan arviointiin.

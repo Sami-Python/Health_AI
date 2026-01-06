@@ -12,92 +12,101 @@ graph TD
     Gemini((Gemini 2.5 AI))
     User((Käyttäjä))
 
-    %% Data Layer
-    subgraph "Data Layer"
-        Fetcher[fetch_garmin_data.py]
-        CSV[(CSV Tiedostot<br/>Health_AI/data/)]
-        DuckDB[(DuckDB<br/>health_ai.db)]
-        Secrets[.env<br/>Salaisuudet]
+    %% Firebase Platform
+    subgraph "Firebase Platform"
+        FirebaseAuth[Authentication]
+        Firestore[("Firestore DB<br/>User Data / Goals")]
     end
 
-    %% Koneoppiminen & Logiikka
-    subgraph "Machine Learning Core"
+    %% Data Layer
+    subgraph "Legacy Data Layer"
+        Fetcher[fetch_garmin_data.py]
+        CSV[("CSV Tiedostot<br/>Health_AI/data/")]
+        DuckDB[("DuckDB<br/>health_ai.db")]
+    end
+
+    %% Machine Learning Core
+    subgraph "AI & ML Core"
         Processor[process_garmin_data.py]
-        XGB_Model[XGBoost Model<br/>Health_AI/models/*.pkl]
+        XGB_Model[XGBoost Model]
         Predictor[predict_readiness.py]
         CoachLogic[ai_coach.py]
-        Analyst[Jupyter Notebooks]
     end
 
-    %% Käyttöliittymä
-    subgraph "Application Layer"
-        Dashboard[dashboard.py<br/>Streamlit UI]
-        WebFrontend[Next.js App<br/>web/]
+    %% Moderni Käyttöliittymä
+    subgraph "Modern UI (Next.js)"
+        UI_Login[Login / Auth]
+        UI_Dashboard[Dashboard Page]
+        UI_Charts["Recharts<br/>(Discovery, Load, Performance)"]
+        UI_AICard[AI Insight Card]
     end
 
     %% Backend Services
-    subgraph "Backend Services"
-        FastAPI[FastAPI<br/>backend/]
-        Firestore[(Firestore<br/>Cloud DB)]
+    subgraph "Backend API"
+        FastAPI[FastAPI Service]
     end
 
-    %% Data Flow
-    Garmin -->|JSON/Raw| Fetcher
-    Secrets -.-> Fetcher
-    Secrets -.-> CoachLogic
+    %% Data Flow - External
+    Garmin -->|JSON| Fetcher
     Fetcher -->|Tallentaa| CSV
-    
+
+    %% ML Flow
     CSV -->|Opetusdata| Processor
     Processor -->|Kouluttaa| XGB_Model
-    Processor -->|Generoi kuvat| Dashboard
     
-    CSV -->|Lukee historiaa| Predictor
-    XGB_Model -->|Lataa mallin| Predictor
+    %% Backend Intergration
+    FastAPI -->|Lue Historia| CSV
+    FastAPI -->|Lue/Kirjoita| Firestore
+    FastAPI -->|Trigger| Fetcher
+    FastAPI -->|Generoi| CoachLogic
     
-    %% UI Flow
-    User <-->|Vuorovaikutus| Dashboard
-    User <-->|Vuorovaikutus| WebFrontend
+    CoachLogic -->|Prompt| Gemini
     
-    WebFrontend <-->|REST API / Auth| FastAPI
-    FastAPI <-->|Write/Read| Firestore
+    %% UI Integration
+    User -->|Kirjautuu| UI_Login
+    UI_Login -.->|Token| FirebaseAuth
     
-    Dashboard -->|Hakee ennusteen| Predictor
-    Dashboard -->|Pyytää neuvoa| CoachLogic
+    User -->|Selaa| UI_Dashboard
+    UI_Dashboard -->|Render| UI_Charts
+    UI_Dashboard -->|Render| UI_AICard
     
-    CoachLogic -->|Prompt + Context| Gemini
-    Gemini -->|Treeniohjelma| CoachLogic
-    
-    CoachLogic -->|Tallentaa ohjelman| DuckDB
-    Dashboard <-->|Lukee/Kirjoittaa| DuckDB
-    
-    Analyst -->|Tutkii/Kehittää| XGB_Model
-```
+    UI_Dashboard <-->|"API Calls (Bearer Token)"| FastAPI
+    FastAPI -.->|Verify Token| FirebaseAuth
 
-![alt text](image.png)
+    %% Legacy Support
+    UI_Dashboard -.->|Legacy Data| DuckDB
+
+![alt text](image-1.png)
 
 ## Komponentit
 
-### 1. Data Layer (Tietovarasto)
-*   **CSV-tiedostot (`Health_AI/data/`):** Pääasiallinen raakadatan varasto. Sisältää päivittäiset yhteenvedot, unidataa ja aktiviteetit.
-*   **DuckDB (`health_ai.db`):** Lokaali tietokanta historialliselle datalle ja treeniohjelmille.
-*   **Firestore (Cloud):** Käyttäjäkohtainen pilvitietokanta. Säilyttää tavoitteet (`goals`) ja tulevaisuuden dataa. Turvattu Security Ruleilla.
+### 1. Moderni Käyttöliittymä (Next.js)
+*   **Kehitysportaali (`web/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
+    *   **Dashboard:** Päänäkymä, joka kokoaa kaiken tiedon.
+    *   **Recharts:** Interaktiiviset kuvaajat palautumiselle ja kuormitukselle.
+    *   **AI Insight Card:** Päivittäinen yhteenveto tekoälyltä.
+    *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
 
-### 2. Machine Learning Core (Älykkyys)
-*   **Backend API (`backend/`):** FastAPI-palvelin, joka toimii porttina kaikelle uudelle toiminnallisuudelle.
-    *   **Auth:** Firebase ID Token verifikaatio middlewarena.
-    *   **Endpoints:** `/goals`, `/next-workout`, jne.
-*   **Datan haku (`fetch_garmin_data.py`):** Inkrementaalinen lataus Garmin Connectista.
-*   **Mallinnus (`process_garmin_data.py`):** XGBoost-mallin koulutus ja ylläpito.
-*   **AI Coach (`ai_coach.py`):** Kommunikoi Google Gemini API:n kanssa.
+### 2. Firebase Platform (Pilvipalvelut)
+*   **Authentication:** Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).
+*   **Firestore:** NoSQL-tietokanta, joka säilyttää käyttäjän tavoitteet (`goals`) ja asetukset reaaliaikaisesti.
 
-### 3. Application Layer (Käyttöliittymä)
-*   **Web Frontend (`web/`):** Moderni Next.js -sovellus (React).
-    *   Toimii pääasiallisena käyttöliittymänä tavoitteiden hallintaan.
-    *   Viestii Backend API:n kanssa (Port 8000).
-*   **Dashboard (`dashboard.py`):** (Legacy/Admin) Streamlit-näkymä syvälliseen data-analyysiin.
+### 3. Backend & AI Core (Älykkyys)
+*   **Backend API (`backend/`):** FastAPI-palvelin, joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
+*   **AI Coach (`ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin tuottaakseen ihmismäistä palautetta.
+*   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
+
+### 4. Legacy Data Layer (Tietovarasto)
+*   **CSV-tiedostot:** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
+*   **ETL-prosessit:** `fetch_garmin_data.py` ja `process_garmin_data.py` vastaavat datan hausta ja jalostuksesta.
+
 
 ## Teknologia-stack
-*   **Kieli:** Python 3.12, TypeScript
+*   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
+*   **Backend:** Python 3.10 (FastAPI), Pandas, XGBoost
+*   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
+*   **Data:** CSV (Legacy), DuckDB, Firestore
+*   **Infra:** Docker Compose
 *   **ML:** XGBoost, Scikit-learn
 *   **AI:** Google Gemini 2.5 Flash
 *   **Backend:** FastAPI, Firebase Admin SDK

@@ -268,3 +268,29 @@ Käyttäjä voi nyt luoda uusia tavoitteita suoraan Dashboardilta.
 - **Backend**: Uusi endpoint `/ai/insight`, joka laskee kontekstin ja kutsuu `ai_coach.py`. Lisätty Rate Limiting (`slowapi`) ja dynaaminen polunhaku kirjastolle.
 - **Frontend**: Näyttävä `AIInsightCard` komponentti, jossa on latausanimaatiot ja virheenkäsittely.
 
+## 2026-01-06 – SDK Migration, Goal Management & Calendar Polish 🛠️📅
+
+Tänään tehtiin merkittäviä parannuksia sovelluksen vakauteen ja käytettävyyteen.
+
+### 1. SDK Migraatio (`google-generativeai` -> `google-genai`)
+- **Ongelma:** Vanha `google-generativeai` SDK on deprecated ja aiheutti varoituksia.
+- **Ratkaisu:** Siirryttiin uuteen `google-genai` SDK:hon. Päivitetty `ai_coach.py` käyttämään uutta Client API:a. Tämä varmistaa yhteensopivuuden tulevaisuudessa.
+
+### 2. Training Calendar (Next.js)
+- Rakennettiin moderni kalenterinäkymä (`TrainingCalendar.tsx`) suoraan Next.js:ään käyttäen `date-fns`:ää.
+- **Modal Popup:** Työkaluvihjeet korvattiin tyylikkäällä modaali-ikkunalla, joka näyttää treenin tarkemmat tiedot (sis. "Structure" eli "15 min lämmittely...").
+- **Visuaalisuus:** Historia (Vihreä) vs Suunniteltu (Sininen) erottuvat selkeästi.
+
+### 3. Goal Management (Active Goals)
+- **Täysi CRUD:** Tavoitteita voi nyt **lisätä, muokata ja poistaa** suoraan Dashboardilta.
+- **UX Parannukset:**
+    - "Active Goals" -korttiin lisätty Edit/Delete -ikonit (näkyvät hoveratessa).
+    - Tavoitepäivämäärät ("Target Date") näkyvät nyt oikein.
+    - Uusi `AddGoalForm` tukee sekä luontia että muokkausta.
+
+### 4. AI Plan Logic (Overwrite Fix)
+- Korjattiin logiikka, jossa uusi AI-ohjelma ei ylikirjoittanut vanhoja "Pending"-treenejä.
+- **Backend:** Lisätty `delete_pending_workouts` -funktio `firestore_manager.py`:hyn.
+- **Optimointi:** Tietokantahaku optimoitiin toimimaan ilman monimutkaisia indeksejä (Composite Index) tekemällä filtteröinti muistissa.
+
+Nyt sovellus alkaa olla todella vakaassa ja käytettävässä kunnossa! 🚀
