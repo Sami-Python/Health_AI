@@ -13,7 +13,7 @@ Nykyinen Streamlit + lokaali Python-skripti ei skaalaudu.
 
 ## 2. Tietokanta (Multi-User & Scalability)
 Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
-- [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Aloitettu: Home View & Goals siirretty)
+- [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Workouts & Goals & Plans migrated)
 - [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä)
 - [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa.
 
@@ -32,15 +32,17 @@ Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
 
 ## 5. Frontend (Käyttökokemus)
 Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
-- [ ] **Moderni Web-kehys:** Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä.
-- [ ] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `web`.
+- [x] **Moderni Web-kehys:** Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä. (Toteutettu Next.js)
+- [x] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `web`.
+- [x] **Frontend Features:** Training Calendar, Goals, Dashboard.
 - [ ] **Mobiilisovellus:** Harkitse React Nativea tai Flutteria natiivia kokemusta varten.
 - [ ] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`.
 - [ ] **Notifikaatiot:** Lisää Push-ilmoitukset (treenimuistutukset).
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin.
 
 ## 5.5 Frontend Features (Next.js)
-- [x] **Goal Management:** Mahdollisuus lisätä ja poistaa tavoitteita. (Backend & Frontend valmiina)
+- [x] **Goal Management:** Mahdollisuus lisätä, muokata ja poistaa tavoitteita. (CRUD valmis: Backend & Frontend)
+- [x] **Training Calendar:** Visuaalinen kuukausinäkymä, treenien tarkastelu (Modal), tulevat suunnitelmat.
 - [ ] **Workout Logging:** Lomake treenien lisäämiseen.
 - [ ] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
 

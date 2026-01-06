@@ -1,12 +1,11 @@
 import os
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
-import db_manager
+import firestore_manager as db_manager
 
 # Load API Key
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-
 
 def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals=""):
     return f"""
@@ -91,40 +90,45 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
     Kieli: Suomi.
     """
 
-def generate_coach_advice(context, n_days=1, compliance_history="", preference_feedback=""):
+def generate_coach_advice(user_id, context, n_days=1, compliance_history="", preference_feedback=""):
     """Generates advice using Gemini."""
     if not api_key:
         return "Error: No API Key found in .env file."
 
     print(f"Calling Gemini Coach (Days: {n_days})...")
-    genai.configure(api_key=api_key)
-    # Using response_mime_type to enforce JSON
-    model = genai.GenerativeModel('gemini-2.5-flash', generation_config={"response_mime_type": "application/json"})
-    
-    # Fetch Active Goals
-    goals_list = db_manager.get_active_goals()
-    goals_text = ""
-    if goals_list:
-        lines = []
-        for g in goals_list:
-            activity = g.get('activity_type', 'Unknown')
-            value = g.get('target_value', 0)
-            unit = g.get('target_unit', '')
-            period = g.get('period_type', g.get('frequency', 'weekly'))
-            date_str = f"- Date: {g.get('target_date')}" if g.get('target_date') else ""
-            desc = f"({g.get('description', '')})" if g.get('description') else ""
-            lines.append(f"- {activity}: {value} {unit} ({period}) {date_str} {desc}")
-        goals_text = "\n".join(lines)
-    else:
-        goals_text = "Ei asetettuja tavoitteita."
-
-    if n_days > 1:
-        prompt = construct_multi_day_prompt(context, n_days, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
-    else:
-        prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
     
     try:
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=api_key)
+        
+        # Fetch Active Goals
+        goals_list = db_manager.get_active_goals(user_id)
+        goals_text = ""
+        if goals_list:
+            lines = []
+            for g in goals_list:
+                activity = g.get('activity_type', 'Unknown')
+                value = g.get('target_value', 0)
+                unit = g.get('target_unit', '')
+                period = g.get('period_type', g.get('frequency', 'weekly'))
+                date_str = f"- Date: {g.get('target_date')}" if g.get('target_date') else ""
+                desc = f"({g.get('description', '')})" if g.get('description') else ""
+                lines.append(f"- {activity}: {value} {unit} ({period}) {date_str} {desc}")
+            goals_text = "\n".join(lines)
+        else:
+            goals_text = "Ei asetettuja tavoitteita."
+
+        if n_days > 1:
+            prompt = construct_multi_day_prompt(context, n_days, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
+        else:
+            prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config={
+                'response_mime_type': 'application/json'
+            }
+        )
         return response.text
     except Exception as e:
         return f"Error contacting AI Coach: {e}"
@@ -135,29 +139,32 @@ def generate_trend_analysis(df_recent):
         return "Error: No API Key found."
     
     print("Thinking (Trend Analysis)...")
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-2.5-flash')
-    
-    # Prepare data summary
-    csv_data = df_recent[['date', 'bodyBatteryChargedValue', 'totalSleep_minutes', 'averageStressLevel', 'workout_calories']].to_csv(index=False)
-    
-    prompt = f"""
-    You are an expert data analyst in sports physiology.
-    Here is the last 30 days of data for an athlete (CSV format):
-    
-    {csv_data}
-    
-    Task:
-    Analyze the trends in Recovery (BodyBattery), Sleep, and Activity.
-    1. Identify the strongest correlation (e.g. "Does stress hurt recovery more than lack of sleep?").
-    2. Check the weekend vs weekday pattern if visible.
-    3. Give a summary of the "Activity Impact" - are high load days followed by poor recovery?
-    
-    Output in Finnish language. Keep it concise (bullet points).
-    """
     
     try:
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=api_key)
+        
+        # Prepare data summary
+        csv_data = df_recent[['date', 'bodyBatteryChargedValue', 'totalSleep_minutes', 'averageStressLevel', 'workout_calories']].to_csv(index=False)
+        
+        prompt = f"""
+        You are an expert data analyst in sports physiology.
+        Here is the last 30 days of data for an athlete (CSV format):
+        
+        {csv_data}
+        
+        Task:
+        Analyze the trends in Recovery (BodyBattery), Sleep, and Activity.
+        1. Identify the strongest correlation (e.g. "Does stress hurt recovery more than lack of sleep?").
+        2. Check the weekend vs weekday pattern if visible.
+        3. Give a summary of the "Activity Impact" - are high load days followed by poor recovery?
+        
+        Output in Finnish language. Keep it concise (bullet points).
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         return response.text
     except Exception as e:
         return f"Error analyzing trends: {e}"
@@ -187,10 +194,11 @@ def generate_daily_insight(ctx):
     """
     
     try:
-        genai.configure(api_key=api_key)
-        # Using flash model for speed and cost effectiveness for simple insights
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         return response.text.replace('"', '').strip() # Clean quotes
     except Exception as e:
         print(f"Insight Error: {e}")

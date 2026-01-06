@@ -6,21 +6,23 @@ import { Button } from '@/components/ui/button';
 
 interface AddGoalFormProps {
     onSuccess?: () => void;
+    initialData?: any; // If provided, we are in Edit mode
+    goalId?: string;
 }
 
-export default function AddGoalForm({ onSuccess }: AddGoalFormProps) {
+export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalFormProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
-        activity_type: 'Running',
-        target_value: '',
-        target_unit: 'km',
-        period_type: 'weekly', // weekly, monthly, target_date
-        frequency: 'Weekly', // Keep for recurring logic
-        target_date: '',
-        description: ''
+        activity_type: initialData?.activity_type || 'Running',
+        target_value: initialData?.target_value || '',
+        target_unit: initialData?.target_unit || 'km',
+        period_type: initialData?.period_type || 'weekly',
+        frequency: initialData?.frequency || 'Weekly',
+        target_date: initialData?.target_date || '',
+        description: initialData?.description || ''
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -32,8 +34,14 @@ export default function AddGoalForm({ onSuccess }: AddGoalFormProps) {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch('http://localhost:8000/goals', {
-                method: 'POST',
+            const url = goalId
+                ? `http://localhost:8000/goals/${goalId}`
+                : 'http://localhost:8000/goals';
+
+            const method = goalId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -49,18 +57,20 @@ export default function AddGoalForm({ onSuccess }: AddGoalFormProps) {
                 })
             });
 
-            if (!res.ok) throw new Error('Failed to create goal');
+            if (!res.ok) throw new Error(goalId ? 'Failed to update goal' : 'Failed to create goal');
 
-            // Reset form
-            setFormData({
-                activity_type: 'Running',
-                target_value: '',
-                target_unit: 'km',
-                period_type: 'weekly',
-                frequency: 'Weekly',
-                target_date: '',
-                description: ''
-            });
+            // Reset form only if adding
+            if (!goalId) {
+                setFormData({
+                    activity_type: 'Running',
+                    target_value: '',
+                    target_unit: 'km',
+                    period_type: 'weekly',
+                    frequency: 'Weekly',
+                    target_date: '',
+                    description: ''
+                });
+            }
 
             if (onSuccess) onSuccess();
 
@@ -77,7 +87,7 @@ export default function AddGoalForm({ onSuccess }: AddGoalFormProps) {
     return (
         <form onSubmit={handleSubmit} className="space-y-4 rounded-xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm backdrop-blur-sm">
             <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">Create New Goal</h2>
+                <h2 className="text-lg font-semibold text-white">{goalId ? 'Edit Goal' : 'Create New Goal'}</h2>
             </div>
 
             {error && <div className="rounded bg-red-900/50 p-3 text-sm text-red-200 border border-red-800">{error}</div>}
@@ -206,7 +216,7 @@ export default function AddGoalForm({ onSuccess }: AddGoalFormProps) {
 
             <div className="pt-2">
                 <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2">
-                    {loading ? 'Saving...' : 'Create Goal'}
+                    {loading ? 'Saving...' : (goalId ? 'Update Goal' : 'Create Goal')}
                 </Button>
             </div>
         </form>

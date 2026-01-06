@@ -9,6 +9,20 @@ import db_manager as local_db # DuckDB for history/analytics
 from fastapi import Depends
 from auth_middleware import verify_token
 import json
+import sys
+import os
+
+# Add /data to path to find ai_coach.py (Legacy structure)
+sys.path.append("/data")
+try:
+    import ai_coach
+except ImportError:
+    # Fallback for local testing if not in Docker with /data
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    try:
+        import ai_coach
+    except ImportError:
+        print("Warning: ai_coach module not found.")
 
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -139,12 +153,41 @@ def create_goal(goal: GoalCreate, request: Request, user: dict = Depends(verify_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.delete("/goals/{goal_id}")
+async def delete_goal_endpoint(goal_id: str, user: dict = Depends(verify_token)):
+    try:
+        if db_manager.delete_goal(user['uid'], goal_id):
+            return {"status": "success", "message": "Goal deleted"}
+        else:
+            raise HTTPException(status_code=404, detail="Goal not found or access denied")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/goals/{goal_id}")
+async def update_goal_endpoint(goal_id: str, goal: GoalCreate, user: dict = Depends(verify_token)):
+    try:
+        updates = {
+            "activity_type": goal.activity_type,
+            "target_value": goal.target_value,
+            "target_unit": goal.target_unit,
+            "period_type": goal.period_type,
+            "frequency": goal.frequency,
+            "target_date": goal.target_date,
+            "description": goal.description
+        }
+        if db_manager.update_goal(user['uid'], goal_id, updates):
+            return {"status": "success", "message": "Goal updated"}
+        else:
+            raise HTTPException(status_code=404, detail="Goal not found or access denied")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/next-workout")
 @limiter.limit("20/minute")
 def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
     try:
-        # Use local_db (DuckDB) for next workout based on plans
-        workout = local_db.get_next_workout()
+        # Use Firestore for next workout
+        workout = db_manager.get_next_workout(user['uid'])
         if not workout:
             return {}
         return workout
@@ -159,6 +202,14 @@ async def get_weekly_status(user: dict = Depends(verify_token)):
         "planned_load": planned,
         "breakdown": breakdown
     }
+
+@app.get("/workouts/upcoming")
+@limiter.limit("20/minute")
+def get_upcoming_workouts(request: Request, user: dict = Depends(verify_token)):
+    try:
+        return db_manager.get_upcoming_workouts(user['uid'])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # --- Migration Endpoints (Streamlit Features) ---
 
@@ -299,9 +350,130 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
         print(f"Insight Endpoint Error: {e}")
         return {"insight": "Tänään kannattaa kuunnella kehoa."} # Fallback
 
+
+class PlanGenerationRequest(BaseModel):
+    days: int = 1
+
+@app.post("/plans/generate")
+@limiter.limit("5/minute")
+async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, user: dict = Depends(verify_token)):
+    try:
+        # 1. Get Context (Metrics)
+        # Reuse get_metrics_history logic or call it directly if possible.
+        # Calling the function directly is cleaner if we abstract, but here we can just call it
+        metrics = await get_metrics_history(user)
+        if not metrics or len(metrics) == 0:
+            # Fallback or error? Let's proceed with empty
+            latest = {"tsb": 0, "readiness": 50, "sleep_min": 420, "ctl": 0, "load": 0}
+        else:
+            latest = metrics[-1]
+
+        ctx = {
+            "date": date.today().isoformat(),
+            "predicted_charge": latest.get('readiness', 50),
+            "sleep_hours": latest.get('sleep_min', 0) / 60,
+            "recent_load": latest.get('load', 0),
+            "ctl": latest.get('ctl', 0),
+            "tsb": latest.get('tsb', 0)
+        }
+
+        # 2. Call AI Coach
+        response_json = ai_coach.generate_coach_advice(
+            user_id=user['uid'],
+            context=ctx,
+            n_days=req.days
+        )
+        
+        # We need to fetch goals ourselves to be safe and pass them as text
+        # ai_coach.py line 122: construct_multi_day_prompt(..., active_goals=goals_text)
+        # Wait, generate_coach_advice calls db_manager.
+        # Let's trust it for now or if ai_coach is using the wrong db_manager we fix that later.
+        # Actually, let's fetch goals here and pass them if we can.. 
+        # But generate_coach_advice signature is: (context, n_days=1, compliance_history="", preference_feedback="")
+        # It does NOT accept active_goals override in the public function signature shown in viewed file (lines 94).
+        # It calls db_manager inside.
+        # I should check if I can update ai_coach.py to accept goals or ensure it imports firestore_manager.
+        
+        # Proceeding assuming it might fail or use local DuckDB for goals. That's "okay" for now, or we fix ai_coach.
+        
+        try:
+           plans = json.loads(response_json)
+        except json.JSONDecodeError:
+            # Fallback if AI didn't return valid JSON
+            return {"status": "error", "message": "AI returned invalid JSON", "raw": response_json}
+
+        # 3. Save to Firestore
+        from datetime import datetime, timedelta
+        
+        saved_count = 0
+        today = date.today()
+        
+        # 3b. Overwrite Logic: Delete existing PENDING workouts for the target range
+        # Calculate range
+        start_date_obj = today # Assuming plan starts today
+        # Find max day in plan to determine end date
+        max_day = 1
+        for p in plans:
+            max_day = max(max_day, p.get('day', 1))
+            
+        end_date_obj = today + timedelta(days=max_day-1)
+        
+        db_manager.delete_pending_workouts(
+            user['uid'], 
+            start_date_obj.isoformat(), 
+            end_date_obj.isoformat()
+        )
+
+        saved_count = 0
+        for p in plans:
+            day_offset = p.get('day', 1) - 1
+            workout_date = today + timedelta(days=day_offset)
+            
+            workout_doc = {
+                "date": workout_date.isoformat(),
+                "activity": p.get('activity', 'Rest'),
+                "description": p.get('description', ''),
+                "duration_min": p.get('duration_min', 0),
+                "load_estimate": p.get('load_estimate', 0),
+                "structure": p.get('structure_summary', ''),
+                "details": p.get('detailed_steps', []),
+                "tips": p.get('tips', ''),
+                "status": "PENDING",
+                "source": "AI_GENERATED"
+            }
+            
+            db_manager.save_workout(user['uid'], workout_doc)
+            saved_count += 1
+            
+        # 4. Save History Log
+        activity_counts = {}
+        for p in plans:
+            act = p.get('activity', 'Other')
+            activity_counts[act] = activity_counts.get(act, 0) + 1
+            
+        summary_parts = []
+        for act, count in activity_counts.items():
+            summary_parts.append(f"{count}x {act}")
+            
+        summary_text = f"Plan ({req.days} days): " + ", ".join(summary_parts)
+
+        db_manager.save_generated_plan(
+            user['uid'],
+            {"raw_json": plans},
+            summary_text,
+            ctx['predicted_charge']
+        )
+        
+        return {"status": "success", "count": saved_count, "plans": plans}
+
+    except Exception as e:
+        print(f"Generate Plan Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/plans/history")
 async def get_plan_history(limit: int = 5, user: dict = Depends(verify_token)):
-    return local_db.get_recent_plans(limit=limit)
+    # Switch to Firestore
+    return db_manager.get_recent_plans(user['uid'], limit=limit)
 @app.get("/readiness")
 @limiter.limit("20/minute")
 def get_readiness(request: Request, user: dict = Depends(verify_token)):

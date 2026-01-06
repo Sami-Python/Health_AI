@@ -14,4 +14,4 @@ scikit-learn
 joblib
 matplotlib
 seaborn
-google-generativeai
+google-genai
