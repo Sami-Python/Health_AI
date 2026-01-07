@@ -293,4 +293,37 @@ Tänään tehtiin merkittäviä parannuksia sovelluksen vakauteen ja käytettäv
 - **Backend:** Lisätty `delete_pending_workouts` -funktio `firestore_manager.py`:hyn.
 - **Optimointi:** Tietokantahaku optimoitiin toimimaan ilman monimutkaisia indeksejä (Composite Index) tekemällä filtteröinti muistissa.
 
-Nyt sovellus alkaa olla todella vakaassa ja käytettävässä kunnossa! 🚀
+
+## 2026-01-07 – Bugit, Mobiili & Workout Logging 📱🐛
+
+Tänään oli "huoltopäivä", joka päättyi uuteen ominaisuuteen.
+
+### 1. Kriittiset Bugikorjaukset
+- **Firebase Auth Error:** Korjattu `INVALID_API_KEY` ja `auth/unauthorized-domain` virheet.
+    - Syy: `.env.local` tiedostossa avaimet oli väärin (JSON-muodossa vs KEY=VALUE) ja Domain-whitelist puuttui.
+- **Tailwind Ei Toiminut:** Korjattu `Can't resolve 'tailwindcss'` build-virhe.
+    - Syy: Kotihakemistossa (`~`) oli "haamu" `package.json`, joka sekoitti Next.js:n (Turbopack) polut.
+    - Ratkaisu: Poistettu haamutiedostot ja tehty puhdas asennus (`clean install`).
+
+### 2. Mobiilikäyttö (Local Network)
+- **Ongelma:** Kännykällä ei päässyt sovellukseen (`connection refused`).
+- **Ratkaisu:**
+    - Firewall: Avattu portit `3000` (Frontend) ja `8000` (Backend).
+    - Config: Vaihdettu kuunteluosoitteet `0.0.0.0`.
+    - Auth: Lisätty kodin IP Whitelistiin Firebase-konsolissa.
+- Nyt sovellus toimii Wi-Fi -verkossa millä tahansa laitteella!
+
+### 3. Workout Logging (Dual Write) 🏋️‍♂️
+- Lisätty mahdollisuus kirjata manuaalisia treenejä Next.js Dashboardista.
+- **Dual Write Strategia:** Datan eheyden takaamiseksi (koska olemme migraatiovaiheessa), uudet treenit tallennetaan **kahteen paikkaan**:
+    1.  **DuckDB (Legacy):** Jotta vanha `dashboard.py` (Streamlit) näkee ne ja trendit eivät katkea.
+    2.  **Firestore (Modern):** Tulevaisuuden skaalautuvaa backendia varten.
+- **UI:** Lisätty tyylikäs tumma modaali-ikkuna (`ManualWorkoutForm`) kirjausta varten.
+
+### 4. User Menu (UI/UX) 🍔
+- Lisätty Dashboardin oikeaan yläkulmaan "Hampurilais-valikko".
+- Sisältää selkeät toiminnot: *Profile, Settings, Sign Out*.
+- Korvaa aiemman yksittäisen "Sign Out" -napin, säästäen tilaa ja parantaen yleisilmettä.
+
+Projekti on nyt taas raiteillaan ja valmiina seuraaviin ominaisuuksiin! 🚀
+

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Sparkles, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "@/lib/utils";
 
 export default function AIInsightCard() {
     const { user } = useAuth();
@@ -13,7 +14,7 @@ export default function AIInsightCard() {
         const fetchInsight = async () => {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch("http://localhost:8000/ai/insight", {
+                const res = await fetch(`${API_BASE_URL}/ai/insight`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

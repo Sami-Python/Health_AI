@@ -16,13 +16,26 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Workouts & Goals & Plans migrated)
 - [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä)
 - [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa.
+- [ ] **Legacy Migration (CRITICAL):** Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia).
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
 - [x] **Backend Middleware:** Implementoi `main.py`:hyn middleware, joka verifioi Firebase ID -tokenin jokaisessa pyynnössä.
 - [ ] **Kirjautuminen:** Toteuta Google/Apple/Email -kirjautumisvaihtoehdot.
 - [ ] **Tietosuoja (GDPR):** Varmista datan salaus (At-Rest & In-Transit).
+- [ ] **Data Encryption (GDPR):** Varmista datan salaus (At-Rest & In-Transit).
 - [ ] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi").
+
+## 3.5 Käyttäjäprofiili & Asetukset (User Management) 👤
+- [ ] **Hamburger Menu:** Navigaatio oikeaan ylälaitaan (Settings, Profile, Logout).
+- [ ] **Profile Page:**
+    - [ ] Fysiologiset tiedot (Ikä, Paino, Pituus, Sukupuoli).
+    - [ ] Sykerajat (Lepo- ja Maksimisyke).
+- [ ] **Settings:**
+    - [ ] Yksiköt (Metrinen/Imperial).
+    - [ ] App Theme (Dark/Light).
+    - [ ] AI Persona (Valmentajan tyyli).
+- [ ] **Account Control:** Data Export & Delete Account.
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
@@ -35,7 +48,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Moderni Web-kehys:** Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä. (Toteutettu Next.js)
 - [x] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `web`.
 - [x] **Frontend Features:** Training Calendar, Goals, Dashboard.
-- [ ] **Mobiilisovellus:** Harkitse React Nativea tai Flutteria natiivia kokemusta varten.
+- [x] **Mobiilisovellus:** Web App toimii nyt mobiilissa (Responsive Design + Network Config).
+- [ ] **Natiivi Mobiili (Optionaalinen):** Harkitse React Nativea tai Flutteria myöhemmin.
 - [ ] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`.
 - [ ] **Notifikaatiot:** Lisää Push-ilmoitukset (treenimuistutukset).
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin.

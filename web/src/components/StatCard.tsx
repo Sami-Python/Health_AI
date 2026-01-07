@@ -25,7 +25,7 @@ export function StatCard({ title, value, description, icon: Icon, trend, loading
     }
 
     return (
-        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-slate-700 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-1">
+        <div className="group relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-slate-700 hover:shadow-lg hover:shadow-emerald-500/10 hover:-translate-y-1 active:scale-95">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100 mix-blend-overlay"></div>
             <div className="flex items-center justify-between mb-2 relative z-10">
                 <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">{title}</h3>

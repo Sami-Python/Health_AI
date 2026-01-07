@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { API_BASE_URL } from '@/lib/utils';
 
 interface AddGoalFormProps {
     onSuccess?: () => void;
@@ -35,8 +36,8 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
         try {
             const token = await user.getIdToken();
             const url = goalId
-                ? `http://localhost:8000/goals/${goalId}`
-                : 'http://localhost:8000/goals';
+                ? `${API_BASE_URL}/goals/${goalId}`
+                : `${API_BASE_URL}/goals`;
 
             const method = goalId ? 'PUT' : 'POST';
 
@@ -92,7 +93,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
             {error && <div className="rounded bg-red-900/50 p-3 text-sm text-red-200 border border-red-800">{error}</div>}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelClass}>Activity</label>
                     <div className="relative">
@@ -136,7 +137,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
             </div>
 
             {/* Dynamic Middle Section */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {formData.period_type === 'target_date' ? (
                     <div className="col-span-2">
                         <label className={labelClass}>Target Date</label>
@@ -168,7 +169,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                 )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label className={labelClass}>Target Value</label>
                     <input

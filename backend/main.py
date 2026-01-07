@@ -36,7 +36,7 @@ app = FastAPI(title="Health AI API", version="0.1.0")
 # Configure CORS for Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -225,9 +225,10 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
     try:
         # Pydantic validates date string format if we used date type, but here it's string.
         # Ensure date format
-        from datetime import date
+        from datetime import date, datetime
         date_obj = date.fromisoformat(workout.date)
         
+        # 1. Legacy Write (DuckDB)
         local_db.log_manual_workout(
             date_obj,
             workout.activity,
@@ -235,7 +236,24 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
             workout.rpe,
             workout.notes
         )
-        return {"status": "success", "message": "Workout logged"}
+
+        # 2. Modern Write (Firestore)
+        # Map to Firestore document structure
+        # Use datetime for created_at, ISO string for 'date' field queryability
+        workout_doc = {
+            "date": workout.date, # YYYY-MM-DD
+            "activity": workout.activity,
+            "duration_min": workout.duration_min,
+            "rpe": workout.rpe,
+            "description": workout.notes,
+            "status": "DONE",
+            "source": "MANUAL",
+            "load_estimate": workout.duration_min * workout.rpe, # Simple load proxy
+            "structure": "Manual Log"
+        }
+        db_manager.save_workout(user['uid'], workout_doc)
+
+        return {"status": "success", "message": "Workout logged to Dual DB"}
     except ValueError:
         raise HTTPException(status_code=422, detail="Invalid date format (YYYY-MM-DD required)")
     except Exception as e:
