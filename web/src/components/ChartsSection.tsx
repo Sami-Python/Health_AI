@@ -5,6 +5,7 @@ import LoadChart from "./charts/LoadChart";
 import PerformanceChart from "./charts/PerformanceChart";
 import { Info, Loader2 } from "lucide-react";
 import AIInsightCard from "./AIInsightCard";
+import { API_BASE_URL } from "@/lib/utils";
 
 // Helper for Info Tooltip
 function InfoTooltip({ text }: { text: string }) {
@@ -30,7 +31,7 @@ export default function ChartsSection() {
         const fetchData = async () => {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch("http://localhost:8000/metrics/history", {
+                const res = await fetch(`${API_BASE_URL}/metrics/history`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error("Failed to fetch history");

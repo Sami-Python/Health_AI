@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import AddGoalForm from "@/components/AddGoalForm";
 import { StatCard } from "@/components/StatCard";
 import ManualWorkoutForm from "@/components/ManualWorkoutForm";
+import UserMenu from "@/components/UserMenu";
 import ChartsSection from "@/components/ChartsSection";
 import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
@@ -22,6 +23,8 @@ import AnimateEntry from "@/components/ui/AnimateEntry";
 // ... [Existing Render Logic]
 
 
+
+import { API_BASE_URL } from "@/lib/utils";
 
 export default function DashboardPage() {
     const { user, loading, signOut } = useAuth();
@@ -55,7 +58,7 @@ export default function DashboardPage() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`http://localhost:8000/goals/${goalId}`, {
+            const res = await fetch(`${API_BASE_URL}/goals/${goalId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -80,32 +83,32 @@ export default function DashboardPage() {
                 const headers = { Authorization: `Bearer ${token}` };
 
                 // 1. Get Goals
-                const resGoals = await fetch("http://localhost:8000/goals", { headers });
+                const resGoals = await fetch(`${API_BASE_URL}/goals`, { headers });
                 if (resGoals.ok) setGoals(await resGoals.json());
 
                 // 2. Get Readiness
-                const resReady = await fetch("http://localhost:8000/readiness", { headers });
+                const resReady = await fetch(`${API_BASE_URL}/readiness`, { headers });
                 if (resReady.ok) setReadiness(await resReady.json());
 
                 // 3. Get Next Workout
-                const resNext = await fetch("http://localhost:8000/next-workout", { headers });
+                const resNext = await fetch(`${API_BASE_URL}/next-workout`, { headers });
                 if (resNext.ok) setNextWorkout(await resNext.json());
 
                 // 4. Get Weekly Stats
-                const resWeekly = await fetch("http://localhost:8000/workouts/weekly-status", { headers });
+                const resWeekly = await fetch(`${API_BASE_URL}/workouts/weekly-status`, { headers });
                 if (resWeekly.ok) setWeeklyStats(await resWeekly.json());
 
                 // 5. Get Recent History for Widget
-                const resHistory = await fetch("http://localhost:8000/plans/history?limit=5", { headers });
+                const resHistory = await fetch(`${API_BASE_URL}/plans/history?limit=5`, { headers });
                 if (resHistory.ok) setHistory(await resHistory.json());
 
                 // 6. Get Full History for Calendar (re-using metrics/history endpoint which returns 30 days)
                 // Ideally backend should support date range, but for now 30 days is a start.
-                const resFullHistory = await fetch("http://localhost:8000/metrics/history", { headers });
+                const resFullHistory = await fetch(`${API_BASE_URL}/metrics/history`, { headers });
                 if (resFullHistory.ok) setFullHistory(await resFullHistory.json());
 
                 // 7. Get Planned Workouts
-                const resPlanned = await fetch("http://localhost:8000/workouts/upcoming", { headers });
+                const resPlanned = await fetch(`${API_BASE_URL}/workouts/upcoming`, { headers });
                 if (resPlanned.ok) setPlannedWorkouts(await resPlanned.json());
 
             } catch (err: any) {
@@ -120,7 +123,7 @@ export default function DashboardPage() {
         setRefreshing(true);
         try {
             const token = await user.getIdToken();
-            await fetch("http://localhost:8000/system/refresh", {
+            await fetch(`${API_BASE_URL}/system/refresh`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -160,10 +163,10 @@ export default function DashboardPage() {
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">Dashboard</h1>
                             <p className="text-slate-400 mt-1">Welcome back, {user.displayName}</p>
                         </div>
+                        <UserMenu />
                     </div>
                 </AnimateEntry>
 
-                {/* Action Bar */}
                 <AnimateEntry delay={0.1}>
                     <div className="flex flex-wrap gap-4 items-center justify-between">
                         <div className="flex gap-2">
@@ -189,7 +192,6 @@ export default function DashboardPage() {
                                 {refreshing ? 'Syncing...' : 'Refresh Data'}
                             </Button>
                         </div>
-                        <Button variant="outline" onClick={() => signOut()} className="border-slate-700 hover:bg-slate-800 text-slate-300">Sign Out</Button>
                     </div>
                 </AnimateEntry>
 
