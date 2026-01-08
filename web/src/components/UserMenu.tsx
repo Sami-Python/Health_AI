@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { User, Settings, LogOut, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 export default function UserMenu() {
     const { user, signOut } = useAuth();
@@ -42,14 +43,18 @@ export default function UserMenu() {
                     </div>
 
                     <div className="space-y-1 px-2">
-                        <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors text-left">
-                            <User className="h-4 w-4" />
-                            Profile
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors text-left">
-                            <Settings className="h-4 w-4" />
-                            Settings
-                        </button>
+                        <Link href="/profile" className="w-full">
+                            <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors text-left">
+                                <User className="h-4 w-4" />
+                                Profile
+                            </button>
+                        </Link>
+                        <Link href="/settings" className="w-full">
+                            <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors text-left">
+                                <Settings className="h-4 w-4" />
+                                Settings
+                            </button>
+                        </Link>
                     </div>
 
                     <div className="my-2 border-t border-slate-800"></div>

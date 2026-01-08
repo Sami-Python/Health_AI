@@ -27,15 +27,14 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [ ] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi").
 
 ## 3.5 Käyttäjäprofiili & Asetukset (User Management) 👤
-- [ ] **Hamburger Menu:** Navigaatio oikeaan ylälaitaan (Settings, Profile, Logout).
-- [ ] **Profile Page:**
-    - [ ] Fysiologiset tiedot (Ikä, Paino, Pituus, Sukupuoli).
-    - [ ] Sykerajat (Lepo- ja Maksimisyke).
-- [ ] **Settings:**
-    - [ ] Yksiköt (Metrinen/Imperial).
-    - [ ] App Theme (Dark/Light).
-    - [ ] AI Persona (Valmentajan tyyli).
-- [ ] **Account Control:** Data Export & Delete Account.
+- [x] **Hamburger Menu:** Navigaatio oikeaan ylälaitaan (Settings, Profile, Logout). (Toteutettu: UserMenu.tsx)
+- [x] **Profile Page:** (Toteutettu: `/profile` route + Firestore backend)
+    - [x] Fysiologiset tiedot (Ikä, Paino, Pituus, Sukupuoli).
+    - [x] Sykerajat (Lepo- ja Maksimisyke).
+- [ ] **Settings & Account Control:** (GDPR)
+    - [x] Settings Page (`/settings`).
+    - [x] **Delete Account:** "Danger Zone" - napin takana. Poistaa käyttäjän ja datat.
+    - [ ] **Data Export:** Lataa kaikki käyttäjän data JSON-muodossa.
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
@@ -57,6 +56,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ## 5.5 Frontend Features (Next.js)
 - [x] **Goal Management:** Mahdollisuus lisätä, muokata ja poistaa tavoitteita. (CRUD valmis: Backend & Frontend)
 - [x] **Training Calendar:** Visuaalinen kuukausinäkymä, treenien tarkastelu (Modal), tulevat suunnitelmat.
+    - [x] **Drag & Drop:** Siirrä treenejä päivältä toiselle.
+    - [x] **Trash Can:** Poista treenejä raahaamalla roskikseen.
+    - [x] **Regeneration:** AI luo korvaavan treenin poistetun tilalle.
 - [ ] **Workout Logging:** Lomake treenien lisäämiseen.
 - [ ] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
 
@@ -64,6 +66,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [ ] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD).
 - [ ] **Monitorointi:** Asenna Grafana/Datadog suorituskyvyn seurantaan.
 - [ ] **Alerting:** Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti).
+- [ ] **Developer Experience:** Lisää `npm run fix` -komento (`package.json`), joka siivoaa lukot ja välimuistit automaattisesti.
 
 ---
 ### MVP -> Beta (Ensimmäiset askeleet)

@@ -156,42 +156,48 @@ export default function DashboardPage() {
                     }}
                 />
             )}
-            <div className="mx-auto max-w-6xl space-y-8">
+            <div className="mx-auto max-w-7xl space-y-8">
                 <AnimateEntry>
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-6">
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">Dashboard</h1>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-6">
+                        <div className="text-center md:text-left">
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">Dashboard</h1>
                             <p className="text-slate-400 mt-1">Welcome back, {user.displayName}</p>
                         </div>
-                        <UserMenu />
+                        <div className="flex items-center gap-4">
+                            <div className="hidden md:block text-right text-xs text-slate-500 mr-2">
+                                <p>Last synced: Just now</p>
+                            </div>
+                            <UserMenu />
+                        </div>
                     </div>
                 </AnimateEntry>
 
                 <AnimateEntry delay={0.1}>
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-900/30 p-4 rounded-xl border border-slate-800/50 backdrop-blur-sm">
+                        <div className="flex flex-wrap justify-center sm:justify-start gap-3 w-full">
                             <Button
                                 onClick={() => setShowGenerateModal(true)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-lg shadow-purple-500/20 shadow-glow"
+                                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-purple-500/20 border-0"
                             >
                                 <Brain className="mr-2 h-4 w-4" /> AI Coach
                             </Button>
                             <Button
                                 onClick={() => setShowManualForm(!showManualForm)}
-                                className="bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-lg shadow-orange-500/20"
+                                className="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 shadow-sm"
                             >
                                 <Plus className="mr-2 h-4 w-4" /> Log Workout
                             </Button>
-                            <Button
-                                variant="outline"
-                                onClick={handleRefresh}
-                                disabled={refreshing}
-                                className="bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white border-slate-700"
-                            >
-                                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                                {refreshing ? 'Syncing...' : 'Refresh Data'}
-                            </Button>
                         </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                            className="text-slate-400 hover:text-white hover:bg-slate-800"
+                        >
+                            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                            {refreshing ? 'Syncing...' : 'Refresh'}
+                        </Button>
                     </div>
                 </AnimateEntry>
 
@@ -232,7 +238,7 @@ export default function DashboardPage() {
 
                 {/* Calendar Section */}
                 <AnimateEntry delay={0.3}>
-                    <TrainingCalendar history={fullHistory} planned={plannedWorkouts} />
+                    <TrainingCalendar history={fullHistory} planned={plannedWorkouts} onUpdate={fetchData} />
                 </AnimateEntry>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -258,45 +264,60 @@ export default function DashboardPage() {
                         )}
 
                         <AnimateEntry delay={0.5}>
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm relative">
-                                <h2 className="mb-4 text-xl font-semibold flex items-center gap-2">
-                                    <span>🎯</span> Your Active Goals
+                            <div className="rounded-2xl border border-slate-800 bg-gradient-to-b from-slate-900/60 to-slate-950/60 p-6 backdrop-blur-md relative overflow-hidden group/card transition-all hover:border-slate-700">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -z-10 group-hover/card:bg-blue-500/10 transition-colors"></div>
+
+                                <h2 className="mb-6 text-xl font-bold flex items-center gap-3 text-slate-100">
+                                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                                        <TrendingUp className="h-5 w-5" />
+                                    </div>
+                                    Your Active Goals
                                 </h2>
 
                                 {fetchError ? (
-                                    <div className="rounded bg-red-900/20 p-4 text-red-400 border border-red-900/50">Error fetching data: {fetchError}</div>
+                                    <div className="rounded-lg bg-red-950/30 p-4 text-red-400 border border-red-900/50 text-sm">
+                                        Error fetching data: {fetchError}
+                                    </div>
                                 ) : goals ? (
                                     <div className="space-y-4">
                                         {Array.isArray(goals) && goals.length === 0 ? (
-                                            <p className="text-slate-500 italic">No active goals found. Set one up!</p>
+                                            <div className="text-center py-8 border border-dashed border-slate-800 rounded-xl">
+                                                <p className="text-slate-500">No active goals found.</p>
+                                                <Button
+                                                    variant="link"
+                                                    onClick={() => document.getElementById('add-goal-input')?.focus()}
+                                                    className="text-blue-400"
+                                                >
+                                                    Set your first goal
+                                                </Button>
+                                            </div>
                                         ) : (
-                                            <div className="grid gap-4">
+                                            <div className="grid gap-3">
                                                 {goals.map((g: any) => (
-                                                    <div key={g.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-black/40 p-4 transition-colors hover:border-slate-700 group">
+                                                    <div key={g.id} className="relative flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-900/40 p-4 hover:bg-slate-800/40 hover:border-slate-700 transition-all group">
                                                         <div>
-                                                            <div className="flex items-center gap-2">
-                                                                <p className="font-semibold text-white">{g.activity_type || g.type}</p>
-                                                                {/* Edit/Delete Actions (Visible on Hover/Mobile) */}
-                                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <p className="font-semibold text-slate-200">{g.activity_type || g.type}</p>
+                                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-200">
                                                                     <button
                                                                         onClick={() => setEditingGoal(g)}
-                                                                        className="p-1 hover:text-blue-400 text-slate-500" title="Edit">
-                                                                        <Pencil className="h-3 w-3" />
+                                                                        className="p-1.5 hover:bg-blue-500/20 hover:text-blue-400 text-slate-500 rounded transition-colors" title="Edit">
+                                                                        <Pencil className="h-3.5 w-3.5" />
                                                                     </button>
                                                                     <button
                                                                         onClick={() => handleDeleteGoal(g.id)}
-                                                                        className="p-1 hover:text-red-400 text-slate-500" title="Delete">
-                                                                        <Trash2 className="h-3 w-3" />
+                                                                        className="p-1.5 hover:bg-red-500/20 hover:text-red-400 text-slate-500 rounded transition-colors" title="Delete">
+                                                                        <Trash2 className="h-3.5 w-3.5" />
                                                                     </button>
                                                                 </div>
                                                             </div>
-                                                            <p className="text-sm text-slate-400">{g.description || 'No description'}</p>
+                                                            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">{g.description || 'No description'}</p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <div className="text-2xl font-bold text-emerald-400">
-                                                                {g.target_value} <span className="text-sm font-normal text-slate-500">{g.target_unit}</span>
+                                                            <div className="text-xl font-bold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">
+                                                                {g.target_value} <span className="text-sm font-medium text-slate-500">{g.target_unit}</span>
                                                             </div>
-                                                            <div className="text-xs uppercase tracking-wide text-slate-600 font-bold">
+                                                            <div className="text-xs text-slate-500 font-medium">
                                                                 {g.period_type === 'target_date' ? (g.target_date || 'No Date') : (g.frequency || g.period_type)}
                                                             </div>
                                                         </div>
@@ -306,9 +327,9 @@ export default function DashboardPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 text-slate-500 animate-pulse">
-                                        <div className="h-4 w-4 rounded-full bg-slate-600"></div>
-                                        Fetching secured data...
+                                    <div className="flex items-center gap-2 text-slate-500 animate-pulse text-sm">
+                                        <div className="h-2 w-2 rounded-full bg-slate-600"></div>
+                                        Loading goals...
                                     </div>
                                 )}
                             </div>
@@ -316,20 +337,25 @@ export default function DashboardPage() {
 
                         {/* Recent History Section */}
                         <AnimateEntry delay={0.6}>
-                            <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 backdrop-blur-sm">
-                                <h2 className="mb-4 text-xl font-semibold flex items-center gap-2">
-                                    <History className="text-purple-400" /> Recent Coaching Plans
+                            <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-6 backdrop-blur-sm">
+                                <h2 className="mb-4 text-lg font-semibold flex items-center gap-2 text-slate-300">
+                                    <History className="h-5 w-5 text-purple-400" /> Recent Plans
                                 </h2>
                                 <div className="space-y-4">
                                     {history.length > 0 ? (
                                         history.map((plan: any) => (
-                                            <div key={plan.id} className="border-l-2 border-slate-700 pl-4 py-1 hover:border-blue-500 transition-colors">
-                                                <p className="text-sm text-slate-400">{new Date(plan.timestamp).toLocaleDateString()} &bull; Readiness: {plan.charge}</p>
-                                                <p className="text-slate-200 mt-1 line-clamp-2">{plan.advice}</p>
+                                            <div key={plan.id} className="relative pl-6 py-2 group">
+                                                <div className="absolute left-0 top-3 w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-purple-500 transition-colors shadow-[0_0_8px_rgba(168,85,247,0)] group-hover:shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
+                                                <div className="border-l border-slate-800 absolute left-[3px] top-6 bottom-[-10px] group-last:hidden"></div>
+
+                                                <p className="text-xs text-slate-500 mb-1 font-mono uppercase tracking-wider">
+                                                    {new Date(plan.timestamp).toLocaleDateString()} &bull; <span className={plan.charge > 80 ? "text-green-400" : "text-yellow-400"}>Ready: {plan.charge}%</span>
+                                                </p>
+                                                <p className="text-sm text-slate-300 line-clamp-2 group-hover:text-white transition-colors">{plan.advice}</p>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-slate-500 italic">No history available.</p>
+                                        <p className="text-slate-500 italic text-sm">No history available yet.</p>
                                     )}
                                 </div>
                             </div>

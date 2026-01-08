@@ -62,30 +62,36 @@ export default function ChartsSection() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* 1. Recovery Chart */}
-                <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+                <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm h-[350px]">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                         Recovery Status
                         <InfoTooltip text="Comparison of Body Battery (max daily value) vs. Sleep Duration. Helps visualize if your recovery matches your sleep volume." />
                     </h3>
-                    <RecoveryChart data={data} />
+                    <div className="h-[250px]">
+                        <RecoveryChart data={data} />
+                    </div>
                 </div>
 
                 {/* 2. Load Chart */}
-                <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+                <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm h-[350px]">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                         Daily Load
                         <InfoTooltip text="Daily training load (proxy from calories/duration). High bars indicate strenuous training days." />
                     </h3>
-                    <LoadChart data={data} />
+                    <div className="h-[250px]">
+                        <LoadChart data={data} />
+                    </div>
                 </div>
 
                 {/* 3. Performance Chart (Full Width) */}
-                <div className="col-span-1 lg:col-span-2 p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm">
+                <div className="col-span-1 lg:col-span-2 p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm h-[400px]">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                         Performance Management
                         <InfoTooltip text="Tracks Fitness (CTL), Fatigue (ATL), and Form (TSB) over time to optimize training peaks and avoid overtraining." />
                     </h3>
-                    <PerformanceChart data={data} />
+                    <div className="h-[300px]">
+                        <PerformanceChart data={data} />
+                    </div>
                 </div>
             </div>
         </div>

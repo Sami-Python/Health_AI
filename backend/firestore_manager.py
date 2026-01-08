@@ -159,9 +159,10 @@ def get_upcoming_workouts(user_id: str):
         
         # Simple query: where date >= today
         # Note: In a real app, 'date' string comparison works for ISO dates 'YYYY-MM-DD'
+        from google.cloud.firestore import FieldFilter
         docs = db.collection('workouts')\
-                 .where('user_id', '==', user_id)\
-                 .where('date', '>=', today_str)\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .where(filter=FieldFilter('date', '>=', today_str))\
                  .stream()
                  
         workouts = []
@@ -213,4 +214,70 @@ def delete_pending_workouts(user_id: str, start_date: str, end_date: str):
         return True
     except Exception as e:
         print(f"Firestore Delete Error: {e}")
+        return True
+    except Exception as e:
+        print(f"Firestore Delete Error: {e}")
         return False
+
+def get_user_profile(user_id: str):
+    """Fetches user profile data."""
+    try:
+        doc_ref = db.collection('users').document(user_id)
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        return {} # Return empty dict if no profile yet
+    except Exception as e:
+        print(f"Firestore Profile Error: {e}")
+        return {}
+
+def update_user_profile(user_id: str, data: dict):
+    """Updates or creates user profile data."""
+    try:
+        doc_ref = db.collection('users').document(user_id)
+        # set(..., merge=True) creates if not exists and updates fields
+        doc_ref.set(data, merge=True)
+        return True
+    except Exception as e:
+        print(f"Firestore Profile Update Error: {e}")
+        return False
+
+def update_workout_date(user_id: str, workout_id: str, new_date: str):
+    """Updates the date of a specific workout (Drag & Drop)."""
+    try:
+        doc_ref = db.collection('workouts').document(workout_id)
+        doc = doc_ref.get()
+        
+        if not doc.exists:
+            return False
+            
+        if doc.to_dict().get('user_id') != user_id:
+            return False
+            
+        doc_ref.update({'date': new_date})
+        return True
+    except Exception as e:
+        print(f"Update Date Error: {e}")
+        return False
+
+def check_daily_generation_limit(user_id: str, max_limit: int = 5):
+    """Checks if user has exceeded daily generation limit."""
+    try:
+        from datetime import datetime, time
+        # Get start and end of today
+        now = datetime.now()
+        start_of_day = datetime.combine(now.date(), time.min)
+        
+        # Count plans generated today
+        docs = db.collection('plans')\
+                 .where('user_id', '==', user_id)\
+                 .where('timestamp', '>=', start_of_day)\
+                 .stream()
+                 
+        count = sum(1 for _ in docs)
+        return count  < max_limit
+    except Exception as e:
+        print(f"Limit Check Error: {e}")
+        # Fail open or closed? Let's fail open but log error
+        return True
+

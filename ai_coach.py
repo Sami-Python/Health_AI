@@ -7,7 +7,15 @@ import firestore_manager as db_manager
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
-def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals=""):
+def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals="", rejected_context=None):
+    rejection_text = ""
+    if rejected_context:
+        rejection_text = f"""
+        HUOMIO: Urheilija HYLKÄSI edellisen ehdotuksen.
+        Hylätty treeni: {rejected_context.get('activity')} - {rejected_context.get('description')}
+        Syy/Muutospyyntö: Urheilija halusi uuden vaihtoehdon. Varmista, että tämä ehdotus on erilainen.
+        """
+
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
@@ -18,6 +26,8 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     - Viime aikojen toteutus: {compliance_history}
     - Palautteet: {preference_feedback}
     - AKTIIVISET TAVOITTEET: {active_goals}
+
+    {rejection_text}
     
     Tehtävä:
     Luo tarkka ja ammattimainen treenisuunnitelma tälle päivälle JSON-muodossa.
@@ -90,7 +100,7 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
     Kieli: Suomi.
     """
 
-def generate_coach_advice(user_id, context, n_days=1, compliance_history="", preference_feedback=""):
+def generate_coach_advice(user_id, context, n_days=1, compliance_history="", preference_feedback="", rejected_context=None):
     """Generates advice using Gemini."""
     if not api_key:
         return "Error: No API Key found in .env file."
@@ -120,7 +130,7 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
         if n_days > 1:
             prompt = construct_multi_day_prompt(context, n_days, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
         else:
-            prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text)
+            prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text, rejected_context=rejected_context)
         
         response = client.models.generate_content(
             model='gemini-2.5-flash',
