@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from firebase_admin import auth
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -141,6 +142,15 @@ class GoalCreate(BaseModel):
     target_date: Optional[str] = None # ISO format date string YYYY-MM-DD
     description: Optional[str] = None
 
+class UserProfile(BaseModel):
+    age: Optional[int] = None
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    gender: Optional[str] = None
+    resting_heart_rate: Optional[int] = None
+    max_heart_rate: Optional[int] = None
+
+
 @app.post("/goals")
 @limiter.limit("5/minute")
 def create_goal(goal: GoalCreate, request: Request, user: dict = Depends(verify_token)):
@@ -179,6 +189,51 @@ async def update_goal_endpoint(goal_id: str, goal: GoalCreate, user: dict = Depe
             return {"status": "success", "message": "Goal updated"}
         else:
             raise HTTPException(status_code=404, detail="Goal not found or access denied")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/profile")
+@limiter.limit("20/minute")
+async def get_profile_endpoint(request: Request, user: dict = Depends(verify_token)):
+    try:
+        profile = db_manager.get_user_profile(user['uid'])
+        return profile
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/profile")
+@limiter.limit("10/minute")
+async def update_profile_endpoint(profile: UserProfile, request: Request, user: dict = Depends(verify_token)):
+    try:
+        # Filter out None values to allow partial updates (though frontend sends all)
+        data = {k: v for k, v in profile.model_dump().items() if v is not None}
+        
+        if db_manager.update_user_profile(user['uid'], data):
+            return {"status": "success", "message": "Profile updated"}
+        else:
+             raise HTTPException(status_code=500, detail="Failed to update profile")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/account")
+@limiter.limit("2/minute")
+async def delete_account_endpoint(request: Request, user: dict = Depends(verify_token)):
+    try:
+        uid = user['uid']
+        
+        # 1. Delete Firestore Data
+        if not db_manager.delete_all_user_data(uid):
+             raise HTTPException(status_code=500, detail="Failed to delete user data")
+
+        # 2. Delete Auth User
+        try:
+            auth.delete_user(uid)
+        except Exception as auth_error:
+            print(f"Auth Deletion Error: {auth_error}")
+            raise HTTPException(status_code=500, detail="Failed to delete authentication user")
+
+        return {"status": "success", "message": "Account deleted permanently"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -371,10 +426,14 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
 
 class PlanGenerationRequest(BaseModel):
     days: int = 1
+    rejected_plan_details: Optional[dict] = None
 
 @app.post("/plans/generate")
 @limiter.limit("5/minute")
 async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, user: dict = Depends(verify_token)):
+    # Check Daily Limit
+    if not db_manager.check_daily_generation_limit(user['uid']):
+         raise HTTPException(status_code=429, detail="Daily plan generation limit (5) reached.")
     try:
         # 1. Get Context (Metrics)
         # Reuse get_metrics_history logic or call it directly if possible.
@@ -399,10 +458,65 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
         response_json = ai_coach.generate_coach_advice(
             user_id=user['uid'],
             context=ctx,
-            n_days=req.days
+            n_days=req.days,
+            rejected_context=req.rejected_plan_details
         )
         
-        # We need to fetch goals ourselves to be safe and pass them as text
+        # 3. Parse and Save
+        import json
+        try:
+            cleaned = response_json.replace('```json', '').replace('```', '').strip()
+            plan_data = json.loads(cleaned)
+            
+            # Save
+            db_manager.save_generated_plan(user['uid'], plan_data, "AI Generated", ctx['predicted_charge'])
+            
+            return plan_data
+        except Exception as parse_error:
+            print(f"AI Parse Error: {parse_error} \nResponse: {response_json}")
+            raise HTTPException(status_code=500, detail="Failed to parse AI response")
+
+    except Exception as e:
+        print(f"Plan Gen Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+@app.patch("/workouts/{workout_id}")
+@limiter.limit("10/minute")
+async def update_workout_date(workout_id: str, request: Request, user: dict = Depends(verify_token)):
+    try:
+        body = await request.json()
+        new_date = body.get('date') # Expects YYYY-MM-DD
+        
+        if not new_date:
+             raise HTTPException(status_code=400, detail="New date is required")
+
+        if db_manager.update_workout_date(user['uid'], workout_id, new_date):
+            return {"status": "success", "message": "Workout rescheduled"}
+        else:
+             raise HTTPException(status_code=404, detail="Workout not found or permission denied")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/workouts/{workout_id}")
+@limiter.limit("10/minute")
+async def delete_workout_endpoint(workout_id: str, request: Request, user: dict = Depends(verify_token)):
+    try:
+        # We need a delete function in db_manager or use generic delete if exposed?
+        # firestore_manager.delete_goal exists, but not delete_workout explicitly with ID check.
+        # But we can use db.collection(...).delete() wrapper.
+        # Let's assume we can add it or modify firestore_manager efficiently?
+        # Or just do:
+        doc_ref = db_manager.db.collection('workouts').document(workout_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+             raise HTTPException(status_code=404, detail="Workout not found")
+        if doc.to_dict().get('user_id') != user['uid']:
+             raise HTTPException(status_code=403, detail="Permission denied")
+        
+        doc_ref.delete()
+        return {"status": "success", "message": "Workout deleted"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
         # ai_coach.py line 122: construct_multi_day_prompt(..., active_goals=goals_text)
         # Wait, generate_coach_advice calls db_manager.
         # Let's trust it for now or if ai_coach is using the wrong db_manager we fix that later.

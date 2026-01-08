@@ -327,3 +327,33 @@ Tänään oli "huoltopäivä", joka päättyi uuteen ominaisuuteen.
 
 Projekti on nyt taas raiteillaan ja valmiina seuraaviin ominaisuuksiin! 🚀
 
+
+## 2026-01-08 – Calendar Drag & Drop & Regeneration 📅✨
+
+Tänään Training Calendarista tehtiin aidosti interaktiivinen työkalu.
+
+### 1. Drag & Drop (Siirrä & Järjestä)
+- Implementoitu `@dnd-kit/core` kirjastolla.
+- **PointerSensor:** Vaihdettu `MouseSensor` -> `PointerSensor`, jotta kosketusnäytöt (mobiili/tabletti) toimivat luotettavasti.
+- **Live Update:** Kun treenin pudottaa uudelle päivälle, Backend päivittää päivämäärän ja UI päivittyy välittömästi ilman sivun latausta.
+- **Visuals:** Raahattava kortti ("Overlay") näyttää nyt identtiseltä alkuperäisen kanssa, eikä ole vain "Moving..." tekstilaatikko.
+
+### 2. Trash Can (Roskakori) 🗑️
+- Kalenterin alareunaan ilmestyy roskakori, kun käyttäjä alkaa raahata treeniä.
+- **Drop to Delete:** Treenin voi pudottaa roskikseen, jolloin avautuu vahvistusikkuna.
+
+### 3. Smart Regeneration (Älykäs Korvaus) 🤖
+- Kun treenin poistaa, käyttäjä voi valita: "Delete Only" tai **"Regenerate"**.
+- **Regenerate-logiikka:**
+    1.  Vanha treeni poistetaan.
+    2.  Lähetetään pyyntö AI:lle (`/plans/generate`), jossa kerrotaan *mikä* treeni hylättiin ("Rejected Plan Details").
+    3.  AI luo uuden, paremmin sopivan treenin tilalle.
+- **Rajoitus:** Estetty spämmäys päivittäisellä 5 pyynnön katolla (`check_daily_generation_limit`).
+
+### 4. Backend (API Expansion)
+- `PATCH /workouts/{id}`: Päivämäärän muuttamiseen.
+- `DELETE /workouts/{id}`: Yksittäisen treenin poistoon.
+- `POST /plans/generate`: Päivitetty hyväksymään `rejected_plan_details` kontekstiksi.
+
+Nyt kalenteri ei ole vain *näkymä*, vaan *työkalu* viikon suunnitteluun! 🚀
+
