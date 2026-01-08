@@ -215,9 +215,7 @@ def delete_pending_workouts(user_id: str, start_date: str, end_date: str):
     except Exception as e:
         print(f"Firestore Delete Error: {e}")
         return True
-    except Exception as e:
-        print(f"Firestore Delete Error: {e}")
-        return False
+
 
 def get_user_profile(user_id: str):
     """Fetches user profile data."""

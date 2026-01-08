@@ -436,11 +436,8 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
          raise HTTPException(status_code=429, detail="Daily plan generation limit (5) reached.")
     try:
         # 1. Get Context (Metrics)
-        # Reuse get_metrics_history logic or call it directly if possible.
-        # Calling the function directly is cleaner if we abstract, but here we can just call it
         metrics = await get_metrics_history(user)
         if not metrics or len(metrics) == 0:
-            # Fallback or error? Let's proceed with empty
             latest = {"tsb": 0, "readiness": 50, "sleep_min": 420, "ctl": 0, "load": 0}
         else:
             latest = metrics[-1]
@@ -464,14 +461,65 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
         
         # 3. Parse and Save
         import json
+        from datetime import datetime, timedelta
+        
         try:
             cleaned = response_json.replace('```json', '').replace('```', '').strip()
-            plan_data = json.loads(cleaned)
+            plans = json.loads(cleaned)
             
-            # Save
-            db_manager.save_generated_plan(user['uid'], plan_data, "AI Generated", ctx['predicted_charge'])
+            today = date.today()
             
-            return plan_data
+            # 3b. Overwrite Logic: Delete existing PENDING workouts for the target range
+            max_day = 1
+            for p in plans:
+                max_day = max(max_day, p.get('day', 1))
+                
+            end_date_obj = today + timedelta(days=max_day-1)
+            
+            db_manager.delete_pending_workouts(
+                user['uid'], 
+                today.isoformat(), 
+                end_date_obj.isoformat()
+            )
+
+            saved_count = 0
+            for p in plans:
+                day_offset = p.get('day', 1) - 1
+                workout_date = today + timedelta(days=day_offset)
+                
+                workout_doc = {
+                    "date": workout_date.isoformat(),
+                    "activity": p.get('activity', 'Rest'),
+                    "description": p.get('description', ''),
+                    "duration_min": p.get('duration_min', 0),
+                    "load_estimate": p.get('load_estimate', 0),
+                    "structure": p.get('structure_summary', ''),
+                    "details": p.get('detailed_steps', []),
+                    "tips": p.get('tips', ''),
+                    "status": "PENDING",
+                    "source": "AI_GENERATED"
+                }
+                
+                db_manager.save_workout(user['uid'], workout_doc)
+                saved_count += 1
+
+            # 4. Save History Log
+            activity_counts = {}
+            for p in plans:
+                act = p.get('activity', 'Other')
+                activity_counts[act] = activity_counts.get(act, 0) + 1
+                
+            summary_text = f"Plan ({req.days} days): " + ", ".join([f"{count}x {act}" for act, count in activity_counts.items()])
+
+            db_manager.save_generated_plan(
+                user['uid'],
+                {"raw_json": plans},
+                summary_text,
+                ctx['predicted_charge']
+            )
+            
+            return {"status": "success", "count": saved_count, "plans": plans}
+
         except Exception as parse_error:
             print(f"AI Parse Error: {parse_error} \nResponse: {response_json}")
             raise HTTPException(status_code=500, detail="Failed to parse AI response")
@@ -479,6 +527,7 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
     except Exception as e:
         print(f"Plan Gen Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 @app.patch("/workouts/{workout_id}")
 @limiter.limit("10/minute")
 async def update_workout_date(workout_id: str, request: Request, user: dict = Depends(verify_token)):
@@ -517,111 +566,15 @@ async def delete_workout_endpoint(workout_id: str, request: Request, user: dict 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-        # ai_coach.py line 122: construct_multi_day_prompt(..., active_goals=goals_text)
-        # Wait, generate_coach_advice calls db_manager.
-        # Let's trust it for now or if ai_coach is using the wrong db_manager we fix that later.
-        # Actually, let's fetch goals here and pass them if we can.. 
-        # But generate_coach_advice signature is: (context, n_days=1, compliance_history="", preference_feedback="")
-        # It does NOT accept active_goals override in the public function signature shown in viewed file (lines 94).
-        # It calls db_manager inside.
-        # I should check if I can update ai_coach.py to accept goals or ensure it imports firestore_manager.
-        
-        # Proceeding assuming it might fail or use local DuckDB for goals. That's "okay" for now, or we fix ai_coach.
-        
-        try:
-           plans = json.loads(response_json)
-        except json.JSONDecodeError:
-            # Fallback if AI didn't return valid JSON
-            return {"status": "error", "message": "AI returned invalid JSON", "raw": response_json}
-
-        # 3. Save to Firestore
-        from datetime import datetime, timedelta
-        
-        saved_count = 0
-        today = date.today()
-        
-        # 3b. Overwrite Logic: Delete existing PENDING workouts for the target range
-        # Calculate range
-        start_date_obj = today # Assuming plan starts today
-        # Find max day in plan to determine end date
-        max_day = 1
-        for p in plans:
-            max_day = max(max_day, p.get('day', 1))
-            
-        end_date_obj = today + timedelta(days=max_day-1)
-        
-        db_manager.delete_pending_workouts(
-            user['uid'], 
-            start_date_obj.isoformat(), 
-            end_date_obj.isoformat()
-        )
-
-        saved_count = 0
-        for p in plans:
-            day_offset = p.get('day', 1) - 1
-            workout_date = today + timedelta(days=day_offset)
-            
-            workout_doc = {
-                "date": workout_date.isoformat(),
-                "activity": p.get('activity', 'Rest'),
-                "description": p.get('description', ''),
-                "duration_min": p.get('duration_min', 0),
-                "load_estimate": p.get('load_estimate', 0),
-                "structure": p.get('structure_summary', ''),
-                "details": p.get('detailed_steps', []),
-                "tips": p.get('tips', ''),
-                "status": "PENDING",
-                "source": "AI_GENERATED"
-            }
-            
-            db_manager.save_workout(user['uid'], workout_doc)
-            saved_count += 1
-            
-        # 4. Save History Log
-        activity_counts = {}
-        for p in plans:
-            act = p.get('activity', 'Other')
-            activity_counts[act] = activity_counts.get(act, 0) + 1
-            
-        summary_parts = []
-        for act, count in activity_counts.items():
-            summary_parts.append(f"{count}x {act}")
-            
-        summary_text = f"Plan ({req.days} days): " + ", ".join(summary_parts)
-
-        db_manager.save_generated_plan(
-            user['uid'],
-            {"raw_json": plans},
-            summary_text,
-            ctx['predicted_charge']
-        )
-        
-        return {"status": "success", "count": saved_count, "plans": plans}
-
-    except Exception as e:
-        print(f"Generate Plan Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/plans/history")
 async def get_plan_history(limit: int = 5, user: dict = Depends(verify_token)):
     # Switch to Firestore
     return db_manager.get_recent_plans(user['uid'], limit=limit)
+
 @app.get("/readiness")
 @limiter.limit("20/minute")
 def get_readiness(request: Request, user: dict = Depends(verify_token)):
     try:
-        latest = local_db.get_latest_plan()
-        if latest and 'content' in latest:
-            # content is advice_text, we needed 'predicted_charge' which is stored in db but get_latest_plan wrapper might not return it
-            # Let's check get_latest_plan implementation or use raw connection
-             pass 
-        # Actually get_latest_plan returns dict with content, date, id, status.
-        # We need predicted_charge. Let's fix db_manager.get_latest_plan or make a new query.
-        # For now, let's look at `db_manager.py` again or assume we need to update it.
-        # Wait, get_latest_plan in db_manager selects 'advice_text, timestamp, id, status'.
-        # We need to update db_manager.py first to fetch charge, or add a new function.
-        # OPTION: Add new function to db_manager below.
-        
         # Let's assume we will add get_latest_readiness to db_manager.
         res = local_db.get_latest_readiness()
         return res

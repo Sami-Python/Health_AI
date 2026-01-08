@@ -4,20 +4,38 @@ import { useState } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Calendar as CalendarIcon, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL } from "@/lib/utils";
 
 // --- Types ---
+interface Workout {
+    id: string;
+    date: string;
+    type: 'history' | 'planned';
+    activity: string;
+    description?: string;
+    structure_summary?: string;
+    structure?: string;
+    load?: number;
+    load_estimate?: number;
+    readiness?: number;
+    sleep_min?: number;
+    duration?: number;
+    duration_min?: number;
+    tips?: string;
+    [key: string]: any; // Allow other props for flexibility
+}
+
 interface TrainingCalendarProps {
-    history: any[];
-    planned: any[];
+    history: Workout[];
+    planned: Workout[];
     onUpdate?: () => void; // Callback to refresh data
 }
 
 // --- Draggable Workout Item ---
-function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: any, isOverlay?: boolean, onSelect?: (workout: any) => void }) {
+function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: Workout, isOverlay?: boolean, onSelect?: (workout: Workout) => void }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: workout.id,
         data: workout,
@@ -49,7 +67,7 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: a
     if (workout.type === 'history') {
         return (
             <div
-                onClick={(e) => { e.stopPropagation(); onSelect && onSelect(workout); }}
+                onClick={(e) => { e.stopPropagation(); onSelect?.(workout); }}
                 className={`text-xs p-1.5 rounded border ${statusColor} mb-1 cursor-pointer hover:brightness-110 active:scale-95 transition-all`}
             >
                 <div className="flex items-center gap-1 font-semibold truncate">
@@ -57,7 +75,7 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: a
                     <span className="truncate">{workout.type === 'history' ? `Load: ${workout.load || 0}` : workout.activity}</span>
                 </div>
                 <div className="text-[10px] opacity-70 mt-1 line-clamp-2 leading-tight">
-                    R: {workout.readiness}% • S: {Math.round(workout.sleep_min / 60)}h
+                    R: {workout.readiness}% • S: {Math.round((workout.sleep_min || 0) / 60)}h
                 </div>
             </div>
         )
@@ -69,9 +87,9 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: a
             {...listeners}
             {...attributes}
             style={style}
-            onClick={(e) => {
+            onClick={() => {
                 if (!isDragging) {
-                    onSelect && onSelect(workout);
+                    onSelect?.(workout);
                 }
             }}
             className={`
@@ -152,10 +170,10 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
     const { user } = useAuth();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [activeId, setActiveId] = useState<string | null>(null);
-    const [selectedWorkout, setSelectedWorkout] = useState<any | null>(null);
+    const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
 
     // Modal State
-    const [deleteCandidate, setDeleteCandidate] = useState<any | null>(null);
+    const [deleteCandidate, setDeleteCandidate] = useState<Workout | null>(null);
     const [isRegenerating, setIsRegenerating] = useState(false);
     const [modalError, setModalError] = useState<string | null>(null);
 
@@ -178,14 +196,14 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
         const dayStr = format(day, 'yyyy-MM-dd');
         const hist = history.find(h => h.date === dayStr);
         const plan = planned.find(p => p.date === dayStr);
-        if (hist && (hist.load > 0)) return { ...hist, type: 'history' };
-        if (plan) return { ...plan, type: 'planned' };
-        if (hist) return { ...hist, type: 'history' };
+        if (hist && (hist.load || 0) > 0) return { ...hist, type: 'history' } as Workout;
+        if (plan) return { ...plan, type: 'planned' } as Workout;
+        if (hist) return { ...hist, type: 'history' } as Workout;
         return null;
     };
 
-    const handleDragStart = (event: any) => {
-        setActiveId(event.active.id);
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
@@ -217,7 +235,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                 });
 
                 if (res.ok) {
-                    if (onUpdate) onUpdate();
+                    onUpdate?.();
                 } else {
                     console.error("Failed to move workout");
                 }
@@ -267,7 +285,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
 
             // Success
             setDeleteCandidate(null);
-            if (onUpdate) onUpdate();
+            onUpdate?.();
         } catch (e: any) {
             setModalError(e.message || "Action failed");
         } finally {
@@ -419,7 +437,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                             <div className="space-y-4 text-sm text-slate-300">
                                 {selectedWorkout.description && (
                                     <p className="italic border-l-2 border-slate-700 pl-3">
-                                        "{selectedWorkout.description}"
+                                        &quot;{selectedWorkout.description}&quot;
                                     </p>
                                 )}
 
