@@ -29,7 +29,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
 import os
-from datetime import date
+from datetime import date, timedelta, datetime
+import calendar
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Health AI API", version="0.1.0")
@@ -128,10 +129,168 @@ def health_check():
 @limiter.limit("10/minute")
 def get_goals(request: Request, user: dict = Depends(verify_token)):
     try:
-        goals = db_manager.get_active_goals(user['uid'])
-        return goals
+        raw_goals = db_manager.get_active_goals(user['uid'])
+        
+        # Enrich with progress
+        enriched_goals = []
+        for g in raw_goals:
+            progress = calculate_goal_progress(user['uid'], g)
+            g.update(progress)
+            enriched_goals.append(g)
+            
+        return enriched_goals
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+def calculate_goal_progress(user_id: str, goal: dict):
+    """
+    Calculates current progress for a goal based on:
+    1. Garmin Data (CSV)
+    2. Manual Logs (Firestore 'workouts')
+    """
+    try:
+        target_val = float(goal.get('target_value', 0))
+        activity_type = goal.get('activity_type', '').lower()
+        period = goal.get('period_type', 'weekly')
+        
+        # 1. Determine Date Range
+        today = date.today()
+        start_date = today
+        end_date = today
+        
+        if period == 'weekly':
+            # Monday to Sunday
+            start_date = today - timedelta(days=today.weekday())
+            end_date = start_date + timedelta(days=6)
+        elif period == 'monthly':
+            # 1st to End of Month
+            start_date = today.replace(day=1)
+            # End of month approach
+            import calendar
+            last_day = calendar.monthrange(today.year, today.month)[1]
+            end_date = today.replace(day=last_day)
+        elif period == 'target_date' or period == 'race':
+            # Range: From Creation (or fallback) to Target Date
+            target_date_str = goal.get('target_date')
+            if target_date_str:
+                end_date = datetime.strptime(target_date_str, '%Y-%m-%d').date()
+            else:
+                 end_date = today + timedelta(days=30) # Fallback
+
+            # Start from creation or if missing, assume "Start of Year" or reasonable fallback
+            created_at = goal.get('created_at')
+            if created_at:
+                if isinstance(created_at, datetime):
+                     start_date = created_at.date()
+                elif isinstance(created_at, str):
+                     try:
+                         # Handle Firestore timestamp string or isoformat
+                         start_date = datetime.fromisoformat(created_at).date()
+                     except:
+                         start_date = datetime(2025, 1, 1).date()
+                else:
+                    # Firestore Timestamp object?
+                    try:
+                        start_date = created_at.date()
+                    except:
+                        start_date = datetime(2025, 1, 1).date()
+            else:
+                # If no creation date, fallback to start of current year or user "start"
+                # For this MVP, let's use 2025-01-01 as hard start for legacy data
+                start_date = datetime(2025, 1, 1).date()
+
+        if period == 'race':
+            # Race Mode: Calculate countdown
+            if not end_date:
+                # If no target date, invalid race config
+                return {"days_remaining": 0, "current_value": 0, "progress_percentage": 0}
+            
+            # Days remaining = Target Date - Today
+            delta = end_date - today
+            days_remaining = max(0, delta.days)
+            
+            return {
+                "current_value": days_remaining, 
+                "days_remaining": days_remaining,
+                "progress_percentage": 0 
+            }
+
+
+        # 2. Get Data Sources
+        total_value = 0.0
+        
+        # A) Garmin CSV (History)
+        # We need to read CSV. It's not efficient to read on every request loop, 
+        # but for < 10 goals it's acceptable for MVP.
+        # Ideally cache the DF.
+        csv_path = "../Health_AI/data/garmin_merged_features.csv"
+        if not os.path.exists(csv_path):
+             csv_path = "/data/Health_AI/data/garmin_merged_features.csv"
+        
+        if os.path.exists(csv_path):
+            try:
+                df = pd.read_csv(csv_path)
+                if 'calendarDate' in df.columns:
+                     df['date'] = pd.to_datetime(df['calendarDate']).dt.date
+                elif 'date' in df.columns:
+                     df['date'] = pd.to_datetime(df['date']).dt.date
+                
+                # Filter Date
+                mask = (df['date'] >= start_date) & (df['date'] <= end_date)
+                filtered = df.loc[mask]
+                
+                # Filter Activity? Garmin CSV might not have 'activity type' per row if it's daily summary.
+                # If the CSV is "Daily Summaries", it aggregates ALL activities.
+                # We can't distinguish "Running" vs "Cycling" easily from daily summary CSV 
+                # unless we have specific columns like 'runningDistance'.
+                # For this MVP, if goal is 'Running' and we only have 'totalDistance', it might be inaccurate.
+                # Let's check columns for 'distanceInMeters' (General).
+                # If target_unit is 'km', use distance. If 'h' or 'min', use duration.
+                
+                if goal.get('target_unit') in ['km', 'm']:
+                    if 'totalDistanceOnFoot' in filtered.columns: # Specific to walking/running
+                         total_value += filtered['totalDistanceOnFoot'].sum() / 1000.0 # meters to km
+                    elif 'distanceInMeters' in filtered.columns:
+                         total_value += filtered['distanceInMeters'].sum() / 1000.0
+                elif goal.get('target_unit') in ['h', 'min']:
+                     if 'activeSeconds' in filtered.columns: # activeSeconds or similar
+                         seconds = filtered['activeSeconds'].sum()
+                         if goal.get('target_unit') == 'h':
+                             total_value += seconds / 3600.0
+                         else:
+                             total_value += seconds / 60.0
+
+            except Exception as csv_e:
+                print(f"Goal Calc CSV Error: {csv_e}")
+
+        # B) Manual Workouts (Firestore)
+        # Get workouts in range
+        manual_workouts = db_manager.get_workouts_in_range(user_id, start_date.isoformat(), end_date.isoformat())
+        for w in manual_workouts:
+            # Filter Activity
+            # Fuzzy match: "Run" in "Running"
+            w_activity = w.get('activity', '').lower()
+            if activity_type in w_activity or w_activity in activity_type:
+                 # Check unit
+                 if goal.get('target_unit') in ['min', 'h']:
+                     duration = w.get('duration_min', 0)
+                     if goal.get('target_unit') == 'h':
+                         total_value += duration / 60.0
+                     else:
+                         total_value += duration
+                 elif goal.get('target_unit') in ['km']:
+                      # We don't store distance in manual workout currently (only duration/rpe)
+                      # fallback: estimate? or 0.
+                      pass
+
+        return {
+            "current_value": round(total_value, 1),
+            "progress_percentage": min(100, int((total_value / target_val) * 100)) if target_val > 0 else 0
+        }
+
+    except Exception as e:
+        print(f"Goal Calc Error: {e}")
+        return {"current_value": 0, "progress_percentage": 0}
 
 class GoalCreate(BaseModel):
     activity_type: str

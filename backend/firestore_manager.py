@@ -177,6 +177,26 @@ def get_upcoming_workouts(user_id: str):
         print(f"Firestore Error: {e}")
         return []
 
+def get_workouts_in_range(user_id: str, start_date: str, end_date: str):
+    """Fetches workouts (Manual & AI) within a date range."""
+    try:
+        docs = db.collection('workouts')\
+                 .where('user_id', '==', user_id)\
+                 .where('date', '>=', start_date)\
+                 .where('date', '<=', end_date)\
+                 .stream()
+        
+        workouts = []
+        for d in docs:
+            w = d.to_dict()
+            w['id'] = d.id
+            if w.get('status') == 'DONE': # Only count completed
+                workouts.append(w)
+        return workouts
+    except Exception as e:
+        print(f"Firestore Range Error: {e}")
+        return []
+
 def delete_pending_workouts(user_id: str, start_date: str, end_date: str):
     """Deletes pending workouts in date range (inclusive)."""
     try:

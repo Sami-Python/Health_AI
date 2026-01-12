@@ -34,7 +34,8 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [ ] **Settings & Account Control:** (GDPR)
     - [x] Settings Page (`/settings`).
     - [x] **Delete Account:** "Danger Zone" - napin takana. Poistaa käyttäjän ja datat.
-    - [ ] **Data Export:** Lataa kaikki käyttäjän data JSON-muodossa.
+    - [x] **Data Export:** Lataa kaikki käyttäjän data JSON-muodossa.
+    - [ ] **Support / Feedback Form:** Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan.
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
@@ -55,12 +56,14 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ## 5.5 Frontend Features (Next.js)
 - [x] **Goal Management:** Mahdollisuus lisätä, muokata ja poistaa tavoitteita. (CRUD valmis: Backend & Frontend)
+- [x] **Visual Goal Cards:** Progress bars ja Race -countdown.
+- [x] **Sparklines:** Trenditiedot (Readiness, Load) dashboardilla.
 - [x] **Training Calendar:** Visuaalinen kuukausinäkymä, treenien tarkastelu (Modal), tulevat suunnitelmat.
     - [x] **Drag & Drop:** Siirrä treenejä päivältä toiselle.
     - [x] **Trash Can:** Poista treenejä raahaamalla roskikseen.
     - [x] **Regeneration:** AI luo korvaavan treenin poistetun tilalle.
-- [ ] **Workout Logging:** Lomake treenien lisäämiseen.
-- [ ] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
+- [x] **Workout Logging:** Lomake treenien lisäämiseen.
+- [x] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components).
 
 ## 6. DevOps & Monitoring
 - [ ] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD).
