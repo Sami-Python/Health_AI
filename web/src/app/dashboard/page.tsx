@@ -6,28 +6,18 @@ import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import AddGoalForm from "@/components/AddGoalForm";
 import { StatCard } from "@/components/StatCard";
+import GoalCard from "@/components/GoalCard";
 import ManualWorkoutForm from "@/components/ManualWorkoutForm";
 import UserMenu from "@/components/UserMenu";
 import ChartsSection from "@/components/ChartsSection";
 import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
-import { Activity, Battery, Calendar, TrendingUp, Plus, RefreshCw, History, Brain, Pencil, Trash2, XCircle } from "lucide-react";
+import { Activity, Battery, Calendar, TrendingUp, Plus, RefreshCw, History, Brain, XCircle } from "lucide-react";
 import AnimateEntry from "@/components/ui/AnimateEntry";
-
-
-
-// ... [Existing useEffects]
-
-
-
-// ... [Existing Render Logic]
-
-
-
 import { API_BASE_URL } from "@/lib/utils";
 
 export default function DashboardPage() {
-    const { user, loading, signOut } = useAuth();
+    const { user, loading } = useAuth();
     const router = useRouter();
     const [goals, setGoals] = useState<any>(null);
     const [fetchError, setFetchError] = useState<string | null>(null);
@@ -38,9 +28,7 @@ export default function DashboardPage() {
     const [weeklyStats, setWeeklyStats] = useState<any>(null);
     const [history, setHistory] = useState<any[]>([]);
 
-    // Full history for calendar (using same endpoint for now but maybe we need more data)
-    // The previous call had limit=5. We need a separate state for full history or increase limit.
-    // Full history for calendar
+    // Full history for calendar and sparklines
     const [fullHistory, setFullHistory] = useState<any[]>([]);
     const [plannedWorkouts, setPlannedWorkouts] = useState<any[]>([]);
 
@@ -102,8 +90,7 @@ export default function DashboardPage() {
                 const resHistory = await fetch(`${API_BASE_URL}/plans/history?limit=5`, { headers });
                 if (resHistory.ok) setHistory(await resHistory.json());
 
-                // 6. Get Full History for Calendar (re-using metrics/history endpoint which returns 30 days)
-                // Ideally backend should support date range, but for now 30 days is a start.
+                // 6. Get Full History
                 const resFullHistory = await fetch(`${API_BASE_URL}/metrics/history`, { headers });
                 if (resFullHistory.ok) setFullHistory(await resFullHistory.json());
 
@@ -127,7 +114,6 @@ export default function DashboardPage() {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
-            // Reload data after refresh
             await fetchData();
         } catch (e) {
             console.error("Refresh failed", e);
@@ -144,7 +130,11 @@ export default function DashboardPage() {
         return <div className="flex h-screen items-center justify-center text-slate-400">Loading...</div>;
     }
 
-
+    // Sparkline Data Preparation
+    // fullHistory is likely sorted oldest to newest (pandas tail).
+    const last7Days = fullHistory && fullHistory.length > 0 ? fullHistory.slice(-7) : [];
+    const readinessSpark = last7Days.map((m: any) => m.readiness);
+    const loadSpark = last7Days.map((m: any) => m.load);
 
     return (
         <div className="min-h-screen bg-slate-950 p-8 text-white">
@@ -211,6 +201,7 @@ export default function DashboardPage() {
                             icon={Battery}
                             trend={readiness?.readiness > 80 ? 'up' : 'neutral'}
                             loading={!readiness}
+                            trendData={readinessSpark}
                         />
                         <StatCard
                             title="Weekly Load"
@@ -218,6 +209,7 @@ export default function DashboardPage() {
                             description={`Planned: ${weeklyStats?.planned_load || '--'}`}
                             icon={Activity}
                             loading={!weeklyStats}
+                            trendData={loadSpark}
                         />
                         <StatCard
                             title="Next Workout"
@@ -292,36 +284,14 @@ export default function DashboardPage() {
                                                 </Button>
                                             </div>
                                         ) : (
-                                            <div className="grid gap-3">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
                                                 {goals.map((g: any) => (
-                                                    <div key={g.id} className="relative flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-900/40 p-4 hover:bg-slate-800/40 hover:border-slate-700 transition-all group">
-                                                        <div>
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <p className="font-semibold text-slate-200">{g.activity_type || g.type}</p>
-                                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-200">
-                                                                    <button
-                                                                        onClick={() => setEditingGoal(g)}
-                                                                        className="p-1.5 hover:bg-blue-500/20 hover:text-blue-400 text-slate-500 rounded transition-colors" title="Edit">
-                                                                        <Pencil className="h-3.5 w-3.5" />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => handleDeleteGoal(g.id)}
-                                                                        className="p-1.5 hover:bg-red-500/20 hover:text-red-400 text-slate-500 rounded transition-colors" title="Delete">
-                                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase">{g.description || 'No description'}</p>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div className="text-xl font-bold bg-gradient-to-br from-white to-slate-400 bg-clip-text text-transparent">
-                                                                {g.target_value} <span className="text-sm font-medium text-slate-500">{g.target_unit}</span>
-                                                            </div>
-                                                            <div className="text-xs text-slate-500 font-medium">
-                                                                {g.period_type === 'target_date' ? (g.target_date || 'No Date') : (g.frequency || g.period_type)}
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <GoalCard
+                                                        key={g.id}
+                                                        goal={g}
+                                                        onEdit={setEditingGoal}
+                                                        onDelete={handleDeleteGoal}
+                                                    />
                                                 ))}
                                             </div>
                                         )}
@@ -392,4 +362,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-

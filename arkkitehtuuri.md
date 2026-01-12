@@ -83,7 +83,9 @@ graph TD
 ### 1. Moderni Käyttöliittymä (Next.js)
 *   **Kehitysportaali (`web/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
     *   **Dashboard:** Päänäkymä, joka kokoaa kaiken tiedon.
-    *   **Recharts:** Interaktiiviset kuvaajat palautumiselle ja kuormitukselle.
+    *   **Goal Management:** Tavoitteiden hallinta (CRUD) ja Race-tavoitteet.
+    *   **Training Calendar:** Interaktiivinen kalenteri (Drag & Drop) treenien suunnitteluun.
+    *   **Recharts / Sparklines:** Interaktiiviset kuvaajat ja minitrendit korteissa.
     *   **AI Insight Card:** Päivittäinen yhteenveto tekoälyltä.
     *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
 
@@ -98,6 +100,7 @@ graph TD
 
 ### 4. Legacy Data Layer (Tietovarasto)
 *   **CSV-tiedostot:** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
+*   **Dual Write:** Uudet treenit kirjoitetaan sekä DuckDB:hen (Legacy UI tuki) että Firestoreen (Future Proofing).
 *   **ETL-prosessit:** `fetch_garmin_data.py` ja `process_garmin_data.py` vastaavat datan hausta ja jalostuksesta.
 
 
@@ -107,9 +110,3 @@ graph TD
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **Data:** CSV (Legacy), DuckDB, Firestore
 *   **Infra:** Docker Compose
-*   **ML:** XGBoost, Scikit-learn
-*   **AI:** Google Gemini 2.5 Flash
-*   **Backend:** FastAPI, Firebase Admin SDK
-*   **Frontend:** Next.js, TailwindCSS
-*   **Data:** Pandas, DuckDB, Firestore
-*   **Infra:** Docker, Docker Compose

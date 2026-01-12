@@ -112,6 +112,10 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
         
         # Fetch Active Goals
         goals_list = db_manager.get_active_goals(user_id)
+        
+        # Sort Race first
+        goals_list.sort(key=lambda x: x.get('period_type') != 'race')
+        
         goals_text = ""
         if goals_list:
             lines = []
@@ -122,7 +126,12 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
                 period = g.get('period_type', g.get('frequency', 'weekly'))
                 date_str = f"- Date: {g.get('target_date')}" if g.get('target_date') else ""
                 desc = f"({g.get('description', '')})" if g.get('description') else ""
-                lines.append(f"- {activity}: {value} {unit} ({period}) {date_str} {desc}")
+                
+                if period == 'race':
+                    # Special Format
+                    lines.append(f"*** KISATAVOITE: {activity} - {desc or 'Kisa'} *** {date_str}. Tavoite: {value} {unit}.")
+                else:
+                    lines.append(f"- {activity}: {value} {unit} ({period}) {date_str} {desc}")
             goals_text = "\n".join(lines)
         else:
             goals_text = "Ei asetettuja tavoitteita."

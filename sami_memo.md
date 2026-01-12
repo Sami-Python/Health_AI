@@ -357,3 +357,9 @@ Tänään Training Calendarista tehtiin aidosti interaktiivinen työkalu.
 
 Nyt kalenteri ei ole vain *näkymä*, vaan *työkalu* viikon suunnitteluun! 🚀
 
+### 5. CI & Linting 🧹
+- Korjattu "build"-stepin epäonnistumiset.
+- **Backend:** `ruff` huomasi syntaksivirheen (orphaned code block) ja tupla-exceptin – korjattu.
+- **Frontend:** `eslint` valitti `any`-tyypeistä – korjattu tiukka `Workout` interface.
+- Nyt koodipohja on puhdas ja CI vihreä. ✅
+

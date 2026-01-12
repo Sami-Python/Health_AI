@@ -52,8 +52,8 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                     target_value: parseFloat(formData.target_value),
                     target_unit: formData.target_unit,
                     period_type: formData.period_type,
-                    frequency: formData.period_type === 'target_date' ? null : formData.frequency,
-                    target_date: formData.period_type === 'target_date' ? formData.target_date : null,
+                    frequency: (formData.period_type === 'target_date' || formData.period_type === 'race') ? null : formData.frequency,
+                    target_date: (formData.period_type === 'target_date' || formData.period_type === 'race') ? formData.target_date : null,
                     description: formData.description
                 })
             });
@@ -120,7 +120,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                     <div className="flex gap-2 rounded bg-slate-800 p-1">
                         <button
                             type="button"
-                            className={`flex-1 rounded py-1 text-xs font-medium transition-colors ${formData.period_type !== 'target_date' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                            className={`flex-1 rounded py-1 text-xs font-medium transition-colors ${formData.period_type === 'weekly' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
                             onClick={() => setFormData({ ...formData, period_type: 'weekly' })}
                         >
                             Recurring
@@ -132,21 +132,28 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                         >
                             Target Date
                         </button>
+                        <button
+                            type="button"
+                            className={`flex-1 rounded py-1 text-xs font-medium transition-colors ${formData.period_type === 'race' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                            onClick={() => setFormData({ ...formData, period_type: 'race' })}
+                        >
+                            Race
+                        </button>
                     </div>
                 </div>
             </div>
 
             {/* Dynamic Middle Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {formData.period_type === 'target_date' ? (
+                {(formData.period_type === 'target_date' || formData.period_type === 'race') ? (
                     <div className="col-span-2">
-                        <label className={labelClass}>Target Date</label>
+                        <label className={labelClass}>{formData.period_type === 'race' ? 'Race Date' : 'Target Date'}</label>
                         <input
                             type="date"
                             className={inputClass}
                             value={formData.target_date}
                             onChange={(e) => setFormData({ ...formData, target_date: e.target.value })}
-                            required={formData.period_type === 'target_date'}
+                            required
                         />
                     </div>
                 ) : (
