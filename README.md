@@ -18,26 +18,40 @@ Se yhdistää:
 *   **CI/CD Laatu:** Automaattiset yksikkötestit ja koodin laaduntarkistus (GitHub Actions).
 
 ## Teknologiat
-*   **Frontend:** Streamlit, Plotly, Streamlit Calendar
-*   **Backend / AI:** Python, XGBoost, Google Gemini API
-*   **Tietokanta:** DuckDB
+*   **Frontend:** Next.js (React), TypeScript, Tailwind CSS
+*   **Backend / AI:** Python, FastAPI, XGBoost, Google Gemini API
+*   **Tietokanta:** DuckDB (Data Science), Firebase Firestore (App Data & Auth)
+*   **Infra:** Docker
 
 ## Käynnistys (Local Development)
 
-1.  **Aktivoi ympäristö:** `source .venv/Scripts/activate`
-2.  **Käynnistä Backend (API):**
-    ```bash
-    docker-compose up -d
-    ```
-3.  **Käynnistä Frontend (Dashboard):**
-    ```bash
-    streamlit run dashboard.py
-    ```
+### 1. Backend (API)
+```bash
+# Vaihtoehto A: Docker (Suositus)
+docker-compose up backend
 
-## Arkkitehtuuri (Hybrid Cloud)
-*   **Frontend:** Streamlit (Port 8501) - Käyttöliittymä, hakee dataa API:sta.
-*   **Backend:** FastAPI (Port 8000) - Hoitaa datan käsittelyn, suojattu Rate Limitingillä (`slowapi`).
-*   **Database:**
-    *   **DuckDB (Local):** Historiallinen data ja treenisuunnitelmat.
-    *   **Firestore (Cloud):** Etusivun reaaliaikainen data (Tulevat treenit, Tavoitteet).
-*   **Authentication:** Service Account Key (Backend -> Firestore).
+# Vaihtoehto B: Manuaalisesti
+cd backend
+# Varmista virtuaaliympäristö
+../.venv/Scripts/activate
+uvicorn main:app --reload
+```
+API vastaa osoitteessa: `http://localhost:8000`
+
+### 2. Frontend (Web App)
+```bash
+cd frontend
+npm install # Ensimmäisellä kerralla
+npm run dev
+```
+Sovellus on käytettävissä: `http://localhost:3000`
+
+## Arkkitehtuuri
+*   **Frontend:** Next.js - Moderni ja responsiivinen käyttöliittymä.
+*   **Backend:** FastAPI - Tehokas rajapinta datan käsittelyyn ja AI-logiikkaan.
+*   **Data Pipeline:** 
+    *   `backend/scripts/`: Scriptit datan hakuun (Garmin) ja mallien koulutukseen.
+    *   `backend/data/`: Paikalliset tietovarastot (`health_ai.db`).
+*   **Firebase:**
+    *   **Authentication:** Käyttäjien hallinta ja kirjautuminen.
+    *   **Firestore:** Reaaliaikainen tietokanta käyttäjädatalle (tavoitteet, treenit).

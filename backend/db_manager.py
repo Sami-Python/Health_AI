@@ -7,7 +7,11 @@ from datetime import datetime, timedelta
 import os
 
 # Default to local file, or use env var (for Docker)
-DB_FILE = os.getenv("DB_FILE_PATH", "health_ai.db")
+# Default to local file, or use env var (for Docker)
+# Updated for new folder structure: db is in backend/data/
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DB_PATH = os.path.join(BASE_DIR, "data", "health_ai.db")
+DB_FILE = os.getenv("DB_FILE_PATH", DEFAULT_DB_PATH)
 
 def set_db_path(path):
     """Overrides the database file path (for testing)."""

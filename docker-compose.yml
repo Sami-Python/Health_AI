@@ -8,9 +8,10 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app       # Hot reload code
-      - ./:/data             # Access to health_ai.db (still needed briefly?)
+      # Map Health_AI to root so that os.chdir(project_root) works as expected
+      - ./Health_AI:/Health_AI 
     environment:
-      - DB_FILE_PATH=/data/health_ai.db
+      - DB_FILE_PATH=/app/data/health_ai.db
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service_account_key.json
     env_file:
       - .env

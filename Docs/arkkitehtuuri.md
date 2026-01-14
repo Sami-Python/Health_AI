@@ -21,8 +21,8 @@ graph TD
     %% Data Layer
     subgraph "Legacy Data Layer"
         Fetcher[fetch_garmin_data.py]
-        CSV[("CSV Tiedostot<br/>Health_AI/data/")]
-        DuckDB[("DuckDB<br/>health_ai.db")]
+        CSV[("CSV Tiedostot<br/>backend/data/")]
+        DuckDB[("DuckDB<br/>backend/data/health_ai.db")]
     end
 
     %% Machine Learning Core
@@ -81,7 +81,7 @@ graph TD
 ## Komponentit
 
 ### 1. Moderni Käyttöliittymä (Next.js)
-*   **Kehitysportaali (`web/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
+*   **Kehitysportaali (`frontend/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
     *   **Dashboard:** Päänäkymä, joka kokoaa kaiken tiedon.
     *   **Goal Management:** Tavoitteiden hallinta (CRUD) ja Race-tavoitteet.
     *   **Training Calendar:** Interaktiivinen kalenteri (Drag & Drop) treenien suunnitteluun.
@@ -95,13 +95,14 @@ graph TD
 
 ### 3. Backend & AI Core (Älykkyys)
 *   **Backend API (`backend/`):** FastAPI-palvelin, joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
-*   **AI Coach (`ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin tuottaakseen ihmismäistä palautetta.
+*   **Backend Scripts (`backend/scripts/`):** Datan haku- ja käsittelyscriptit (ETL).
+*   **AI Coach (`backend/ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin tuottaakseen ihmismäistä palautetta.
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
-### 4. Legacy Data Layer (Tietovarasto)
-*   **CSV-tiedostot:** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
+### 4. Data Layer (Tietovarasto)
+*   **CSV-tiedostot (`backend/data/`):** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
 *   **Dual Write:** Uudet treenit kirjoitetaan sekä DuckDB:hen (Legacy UI tuki) että Firestoreen (Future Proofing).
-*   **ETL-prosessit:** `fetch_garmin_data.py` ja `process_garmin_data.py` vastaavat datan hausta ja jalostuksesta.
+*   **DuckDB:** Sijaitsee `backend/data/health_ai.db`.
 
 
 ## Teknologia-stack

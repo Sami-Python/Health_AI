@@ -10,20 +10,7 @@ import db_manager as local_db # DuckDB for history/analytics
 from fastapi import Depends
 from auth_middleware import verify_token
 import json
-import sys
-import os
-
-# Add /data to path to find ai_coach.py (Legacy structure)
-sys.path.append("/data")
-try:
-    import ai_coach
-except ImportError:
-    # Fallback for local testing if not in Docker with /data
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    try:
-        import ai_coach
-    except ImportError:
-        print("Warning: ai_coach module not found.")
+import ai_coach
 
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -485,28 +472,28 @@ async def refresh_data(user: dict = Depends(verify_token)):
         import os
         import importlib
         
-        # Determine path to scripts (supporting Docker /app vs Local /backend)
-        # In Docker: /app is CWD. Scripts are in /data (mounted to host root)
-        # Local: CWD is /backend. Scripts are in ../
-        
-        script_dirs = ["/data", "..", os.path.dirname(os.getcwd())]
-        script_dir = None
-        
-        for d in script_dirs:
-            p = os.path.abspath(d)
-            if os.path.exists(os.path.join(p, "fetch_garmin_data.py")):
-                if p not in sys.path:
-                    sys.path.append(p)
-                script_dir = p
-                break
-        
-        if not script_dir:
-             raise FileNotFoundError("Could not locate fetch_garmin_data.py in standard locations.")
 
-        # CHANGE CWD so the scripts can find "Health_AI/data/..."
-        # This is critical for legacy scripts that use relative paths
+        # Determine path to scripts (supporting Docker /app vs Local /backend)
+        # Using fixed structure now: backend/scripts
+        
+        # We are in backend/main.py. scripts are in ./scripts
+        script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+        
+        if not os.path.exists(os.path.join(script_dir, "fetch_garmin_data.py")):
+             raise FileNotFoundError(f"Could not locate fetch_garmin_data.py in {script_dir}")
+
+        # Add scripts to path so we can import them
+        if script_dir not in sys.path:
+            sys.path.append(script_dir)
+            
+        # Change CWD to project root (../) so that scripts finding "Health_AI/data" works
+        # Current file: .../backend/main.py
+        # Root: .../
+        backend_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(backend_dir)
+        
         original_cwd = os.getcwd()
-        os.chdir(script_dir)
+        os.chdir(project_root)
         
         try:
             import fetch_garmin_data
@@ -518,6 +505,8 @@ async def refresh_data(user: dict = Depends(verify_token)):
             
             # Run Fetch
             print(f"Starting Data Fetch from {script_dir}...")
+            # Note: script_dir is in sys.path, so imports work.
+            # CWD is project root, so "Health_AI/data/..." works.
             fetch_garmin_data.main()
             
             # Run Process
@@ -532,26 +521,10 @@ async def refresh_data(user: dict = Depends(verify_token)):
         
     except Exception as e:
         print(f"Refresh error: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
 
-import sys
-import os
-
-# Ensure we can import ai_coach from root (mapped to /data in Docker or .. in local)
-# This is similar to the logic used in refresh_data
-current = os.path.dirname(os.path.abspath(__file__))
-potential_paths = [
-    os.path.join(current, ".."), # Local dev
-    "/data"                      # Docker
-]
-
-for p in potential_paths:
-    if os.path.exists(os.path.join(p, "ai_coach.py")):
-        if p not in sys.path:
-            sys.path.append(p)
-        break
-
-import ai_coach # Import ai_coach module
 
 @app.get("/ai/insight")
 @limiter.limit("10/minute")
