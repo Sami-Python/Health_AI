@@ -46,7 +46,7 @@ Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
 ## 5. Frontend (Käyttökokemus)
 Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Moderni Web-kehys:** Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä. (Toteutettu Next.js)
-- [x] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `web`.
+- [x] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `frontend`.
 - [x] **Frontend Features:** Training Calendar, Goals, Dashboard.
 - [x] **Mobiilisovellus:** Web App toimii nyt mobiilissa (Responsive Design + Network Config).
 - [ ] **Natiivi Mobiili (Optionaalinen):** Harkitse React Nativea tai Flutteria myöhemmin.
@@ -78,10 +78,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] Integroi Firebase Auth.
 - [ ] Konfiguroi Secret Manager.
 - [x] Päivitä Firestore-haut tukemaan multi-user -mallia (user_id).
-- [x] Alusta Next.js -projekti frontendille (web). (Kansio olemassa, mutta projekti on tyhjä scaffold)
+- [x] Alusta Next.js -projekti frontendille (frontend). (Kansio olemassa, mutta projekti on tyhjä scaffold)
 - [x] Implementoi Frontendin perusrakenne (Authentication, API Client).
     - [x] Asenna kirjastot (Firebase SDK, Lucide Icons).
-    - [x] Konfiguroi Firebase Client (web).
+    - [x] Konfiguroi Firebase Client (frontend).
     - [x] Toteuta Login-sivu ja Auth Context.
     - [x] Testaa yhteys backendiin (Protected Route).
 - [x] Implementoi "Add Goal" -toiminnallisuus (Create).

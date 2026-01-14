@@ -1,10 +1,15 @@
 # 🚀 Quick Start
 Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
 
+### Backend (API)
+```bash
+docker-compose up backend
 ```
-source .venv/Scripts/activate
-docker-compose up
-streamlit run dashboard.py #Terminalissa 2
+
+### Frontend (Next.js)
+```bash
+cd frontend
+npm run dev
 ```
 
 
@@ -255,7 +260,7 @@ Käyttäjä voi nyt luoda uusia tavoitteita suoraan Dashboardilta.
 
 ### 3. Bugikorjaukset & Käytettävyys
 - **Porttikorjaus:** Frontend yritti kutsua porttia `8001`, mutta Docker pyörii portissa `8000`. Tämä korjattiin configiin.
-- **Käynnistys:** Selkeytettiin, että Next.js-frontend ajetaan `web`-kansiossa komennolla `npm run dev` ja backend `docker-compose up`.
+- **Käynnistys:** `source .venv/Scripts/activate` Selkeytettiin, että Next.js-frontend ajetaan `frontend`-kansiossa komennolla `npm run dev` ja backend `docker-compose up`.
 
 ### 4. Vianetsintä & Viimeistely
 - **Data Refresh**: Korjattu ongelma, jossa "Refresh"-nappi ei päivittänyt tietoja. Syynä oli puuttuvat ympäristömuuttujat (`.env`) Dockerissa ja väärä työhakemisto (`CWD`) skriptejä ajettaessa. Korjattu pakottamalla polku `/data`-kansioon.
