@@ -1,6 +1,11 @@
 import pytest
+import sys
 import os
-import db_manager
+
+# Ensure we can import from backend
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from backend import db_manager
 from datetime import datetime
 
 # Use a temporary DB file for testing
