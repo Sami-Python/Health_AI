@@ -368,3 +368,29 @@ Nyt kalenteri ei ole vain *näkymä*, vaan *työkalu* viikon suunnitteluun! 🚀
 - **Frontend:** `eslint` valitti `any`-tyypeistä – korjattu tiukka `Workout` interface.
 - Nyt koodipohja on puhdas ja CI vihreä. ✅
 
+### 6. 2026-01-15 – Dashboard Migration, AI Caching & Fixes 🏥⚡
+
+Tänään ratkaistiin suorituskyky- ja datanäkyvyysongelmat, jotka vaivasivat Dashboardia.
+
+#### 1. Dashboard Korttien Korjaus (Legacy Migration)
+- **Ongelma:** "Readiness", "Weekly Load" ja "Next Workout" näyttivät nollaa tai vanhaa dataa. Syynä oli, että ne lukivat vanhaa DuckDB:tä, kun taas järjestelmä oli siirtymässä Firestoreen.
+- **Ratkaisu:**
+    - Migratoitiin backendin endpointit käyttämään `firestore_manager`ia.
+    - **Readiness:** Hakee uusimman "predicted charge" -arvon `plans`-kokoelmasta.
+    - **Weekly Load:** Laskee kuormituksen `workouts`-kokoelman "DONE"-treeneistä (7 pv ikkuna).
+    - **Next Workout:** Hakee aidosti tulevia (`date >= today`) "PENDING"-treenejä.
+    - **Indexes:** Luotiin tarvittavat Firestore Composite Indexit queries-optimointia varten.
+
+#### 2. Datan Synkronointi (Legacy Sync) 🔄
+- **Ongelma:** Vaikka koodi luki Firestorea, vanhat datat olivat yhä vain CSV-tiedostoissa (Garmin Fetch).
+- **Ratkaisu:** `main.py` -> `refresh_data` -endpointtiin lisättiin logiikka, joka automaattisesti työntää viimeiset 14 päivää CSV-datasta Firestoreen jokaisella päivityksellä. Tämä takaa, että Weekly Load saa dataa.
+
+#### 3. AI Quota & Caching (Optimointi) 🧠
+- **Ongelma:** Geminin ilmaisquota (20 request/day) täyttyi nopeasti sivua ladatessa, aiheuttaen 500-virheitä.
+- **Ratkaisu:**
+    - **Caching:** Toteutettu `daily_insight` -välimuisti Firestoreen (`users/{uid}/daily_insights/{date}`). Tekoälyä kutsutaan nyt vain **kerran päivässä** per käyttäjä.
+    - **Graceful Error Handling:** Jos quota täyttyy, backend palauttaa nyt selkeän 429-statuksen ("AI Quota Exceeded") sovelluksen kaatumisen sijaan.
+
+#### 4. ML Metrics (Transparency) 📊
+- Lisätty uusi "ML Accuracy" -näkymä User Menuun.
+- Näyttää ennustemallin tarkkuuden (R2 Score, MAE) visuaalisesti, lisäten luottamusta tekoälyn ennusteisiin.

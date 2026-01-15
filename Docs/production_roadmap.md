@@ -16,7 +16,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **DB-migraatio:** Vaihda DuckDB -> Firestore. (Workouts & Goals & Plans migrated)
 - [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä)
 - [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa.
-- [ ] **Legacy Migration (CRITICAL):** Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia).
+- [x] **Legacy Migration (CRITICAL):** Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia).
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
@@ -39,8 +39,8 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
-- [ ] **Mallien optimointi:** Vaihda kevyempään malliin (esim. Gemini Flash) rutiinitehtävissä.
-- [ ] **Välimuisti (Caching):** Implementoi vastausten välimuisti samanlaisille kyselyille.
+- [x] **Mallien optimointi:** Vaihda kevyempään malliin (esim. Gemini Flash) rutiinitehtävissä. (Käytetään Flashia + Caching)
+- [x] **Välimuisti (Caching):** Implementoi vastausten välimuisti samanlaisille kyselyille. (Toteutettu Daily Insightille)
 - [x] **Rate Limiting:** Rajoita API-kutsujen määrää per käyttäjä väärinkäytösten estämiseksi. (Toteutettu: slowapi)
 
 ## 5. Frontend (Käyttökokemus)
@@ -100,3 +100,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Backend: Create `generate_daily_insight` prompt.
     - [x] Frontend: Implement `AIInsightCard` with gradient UI.
     - [x] Dependency: Added `google-generativeai`.
+- [x] **ML Accuracy & Transparency**:
+    - [x] Backend endpoint `/ai/model-metrics`.
+    - [x] Frontend Modal (User Menu -> ML Accuracy).
+    - [x] Visualization: Color coded R2 score (Green/Yellow/Red).
+- [x] **Refactoring & Fixes**:
+    - [x] **Firestore**: Fixed deprecated `where()` warnings using `FieldFilter`.
+    - [x] **Data Integrity**: Fixed `process_garmin_data.py` saving metrics to wrong path.

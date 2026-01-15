@@ -147,13 +147,18 @@ def main_process():
     print("Feature importance saved.")
     print("Top 3 Features:", list(feat_imp_dict.keys())[:3])
     
-    # Save Metrics
+    # Save Metrics to backend/data where API expects it
     metrics = {
         "mae": mae,
         "r2": r2,
         "last_trained": str(pd.Timestamp.now().date())
     }
-    with open("model_metrics.json", "w") as f:
+    
+    # Ensure directory exists
+    output_path = "backend/data/model_metrics.json"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, "w") as f:
         json.dump(metrics, f)
     
     print("Model and metrics saved.")

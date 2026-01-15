@@ -383,21 +383,39 @@ async def delete_account_endpoint(request: Request, user: dict = Depends(verify_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/readiness")
+@limiter.limit("20/minute")
+def get_readiness(request: Request, user: dict = Depends(verify_token)):
+    try:
+        # Migrated to Firestore
+        res = db_manager.get_latest_readiness(user['uid'])
+        if not res:
+             # Fallback if no AI plan yet
+             return {"readiness": 80, "date": "No Data"}
+        return res
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ... existing code ...
+
 @app.get("/next-workout")
 @limiter.limit("20/minute")
 def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
     try:
-        # Use Firestore for next workout
+        # Use Firestore for next workout (Logic Updated in firestore_manager.py)
         workout = db_manager.get_next_workout(user['uid'])
         if not workout:
-            return {}
+            return {} # Frontend expects empty object or specific null handling?
+            # Looking at frontend: `value={nextWorkout?.content?.activity || "Rest Day"}`. 
+            # If {} returned, nextWorkout is {}, optional chaining works.
         return workout
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/workouts/weekly-status")
 async def get_weekly_status(user: dict = Depends(verify_token)):
-    current, planned, breakdown = local_db.get_weekly_load_status()
+    # Migrated to Firestore
+    current, planned, breakdown = db_manager.get_weekly_load_status(user['uid'])
     return {
         "current_load": current,
         "planned_load": planned,
@@ -540,6 +558,14 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
             
         latest = metrics[-1] # Last day
         
+        # 1. OPTIMIZATION: Check Cache
+        from datetime import datetime
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        cached_insight = db_manager.get_daily_insight(user['uid'], today_str)
+        
+        if cached_insight:
+            return {"insight": cached_insight}
+        
         # Prepare context for AI
         ctx = {
             "tsb": latest['tsb'],
@@ -549,11 +575,31 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
         }
         
         insight = ai_coach.generate_daily_insight(ctx)
+        
+        # 2. OPTIMIZATION: Save to Cache
+        if insight and "Error" not in insight:
+            db_manager.save_daily_insight(user['uid'], today_str, insight)
+            
         return {"insight": insight}
         
     except Exception as e:
         print(f"Insight Endpoint Error: {e}")
         return {"insight": "Tänään kannattaa kuunnella kehoa."} # Fallback
+
+
+@app.get("/ai/model-metrics")
+async def get_model_metrics(user: dict = Depends(verify_token)):
+    try:
+        metrics_path = os.path.join(os.path.dirname(__file__), "data", "model_metrics.json")
+        try:
+            with open(metrics_path, "r") as f:
+                data = json.load(f)
+            return data
+        except FileNotFoundError:
+            # Fallback if file doesn't exist yet
+            return {"r2": 0, "mae": 0, "last_trained": "Never"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 class PlanGenerationRequest(BaseModel):
@@ -654,10 +700,16 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
 
         except Exception as parse_error:
             print(f"AI Parse Error: {parse_error} \nResponse: {response_json}")
+            if "QUOTA_EXCEEDED" in str(response_json):
+                 raise HTTPException(status_code=429, detail="AI Quota Exceeded. Please try again later.")
             raise HTTPException(status_code=500, detail="Failed to parse AI response")
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Plan Gen Error: {e}")
+        if "QUOTA_EXCEEDED" in str(e):
+             raise HTTPException(status_code=429, detail="AI Quota Exceeded. Please try again later.")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.patch("/workouts/{workout_id}")
@@ -707,8 +759,10 @@ async def get_plan_history(limit: int = 5, user: dict = Depends(verify_token)):
 @limiter.limit("20/minute")
 def get_readiness(request: Request, user: dict = Depends(verify_token)):
     try:
-        # Let's assume we will add get_latest_readiness to db_manager.
-        res = local_db.get_latest_readiness()
+        # Migrated: Use Firestore
+        res = db_manager.get_latest_readiness(user['uid'])
+        if not res:
+            return {"readiness": "--", "date": ""}
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

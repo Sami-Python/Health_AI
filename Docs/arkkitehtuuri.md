@@ -96,13 +96,13 @@ graph TD
 ### 3. Backend & AI Core (Älykkyys)
 *   **Backend API (`backend/`):** FastAPI-palvelin, joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
 *   **Backend Scripts (`backend/scripts/`):** Datan haku- ja käsittelyscriptit (ETL).
-*   **AI Coach (`backend/ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin tuottaakseen ihmismäistä palautetta.
+*   **AI Coach (`backend/ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin. **Sisältää välimuistin (Firestore Cache)** API-kiintiöiden hallintaan.
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
 ### 4. Data Layer (Tietovarasto)
 *   **CSV-tiedostot (`backend/data/`):** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
-*   **Dual Write:** Uudet treenit kirjoitetaan sekä DuckDB:hen (Legacy UI tuki) että Firestoreen (Future Proofing).
-*   **DuckDB:** Sijaitsee `backend/data/health_ai.db`.
+*   **Legacy Sync:** `main.py` synkronoi automaattisesti Garmin-datan CSV:stä Firestoreen, jotta Dashboard pysyy ajan tasalla.
+*   **Dual Write:** Uudet manuaaliset treenit kirjoitetaan sekä DuckDB:hen että Firestoreen.
 
 
 ## Teknologia-stack
