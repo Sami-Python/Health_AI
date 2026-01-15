@@ -150,6 +150,11 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
         )
         return response.text
     except Exception as e:
+        error_str = str(e)
+        if "RESOURCE_EXHAUSTED" in error_str or "429" in error_str:
+            print(f"Gemini Policy Error: {e}")
+            # Raise a specific error string that main.py can catch
+            raise Exception(f"QUOTA_EXCEEDED: {error_str}")
         return f"Error contacting AI Coach: {e}"
 
 def generate_trend_analysis(df_recent):

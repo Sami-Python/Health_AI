@@ -162,8 +162,10 @@ def main():
     last_sync = get_latest_date("Health_AI/data/garmin_daily_summary.csv")
     
     if last_sync:
-        start = last_sync + timedelta(days=1)
-        print(f"Found existing data up to {last_sync}. Fetching from {start}...")
+        # Start from 5 days ago to ensure we catch any late-syncing activities or missed data
+        # Data often settles over a few days.
+        start = last_sync - timedelta(days=5)
+        print(f"Found existing data up to {last_sync}. Fetching from {start} (5-day overlap)...")
     else:
         start = today - timedelta(days=360)
         print(f"No existing data. Fetching full history from {start}...")
