@@ -6,7 +6,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from typing import List, Optional
 import firestore_manager as db_manager # Alias to keep code changes minimal
-import db_manager as local_db # DuckDB for history/analytics
+# REMOVED: import db_manager as local_db # DuckDB for history/analytics (Phase 7 Migration)
 from fastapi import Depends
 from auth_middleware import verify_token
 import json
@@ -362,6 +362,7 @@ async def update_profile_endpoint(profile: UserProfile, request: Request, user: 
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @app.delete("/account")
 @limiter.limit("2/minute")
 async def delete_account_endpoint(request: Request, user: dict = Depends(verify_token)):
@@ -383,18 +384,105 @@ async def delete_account_endpoint(request: Request, user: dict = Depends(verify_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/readiness")
-@limiter.limit("20/minute")
-def get_readiness(request: Request, user: dict = Depends(verify_token)):
+# --- GDPR Compliance Endpoints (Phase 7.2) ---
+
+@app.get("/user/export")
+@limiter.limit("3/hour")
+async def export_user_data(request: Request, user: dict = Depends(verify_token)):
+    """
+    Exports all user data as JSON (GDPR compliance).
+    Includes: goals, workouts, plans, profile
+    """
     try:
-        # Migrated to Firestore
-        res = db_manager.get_latest_readiness(user['uid'])
-        if not res:
-             # Fallback if no AI plan yet
-             return {"readiness": 80, "date": "No Data"}
-        return res
+        uid = user['uid']
+        
+        # Aggregate all user data
+        export_data = {
+            "user_id": uid,
+            "exported_at": datetime.now().isoformat(),
+            "goals": db_manager.get_all_goals(uid),
+            "workouts": db_manager.get_all_workouts(uid, limit=1000),
+            "plans": db_manager.get_recent_plans(uid, limit=100),
+            "profile": db_manager.get_user_profile(uid)
+        }
+        
+        # Return as JSON with download header
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            content=export_data,
+            headers={
+                "Content-Disposition": f"attachment; filename=health_ai_data_{uid}.json"
+            }
+        )
     except Exception as e:
+        print(f"Export Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+class FeedbackSubmission(BaseModel):
+    category: str  # "bug", "feature_request", "general"
+    message: str
+    page: Optional[str] = None  # Which page user was on
+
+@app.post("/feedback")
+@limiter.limit("5/hour")
+async def submit_feedback(
+    feedback: FeedbackSubmission, 
+    request: Request, 
+    user: dict = Depends(verify_token)
+):
+    """Collects user feedback (bugs, feature requests, general comments)."""
+    try:
+        feedback_doc = {
+            "user_id": user['uid'],
+            "category": feedback.category,
+            "message": feedback.message,
+            "page": feedback.page,
+        }
+        
+        if db_manager.save_feedback(user['uid'], feedback_doc):
+            return {"status": "success", "message": "Feedback received. Thank you!"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save feedback")
+    except Exception as e:
+        print(f"Feedback Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Admin Endpoints ---
+
+@app.get("/admin/feedback")
+@limiter.limit("20/minute")
+async def get_all_feedback_admin(
+    request: Request,
+    user: dict = Depends(verify_token),
+    status: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: int = 100
+):
+    """
+    Admin endpoint: Returns all user feedback.
+    Optional filters: status, category
+    """
+    try:
+        # Simple admin check: you can enhance this by checking user role in Firestore
+        # For now, any authenticated user can access (you can restrict to specific UIDs)
+        
+        all_feedback = db_manager.get_all_feedback(limit=limit)
+        
+        # Apply filters if provided
+        filtered = all_feedback
+        if status:
+            filtered = [f for f in filtered if f.get('status') == status]
+        if category:
+            filtered = [f for f in filtered if f.get('category') == category]
+        
+        return {
+            "total": len(filtered),
+            "feedback": filtered
+        }
+    except Exception as e:
+        print(f"Admin Feedback Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # ... existing code ...
 
@@ -447,18 +535,7 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
         from datetime import date, datetime
         date_obj = date.fromisoformat(workout.date)
         
-        # 1. Legacy Write (DuckDB)
-        local_db.log_manual_workout(
-            date_obj,
-            workout.activity,
-            workout.duration_min,
-            workout.rpe,
-            workout.notes
-        )
-
-        # 2. Modern Write (Firestore)
-        # Map to Firestore document structure
-        # Use datetime for created_at, ISO string for 'date' field queryability
+        # Map to Firestore document structure (Pure Firestore - Phase 7 Migration)
         workout_doc = {
             "date": workout.date, # YYYY-MM-DD
             "activity": workout.activity,
@@ -472,7 +549,7 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
         }
         db_manager.save_workout(user['uid'], workout_doc)
 
-        return {"status": "success", "message": "Workout logged to Dual DB"}
+        return {"status": "success", "message": "Workout logged successfully"}
     except ValueError:
         raise HTTPException(status_code=422, detail="Invalid date format (YYYY-MM-DD required)")
     except Exception as e:

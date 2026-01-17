@@ -17,6 +17,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä)
 - [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa.
 - [x] **Legacy Migration (CRITICAL):** Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia).
+- [x] **Complete Migration (Phase 7):** DuckDB poistettu. CSV käytössä vain Garmin-historialle.
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth).
@@ -35,7 +36,8 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
     - [x] Settings Page (`/settings`).
     - [x] **Delete Account:** "Danger Zone" - napin takana. Poistaa käyttäjän ja datat.
     - [x] **Data Export:** Lataa kaikki käyttäjän data JSON-muodossa.
-    - [ ] **Support / Feedback Form:** Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan.
+    - [/] **Support / Feedback Form:** Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan.
+    - [/] **Data Export (GDPR):** Backend endpoint `GET /user/export` joka palauttaa käyttäjän kaiken datan JSON-muodossa.
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
@@ -107,3 +109,61 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Refactoring & Fixes**:
     - [x] **Firestore**: Fixed deprecated `where()` warnings using `FieldFilter`.
     - [x] **Data Integrity**: Fixed `process_garmin_data.py` saving metrics to wrong path.
+
+---
+
+## 📋 Phase 7: Legacy Data Migration & Quality (2026-01)
+
+### 7.1 DuckDB → Firestore Complete Migration 🎯
+> **Status:** ✅ COMPLETED (2026-01-17)
+> **Goal:** Poista tekninen velka, yksinkertaista arkkitehtuuri
+
+- [x] **CSV/DuckDB Analyysi:** Kartoitettu - DuckDB poistettu backendistä
+- [x] **Migraatio:** Data siirretty Firestoreen (Workouts, Goals, Plans)
+- [x] **Backend Cleanup:** `db_manager.py` (DuckDB) ei enää käytössä `main.py`:ssä
+- [x] **Refactor Endpoints:** 
+  - [x] `log_manual_workout`: Kirjoittaa suoraan Firestoreen
+  - [x] `get_goals`: Käyttää firestore_manageria
+  - [x] `get_next_workout`: Lukee Firestoresta
+
+**Huom:** CSV käytössä vielä historiallisessa metriikkadatassa (`get_metrics_history`). Tämä on hyväksyttävä ratkaisu, koska Garmin-data tulee alunperin CSV-muodossa.
+- [ ] **Update Tests:** Päivitä testit vastaamaan uutta arkkitehtuuria
+
+### 7.2 GDPR Compliance 🔒
+> **Status:** ✅ COMPLETED (2026-01-17)
+
+- [x] **Data Export Endpoint:**
+  - [x] Backend: `GET /user/export` (palauttaa JSON-paketin)
+  - [x] Frontend: Nappi Settings-sivulle
+- [x] **Feedback Form:**
+  - [x] Backend: `POST /feedback` endpoint
+  - [x] Frontend: Feedback-lomake Settings-sivulla
+  - [x] Firestore: `feedback` collection
+
+**Admin Endpoint:** `GET /admin/feedback` - Hakee kaikki palautteet suodattimilla (status, category).
+
+---
+
+### 7.3 Code Quality & Testing 🧪
+> **Status:** TODO (2026-01-18)
+> **Aloitetaan huomenna**
+
+- [ ] **Error Handling:**
+  - [ ] Lisää toast notifications frontendiin (react-hot-toast)
+  - [ ] Paranna virheviestit käyttäjäystävällisiksi
+  - [ ] Lisää retry-logiikka epäonnistuneille API-kutsuille
+- [ ] **Testing Expansion:**
+  - [ ] Backend: Lisää integraatiotestejä (AI coach, goal progress)
+  - [ ] Frontend: Alusta Jest + React Testing Library
+  - [ ] Frontend: Testaa kriittiset komponentit (AddGoalForm, TrainingCalendar)
+- [ ] **Documentation:**
+  - [ ] Lisää API docstringit kaikille endpointeille
+  - [ ] Päivitä README.md (kuvankaappaukset, troubleshooting)
+  - [ ] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta
+
+### 7.4 Infrastructure Prep (Pre-deployment) 🚀
+- [ ] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env
+- [ ] **Environment Config:** Erota dev/staging/prod -ympäristöt
+- [ ] **CI/CD Expansion:**
+  - [ ] Lisää automaattinen deployment (CD)
+  - [ ] Docker image build ja push Container Registry:yn

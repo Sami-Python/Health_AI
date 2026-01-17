@@ -15,19 +15,18 @@ graph TD
     %% Firebase Platform
     subgraph "Firebase Platform"
         FirebaseAuth[Authentication]
-        Firestore[("Firestore DB<br/>User Data / Goals")]
+        Firestore[("Firestore DB<br/>Goals / Workouts / Plans<br/>Metrics / Insights")]
     end
 
-    %% Data Layer
-    subgraph "Legacy Data Layer"
+    %% Data Ingestion Layer
+    subgraph "Data Ingestion (Scripts)"
         Fetcher[fetch_garmin_data.py]
-        CSV[("CSV Tiedostot<br/>backend/data/")]
-        DuckDB[("DuckDB<br/>backend/data/health_ai.db")]
+        Processor[process_garmin_data.py]
+        CSV[("CSV Cache<br/>backend/data/<br/>(Garmin History)")]
     end
 
     %% Machine Learning Core
     subgraph "AI & ML Core"
-        Processor[process_garmin_data.py]
         XGB_Model[XGBoost Model]
         Predictor[predict_readiness.py]
         CoachLogic[ai_coach.py]
@@ -37,7 +36,7 @@ graph TD
     subgraph "Modern UI (Next.js)"
         UI_Login[Login / Auth]
         UI_Dashboard[Dashboard Page]
-        UI_Charts["Recharts<br/>(Discovery, Load, Performance)"]
+        UI_Charts["Recharts<br/>(Recovery, Load, Performance)"]
         UI_AICard[AI Insight Card]
     end
 
@@ -48,14 +47,15 @@ graph TD
 
     %% Data Flow - External
     Garmin -->|JSON| Fetcher
-    Fetcher -->|Tallentaa| CSV
-
+    Fetcher -->|Tallentaa (Legacy)| CSV
+    
     %% ML Flow
-    CSV -->|Opetusdata| Processor
+    CSV -.->|Opetusdata (Legacy)| Processor
+    Firestore -->|Metrics History| Processor
     Processor -->|Kouluttaa| XGB_Model
     
-    %% Backend Intergration
-    FastAPI -->|Lue Historia| CSV
+    %% Backend Integration
+    FastAPI -->|Lue Historia| Firestore
     FastAPI -->|Lue/Kirjoita| Firestore
     FastAPI -->|Trigger| Fetcher
     FastAPI -->|Generoi| CoachLogic
@@ -73,8 +73,9 @@ graph TD
     UI_Dashboard <-->|"API Calls (Bearer Token)"| FastAPI
     FastAPI -.->|Verify Token| FirebaseAuth
 
-    %% Legacy Support
-    UI_Dashboard -.->|Legacy Data| DuckDB
+    %% CSV is now just a cache layer for Garmin historical data
+    style CSV fill:#ffffcc,stroke:#ffaa00,stroke-dasharray: 2 2
+```
 
 ![alt text](image-1.png)
 
@@ -100,14 +101,14 @@ graph TD
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
 ### 4. Data Layer (Tietovarasto)
-*   **CSV-tiedostot (`backend/data/`):** Toimii edelleen "Totuuden lähteenä" historialliselle Garmin-datalle.
-*   **Legacy Sync:** `main.py` synkronoi automaattisesti Garmin-datan CSV:stä Firestoreen, jotta Dashboard pysyy ajan tasalla.
-*   **Dual Write:** Uudet manuaaliset treenit kirjoitetaan sekä DuckDB:hen että Firestoreen.
+*   **Firestore (Primary):** Pääasiallinen tietokanta kaikelle käyttäjädatalle (Goals, Workouts, Plans, User Profiles).
+*   **CSV Cache (`backend/data/`):** Garmin-data haetaan CSV-muodossa ja käytetään ML-mallin koulutukseen. Toimii välimuistina historialliselle datalle.
+*   **User Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
 
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
 *   **Backend:** Python 3.10 (FastAPI), Pandas, XGBoost
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
-*   **Data:** CSV (Legacy), DuckDB, Firestore
+*   **Data:** Firestore (Primary), CSV (Garmin Cache)
 *   **Infra:** Docker Compose
