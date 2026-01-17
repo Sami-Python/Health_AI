@@ -3,7 +3,7 @@ services:
     build: ./backend
     container_name: health_ai_backend
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./backend:/app       # Hot reload code
       # Map Health_AI to root so that os.chdir(project_root) works as expected

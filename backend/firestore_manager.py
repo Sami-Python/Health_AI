@@ -417,3 +417,171 @@ def check_daily_generation_limit(user_id: str, max_limit: int = 5):
         # Fail open or closed? Let's fail open but log error
         return True
 
+def check_daily_generation_limit(user_id: str, max_limit: int = 5):
+    """Checks if user has exceeded daily generation limit."""
+    try:
+        from datetime import datetime, time
+        # Get start and end of today
+        now = datetime.now()
+        start_of_day = datetime.combine(now.date(), time.min)
+        
+        # Count plans generated today
+        docs = db.collection('plans')\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .where(filter=FieldFilter('timestamp', '>=', start_of_day))\
+                 .stream()
+                 
+        count = sum(1 for _ in docs)
+        return count < max_limit
+    except Exception as e:
+        print(f"Limit Check Error: {e}")
+        # Fail open or closed? Let's fail open but log error
+        return True
+
+def delete_all_user_data(user_id: str):
+    """Deletes ALL user data from Firestore (GDPR Compliance)."""
+    try:
+        # Collections to delete: goals, workouts, plans, users (profile + subcollections)
+        collections = ['goals', 'workouts', 'plans']
+        
+        batch = db.batch()
+        count = 0
+        
+        for collection_name in collections:
+            docs = db.collection(collection_name)\
+                     .where(filter=FieldFilter('user_id', '==', user_id))\
+                     .stream()
+            
+            for doc in docs:
+                batch.delete(doc.reference)
+                count += 1
+                
+                # Firestore batch limit is 500 operations
+                if count >= 400:
+                    batch.commit()
+                    batch = db.batch()
+                    count = 0
+        
+        # Delete user profile and subcollections
+        user_ref = db.collection('users').document(user_id)
+        
+        # Delete daily_insights subcollection
+        insights = user_ref.collection('daily_insights').stream()
+        for insight in insights:
+            batch.delete(insight.reference)
+            count += 1
+            if count >= 400:
+                batch.commit()
+                batch = db.batch()
+                count = 0
+        
+        # Delete user profile document
+        batch.delete(user_ref)
+        count += 1
+        
+        # Final commit
+        if count > 0:
+            batch.commit()
+        
+        print(f"Deleted all data for user {user_id}")
+        return True
+        
+    except Exception as e:
+        print(f"User Data Deletion Error: {e}")
+        return False
+"""
+GDPR Compliance Helper Functions
+Adds data export and feedback functionality to firestore_manager
+"""
+from google.cloud.firestore import FieldFilter
+
+# Import the shared db client
+import firestore_manager
+
+db = firestore_manager.db
+
+def get_all_goals(user_id: str):
+    """Fetches ALL goals for a user (active and archived) for data export."""
+    try:
+        docs = db.collection('goals').where(filter=FieldFilter('user_id', '==', user_id)).stream()
+        goals = []
+        for d in docs:
+            g = d.to_dict()
+            g['id'] = d.id
+            # Convert Firestore timestamps to ISO strings
+            if 'created_at' in g and g['created_at']:
+                try:
+                    g['created_at'] = g['created_at'].isoformat()
+                except:
+                    pass
+            goals.append(g)
+        return goals
+    except Exception as e:
+        print(f"Firestore Error (get_all_goals): {e}")
+        return []
+
+def get_all_workouts(user_id: str, limit: int = 1000):
+    """Fetches all workouts for a user (capped at limit for performance)."""
+    try:
+        docs = db.collection('workouts')\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .order_by('date', direction='DESCENDING')\
+                 .limit(limit)\
+                 .stream()
+        
+        workouts = []
+        for d in docs:
+            w = d.to_dict()
+            w['id'] = d.id
+            # Convert timestamps
+            if 'created_at' in w and w['created_at']:
+                try:
+                    w['created_at'] = w['created_at'].isoformat()
+                except:
+                    pass
+            if 'updated_at' in w and w['updated_at']:
+                try:
+                    w['updated_at'] = w['updated_at'].isoformat()
+                except:
+                    pass
+            workouts.append(w)
+        return workouts
+    except Exception as e:
+        print(f"Firestore Error (get_all_workouts): {e}")
+        return []
+
+def save_feedback(user_id: str, feedback_data: dict):
+    """Saves user feedback to Firestore."""
+    try:
+        from firebase_admin import firestore as fb_firestore
+        feedback_data['user_id'] = user_id
+        feedback_data['timestamp'] = fb_firestore.SERVER_TIMESTAMP
+        feedback_data['status'] = 'NEW'
+        db.collection('feedback').add(feedback_data)
+        return True
+    except Exception as e:
+        print(f"Firestore Error (save_feedback): {e}")
+        return False
+def get_all_feedback(limit: int = 100):
+    """Fetches all feedback for admin review (NO user_id filter)."""
+    try:
+        docs = db.collection('feedback')\
+                 .order_by('timestamp', direction='DESCENDING')\
+                 .limit(limit)\
+                 .stream()
+        
+        feedback_list = []
+        for d in docs:
+            f = d.to_dict()
+            f['id'] = d.id
+            # Convert timestamp
+            if 'timestamp' in f and f['timestamp']:
+                try:
+                    f['timestamp'] = f['timestamp'].isoformat()
+                except:
+                    pass
+            feedback_list.append(f)
+        return feedback_list
+    except Exception as e:
+        print(f"Firestore Error (get_all_feedback): {e}")
+        return []

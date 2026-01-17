@@ -394,3 +394,87 @@ Tänään ratkaistiin suorituskyky- ja datanäkyvyysongelmat, jotka vaivasivat D
 #### 4. ML Metrics (Transparency) 📊
 - Lisätty uusi "ML Accuracy" -näkymä User Menuun.
 - Näyttää ennustemallin tarkkuuden (R2 Score, MAE) visuaalisesti, lisäten luottamusta tekoälyn ennusteisiin.
+
+---
+
+## 2026-01-17 – DuckDB Migration Complete & GDPR Compliance ✅🔒
+
+Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → Firestore migraatio)** ja **Phase 7.2 (GDPR Compliance)**.
+
+### Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 🎯
+
+**Tavoite:** Poistaa DuckDB-riippuvuus kokonaan ja siirtyä täysin Firestore-arkkitehtuuriin.
+
+**Backend-muutokset:**
+- [main.py](file:///c:/Users/samih/code/health_ai/backend/main.py): `import firestore_manager as db_manager` - DuckDB poistettu
+- Kaikki endpointit (`/goals`, `/workouts`, `/plans`) käyttävät nyt Firestoreä
+- [firestore_manager.py](file:///c:/Users/samih/code/health_ai/backend/firestore_manager.py): Lisätty GDPR-funktiot
+
+**Dokumentaatio:**
+- [production_roadmap.md](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md): Phase 7.1 merkitty ✅ COMPLETED
+- [arkkitehtuuri.md](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md): DuckDB-viittaukset poistettu, Firestore-kaavio päivitetty
+
+**CSV:n rooli:** Garmin-historia säilyy CSV:ssä ML-mallin koulutusta varten (ei käyttäjädataa).
+
+---
+
+### Phase 7.2: GDPR Compliance (VALMIS) 🔐
+
+**1. Data Export** (`GET /user/export`)
+- Käyttäjät voivat ladata kaiken datansa JSON-muodossa
+- Rate limit: 3/tunti
+- Sisältää: goals, workouts, plans, profile
+- **Frontend:** "Export My Data" -nappi Settings-sivulla → lataa `health_ai_data_{uid}.json`
+
+**2. Feedback Form** (`POST /feedback`)
+- Käyttäjät voivat lähettää palautetta (Bug, Feature Request, General)
+- Rate limit: 5/tunti
+- Tallennetaan Firestoreen `feedback` collection
+- **Frontend:** Modal-lomake ([FeedbackForm.tsx](file:///c:/Users/samih/code/health_ai/frontend/src/components/FeedbackForm.tsx)) 500 merkin rajoituksella
+
+**3. Admin Feedback Endpoint** (`GET /admin/feedback`)
+- Admineille palautteiden hakuun
+- Suodattimet: `?status=NEW`, `?category=bug`, `?limit=50`
+- Käyttö: Firebase Console tai API-kutsu tokenilla
+
+**Firestore Collections (päivitetty):**
+- ✨ **feedback** (uusi) - Käyttäjäpalautteet
+- goals, workouts, plans, users (entiset)
+
+---
+
+### Tekniset korjaukset 🔧
+
+**Portti-ongelma:**
+- Zombie-prosessi esti portin 8000 → vaihdettu porttiin 8001
+- [docker-compose.yml](file:///c:/Users/samih/code/health_ai/docker-compose.yml): `8001:8000`
+- [frontend/utils.ts](file:///c:/Users/samih/code/health_ai/frontend/src/lib/utils.ts): `http://localhost:8001`
+
+**Firebase Config:**
+- Haettu oikea API key Firebase Consolesta
+- [frontend/.env.local](file:///c:/Users/samih/code/health_ai/frontend/.env.local) luotu kaikilla asetuksilla
+- IP `192.168.1.130` toimii mobiilissa
+
+---
+
+### Tulos 🎉
+
+**Arkkitehtuuri:**
+- ✅ DuckDB poistettu kokonaan
+- ✅ Firestore ainoa tietokanta käyttäjädatalle
+- ✅ Skaalautuu tuhansille käyttäjille (cloud-native)
+
+**GDPR:**
+- ✅ Käyttäjät voivat ladata datansa
+- ✅ Palautekanava toimii
+- ✅ Admin-työkalu palautteille
+
+**Kehitysympäristö:**
+- Backend: `http://localhost:8001` (Docker)
+- Frontend: `http://localhost:3000` (Next.js)
+- Mobile: `http://192.168.1.130:3000` ✅
+
+**Seuraavaksi (2026-01-18):**
+Phase 7.3 - Code Quality & Testing (toast notifications, testit, docstringit)
+
+**Status:** 🟢 Production-ready backend! 🚀

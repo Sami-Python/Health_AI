@@ -1,11 +1,12 @@
 "use client";
 
 import UserMenu from "@/components/UserMenu";
+import FeedbackForm from "@/components/FeedbackForm";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Trash2, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Trash2, AlertTriangle, Download, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/utils";
 
@@ -15,6 +16,8 @@ export default function SettingsPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const [showFeedback, setShowFeedback] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -54,6 +57,40 @@ export default function SettingsPage() {
         }
     };
 
+    const handleExportData = async () => {
+        if (!user) return;
+        setIsExporting(true);
+
+        try {
+            const token = await user.getIdToken();
+            const res = await fetch(`${API_BASE_URL}/user/export`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                },
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to export data");
+            }
+
+            // Download JSON file
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `health_ai_data_${user.uid}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err: any) {
+            alert("Export failed: " + err.message);
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     if (loading || !user) return null;
 
     return (
@@ -82,6 +119,37 @@ export default function SettingsPage() {
                     <p className="text-slate-400 text-sm">App preferences are currently managed automatically (Dark Mode, Metric Units).</p>
                 </div>
 
+                {/* Data Privacy Section */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-2">Data Privacy</h2>
+                    <p className="text-slate-400 text-sm mb-4">
+                        Download all your data in JSON format (GDPR compliance).
+                    </p>
+                    <Button
+                        onClick={handleExportData}
+                        disabled={isExporting}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        <Download className="h-4 w-4 mr-2" />
+                        {isExporting ? 'Exporting...' : 'Export My Data'}
+                    </Button>
+                </div>
+
+                {/* Feedback Section */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-2">Feedback</h2>
+                    <p className="text-slate-400 text-sm mb-4">
+                        Help us improve by reporting bugs or suggesting features.
+                    </p>
+                    <Button
+                        onClick={() => setShowFeedback(true)}
+                        className="bg-slate-700 hover:bg-slate-600 text-white"
+                    >
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Send Feedback
+                    </Button>
+                </div>
+
                 {/* Danger Zone */}
                 <div className="rounded-xl border border-red-900/50 bg-red-950/10 p-6">
                     <h2 className="text-lg font-semibold text-red-500 mb-2 flex items-center gap-2">
@@ -93,7 +161,6 @@ export default function SettingsPage() {
                     </p>
 
                     <Button
-                        variant="destructive"
                         onClick={() => setShowConfirm(true)}
                         className="bg-red-600 hover:bg-red-700 text-white"
                     >
@@ -131,7 +198,6 @@ export default function SettingsPage() {
                                     Cancel
                                 </Button>
                                 <Button
-                                    variant="destructive"
                                     onClick={handleDeleteAccount}
                                     disabled={isDeleting}
                                     className="flex-1 bg-red-600 hover:bg-red-700 text-white"
@@ -142,6 +208,11 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Feedback Modal */}
+            {showFeedback && (
+                <FeedbackForm onClose={() => setShowFeedback(false)} />
             )}
         </div>
     );
