@@ -114,6 +114,170 @@ curl -H "Authorization: Bearer YOUR_FIREBASE_TOKEN" \
      http://localhost:8001/goals
 ```
 
+---
+
+## 🔧 Troubleshooting
+
+### Port Already in Use
+
+**Problem:** `Error: Address already in use` when starting backend/frontend
+
+**Solutions:**
+
+**Backend (Port 8001):**
+```bash
+# Find process using port
+lsof -i :8001  # Mac/Linux
+netstat -ano | findstr :8001  # Windows
+
+# Kill process
+kill -9 <PID>  # Mac/Linux
+taskkill /PID <PID> /F  # Windows
+
+# Or use different port
+uvicorn main:app --port 8002
+```
+
+**Frontend (Port 3000):**
+```bash
+# Use different port
+PORT=3001 npm run dev
+```
+
+---
+
+### Firebase Credentials Missing
+
+**Problem:** `GOOGLE_APPLICATION_CREDENTIALS not found`
+
+**Solution:**
+1. Download service account key from [Firebase Console](https://console.firebase.google.com) → Project Settings → Service Accounts
+2. Save as `backend/service_account_key.json`
+3. Set environment variable:
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS="$(pwd)/backend/service_account_key.json"
+   ```
+4. Or update `.env` file
+
+**Problem:** `No Firebase config` in frontend
+
+**Solution:**
+1. Create `frontend/.env.local`:
+   ```bash
+   NEXT_PUBLIC_FIREBASE_API_KEY=your-key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+   ```
+2. Restart dev server
+
+---
+
+### CORS Errors
+
+**Problem:** `CORS policy: No 'Access-Control-Allow-Origin' header`
+
+**Solution:**
+1. Verify backend is running on correct port
+2. Check frontend `API_BASE_URL` in `frontend/src/lib/utils.ts`
+3. Ensure backend CORS middleware allows your origin:
+   ```python
+   # backend/main.py
+   allow_origins=["http://localhost:3000"]
+   ```
+
+---
+
+### Docker Issues
+
+**Problem:** `Error response from daemon: Conflict`
+
+**Solution:**
+```bash
+# Stop all containers
+docker-compose down
+
+# Remove old containers
+docker-compose rm -f
+
+# Rebuild
+docker-compose up --build backend
+```
+
+**Problem:** Docker can't find `service_account_key.json`
+
+**Solution:**
+1. Verify file exists: `ls backend/service_account_key.json`
+2. Check `docker-compose.yml` volume mounts
+3. Rebuild: `docker-compose up --build`
+
+---
+
+### Environment Variables
+
+**Problem:** `ENCRYPTION_KEY not set`
+
+**Solution:**
+```bash
+# Generate new key
+cd backend
+python encryption_helper.py  # Shows generated key
+
+# Add to .env
+echo "ENCRYPTION_KEY=your-generated-key" >> .env
+```
+
+---
+
+### Database Issues
+
+**Problem:** `No data showing in dashboard`
+
+**Solution:**
+1. Check if Garmin data fetched:
+   ```bash
+   ls Health_AI/data/garmin_*.csv
+   ```
+2. Manually trigger refresh:
+   - Dashboard → Click "Refresh" button
+   - Or: `POST http://localhost:8001/system/refresh`
+3. Check Firestore Console for data
+
+---
+
+### Common Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `401 Unauthorized` | Invalid/expired Firebase token | Re-login in frontend |
+| `429 Too Many Requests` | Rate limit exceeded | Wait 1 minute, try again |
+| `Module not found` | Missing dependencies | `npm install` / `pip install -r requirements.txt` |
+| `Connection refused` | Backend not running | Start backend: `docker-compose up backend` |
+
+---
+
+### Need More Help?
+
+1. Check logs:
+   ```bash
+   # Backend logs
+   docker-compose logs backend
+   
+   # Frontend logs
+   # Check terminal where 'npm run dev' is running
+   ```
+
+2. Enable debug mode:
+   ```bash
+   # Backend
+   export DEBUG=true
+   
+   # Frontend
+   # Add to .env.local:
+   NEXT_PUBLIC_DEBUG=true
+   ```
+
+3. Review documentation in `Docs/` folder
+
 ## 📚 Dokumentaatio
 
 Lisää teknisiä yksityiskohtia ja arkkitehtuurikuvauksia löydät `Docs/`-kansiosta:
