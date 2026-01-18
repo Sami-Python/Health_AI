@@ -20,7 +20,51 @@ from datetime import date, timedelta, datetime
 import calendar
 
 limiter = Limiter(key_func=get_remote_address)
-app = FastAPI(title="Health AI API", version="0.1.0")
+
+# Enhanced API metadata
+app = FastAPI(
+    title="Health AI Coach API",
+    version="1.0.0",
+    description="""
+🏃 **Health AI Coach** - Your personal AI-powered endurance training assistant.
+
+## Features
+
+* **Goal Management**: Create, track, and manage training goals
+* **AI Insights**: Get personalized training recommendations powered by Google Gemini
+* **Garmin Integration**: Securely connect and sync Garmin data
+* **Training Calendar**: Plan and track workouts
+* **Analytics**: Visualize recovery metrics and training load
+
+## Authentication
+
+All endpoints (except `/health`) require Firebase Authentication.  
+Include the ID token in the `Authorization` header:
+
+```
+Authorization: Bearer <your-firebase-id-token>
+```
+
+## Rate Limiting
+
+- Most endpoints: 20 requests/minute
+- AI endpoints: 10 requests/minute  
+- Garmin credentials: 5 requests/hour
+
+## Data Security
+
+- All passwords encrypted with AES-256
+- Row-level security (user_id filtering)
+- GDPR compliant data export
+""",
+    contact={
+        "name": "Health AI Support",
+        "url": "https://github.com/yourusername/health_ai",
+    },
+    license_info={
+        "name": "MIT",
+    },
+)
 
 # Configure CORS for Frontend
 app.add_middleware(
@@ -34,8 +78,36 @@ app.add_middleware(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-@app.get("/metrics/history")
+@app.get("/metrics/history", tags=["Analytics"])
 async def get_metrics_history(user: dict = Depends(verify_token)):
+    """
+    Get historical recovery and training metrics.
+    
+    Returns time-series data for:
+    - Sleep quality and duration
+    - Body Battery / Readiness scores
+    - Heart Rate Variability (HRV)
+    - Training load and stress
+    
+    **Data Source:** Garmin CSV export (processed historical data)
+    
+    **Use Case:** Powering charts and sparklines in the dashboard
+    
+    **Example Response:**
+    ```json
+    [
+        {
+            "date": "2024-01-15",
+            "sleep_score": 85,
+            "body_battery": 78,
+            "hrv": 65,
+            "training_load": 120
+        }
+    ]
+    ```
+    
+    **Note:** Limited to last 90 days of data for performance.
+    """
     try:
         # Load data from CSV (Migration Phase: Using CSV as SSOT for history)
         csv_path = "../Health_AI/data/garmin_merged_features.csv"
@@ -559,8 +631,10 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
 @app.post("/system/refresh")
 async def refresh_data(user: dict = Depends(verify_token)):
     """
-    Triggers Garmin data fetch and model retraining.
-    Uses legacy scripts from parent directory via sys.path hack.
+    Triggers Garmin data fetch and model retraining for the authenticated user.
+    
+    NEW: Now uses per-user Garmin credentials from Firestore.
+    Falls back to legacy mode if user has no credentials saved.
     """
     try:
         import sys
@@ -598,11 +672,20 @@ async def refresh_data(user: dict = Depends(verify_token)):
             importlib.reload(fetch_garmin_data)
             importlib.reload(process_garmin_data)
             
-            # Run Fetch
-            print(f"Starting Data Fetch from {script_dir}...")
-            # Note: script_dir is in sys.path, so imports work.
-            # CWD is project root, so "Health_AI/data/..." works.
-            fetch_garmin_data.main()
+            # Run Fetch with user_id (NEW: Per-user credentials)
+            uid = user['uid']
+            print(f"Starting Data Fetch for user: {uid}...")
+            
+            # Check if user has Garmin credentials
+            has_credentials = db_manager.check_garmin_credentials_exist(uid)
+            
+            if has_credentials:
+                print(f"✅ User has Garmin credentials, fetching with per-user mode")
+                fetch_garmin_data.main(user_id=uid)
+            else:
+                print(f"⚠️  User has no Garmin credentials, attempting legacy mode")
+                # Try legacy mode (falls back to GARMIN_EMAIL/PASSWORD from .env)
+                fetch_garmin_data.main(user_id=None)
             
             # Run Process
             print("Starting Model Training...")
@@ -614,6 +697,13 @@ async def refresh_data(user: dict = Depends(verify_token)):
         
         return {"status": "success", "message": "Data refreshed and model retrained."}
         
+    except ValueError as ve:
+        # Credentials error
+        print(f"Credentials error: {ve}")
+        raise HTTPException(
+            status_code=400, 
+            detail=str(ve) + " Please connect your Garmin account in Profile settings."
+        )
     except Exception as e:
         print(f"Refresh error: {e}")
         import traceback
@@ -843,3 +933,110 @@ def get_readiness(request: Request, user: dict = Depends(verify_token)):
         return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ========================================
+# Garmin Credentials Endpoints
+# ========================================
+
+class GarminCredentials(BaseModel):
+    username: str
+    password: str
+
+@app.post("/garmin/credentials")
+@limiter.limit("5/hour")
+async def save_garmin_credentials_endpoint(
+    request: Request,
+    credentials: GarminCredentials,
+    user: dict = Depends(verify_token)
+):
+    """
+    Saves encrypted Garmin credentials for the authenticated user.
+    
+    Security:
+    - Password is encrypted before storage using AES-256
+    - Rate limited to 5 requests per hour
+    - Only user can save their own credentials
+    """
+    try:
+        success = db_manager.save_garmin_credentials(
+            user['uid'],
+            credentials.username,
+            credentials.password
+        )
+        
+        if success:
+            return {
+                "status": "success",
+                "message": "Garmin credentials saved securely"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save credentials")
+            
+    except ValueError as e:
+        # Encryption key not configured
+        raise HTTPException(status_code=500, detail=f"Server configuration error: {str(e)}")
+    except Exception as e:
+        print(f"Save Garmin Credentials Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/garmin/status")
+@limiter.limit("20/minute")
+async def get_garmin_status_endpoint(
+    request: Request,
+    user: dict = Depends(verify_token)
+):
+    """
+    Checks if user has saved Garmin credentials.
+    
+    Returns:
+        {
+            "connected": true/false,
+            "username": "user@example.com" (if connected)
+        }
+    """
+    try:
+        has_credentials = db_manager.check_garmin_credentials_exist(user['uid'])
+        
+        if has_credentials:
+            # Get username (but NOT password)
+            creds = db_manager.get_garmin_credentials(user['uid'])
+            return {
+                "connected": True,
+                "username": creds['username'] if creds else None
+            }
+        else:
+            return {
+                "connected": False,
+                "username": None
+            }
+            
+    except Exception as e:
+        print(f"Garmin Status Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/garmin/credentials")
+@limiter.limit("5/hour")
+async def delete_garmin_credentials_endpoint(
+    request: Request,
+    user: dict = Depends(verify_token)
+):
+    """
+    Deletes user's Garmin credentials (disconnect).
+    """
+    try:
+        success = db_manager.delete_garmin_credentials(user['uid'])
+        
+        if success:
+            return {
+                "status": "success",
+                "message": "Garmin account disconnected"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to delete credentials")
+            
+    except Exception as e:
+        print(f"Delete Garmin Credentials Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+

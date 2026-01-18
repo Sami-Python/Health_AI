@@ -4,22 +4,69 @@ from datetime import date, timedelta
 from garminconnect import Garmin
 from dotenv import load_dotenv
 import pandas as pd
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-def get_garmin_client() -> Garmin:
-    """Authenticate to Garmin using credentials from .env."""
-    load_dotenv()
-    email = os.getenv("GARMIN_EMAIL")
-    password = os.getenv("GARMIN_PASSWORD")
+def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
+    """
+    Authenticate to Garmin using credentials.
+    
+    Args:
+        user_id: Firebase UID. If provided, uses encrypted credentials from Firestore.
+                 If None, falls back to GARMIN_EMAIL/GARMIN_PASSWORD from .env (legacy).
+    
+    Returns:
+        Authenticated Garmin client
+        
+    Raises:
+        ValueError: If credentials not found or authentication fails
+    """
+    email = None
+    password = None
+    
+    if user_id:
+        # NEW: Per-user credentials from Firestore
+        try:
+            # Import here to avoid circular dependency issues
+            import sys
+            import os
+            backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if backend_path not in sys.path:
+                sys.path.insert(0, backend_path)
+            
+            import firestore_manager
+            
+            creds = firestore_manager.get_garmin_credentials(user_id)
+            if creds:
+                email = creds['username']
+                password = creds['password']
+                print(f"✅ Using Garmin credentials for user: {user_id}")
+            else:
+                raise ValueError(f"No Garmin credentials found for user: {user_id}. Please connect your Garmin account in Profile settings.")
+        except Exception as e:
+            print(f"❌ Failed to load Garmin credentials for user {user_id}: {e}")
+            raise ValueError(f"Could not load Garmin credentials: {str(e)}")
+    else:
+        # LEGACY: Environment variables (for backward compatibility)
+        load_dotenv()
+        email = os.getenv("GARMIN_EMAIL")
+        password = os.getenv("GARMIN_PASSWORD")
+        
+        if not email or not password:
+            raise ValueError("No user_id provided and GARMIN_EMAIL/GARMIN_PASSWORD not set in environment. Please provide user_id or configure legacy credentials.")
+        
+        print(f"⚠️  Using legacy GARMIN_EMAIL from environment: {email}")
 
-    print(f"Using GARMIN_EMAIL={email!r}")  # väliaikainen debug
+    # Authenticate
+    try:
+        client = Garmin(email, password)
+        client.login()
+        print(f"✅ Garmin login successful for: {email}")
+        return client
+    except Exception as e:
+        print(f"❌ Garmin authentication failed: {e}")
+        raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
 
-    if not email or not password:
-        raise ValueError("GARMIN_EMAIL or GARMIN_PASSWORD not set in environment/.env")
 
-    client = Garmin(email, password)
-    client.login()
-    return client
 
 
 def fetch_daily_summary(client: Garmin, start: date, end: date) -> pd.DataFrame:
@@ -155,11 +202,29 @@ def update_csv(new_df, filename, key_col='date'):
         new_df.to_csv(filename, index=False)
         print(f"Created {filename} with {len(new_df)} rows")
 
-def main():
-    client = get_garmin_client()
+def main(user_id: Optional[str] = None):
+    """
+    Fetches Garmin data for a specific user or uses legacy mode.
+    
+    Args:
+        user_id: Firebase UID. If provided, fetches data for this user.
+                 If None, uses legacy environment credentials and shared data path.
+    """
+    client = get_garmin_client(user_id)
 
     today = date.today()
-    last_sync = get_latest_date("Health_AI/data/garmin_daily_summary.csv")
+    
+    # Determine data path based on mode
+    if user_id:
+        # Per-user data path (future: could store in user-specific directories)
+        # For MVP, we'll still use shared CSV but this allows future expansion
+        data_dir = "Health_AI/data"
+        print(f"📁 Using shared data directory: {data_dir}")
+    else:
+        data_dir = "Health_AI/data"
+        print(f"📁 Using legacy data directory: {data_dir}")
+    
+    last_sync = get_latest_date(f"{data_dir}/garmin_daily_summary.csv")
     
     if last_sync:
         # Start from 5 days ago to ensure we catch any late-syncing activities or missed data
@@ -176,21 +241,23 @@ def main():
 
     # 1. Summary
     df_summary = fetch_daily_summary(client, start, today)
-    update_csv(df_summary, "Health_AI/data/garmin_daily_summary.csv")
+    update_csv(df_summary, f"{data_dir}/garmin_daily_summary.csv")
 
     # 2. HR
     df_hr = fetch_daily_heart_rate(client, start, today)
-    update_csv(df_hr, "Health_AI/data/garmin_hr_timeseries.csv")
+    update_csv(df_hr, f"{data_dir}/garmin_hr_timeseries.csv")
 
     # 3. Sleep
     df_sleep = fetch_sleep_data(client, start, today)
-    update_csv(df_sleep, "Health_AI/data/garmin_sleep_data.csv")
+    update_csv(df_sleep, f"{data_dir}/garmin_sleep_data.csv")
 
     # 4. Activities
     df_activities = fetch_activities(client, start, today)
     # Use 'activityId' as key if available, else 'date' (fallback)
     key = 'activityId' if (df_activities is not None and 'activityId' in df_activities.columns) else 'date'
-    update_csv(df_activities, "Health_AI/data/garmin_activities.csv", key_col=key)
+    update_csv(df_activities, f"{data_dir}/garmin_activities.csv", key_col=key)
+    
+    print(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 
 if __name__ == "__main__":
     main()

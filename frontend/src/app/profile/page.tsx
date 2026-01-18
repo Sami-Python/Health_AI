@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import ProfileForm from "@/components/ProfileForm";
+import GarminCredentialsForm from "@/components/GarminCredentialsForm";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
@@ -38,9 +39,11 @@ export default function ProfilePage() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-5xl p-4 md:p-8">
+            <main className="mx-auto max-w-5xl p-4 md:p-8 space-y-8">
                 <ProfileForm />
+                <GarminCredentialsForm />
             </main>
         </div>
     );
 }
+

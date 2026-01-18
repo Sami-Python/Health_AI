@@ -15,6 +15,7 @@ import GeneratePlanModal from "@/components/GeneratePlanModal";
 import { Activity, Battery, Calendar, TrendingUp, Plus, RefreshCw, History, Brain, XCircle } from "lucide-react";
 import AnimateEntry from "@/components/ui/AnimateEntry";
 import { API_BASE_URL } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 export default function DashboardPage() {
     const { user, loading } = useAuth();
@@ -40,6 +41,7 @@ export default function DashboardPage() {
     // Edit Goal State
     const [editingGoal, setEditingGoal] = useState<any | null>(null);
 
+
     const handleDeleteGoal = async (goalId: string) => {
         if (!confirm('Are you sure you want to delete this goal?')) return;
         if (!user) return;
@@ -51,10 +53,14 @@ export default function DashboardPage() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
+                toast.success('Goal deleted successfully');
                 fetchData(); // Refresh list
+            } else {
+                toast.error('Failed to delete goal');
             }
         } catch (e) {
             console.error("Delete failed", e);
+            toast.error('An error occurred while deleting goal');
         }
     };
 
@@ -110,13 +116,21 @@ export default function DashboardPage() {
         setRefreshing(true);
         try {
             const token = await user.getIdToken();
-            await fetch(`${API_BASE_URL}/system/refresh`, {
+            const res = await fetch(`${API_BASE_URL}/system/refresh`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
-            await fetchData();
-        } catch (e) {
+
+            if (res.ok) {
+                await fetchData();
+                toast.success('Data refreshed successfully!');
+            } else {
+                const error = await res.json();
+                toast.error(error.detail || 'Failed to refresh data');
+            }
+        } catch (e: any) {
             console.error("Refresh failed", e);
+            toast.error(e.message || 'An error occurred while refreshing data');
         } finally {
             setRefreshing(false);
         }
