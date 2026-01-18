@@ -184,9 +184,46 @@ def read_root(request: Request):
 def health_check():
     return {"status": "ok"}
 
-@app.get("/goals")
+@app.get("/goals", tags=["Goals"])
 @limiter.limit("10/minute")
 def get_goals(request: Request, user: dict = Depends(verify_token)):
+    """
+    Get all active goals for the authenticated user.
+    
+    Returns a list of goals with calculated progress based on:
+    - Garmin activity data (CSV)
+    - Manual workout logs (Firestore)
+    
+    **Goal Types:**
+    - `weekly`: Recurring weekly goals (e.g., 50km/week)
+    - `monthly`: Recurring monthly goals
+    - `target_date`: One-time goals with deadline
+    - `race`: Race preparation goals
+    
+    **Progress Calculation:**
+    - Weekly/Monthly: Current period progress
+    - Target Date/Race: Total progress since creation
+    
+    **Example Response:**
+    ```json
+    [
+        {
+            "id": "goal123",
+            "activity_type": "Running",
+            "target_value": 50,
+            "target_unit": "km",
+            "period_type": "weekly",
+            "status": "ACTIVE",
+            "current_value": 32.5,
+            "progress_percentage": 65,
+            "remaining": 17.5,
+            "days_left": 3
+        }
+    ]
+    ```
+    
+    **Rate Limit:** 10 requests/minute
+    """
     try:
         raw_goals = db_manager.get_active_goals(user['uid'])
         
@@ -369,9 +406,35 @@ class UserProfile(BaseModel):
     max_heart_rate: Optional[int] = None
 
 
-@app.post("/goals")
+@app.post("/goals", tags=["Goals"])
 @limiter.limit("5/minute")
 def create_goal(goal: GoalCreate, request: Request, user: dict = Depends(verify_token)):
+    """
+    Create a new training goal.
+    
+    **Request Body:**
+    - `activity_type`: "Running", "Cycling", "Swimming", etc.
+    - `target_value`: Numeric goal (e.g., 50 for 50km)
+    - `target_unit`: "km", "min", "hours", "times", "kcal", "kg"
+    - `period_type`: "weekly", "monthly", "target_date", "race"
+    - `frequency`: "Weekly" or "Monthly" (for recurring goals)
+    - `target_date`: ISO date string (for target_date/race goals)
+    - `description`: Optional text description
+    
+    **Example Request:**
+    ```json
+    {
+        "activity_type": "Running",
+        "target_value": 50,
+        "target_unit": "km",
+        "period_type": "weekly",
+        "frequency": "Weekly",
+        "description": "Marathon preparation"
+    }
+    ```
+    
+    **Rate Limit:** 5 requests/minute
+    """
     try:
         success = db_manager.add_goal(user['uid'], goal.model_dump())
         if success:
@@ -381,8 +444,20 @@ def create_goal(goal: GoalCreate, request: Request, user: dict = Depends(verify_
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.delete("/goals/{goal_id}")
+@app.delete("/goals/{goal_id}", tags=["Goals"])
 async def delete_goal_endpoint(goal_id: str, user: dict = Depends(verify_token)):
+    """
+    Delete a specific goal.
+    
+    **Path Parameters:**
+    - `goal_id`: Firestore document ID of the goal
+    
+    **Response:**
+    - `200`: Goal deleted successfully
+    - `404`: Goal not found or access denied
+    
+    **Note:** Only the goal owner can delete their own goals (enforced by user_id check).
+    """
     try:
         if db_manager.delete_goal(user['uid'], goal_id):
             return {"status": "success", "message": "Goal deleted"}
@@ -391,8 +466,22 @@ async def delete_goal_endpoint(goal_id: str, user: dict = Depends(verify_token))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.put("/goals/{goal_id}")
+@app.put("/goals/{goal_id}", tags=["Goals"])
 async def update_goal_endpoint(goal_id: str, goal: GoalCreate, user: dict = Depends(verify_token)):
+    """
+    Update an existing goal.
+    
+    **Path Parameters:**
+    - `goal_id`: Firestore document ID of the goal to update
+    
+    **Request Body:** Same as POST (all fields)
+    
+    **Use Case:** Edit target values, change goal type, update description
+    
+    **Response:**
+    - `200`: Goal updated successfully  
+    - `404`: Goal not found or access denied
+    """
     try:
         updates = {
             "activity_type": goal.activity_type,
@@ -711,11 +800,38 @@ async def refresh_data(user: dict = Depends(verify_token)):
         raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
 
 
-@app.get("/ai/insight")
+@app.get("/ai/insight", tags=["AI"])
 @limiter.limit("10/minute")
 async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
     """
-    Generates a daily insight based on the latest metrics.
+    Generate AI-powered daily training insight.
+    
+    Analyzes user's recovery metrics and provides personalized recommendations using Google Gemini 2.5.
+    
+    **Data Sources:**
+    - Latest recovery metrics (TSB, Readiness, Sleep, CTL)
+    - Garmin historical data
+    - Training goals
+    
+    **Caching:**
+    - Results cached for 24 hours (per user, per day)
+    - Reduces API costs and improves response time
+    - Cache stored in Firestore (`daily_insights` collection)
+    
+    **AI Model:** Google Gemini 2.5 Flash
+    
+    **Example Response:**
+    ```json
+    {
+        "insight": "Your recovery is excellent today (Readiness: 85%). Consider a moderate intensity run of 8-10km. Your training load is optimal for race preparation.",
+        "cached": true,
+        "generated_at": "2024-01-15T08:00:00Z"
+    }
+    ```
+    
+    **Rate Limit:** 10 requests/minute
+    
+    **Fallback:** Returns generic advice if AI generation fails
     """
     try:
         # Reuse logic to get latest 30 days, but we only need the last one

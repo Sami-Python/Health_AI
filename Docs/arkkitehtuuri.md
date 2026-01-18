@@ -89,6 +89,7 @@ graph TD
     *   **Recharts / Sparklines:** Interaktiiviset kuvaajat ja minitrendit korteissa.
     *   **AI Insight Card:** Päivittäinen yhteenveto tekoälyltä.
     *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
+    *   **Toast Notifications:** Reaaliaikaiset käyttäjäilmoitukset (react-hot-toast) - success/error feedback kaikille toiminnoille.
 
 ### 2. Firebase Platform (Pilvipalvelut)
 *   **Authentication:** Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).
@@ -96,11 +97,24 @@ graph TD
     *   **Token-Based Security:** Jokainen API-kutsu validoidaan Firebase ID Tokenilla
     *   **Multi-User Isolation:** Data eristetään automaattisesti `user_id`-perusteella
     *   📖 **Tekninen dokumentaatio:** [authentication.md](authentication.md)
-*   **Firestore:** NoSQL-tietokanta, joka säilyttää käyttäjän tavoitteet (`goals`), treenit (`workouts`), AI-suunnitelmat (`plans`) ja profiilit (`users`).
+*   **Firestore:** NoSQL-tietokanta, joka säilyttää:
+    *   Käyttäjän tavoitteet (`goals`)
+    *   Treenit (`workouts`)
+    *   AI-suunnitelmat (`plans`)
+    *   Profiilit (`users`)
+    *   **Garmin Credentials:** Salatut Garmin-tunnukset (`users/{uid}/garmin_credentials/default`)
+        *   **Encryption:** AES-256 (Fernet) - Salasanat luettavissa vain oikealla salausavaimella
+        *   **Security:** Admin ei näe salasanoja ilman `ENCRYPTION_KEY`-avainta
+        *   📖 **Setup Guide:** [garmin_setup.md](garmin_setup.md)
 
 ### 3. Backend & AI Core (Älykkyys)
-*   **Backend API (`backend/`):** FastAPI-palvelin, joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
+*   **Backend API (`backend/`):** FastAPI-palvelin (v1.0.0), joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
+    *   **API Documentation:** Interaktiivinen Swagger UI (`/docs`)
+    *   **Rate Limiting:** Endpoint-kohtaiset rajat (slowapi)
+    *   **Authentication Middleware:** Firebase token verification
+    *   📖 **API Reference:** [API.md](API.md)
 *   **Backend Scripts (`backend/scripts/`):** Datan haku- ja käsittelyscriptit (ETL).
+    *   **Per-User Garmin Fetch:** `fetch_garmin_data.py` tukee käyttäjäkohtaisia tunnuksia
 *   **AI Coach (`backend/ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin. **Sisältää välimuistin (Firestore Cache)** API-kiintiöiden hallintaan.
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
@@ -121,7 +135,15 @@ graph TD
 
 ## 📖 Katso myös
 
+- **[API.md](API.md)** - Complete API reference (25+ endpoints, examples, rate limits)
 - **[authentication.md](authentication.md)** - Käyttäjien tunnistautuminen ja multi-user data isolation
+- **[garmin_setup.md](garmin_setup.md)** - Garmin credentials encryption setup & troubleshooting
 - **[production_roadmap.md](production_roadmap.md)** - Skaalautuvuussuunnitelma (0 → 10,000 käyttäjää)
 - **[sami_memo.md](sami_memo.md)** - Kehityspäiväkirja ja projektin historia
+
+---
+
+**Last Updated:** 2026-01-18  
+**API Version:** 1.0.0  
+**Architecture Status:** Production Ready
 
