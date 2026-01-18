@@ -212,4 +212,4 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [ ] **CI/CD Expansion:** (#242)
   - [ ] Lisää automaattinen deployment (CD) (#243)
   - [ ] **Docker image build ja push Container Registry:yn** (#244)
-- [ ] **GitHub Action Testi:** Varmista että automaattinen synkronointi toimii.
+- [ ] **GitHub Action Testi:** Varmista että automaattinen synkronointi toimii. (#245)
