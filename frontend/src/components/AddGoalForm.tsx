@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { API_BASE_URL } from '@/lib/utils';
+import toast from 'react-hot-toast';
 
 interface AddGoalFormProps {
     onSuccess?: () => void;
@@ -60,6 +61,9 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
             if (!res.ok) throw new Error(goalId ? 'Failed to update goal' : 'Failed to create goal');
 
+            // Success toast
+            toast.success(goalId ? 'Goal updated successfully!' : 'Goal created successfully!');
+
             // Reset form only if adding
             if (!goalId) {
                 setFormData({
@@ -77,6 +81,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
         } catch (err: any) {
             setError(err.message);
+            toast.error(err.message || 'An error occurred');
         } finally {
             setLoading(false);
         }

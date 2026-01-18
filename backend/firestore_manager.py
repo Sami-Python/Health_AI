@@ -585,3 +585,116 @@ def get_all_feedback(limit: int = 100):
     except Exception as e:
         print(f"Firestore Error (get_all_feedback): {e}")
         return []
+
+# ========================================
+# Garmin Credentials (Encrypted Storage)
+# ========================================
+
+def save_garmin_credentials(user_id: str, username: str, password: str) -> bool:
+    """
+    Encrypts and saves Garmin credentials to Firestore.
+    
+    Args:
+        user_id: Firebase UID
+        username: Garmin email/username (stored in plaintext)
+        password: Garmin password (encrypted before storage)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        from encryption_helper import encrypt_password
+        
+        # Encrypt password
+        encrypted_password = encrypt_password(password)
+        
+        # Store in users/{uid}/garmin_credentials subcollection
+        doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        
+        doc_ref.set({
+            'username': username,  # Plaintext (email address is not sensitive in Firestore)
+            'password_encrypted': encrypted_password,
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'last_updated': firestore.SERVER_TIMESTAMP
+        })
+        
+        print(f"✅ Garmin credentials saved for user: {user_id}")
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (save_garmin_credentials): {e}")
+        return False
+
+
+def get_garmin_credentials(user_id: str) -> dict | None:
+    """
+    Retrieves and decrypts Garmin credentials.
+    
+    Args:
+        user_id: Firebase UID
+        
+    Returns:
+        {"username": "...", "password": "..."} or None if not found
+    """
+    try:
+        from encryption_helper import decrypt_password
+        
+        doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        doc = doc_ref.get()
+        
+        if not doc.exists:
+            return None
+        
+        data = doc.to_dict()
+        
+        # Decrypt password
+        decrypted_password = decrypt_password(data['password_encrypted'])
+        
+        return {
+            'username': data['username'],
+            'password': decrypted_password
+        }
+        
+    except Exception as e:
+        print(f"Firestore Error (get_garmin_credentials): {e}")
+        return None
+
+
+def delete_garmin_credentials(user_id: str) -> bool:
+    """
+    Deletes Garmin credentials (GDPR compliance / user disconnect).
+    
+    Args:
+        user_id: Firebase UID
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        doc_ref.delete()
+        print(f"🗑️ Garmin credentials deleted for user: {user_id}")
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (delete_garmin_credentials): {e}")
+        return False
+
+
+def check_garmin_credentials_exist(user_id: str) -> bool:
+    """
+    Checks if user has saved Garmin credentials.
+    
+    Args:
+        user_id: Firebase UID
+        
+    Returns:
+        True if credentials exist, False otherwise
+    """
+    try:
+        doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        return doc_ref.get().exists
+    except Exception as e:
+        print(f"Firestore Error (check_garmin_credentials_exist): {e}")
+        return False
+

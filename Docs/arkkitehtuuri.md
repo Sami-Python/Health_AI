@@ -92,7 +92,11 @@ graph TD
 
 ### 2. Firebase Platform (Pilvipalvelut)
 *   **Authentication:** Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).
-*   **Firestore:** NoSQL-tietokanta, joka säilyttää käyttäjän tavoitteet (`goals`) ja asetukset reaaliaikaisesti.
+    *   **Google Sign-In:** Käyttäjät kirjautuvat Google-tileillään
+    *   **Token-Based Security:** Jokainen API-kutsu validoidaan Firebase ID Tokenilla
+    *   **Multi-User Isolation:** Data eristetään automaattisesti `user_id`-perusteella
+    *   📖 **Tekninen dokumentaatio:** [authentication.md](authentication.md)
+*   **Firestore:** NoSQL-tietokanta, joka säilyttää käyttäjän tavoitteet (`goals`), treenit (`workouts`), AI-suunnitelmat (`plans`) ja profiilit (`users`).
 
 ### 3. Backend & AI Core (Älykkyys)
 *   **Backend API (`backend/`):** FastAPI-palvelin, joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.
@@ -112,3 +116,12 @@ graph TD
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
 *   **Infra:** Docker Compose
+
+---
+
+## 📖 Katso myös
+
+- **[authentication.md](authentication.md)** - Käyttäjien tunnistautuminen ja multi-user data isolation
+- **[production_roadmap.md](production_roadmap.md)** - Skaalautuvuussuunnitelma (0 → 10,000 käyttäjää)
+- **[sami_memo.md](sami_memo.md)** - Kehityspäiväkirja ja projektin historia
+

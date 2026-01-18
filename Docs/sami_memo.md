@@ -474,7 +474,170 @@ Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → F
 - Frontend: `http://localhost:3000` (Next.js)
 - Mobile: `http://192.168.1.130:3000` ✅
 
-**Seuraavaksi (2026-01-18):**
+---
+
+## 2026-01-18 – Garmin Per-User Credentials 🔐
+
+Toteutettu turvallinen, salattu per-user Garmin-tunnusten tallennus ja käyttö.
+
+### Tavoite
+
+Mahdollistaa että jokainen käyttäjä voi yhdistää oman Garmin-tilinsä sovellukseen. Aiemmin yhteinen Garmin-tili kaikille (MVP single-user).
+
+### 1. Encryption Infrastructure (Salausinfrastruktuuri)
+
+**Luotu:** [`backend/encryption_helper.py`](file:///c:/Users/samih/code/health_ai/backend/encryption_helper.py)
+
+- **Algoritmi:** AES-256 (Fernet symmetric encryption)
+- **Funktiot:**
+  - `encrypt_text(plaintext)` → Salattu string
+  - `decrypt_text(encrypted)` → Alkuperäinen teksti
+- **Salausavain:** Environment-muuttuja `ENCRYPTION_KEY`
+- **Turvallisuus:** Ilman avainta data on **pysyvästi lukitsematon**
+
+**Testattu:**
+```bash
+python encryption_helper.py
+# ✅ SUCCESS: Encryption/Decryption working correctly!
+```
+
+---
+
+### 2. Backend: Firestore Credentials Management
+
+**Päivitetty:** [`backend/firestore_manager.py`](file:///c:/Users/samih/code/health_ai/backend/firestore_manager.py)
+
+**Uudet funktiot:**
+- `save_garmin_credentials(user_id, username, password)` - Salaa ja tallenna
+- `get_garmin_credentials(user_id)` - Hae ja pura salaus
+- `delete_garmin_credentials(user_id)` - Poista (GDPR)
+- `check_garmin_credentials_exist(user_id)` - Tarkista onko tallessa
+
+**Firestore Schema:**
+```
+users/{uid}/garmin_credentials/default
+  - username: "garmin_username" (plaintext)
+  - password_encrypted: "gAAAAABm..." (AES-256 salattu)
+  - created_at: timestamp
+  - last_updated: timestamp
+```
+
+---
+
+### 3. Backend: API Endpoints
+
+**Päivitetty:** [`backend/main.py`](file:///c:/Users/samih/code/health_ai/backend/main.py)
+
+**Uudet endpointit:**
+
+| Endpoint | Method | Rate Limit | Kuvaus |
+|----------|--------|------------|--------|
+| `/garmin/credentials` | POST | 5/hour | Tallenna tunnukset (salattu) |
+| `/garmin/status` | GET | 20/min | Tarkista yhteys |
+| `/garmin/credentials` | DELETE | 5/hour | Katkaise yhteys |
+
+**Päivitetty endpoint:**
+- `POST /system/refresh` - Nyt tukee per-user -tunnuksia
+  - Jos käyttäjällä on tunnukset → käyttää niitä
+  - Jos ei → käyttää legacy `.env` tunnuksia (backward compatibility)
+
+---
+
+### 4. Data Fetch Integration
+
+**Päivitetty:** [`backend/scripts/fetch_garmin_data.py`](file:///c:/Users/samih/code/health_ai/backend/scripts/fetch_garmin_data.py)
+
+**Muutokset:**
+```python
+# ENNEN:
+def get_garmin_client() -> Garmin:
+    email = os.getenv("GARMIN_EMAIL")
+    password = os.getenv("GARMIN_PASSWORD")
+    
+# NYT:
+def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
+    if user_id:
+        # Hae Firestoresta ja pura salaus
+        creds = firestore_manager.get_garmin_credentials(user_id)
+        email = creds['username']
+        password = creds['password']
+    else:
+        # Legacy mode
+        email = os.getenv("GARMIN_EMAIL")
+        password = os.getenv("GARMIN_PASSWORD")
+```
+
+**Backward Compatibility:** ✅ Vanhat käyttäjät toimivat edelleen ilman muutoksia.
+
+---
+
+### 5. Frontend: User Interface
+
+**Luotu:** [`frontend/src/components/GarminCredentialsForm.tsx`](file:///c:/Users/samih/code/health_ai/frontend/src/components/GarminCredentialsForm.tsx)
+
+**Ominaisuudet:**
+- Username/Email input (ei pakollista @-merkkiä)
+- Password input (masked)
+- Connection status badge (✅ Connected / ❌ Not Connected)
+- Save/Disconnect buttons
+- Error handling + success messages
+- Turvallisuusilmoitukset (AES-256 encryption)
+
+**Integroitu:** Profile-sivulle (`/profile`)
+
+---
+
+### 6. Configuration & Documentation
+
+**Luotu:**
+- [`.env.example`](file:///c:/Users/samih/code/health_ai/backend/.env.example) - Template salausavaimelle
+- [`garmin_setup.md`](file:///c:/Users/samih/code/health_ai/Docs/garmin_setup.md) - Setup guide + troubleshooting
+- [`authentication.md`](file:///c:/Users/samih/code/health_ai/Docs/authentication.md) - Laajennettu Garmin-osiolla
+
+**Päivitetty:**
+- `requirements.txt` - Lisätty `cryptography>=41.0.0`
+- `production_roadmap.md` - Merkitty Phase 3.4 valmiiksi
+
+---
+
+### Turvallisuus
+
+**Implementoitu:**
+- ✅ AES-256 salaus (industry standard)
+- ✅ Salausavain `.env`-tiedostossa (ei GitHubissa)
+- ✅ Admin ei näe salasanoja ilman avainta
+- ✅ Rate limiting (5 req/hour save/delete)
+- ✅ Row-level security (user_id filtteröinti)
+
+**Verifioitu Firestoressa:**
+- Username: Plaintext (luettava)
+- Password: `"gAAAAABm..."` (salattu blob, **ei luettavissa**) ✅
+
+---
+
+### Käyttö
+
+1. **Käyttäjä:** Mene Profile-sivulle → Syötä Garmin-tunnukset → "Connect Garmin"
+2. **Refresh Data:** Dashboard → "Refresh" käyttää nyt KÄYTTÄJÄN omia tunnuksia
+3. **Backend logs:**
+   ```
+   ✅ User has Garmin credentials, fetching with per-user mode
+   ✅ Garmin login successful for: username
+   ```
+
+---
+
+### Tulos
+
+- ✅ Multi-user Garmin-integraatio valmis
+- ✅ Salaus toimii (verifioitu Firestoressa)
+- ✅ Backward compatibility säilytetty
+- ✅ Dokumentaatio kattava
+
+**Status:** 🟢 Production-ready! 🚀
+
+---
+
+**Seuraavaksi:**
 Phase 7.3 - Code Quality & Testing (toast notifications, testit, docstringit)
 
-**Status:** 🟢 Production-ready backend! 🚀
