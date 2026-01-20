@@ -205,30 +205,34 @@ def update_csv(new_df, filename, key_col='date'):
 def main(user_id: Optional[str] = None):
     """
     Fetches Garmin data for a specific user or uses legacy mode.
-    
-    Args:
-        user_id: Firebase UID. If provided, fetches data for this user.
-                 If None, uses legacy environment credentials and shared data path.
     """
     client = get_garmin_client(user_id)
 
     today = date.today()
     
-    # Determine data path based on mode
-    if user_id:
-        # Per-user data path (future: could store in user-specific directories)
-        # For MVP, we'll still use shared CSV but this allows future expansion
-        data_dir = "Health_AI/data"
-        print(f"📁 Using shared data directory: {data_dir}")
-    else:
-        data_dir = "Health_AI/data"
-        print(f"📁 Using legacy data directory: {data_dir}")
+    # Determine data directory path robustly
+    script_dir = os.path.dirname(os.path.abspath(__file__)) # .../backend/scripts
+    backend_dir = os.path.dirname(script_dir)
+    project_root = os.path.dirname(backend_dir)
+    
+    def get_data_dir():
+        # 1. Try local data dir
+        local_path = os.path.join(project_root, "Health_AI/data")
+        if os.path.exists(local_path):
+            return local_path
+        # 2. Try Docker path
+        if os.path.exists("/Health_AI/data"):
+            return "/Health_AI/data"
+        # 3. Fallback
+        return "Health_AI/data"
+
+    data_dir = get_data_dir()
+    os.makedirs(data_dir, exist_ok=True)
+    print(f"📁 Using data directory: {data_dir}")
     
     last_sync = get_latest_date(f"{data_dir}/garmin_daily_summary.csv")
     
     if last_sync:
-        # Start from 5 days ago to ensure we catch any late-syncing activities or missed data
-        # Data often settles over a few days.
         start = last_sync - timedelta(days=5)
         print(f"Found existing data up to {last_sync}. Fetching from {start} (5-day overlap)...")
     else:

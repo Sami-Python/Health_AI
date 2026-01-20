@@ -180,7 +180,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ---
 
 ### 7.3 Code Quality & Testing 🧪
-> **Status:** IN PROGRESS (2026-01-18)
+> **Status:** IN PROGRESS (2026-01-20)
 > **Aloitettu tänään**
 
 - [x] **Error Handling:** (#224)
@@ -200,11 +200,17 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] Lisää yksityiskohtaiset docstringit kaikille endpointeille (#238)
   - [ ] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta (#239)
 
-**Completed Today:**
-- ✅ Toast notifications (react-hot-toast)
-- ✅ API.md documentation
-- ✅ FastAPI Swagger enhancements
-- ✅ README.md update
+**Completed Recently:**
+- ✅ Toast notifications (react-hot-toast) (2026-01-18)
+- ✅ API.md documentation (2026-01-18)
+- ✅ FastAPI Swagger enhancements (2026-01-18)
+- ✅ README.md update (2026-01-18)
+- ✅ **Model Training Reliability & Path Fixes** (2026-01-20)
+- ✅ Robust path resolution for Docker/Local environments in all scripts (#245)
+- ✅ Stable XGBoost training (n_jobs=1) for Windows/Docker consistency (#246)
+- ✅ **Infrastructure: Python Upgrade to 3.12** (2026-01-20)
+- ✅ Updated `Dockerfile` to `python:3.12-slim` for performance and support (#247)
+- ✅ Verified build and dependency compatibility (#248)
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
 - [ ] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240)

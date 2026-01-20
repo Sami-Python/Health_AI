@@ -823,3 +823,28 @@ http://localhost:8001/docs
 - [ ] Frontend testing setup (Jest + RTL)
 - [ ] Backend integration tests
 
+---
+
+## 2026-01-20 – Model Training Reliability & Docker Path Fixes 🛠️🤖
+
+Tänään korjattiin kriittinen bugi, jossa "Model Training Day" ei päivittynyt datan lataamisen jälkeen.
+
+### 1. Robust Path Resolution (Polkujen korjaus)
+- **Ongelma:** Mallin koulutusskriptit ja API etsivät datatiedostoja ja metriikoita eri paikoista, erityisesti Docker-ympäristössä (esim. `/app/data` vs `./backend/data`).
+- **Ratkaisu:** Implementoitu dynaaminen polkujen haku `fetch_garmin_data.py`, `process_garmin_data.py` ja `main.py` tiedostoihin. Skriptit haistelevat nyt automaattisesti, ajetaanko niitä lokaalisti vai Dockerissa, ja löytävät oikeat kansiot.
+
+### 2. Training Stability (XGBoost)
+- **Muutos:** Rajoitettu mallin koulutus käyttämään yhtä ydintä (`GridSearchCV(n_jobs=1)`).
+- **Syy:** Monen ytimen samanaikainen käyttö (n_jobs=-1) aiheutti satunnaisia jäätymisiä ja subprocess-virheitä Windows-isännän ja Docker-kontin välisessä kommunikaatiossa. Yhden ytimen ajo on 100% luotettava.
+
+### 3. API & Logging
+- Päivitetty `/ai/model-metrics` lukemaan metriikat oikeasta polusta.
+- Lisätty `/system/refresh` endpointtiin laajempi lokitus (traceback), jotta mahdolliset virheet skriptien ajossa näkyvät suoraan palvelimen lokeissa.
+
+**Tulos:** "Model Training Day" päivittyy nyt välittömästi onnistuneen synkronoinnin jälkeen. Kaikki polut on yhtenäistetty. ✅
+
+### 4. Python-päivitys (Version 3.12)
+- **Muutos:** Päivitetty `backend/Dockerfile` käyttämään `python:3.12-slim` -pohjaa (aiemmin 3.10).
+- **Syy:** Suorituskykyparannukset (11 ja 12 versiot ovat huomattavasti nopeampia), parempi yhteensopivuus paikallisen kehitysympäristön (3.12.4) kanssa ja Google Cloud SDK -varoitusten poistaminen.
+- **Verifiointi:** Docker-build suoritettu onnistuneesti, kaikki riippuvuudet asentuneet oikein.
+
