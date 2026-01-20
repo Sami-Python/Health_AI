@@ -779,7 +779,13 @@ async def refresh_data(user: dict = Depends(verify_token)):
             # Run Process
             print("Starting Model Training...")
             process_garmin_data.main_process()
+            print("✅ Model Training completed successfully.")
             
+        except Exception as script_error:
+            print(f"❌ Error during script execution: {script_error}")
+            import traceback
+            traceback.print_exc()
+            raise script_error
         finally:
             # Always restore CWD to avoid side effects
             os.chdir(original_cwd)
@@ -873,15 +879,25 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
 @app.get("/ai/model-metrics")
 async def get_model_metrics(user: dict = Depends(verify_token)):
     try:
+        # Robust path resolution for metrics
+        # Docker: /app/data/model_metrics.json
+        # Local: ./backend/data/model_metrics.json
         metrics_path = os.path.join(os.path.dirname(__file__), "data", "model_metrics.json")
+        
+        # Check Docker path first if it exists
+        if os.path.exists("/app/data/model_metrics.json"):
+            metrics_path = "/app/data/model_metrics.json"
+        
         try:
             with open(metrics_path, "r") as f:
                 data = json.load(f)
             return data
         except FileNotFoundError:
+            print(f"Metrics not found at {metrics_path}")
             # Fallback if file doesn't exist yet
             return {"r2": 0, "mae": 0, "last_trained": "Never"}
     except Exception as e:
+        print(f"Error fetching model metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

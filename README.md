@@ -93,7 +93,6 @@ Sovellus on käytettävissä: `http://localhost:3000`
 - Training and validation accuracy
 - Feature importance visualization
 
-![Model Accuracy - Metrics](Docs/pics/image-5.png)
 ![Model Accuracy - Feature Importance](Docs/pics/image-7.png)
 
 ---
