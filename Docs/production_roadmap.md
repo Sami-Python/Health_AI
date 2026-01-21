@@ -188,7 +188,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] AddGoalForm: Create/update goals (#227)
   - [x] GarminCredentialsForm: Save/disconnect (#228)
   - [x] Retry-logiikka epäonnistuneille API-kutsuille (`fetchWithRetry`) (#229)
-  - [x] **Loading Skeletons:** Parannettu latauskokemusta kaavioissa ja listoissa
+  - [x] **Loading Skeletons:** Parannettu latauskokemusta kaavioissa ja listoissa (#246)
 - [ ] **Testing Expansion:** (#230)
   - [ ] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
   - [ ] Frontend: Alusta Jest + React Testing Library (#232)
