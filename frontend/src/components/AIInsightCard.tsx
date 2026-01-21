@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Sparkles, Loader2 } from "lucide-react";
-import { API_BASE_URL } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
+import Skeleton from "./ui/Skeleton";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 export default function AIInsightCard() {
     const { user } = useAuth();
@@ -14,7 +15,7 @@ export default function AIInsightCard() {
         const fetchInsight = async () => {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch(`${API_BASE_URL}/ai/insight`, {
+                const res = await fetchWithRetry(`${API_BASE_URL}/ai/insight`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -51,9 +52,9 @@ export default function AIInsightCard() {
                         </h3>
 
                         {loading ? (
-                            <div className="flex items-center gap-2 text-slate-400 text-sm h-10">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                Analysoidaan palautumista...
+                            <div className="space-y-2 mt-2">
+                                <Skeleton className="h-4 w-[90%] bg-indigo-500/20" />
+                                <Skeleton className="h-4 w-[60%] bg-indigo-500/20" />
                             </div>
                         ) : (
                             <p className="text-lg font-medium text-white italic leading-relaxed">

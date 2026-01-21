@@ -1,9 +1,14 @@
 # 🚀 Quick Start
 Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
 
+### Muutokset main-haarasta ja yhdistä ne omiisi (rebase):
+```bash
+git pull origin main --rebase
+```
+
 ### Backend (API)
 ```bash
-docker-compose up backend
+docker-compose up
 ```
 
 ### Frontend (Next.js)

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Lock, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -28,7 +28,7 @@ export default function GarminCredentialsForm() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/garmin/status`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/status`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -49,7 +49,7 @@ export default function GarminCredentialsForm() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/garmin/credentials`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/credentials`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -82,7 +82,7 @@ export default function GarminCredentialsForm() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/garmin/credentials`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/credentials`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });

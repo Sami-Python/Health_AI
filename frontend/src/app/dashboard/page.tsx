@@ -14,7 +14,8 @@ import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
 import { Activity, Battery, Calendar, TrendingUp, Plus, RefreshCw, History, Brain, XCircle } from "lucide-react";
 import AnimateEntry from "@/components/ui/AnimateEntry";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
+import Skeleton from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
 
 export default function DashboardPage() {
@@ -48,7 +49,7 @@ export default function DashboardPage() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/goals/${goalId}`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/goals/${goalId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -77,31 +78,31 @@ export default function DashboardPage() {
                 const headers = { Authorization: `Bearer ${token}` };
 
                 // 1. Get Goals
-                const resGoals = await fetch(`${API_BASE_URL}/goals`, { headers });
+                const resGoals = await fetchWithRetry(`${API_BASE_URL}/goals`, { headers });
                 if (resGoals.ok) setGoals(await resGoals.json());
 
                 // 2. Get Readiness
-                const resReady = await fetch(`${API_BASE_URL}/readiness`, { headers });
+                const resReady = await fetchWithRetry(`${API_BASE_URL}/readiness`, { headers });
                 if (resReady.ok) setReadiness(await resReady.json());
 
                 // 3. Get Next Workout
-                const resNext = await fetch(`${API_BASE_URL}/next-workout`, { headers });
+                const resNext = await fetchWithRetry(`${API_BASE_URL}/next-workout`, { headers });
                 if (resNext.ok) setNextWorkout(await resNext.json());
 
                 // 4. Get Weekly Stats
-                const resWeekly = await fetch(`${API_BASE_URL}/workouts/weekly-status`, { headers });
+                const resWeekly = await fetchWithRetry(`${API_BASE_URL}/workouts/weekly-status`, { headers });
                 if (resWeekly.ok) setWeeklyStats(await resWeekly.json());
 
                 // 5. Get Recent History for Widget
-                const resHistory = await fetch(`${API_BASE_URL}/plans/history?limit=5`, { headers });
+                const resHistory = await fetchWithRetry(`${API_BASE_URL}/plans/history?limit=5`, { headers });
                 if (resHistory.ok) setHistory(await resHistory.json());
 
                 // 6. Get Full History
-                const resFullHistory = await fetch(`${API_BASE_URL}/metrics/history`, { headers });
+                const resFullHistory = await fetchWithRetry(`${API_BASE_URL}/metrics/history`, { headers });
                 if (resFullHistory.ok) setFullHistory(await resFullHistory.json());
 
                 // 7. Get Planned Workouts
-                const resPlanned = await fetch(`${API_BASE_URL}/workouts/upcoming`, { headers });
+                const resPlanned = await fetchWithRetry(`${API_BASE_URL}/workouts/upcoming`, { headers });
                 if (resPlanned.ok) setPlannedWorkouts(await resPlanned.json());
 
             } catch (err: any) {
@@ -116,7 +117,7 @@ export default function DashboardPage() {
         setRefreshing(true);
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/system/refresh`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/system/refresh`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -311,9 +312,8 @@ export default function DashboardPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 text-slate-500 animate-pulse text-sm">
-                                        <div className="h-2 w-2 rounded-full bg-slate-600"></div>
-                                        Loading goals...
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
+                                        {[1, 2].map(i => <Skeleton key={i} className="h-32 rounded-xl" />)}
                                     </div>
                                 )}
                             </div>
@@ -331,13 +331,24 @@ export default function DashboardPage() {
                                             <div key={plan.id} className="relative pl-6 py-2 group">
                                                 <div className="absolute left-0 top-3 w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-purple-500 transition-colors shadow-[0_0_8px_rgba(168,85,247,0)] group-hover:shadow-[0_0_8px_rgba(168,85,247,0.5)]"></div>
                                                 <div className="border-l border-slate-800 absolute left-[3px] top-6 bottom-[-10px] group-last:hidden"></div>
-
                                                 <p className="text-xs text-slate-500 mb-1 font-mono uppercase tracking-wider">
                                                     {new Date(plan.timestamp).toLocaleDateString()} &bull; <span className={plan.charge > 80 ? "text-green-400" : "text-yellow-400"}>Ready: {plan.charge}%</span>
                                                 </p>
                                                 <p className="text-sm text-slate-300 line-clamp-2 group-hover:text-white transition-colors">{plan.advice}</p>
                                             </div>
                                         ))
+                                    ) : (goals === null) ? (
+                                        <div className="space-y-4">
+                                            {[1, 2, 3].map(i => (
+                                                <div key={i} className="flex gap-4">
+                                                    <Skeleton className="h-3 w-3 rounded-full shrink-0" />
+                                                    <div className="space-y-2 w-full">
+                                                        <Skeleton className="h-3 w-24" />
+                                                        <Skeleton className="h-3 w-full" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     ) : (
                                         <p className="text-slate-500 italic text-sm">No history available yet.</p>
                                     )}

@@ -126,7 +126,7 @@ graph TD
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
-*   **Backend:** Python 3.10 (FastAPI), Pandas, XGBoost
+*   **Backend:** Python 3.12 (FastAPI), Pandas, XGBoost
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
 *   **Infra:** Docker Compose

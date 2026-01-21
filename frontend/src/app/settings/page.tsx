@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, Trash2, AlertTriangle, Download, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 export default function SettingsPage() {
     const { user, loading } = useAuth();
@@ -32,7 +32,7 @@ export default function SettingsPage() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/account`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/account`, {
                 method: "DELETE",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -63,7 +63,7 @@ export default function SettingsPage() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/user/export`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/user/export`, {
                 method: "GET",
                 headers: {
                     "Authorization": `Bearer ${token}`,

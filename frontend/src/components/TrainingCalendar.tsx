@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/context/AuthContext";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 // --- Types ---
 interface Workout {
@@ -228,7 +228,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
         if (targetId !== workout.date) {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch(`${API_BASE_URL}/workouts/${workoutId}`, {
+                const res = await fetchWithRetry(`${API_BASE_URL}/workouts/${workoutId}`, {
                     method: 'PATCH',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ date: targetId })
@@ -255,14 +255,14 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
             const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
 
             if (action === 'delete') {
-                await fetch(`${API_BASE_URL}/workouts/${deleteCandidate.id}`, { method: 'DELETE', headers });
+                await fetchWithRetry(`${API_BASE_URL}/workouts/${deleteCandidate.id}`, { method: 'DELETE', headers });
             } else {
                 // Regenerate
                 // 1. Delete old
-                await fetch(`${API_BASE_URL}/workouts/${deleteCandidate.id}`, { method: 'DELETE', headers });
+                await fetchWithRetry(`${API_BASE_URL}/workouts/${deleteCandidate.id}`, { method: 'DELETE', headers });
 
                 // 2. Generate new
-                const resGen = await fetch(`${API_BASE_URL}/plans/generate`, {
+                const resGen = await fetchWithRetry(`${API_BASE_URL}/plans/generate`, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({

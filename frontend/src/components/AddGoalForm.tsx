@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { API_BASE_URL } from '@/lib/utils';
+import { API_BASE_URL, fetchWithRetry } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 interface AddGoalFormProps {
@@ -42,7 +42,7 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
             const method = goalId ? 'PUT' : 'POST';
 
-            const res = await fetch(url, {
+            const res = await fetchWithRetry(url, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',

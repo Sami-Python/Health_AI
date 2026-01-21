@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { X, Send } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 interface FeedbackFormProps {
     onClose: () => void;
@@ -27,7 +27,7 @@ export default function FeedbackForm({ onClose }: FeedbackFormProps) {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/feedback`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/feedback`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

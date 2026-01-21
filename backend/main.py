@@ -499,18 +499,33 @@ async def update_goal_endpoint(goal_id: str, goal: GoalCreate, user: dict = Depe
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/profile")
+@app.get("/profile", tags=["User"])
 @limiter.limit("20/minute")
 async def get_profile_endpoint(request: Request, user: dict = Depends(verify_token)):
+    """
+    Get the authenticated user's physical profile.
+    
+    Returns details like:
+    - Age, weight, height
+    - Heart rate zones (resting/max)
+    - Gender
+    
+    Data is stored in the `users` collection in Firestore.
+    """
     try:
         profile = db_manager.get_user_profile(user['uid'])
         return profile
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.put("/profile")
+@app.put("/profile", tags=["User"])
 @limiter.limit("10/minute")
 async def update_profile_endpoint(profile: UserProfile, request: Request, user: dict = Depends(verify_token)):
+    """
+    Update the user's physical profile.
+    
+    Allows partial updates of physical and physiological metrics.
+    """
     try:
         # Filter out None values to allow partial updates (though frontend sends all)
         data = {k: v for k, v in profile.model_dump().items() if v is not None}
@@ -524,9 +539,18 @@ async def update_profile_endpoint(profile: UserProfile, request: Request, user: 
 
 
 
-@app.delete("/account")
+@app.delete("/account", tags=["User"])
 @limiter.limit("2/minute")
 async def delete_account_endpoint(request: Request, user: dict = Depends(verify_token)):
+    """
+    Permanently delete the user account and all associated data.
+    
+    **CRITICAL:** This action is irreversible. It deletes:
+    1. All Firestore documents (goals, workouts, plans, profile)
+    2. The Firebase Authentication user record
+    
+    Complies with GDPR "Right to Erasure".
+    """
     try:
         uid = user['uid']
         
@@ -647,9 +671,14 @@ async def get_all_feedback_admin(
 
 # ... existing code ...
 
-@app.get("/next-workout")
+@app.get("/next-workout", tags=["Workouts"])
 @limiter.limit("20/minute")
 def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
+    """
+    Retrieve the next planned workout for the user.
+    
+    Returns the soonest 'PENDING' workout where date >= today.
+    """
     try:
         # Use Firestore for next workout (Logic Updated in firestore_manager.py)
         workout = db_manager.get_next_workout(user['uid'])
@@ -661,8 +690,16 @@ def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_toke
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/workouts/weekly-status")
+@app.get("/workouts/weekly-status", tags=["Analytics"])
 async def get_weekly_status(user: dict = Depends(verify_token)):
+    """
+    Get the summary of training load for the current week.
+    
+    Calculates:
+    - `current_load`: Sum of load from completed (DONE) workouts
+    - `planned_load`: Sum of load from pending (PENDING) workouts
+    - `breakdown`: Daily breakdown of the weekly load
+    """
     # Migrated to Firestore
     current, planned, breakdown = db_manager.get_weekly_load_status(user['uid'])
     return {
@@ -671,9 +708,14 @@ async def get_weekly_status(user: dict = Depends(verify_token)):
         "breakdown": breakdown
     }
 
-@app.get("/workouts/upcoming")
+@app.get("/workouts/upcoming", tags=["Workouts"])
 @limiter.limit("20/minute")
 def get_upcoming_workouts(request: Request, user: dict = Depends(verify_token)):
+    """
+    Get all future planned workouts.
+    
+    Used by the Training Calendar to display upcoming sessions.
+    """
     try:
         return db_manager.get_upcoming_workouts(user['uid'])
     except Exception as e:
@@ -688,8 +730,18 @@ class ManualWorkout(BaseModel):
     rpe: int
     notes: Optional[str] = ""
 
-@app.post("/workouts/manual")
+@app.post("/workouts/manual", tags=["Workouts"])
 async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify_token)):
+    """
+    Log a workout manually (e.g., gym session or sport not tracked by Garmin).
+    
+    **Fields:**
+    - `date`: ISO format (YYYY-MM-DD)
+    - `activity`: Activity name
+    - `duration_min`: Duration in minutes
+    - `rpe`: Rate of Perceived Exertion (1-10)
+    - `notes`: Optional description
+    """
     try:
         # Pydantic validates date string format if we used date type, but here it's string.
         # Ensure date format
