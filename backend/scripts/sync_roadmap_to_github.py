@@ -59,6 +59,19 @@ def create_github_issue(title, body, labels=None, closed=False):
         print(response.text)
         return None
 
+def update_github_issue(issue_number, closed=False):
+    url = f"{API_BASE}/repos/{REPO}/issues/{issue_number}"
+    data = {
+        "state": "closed" if closed else "open"
+    }
+    response = requests.patch(url, json=data, headers=headers)
+    if response.status_code == 200:
+        print(f"Updated issue #{issue_number}: {'Closed' if closed else 'Opened'}")
+        return True
+    else:
+        print(f"Error updating issue #{issue_number}: {response.status_code}")
+        return False
+
 def sync():
     if not GITHUB_TOKEN:
         print("Error: GITHUB_TOKEN not found in .env")
@@ -88,8 +101,15 @@ def sync():
             status_char = match.group(2)
             task_content = match.group(3).strip()
             
-            # Skip if issue number already exists
-            if issue_num_pattern.search(task_content):
+            # Check if issue number already exists
+            existing_issue_match = issue_num_pattern.search(task_content)
+            
+            # Determine if it should be closed
+            is_closed = status_char in ["x", "-", "+"] # x is done, - is skip, + is done
+            
+            if existing_issue_match:
+                issue_num = existing_issue_match.group(0).strip("(#)")
+                update_github_issue(issue_num, closed=is_closed)
                 updated_lines.append(line)
                 continue
             
