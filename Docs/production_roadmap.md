@@ -71,8 +71,8 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
     - [x] Settings Page (`/settings`). (#146)
     - [x] **Delete Account:** "Danger Zone" - napin takana. Poistaa käyttäjän ja datat. (#147)
     - [x] **Data Export:** Lataa kaikki käyttäjän data JSON-muodossa. (#148)
-    - [/] **Support / Feedback Form:** Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan. (#149)
-    - [/] **Data Export (GDPR):** Backend endpoint `GET /user/export` joka palauttaa käyttäjän kaiken datan JSON-muodossa. (#150)
+    - [x] **Support / Feedback Form:** Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan. (#149)
+    - [x] **Data Export (GDPR):** Backend endpoint `GET /user/export` joka palauttaa käyttäjän kaiken datan JSON-muodossa. (#150)
 
 ## 4. AI & Mallit (LLM at Scale)
 Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
@@ -180,15 +180,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ---
 
 ### 7.3 Code Quality & Testing 🧪
-> **Status:** IN PROGRESS (2026-01-20)
-> **Aloitettu tänään**
+> **Status:** IN PROGRESS (2026-01-21)
 
 - [x] **Error Handling:** (#224)
   - [x] Lisätty toast notifications frontendiin (react-hot-toast) (#225)
   - [x] Dashboard: Data refresh, goal delete (#226)
   - [x] AddGoalForm: Create/update goals (#227)
   - [x] GarminCredentialsForm: Save/disconnect (#228)
-  - [ ] Retry-logiikka epäonnistuneille API-kutsuille (#229)
+  - [x] Retry-logiikka epäonnistuneille API-kutsuille (`fetchWithRetry`) (#229)
+  - [x] **Loading Skeletons:** Parannettu latauskokemusta kaavioissa ja listoissa (#250)
 - [ ] **Testing Expansion:** (#230)
   - [ ] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
   - [ ] Frontend: Alusta Jest + React Testing Library (#232)
@@ -197,8 +197,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] API.md luotu (kattava endpoint-dokumentaatio) (#235)
   - [x] FastAPI metadata päivitetty (versio 1.0.0, kuvaus, tags) (#236)
   - [x] README.md päivitetty (API-linkki, screenshot-placeholder) (#237)
-  - [ ] Lisää yksityiskohtaiset docstringit kaikille endpointeille (#238)
-  - [ ] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta (#239)
+  - [x] Lisää yksityiskohtaiset docstringit kaikille endpointeille (#238)
+  - [x] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta (#239)
 
 **Completed Recently:**
 - ✅ Toast notifications (react-hot-toast) (2026-01-18)
@@ -211,6 +211,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - ✅ **Infrastructure: Python Upgrade to 3.12** (2026-01-20)
 - ✅ Updated `Dockerfile` to `python:3.12-slim` for performance and support (#247)
 - ✅ Verified build and dependency compatibility (#248)
+- ✅ **Frontend Resilience:** `fetchWithRetry` integrated across all components (2026-01-21)
+- ✅ **UI/UX Polish:** Loading Skeletons for dashboard, charts, and modals (2026-01-21)
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
 - [ ] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240)

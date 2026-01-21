@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { X, Activity, Brain, Calendar } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { fetchWithRetry } from "@/lib/utils";
+import Skeleton from "./ui/Skeleton";
 
 interface MLMetrics {
     r2: number;
@@ -24,7 +26,7 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
         if (isOpen && user) {
             setLoading(true);
             user.getIdToken().then((token) => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai/model-metrics`, {
+                fetchWithRetry(`${process.env.NEXT_PUBLIC_API_URL}/ai/model-metrics`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -83,8 +85,19 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     {loading ? (
-                        <div className="flex justify-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center">
+                                    <Skeleton className="h-3 w-24" />
+                                    <Skeleton className="h-8 w-16 rounded-full" />
+                                </div>
+                                <Skeleton className="h-3 w-full rounded-full" />
+                                <Skeleton className="h-3 w-48" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <Skeleton className="h-24 rounded-xl" />
+                                <Skeleton className="h-24 rounded-xl" />
+                            </div>
                         </div>
                     ) : metrics ? (
                         <>

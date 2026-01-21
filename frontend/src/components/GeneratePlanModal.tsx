@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Brain, Sparkles, X, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import AnimateEntry from "./ui/AnimateEntry";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 interface GeneratePlanModalProps {
     onClose: () => void;
@@ -24,7 +24,7 @@ export default function GeneratePlanModal({ onClose, onSuccess }: GeneratePlanMo
         setError(null);
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/plans/generate`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/plans/generate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

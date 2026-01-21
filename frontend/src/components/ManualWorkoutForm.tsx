@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2 } from "lucide-react";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 interface ManualWorkoutFormProps {
     onSuccess: () => void;
@@ -35,7 +35,7 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/workouts/manual`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/workouts/manual`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import { UserProfile } from "@/types/user";
 
 export default function ProfileForm() {
@@ -29,7 +29,7 @@ export default function ProfileForm() {
         async function fetchProfile() {
             try {
                 const token = await user?.getIdToken();
-                const res = await fetch(`${API_BASE_URL}/profile`, {
+                const res = await fetchWithRetry(`${API_BASE_URL}/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -57,7 +57,7 @@ export default function ProfileForm() {
 
         try {
             const token = await user.getIdToken();
-            const res = await fetch(`${API_BASE_URL}/profile`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/profile`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

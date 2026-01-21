@@ -3,9 +3,10 @@ import { useAuth } from "@/context/AuthContext";
 import RecoveryChart from "./charts/RecoveryChart";
 import LoadChart from "./charts/LoadChart";
 import PerformanceChart from "./charts/PerformanceChart";
-import { Info, Loader2 } from "lucide-react";
+import { Info } from "lucide-react";
+import Skeleton from "./ui/Skeleton";
 import AIInsightCard from "./AIInsightCard";
-import { API_BASE_URL } from "@/lib/utils";
+import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 
 // Helper for Info Tooltip
 function InfoTooltip({ text }: { text: string }) {
@@ -31,7 +32,7 @@ export default function ChartsSection() {
         const fetchData = async () => {
             try {
                 const token = await user.getIdToken();
-                const res = await fetch(`${API_BASE_URL}/metrics/history`, {
+                const res = await fetchWithRetry(`${API_BASE_URL}/metrics/history`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error("Failed to fetch history");
@@ -46,7 +47,17 @@ export default function ChartsSection() {
         fetchData();
     }, [user]);
 
-    if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-500" /></div>;
+    if (loading) return (
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-24 w-full rounded-2xl" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Skeleton className="h-[350px] rounded-xl" />
+                <Skeleton className="h-[350px] rounded-xl" />
+                <Skeleton className="col-span-1 lg:col-span-2 h-[400px] rounded-xl" />
+            </div>
+        </div>
+    );
     if (error) return <div className="text-red-400 text-sm p-4 text-center">Failed to load charts: {error}</div>;
 
     return (
