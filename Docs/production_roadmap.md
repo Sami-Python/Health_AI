@@ -189,8 +189,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] GarminCredentialsForm: Save/disconnect (#228)
   - [x] Retry-logiikka epäonnistuneille API-kutsuille (`fetchWithRetry`) (#229)
   - [x] **Loading Skeletons:** Parannettu latauskokemusta kaavioissa ja listoissa (#246)
-  - [x] **Weekly Load:** Garmin-aktiviteettien synkronointi Firestoreen
-  - [x] **ML Diagnostics:** Feature importance ja data-määrän visualisointi
+  - [x] **Weekly Load:** Garmin-aktiviteettien synkronointi Firestoreen (#247)
+  - [x] **ML Diagnostics:** Feature importance ja data-määrän visualisointi (#248)
 - [ ] **Testing Expansion:** (#230)
   - [ ] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
   - [ ] Frontend: Alusta Jest + React Testing Library (#232)
