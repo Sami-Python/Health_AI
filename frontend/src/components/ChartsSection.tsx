@@ -95,7 +95,7 @@ export default function ChartsSection() {
                 </div>
 
                 {/* 3. Performance Chart (Full Width) */}
-                <div className="col-span-1 lg:col-span-2 p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm h-[400px]">
+                <div className="col-span-1 lg:col-span-2 p-6 rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm min-h-[480px]">
                     <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                         Performance Management
                         <InfoTooltip text="Tracks Fitness (CTL), Fatigue (ATL), and Form (TSB) over time to optimize training peaks and avoid overtraining." />
