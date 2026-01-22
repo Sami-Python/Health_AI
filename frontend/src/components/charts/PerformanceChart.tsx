@@ -35,16 +35,16 @@ export default function PerformanceChart({ data }: { data: any[] }) {
 
             <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-400 border-t border-slate-800 pt-4 pb-2">
                 <div>
-                    <span className="font-bold text-blue-400 block mb-1">CTL (Chronic / Kunto)</span>
-                    <p>Training Load (42d avg). Measures long-term fitness.</p>
+                    <span className="font-bold text-blue-400 block mb-1">CTL (Fitness / Kunto)</span>
+                    <p>42 päivän keskiarvo. Kuvaa pitkän aikavälin suorituskykyä ja "pohjia".</p>
                 </div>
                 <div>
-                    <span className="font-bold text-pink-400 block mb-1">ATL (Acute / Rasitus)</span>
-                    <p>Recent fatigue (7d avg). Measures short-term stress.</p>
+                    <span className="font-bold text-pink-400 block mb-1">ATL (Fatigue / Rasitus)</span>
+                    <p>7 päivän keskiarvo. Kuvaa lyhyen aikavälin väsymystä ja treenikuormaa.</p>
                 </div>
                 <div>
                     <span className="font-bold text-emerald-400 block mb-1">TSB (Form / Vireystila)</span>
-                    <p>Readiness balance. Positive = Fresh, Negative = Tired.</p>
+                    <p>CTL - ATL. Kuvaa palautumista. Positiivinen = palautunut, Negatiivinen = kuormittunut.</p>
                 </div>
             </div>
         </div>

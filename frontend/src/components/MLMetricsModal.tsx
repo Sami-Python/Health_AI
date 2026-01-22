@@ -10,7 +10,27 @@ interface MLMetrics {
     r2: number;
     mae: number;
     last_trained: string;
+    top_features?: Record<string, number>;
+    data_points?: number;
 }
+
+// Map technical Garmin/XGBoost feature names to human-readable Finnish
+const featureNameMap: Record<string, string> = {
+    "bodyBatteryHighestValue": "Yön latautuminen (max)",
+    "bodyBatteryDuringSleep": "Unenaikainen latautuva akku",
+    "poor_night_flag": "Heikon palautumisen varoitus",
+    "stressPercentage": "Päivittäinen stressitaso",
+    "bodyBatteryAtWakeTime": "Vireystila herätessä",
+    "stressDuration": "Stressin kesto",
+    "restStressDuration": "Lepohetkien stressi",
+    "totalSleep_minutes": "Unen yhteiskesto",
+    "averageStressLevel": "Keskimääräinen stressi",
+    "workout_calories_roll_7d": "Viimeisen viikon kuormitus",
+    "restingHeartRate": "Leposyke",
+    "avgWakingRespirationValue": "Hengitystiheys",
+    "totalSteps": "Askeleet",
+    "measurableAsleepDuration": "Syvä/kevyt uni"
+};
 
 interface MLMetricsModalProps {
     isOpen: boolean;
@@ -63,6 +83,8 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
     const r2ColorClass = metrics ? getR2Color(metrics.r2) : "";
     const barColorClass = metrics ? getBarColor(metrics.r2) : "bg-slate-700";
 
+    const topDrivers = metrics?.top_features ? Object.entries(metrics.top_features).slice(0, 5) : [];
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
             <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -94,10 +116,7 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
                                 <Skeleton className="h-3 w-full rounded-full" />
                                 <Skeleton className="h-3 w-48" />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <Skeleton className="h-24 rounded-xl" />
-                                <Skeleton className="h-24 rounded-xl" />
-                            </div>
+                            <Skeleton className="h-[200px] rounded-xl" />
                         </div>
                     ) : metrics ? (
                         <>
@@ -121,7 +140,36 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
                                 </p>
                             </div>
 
-                            {/* Grid for other stats */}
+                            {/* Top Drivers Section */}
+                            {topDrivers.length > 0 && (
+                                <div className="space-y-3 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Activity className="h-3 w-3" />
+                                        Drivers of your Recovery
+                                    </h4>
+                                    <div className="space-y-2">
+                                        {topDrivers.map(([key, val], idx) => (
+                                            <div key={key} className="flex flex-col gap-1">
+                                                <div className="flex justify-between text-xs">
+                                                    <span className="text-slate-300">{featureNameMap[key] || key}</span>
+                                                    <span className="text-purple-400 font-mono">{(val * 100).toFixed(1)}%</span>
+                                                </div>
+                                                <div className="h-1 w-full bg-slate-700/50 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-purple-500/50 rounded-full"
+                                                        style={{ width: `${(val / (topDrivers[0][1] as number)) * 100}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 italic mt-2">
+                                        These factors have the strongest influence on the AI's predictions for your readiness.
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* MAE & Training Stats */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
                                     <div className="flex items-center gap-2 mb-2 text-slate-400">
@@ -129,16 +177,20 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
                                         <span className="text-xs font-medium uppercase tracking-wider">MAE Error</span>
                                     </div>
                                     <p className="text-2xl font-bold text-white">{metrics.mae.toFixed(2)}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Avg deviation</p>
+                                    <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                                        Avg deviation: ~{metrics.mae.toFixed(1)} points on 0-100 scale.
+                                    </p>
                                 </div>
 
                                 <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50">
                                     <div className="flex items-center gap-2 mb-2 text-slate-400">
                                         <Calendar className="h-4 w-4" />
-                                        <span className="text-xs font-medium uppercase tracking-wider">Last Trained</span>
+                                        <span className="text-xs font-medium uppercase tracking-wider">Update Status</span>
                                     </div>
                                     <p className="text-sm font-bold text-white break-words">{metrics.last_trained}</p>
-                                    <p className="text-xs text-slate-500 mt-1">Model update</p>
+                                    <p className="text-[10px] text-slate-500 mt-1">
+                                        Trained on {metrics.data_points || '--'} days of data.
+                                    </p>
                                 </div>
                             </div>
                         </>
@@ -148,7 +200,7 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
                 </div>
 
                 <div className="p-4 bg-slate-950/50 border-t border-slate-800 text-center">
-                    <p className="text-xs text-slate-600">Health AI v1.0 • XGBoost 2.0</p>
+                    <p className="text-xs text-slate-600">Health AI v1.0 • XGBoost 2.0 • SHAP Insights</p>
                 </div>
             </div>
         </div>

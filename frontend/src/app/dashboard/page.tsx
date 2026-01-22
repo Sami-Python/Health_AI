@@ -220,8 +220,8 @@ export default function DashboardPage() {
                         />
                         <StatCard
                             title="Weekly Load"
-                            value={weeklyStats ? weeklyStats.current_load : "--"}
-                            description={`Planned: ${weeklyStats?.planned_load || '--'}`}
+                            value={weeklyStats ? Math.round(weeklyStats.current_load) : "--"}
+                            description={`Planned: ${weeklyStats?.planned_load !== undefined ? Math.round(weeklyStats.planned_load) : '--'}`}
                             icon={Activity}
                             loading={!weeklyStats}
                             trendData={loadSpark}

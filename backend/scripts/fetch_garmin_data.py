@@ -5,6 +5,13 @@ from garminconnect import Garmin
 from dotenv import load_dotenv
 import pandas as pd
 from typing import List, Dict, Any, Optional
+import sys
+
+# Ensure backend path is in sys.path for firestore_manager
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
 
 def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     """
@@ -27,12 +34,6 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         # NEW: Per-user credentials from Firestore
         try:
             # Import here to avoid circular dependency issues
-            import sys
-            import os
-            backend_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            if backend_path not in sys.path:
-                sys.path.insert(0, backend_path)
-            
             import firestore_manager
             
             creds = firestore_manager.get_garmin_credentials(user_id)
@@ -259,8 +260,41 @@ def main(user_id: Optional[str] = None):
     df_activities = fetch_activities(client, start, today)
     # Use 'activityId' as key if available, else 'date' (fallback)
     key = 'activityId' if (df_activities is not None and 'activityId' in df_activities.columns) else 'date'
-    update_csv(df_activities, f"{data_dir}/garmin_activities.csv", key_col=key)
-    
+    # 5. Sync to Firestore (NEW: To power Weekly Load widget)
+    if not df_activities.empty:
+        print(f"Syncing {len(df_activities)} activities to Firestore for Weekly Load...")
+        import firestore_manager
+        
+        # Only sync if user_id is provided
+        if user_id:
+            for _, row in df_activities.iterrows():
+                try:
+                    activity_id = row.get('activityId')
+                    if not activity_id:
+                        continue
+                    
+                    # Map Garmin activity to Firestore workout schema
+                    # Use 'activityTrainingLoad' as load_estimate, fallback to 0
+                    load_est = row.get('activityTrainingLoad', 0)
+                    if pd.isna(load_est):
+                        load_est = 0
+                        
+                    workout_doc = {
+                        "date": str(pd.to_datetime(row['startTimeLocal']).date()),
+                        "activity": row.get('activityName', 'Garmin Activity'),
+                        "duration_min": int(row.get('duration', 0) / 60),
+                        "load_estimate": int(round(float(load_est))),
+                        "status": "DONE",
+                        "source": "GARMIN",
+                        "garmin_activity_id": str(activity_id)
+                    }
+                    
+                    firestore_manager.save_garmin_workout(user_id, workout_doc, activity_id)
+                except Exception as sync_err:
+                    print(f"⚠️ Failed to sync activity {activity_id} to Firestore: {sync_err}")
+        else:
+            print("⚠️ Skipping Firestore sync: No user_id provided (Legacy Mode)")
+
     print(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 
 if __name__ == "__main__":

@@ -931,23 +931,51 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
 @app.get("/ai/model-metrics")
 async def get_model_metrics(user: dict = Depends(verify_token)):
     try:
-        # Robust path resolution for metrics
-        # Docker: /app/data/model_metrics.json
-        # Local: ./backend/data/model_metrics.json
+        # Paths
         metrics_path = os.path.join(os.path.dirname(__file__), "data", "model_metrics.json")
+        fi_path = os.path.join(os.path.dirname(__file__), "..", "feature_importance.json")
         
-        # Check Docker path first if it exists
+        # Docker paths
         if os.path.exists("/app/data/model_metrics.json"):
             metrics_path = "/app/data/model_metrics.json"
+        if os.path.exists("/feature_importance.json"):
+            fi_path = "/feature_importance.json"
         
+        data = {"r2": 0, "mae": 0, "last_trained": "Never", "top_features": {}, "data_points": 0}
+        
+        # 0. Get Data Volume
+        # Try finding the CSV to get accurate data point count
+        csv_path = os.path.join(os.path.dirname(__file__), "..", "Health_AI", "data", "garmin_merged_features.csv")
+        if not os.path.exists(csv_path):
+             csv_path = "/Health_AI/data/garmin_merged_features.csv" # Docker fallback
+             
+        if os.path.exists(csv_path):
+             try:
+                 df = pd.read_csv(csv_path)
+                 data['data_points'] = len(df)
+             except:
+                 pass
+
+        # 1. Load Metrics
         try:
-            with open(metrics_path, "r") as f:
-                data = json.load(f)
-            return data
-        except FileNotFoundError:
-            print(f"Metrics not found at {metrics_path}")
-            # Fallback if file doesn't exist yet
-            return {"r2": 0, "mae": 0, "last_trained": "Never"}
+            if os.path.exists(metrics_path):
+                with open(metrics_path, "r") as f:
+                    data.update(json.load(f))
+        except Exception as e:
+            print(f"Error loading metrics: {e}")
+            
+        # 2. Load Feature Importance
+        try:
+            if os.path.exists(fi_path):
+                with open(fi_path, "r") as f:
+                    fi_data = json.load(f)
+                    # Filter top 10 and ensure float values
+                    sorted_fi = dict(sorted(fi_data.items(), key=lambda item: item[1], reverse=True)[:10])
+                    data['top_features'] = sorted_fi
+        except Exception as e:
+            print(f"Error loading feature importance: {e}")
+            
+        return data
     except Exception as e:
         print(f"Error fetching model metrics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
