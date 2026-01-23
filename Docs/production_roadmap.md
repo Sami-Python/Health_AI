@@ -180,7 +180,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ---
 
 ### 7.3 Code Quality & Testing 🧪
-> **Status:** IN PROGRESS (2026-01-21)
+> **Status:** ✅ COMPLETED (2026-01-23)
 
 - [x] **Error Handling:** (#224)
   - [x] Lisätty toast notifications frontendiin (react-hot-toast) (#225)
@@ -191,10 +191,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] **Loading Skeletons:** Parannettu latauskokemusta kaavioissa ja listoissa (#246)
   - [x] **Weekly Load:** Garmin-aktiviteettien synkronointi Firestoreen (#247)
   - [x] **ML Diagnostics:** Feature importance ja data-määrän visualisointi (#248)
-- [ ] **Testing Expansion:** (#230)
-  - [ ] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
-  - [ ] Frontend: Alusta Jest + React Testing Library (#232)
-  - [ ] Frontend: Testaa kriittiset komponentit (AddGoalForm, TrainingCalendar) (#233)
+- [x] **Testing Expansion:** (#230)
+  - [x] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
+  - [x] Frontend: Alusta Jest + React Testing Library (#232)
+  - [x] Frontend: Testaa kriittiset komponentit (AddGoalForm, TrainingCalendar) (Aloitettu: AddGoalForm) (#233)
 - [x] **Documentation:** (#234)
   - [x] API.md luotu (kattava endpoint-dokumentaatio) (#235)
   - [x] FastAPI metadata päivitetty (versio 1.0.0, kuvaus, tags) (#236)
@@ -215,6 +215,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - ✅ Verified build and dependency compatibility (#248)
 - ✅ **Frontend Resilience:** `fetchWithRetry` integrated across all components (2026-01-21)
 - ✅ **UI/UX Polish:** Loading Skeletons for dashboard, charts, and modals (2026-01-21)
+- ✅ **Testing Infrastructure:** (2026-01-23)
+  - ✅ Backend Integration Tests (pytest) implemented
+  - ✅ Frontend Unit Tests (Jest + React Testing Library) setup
+  - ✅ CI/CD Pipeline updated to run tests on push
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
 - [ ] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240)
