@@ -330,6 +330,35 @@ Submit user feedback.
 
 ---
 
+#### `GET /admin/feedback`
+Get all user feedback (Admin only).
+
+**Tags:** System, Admin  
+**Rate Limit:** 20/min  
+**Parameters:**
+- `status` (optional): Filter by status (NEW, READ, ARCHIVED)
+- `category` (optional): Filter by category
+- `limit` (optional): Max items (default 100)
+
+**Security:** Requires Admin email (verified via `verify_admin`).
+
+**Response:**
+```json
+{
+  "total": 5,
+  "feedback": [
+    {
+      "category": "bug",
+      "message": "Dashboard error",
+      "user_id": "uid123",
+      "timestamp": "2024-01-15T12:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
 #### `GET /health`
 Health check endpoint (no auth required).
 
