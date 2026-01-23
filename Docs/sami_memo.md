@@ -853,3 +853,27 @@ Tänään korjattiin kriittinen bugi, jossa "Model Training Day" ei päivittynyt
 - **Syy:** Suorituskykyparannukset (11 ja 12 versiot ovat huomattavasti nopeampia), parempi yhteensopivuus paikallisen kehitysympäristön (3.12.4) kanssa ja Google Cloud SDK -varoitusten poistaminen.
 - **Verifiointi:** Docker-build suoritettu onnistuneesti, kaikki riippuvuudet asentuneet oikein.
 
+
+## 2026-01-23 – Dashboard Refresh Fix & Admin Dashboard 🛠️🛡️
+
+Tänään fiksattiin kriittinen dataongelma ja rakennettiin työkaluja järjestelmän hallintaan.
+
+### 1. Dashboard Refresh Fix 🔄
+- **Ongelma:** "Refresh"-nappi ei päivittänyt kuluvan päivän tavoitteita tai AI-analyysiä, vaikka backend löysi datan.
+- **Syy:** `fetch_garmin_data.py` -scripti haki aktiviteetit onnistuneesti API:sta, mutta **unohti tallentaa ne CSV-tiedostoon** (`garmin_activities.csv`). Koska tavoitteet ja tekoäly lukevat dataa juuri tuosta CSV:stä (eivätkä Firebasesta), ne luulivat päivän olevan tyhjä.
+- **Korjaus:** Lisätty `update_csv()` -kutsu scriptiin heti datan haun jälkeen.
+- **Tulos:** Nyt "Refresh" päivittää "Active Goals" -palkit ja grafiikat heti, kun uutta dataa löytyy.
+
+### 2. Admin Dashboard 🛡️
+- **Tarve:** Kun käyttäjämäärä kasvaa, tarvitaan tapa nähdä palautteet (`/feedback`) ja hallita järjestelmää ilman tietokantakyselyitä.
+- **Toteutus:**
+    - **UI:** Uusi sivu `/admin` (pääsy User Menusta).
+    - **Ominaisuudet:**
+        - **Feedback Table:** Näyttää kaikki käyttäjäpalautteet (Bugs, Features) taulukossa.
+        - **Security (Admin Guard):** Frontend näyttää sivun vain, jos käyttäjä on kirjautunut.
+    - **Backend Security:**
+        - **Middleware:** `verify_admin` -funktio tarkistaa, onko käyttäjän sähköposti sallittujen listalla (`ADMIN_EMAILS` .env-tiedostossa).
+        - Jos ei ole listalla, API palauttaa tylysti `403 Forbidden`.
+    - **Konfiguraatio:** Admin-oikeudet annetaan lisäämällä sähköposti serverin `.env`-tiedostoon.
+
+Tämä tekee sovelluksesta huomattavasti hallittavamman "oikeassa elämässä". 🚀
