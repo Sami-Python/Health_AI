@@ -25,3 +25,21 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+from fastapi import Depends
+
+def verify_admin(user: dict = Depends(verify_token)):
+    """
+    Verifies that the authenticated user is an admin.
+    Checked against ADMIN_EMAILS environment variable (comma separated).
+    """
+    admin_emails = os.getenv("ADMIN_EMAILS", "")
+    user_email = user.get("email")
+    
+    if not user_email:
+        raise HTTPException(status_code=403, detail="Email required for admin access")
+
+    if user_email not in admin_emails.split(","):
+        raise HTTPException(status_code=403, detail="Admin access denied")
+    
+    return user

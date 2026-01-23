@@ -260,6 +260,8 @@ def main(user_id: Optional[str] = None):
     df_activities = fetch_activities(client, start, today)
     # Use 'activityId' as key if available, else 'date' (fallback)
     key = 'activityId' if (df_activities is not None and 'activityId' in df_activities.columns) else 'date'
+    update_csv(df_activities, f"{data_dir}/garmin_activities.csv", key_col=key)
+
     # 5. Sync to Firestore (NEW: To power Weekly Load widget)
     if not df_activities.empty:
         print(f"Syncing {len(df_activities)} activities to Firestore for Weekly Load...")

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { User, Settings, LogOut, Menu, Activity } from "lucide-react";
+import { User, Settings, LogOut, Menu, Activity, Shield } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -70,6 +70,12 @@ export default function UserMenu() {
                                 <Activity className="h-4 w-4" />
                                 ML Accuracy
                             </button>
+                            <Link href="/admin" className="w-full">
+                                <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-orange-400 hover:bg-orange-900/20 hover:text-orange-300 rounded-lg transition-colors text-left">
+                                    <Shield className="h-4 w-4" />
+                                    Admin Dashboard
+                                </button>
+                            </Link>
                         </div>
 
                         <div className="my-2 border-t border-slate-800"></div>
