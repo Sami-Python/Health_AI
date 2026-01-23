@@ -799,6 +799,28 @@ http://localhost:8001/docs
 **Dependencies Added:**
 - `react-hot-toast` - Toast notifications library
 
+## 2026-01-23 – Testing & CI/CD Pipeline 🧪🚀
+
+Tänään saavutettiin merkittävä virstanpylväs sovelluksen laadunvarmistuksessa ja automaatiossa.
+
+### 1. Backend Testing (Pytest)
+- Luotu kattavat integraatiotestit `backend/tests/test_endpoints.py` ja `test_admin.py`.
+- **Mocking Strategy:** Käytetty `unittest.mock` ja `pytest` fixtureja eristämään testit oikeasta tietokannasta ja Firebase Admin SDK:sta.
+- **Coverage:** Testattu endpointit: `/goals`, `/readiness`, `/next-workout`, `/workouts/weekly-status`.
+
+### 2. Frontend Testing (Jest + RTL)
+- Alustettu Jest-testausympäristö Next.js-frontendille.
+- Konfiguroitu `jest.config.js` ja `jest.setup.js`.
+- Luotu ensimmäinen komponenttitesti `AddGoalForm.test.tsx`, joka verifioi lomakkeen renderöinnin, syötteen käsittelyn ja API-kutsun (mocked).
+
+### 3. CI/CD Pipeline (GitHub Actions)
+- Päivitetty `.github/workflows/ci.yml`.
+- **Parallel Jobs:** Testit ajetaan nyt rinnakkain (`backend-test` ja `frontend-test`) suorituskyvyn optimoimiseksi.
+- Pipeline ajaa automaattisesti lintauksen ja testit jokaisella pushilla `main`-haaraan.
+
+**Tulos:** Sovellus on nyt vakaampi, ja tulevat muutokset on turvallisempi tehdä automaattisten testien ansiosta. ✅
+
+
 **Lines of Code Added:** ~650 lines
 
 ---
