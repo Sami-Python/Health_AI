@@ -8,7 +8,7 @@ from typing import List, Optional
 import firestore_manager as db_manager # Alias to keep code changes minimal
 # REMOVED: import db_manager as local_db # DuckDB for history/analytics (Phase 7 Migration)
 from fastapi import Depends
-from auth_middleware import verify_token
+from auth_middleware import verify_token, verify_admin
 import json
 import ai_coach
 
@@ -638,7 +638,7 @@ async def submit_feedback(
 @limiter.limit("20/minute")
 async def get_all_feedback_admin(
     request: Request,
-    user: dict = Depends(verify_token),
+    user: dict = Depends(verify_admin),
     status: Optional[str] = None,
     category: Optional[str] = None,
     limit: int = 100

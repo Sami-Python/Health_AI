@@ -90,6 +90,7 @@ graph TD
     *   **AI Insight Card:** Päivittäinen yhteenveto tekoälyltä.
     *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
     *   **Toast Notifications:** Reaaliaikaiset käyttäjäilmoitukset (react-hot-toast) - success/error feedback kaikille toiminnoille.
+    *   **Admin Dashboard:** Järjestelmän valvonta ja käyttäjäpalaute (suojattu Admin-oikeus).
 
 ### 2. Firebase Platform (Pilvipalvelut)
 *   **Authentication:** Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).

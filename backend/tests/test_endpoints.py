@@ -78,50 +78,41 @@ def test_create_goal_db_failure():
     response = client.post("/goals", json=payload)
     assert response.status_code == 500
 
-# Helper to configure the local_db mock (DuckDB) which is imported as 'db_manager' in main.py
-# In main.py: import db_manager as local_db
-# But since we use sys.modules hack for firestore_manager, we need to handle local_db too.
-# Wait, main.py imports 'db_manager' as 'local_db'. 'db_manager' IS the real module name for duckdb manager.
-# 'firestore_manager' is aliased as 'db_manager' in main.py (confusing naming in main.py).
-# In main.py:
-# import firestore_manager as db_manager  (This is for goals)
-# import db_manager as local_db           (This is for history/duckdb)
-
-# We need to mock 'db_manager' (the real one) in sys.modules OR patch it.
-# Let's use patch on 'main.local_db'
-
 def test_get_readiness():
-    with patch('main.local_db') as mock_local_db:
-        mock_local_db.get_latest_readiness.return_value = {"readiness": 85, "date": "2026-01-05"}
-        
-        response = client.get("/readiness")
-        assert response.status_code == 200
-        assert response.json() == {"readiness": 85, "date": "2026-01-05"}
+    """Test get_readiness endpoint."""
+    mock_firestore_manager.get_latest_readiness.return_value = {"readiness": 85, "date": "2026-01-05"}
+    
+    response = client.get("/readiness")
+    assert response.status_code == 200
+    assert response.json() == {"readiness": 85, "date": "2026-01-05"}
+    mock_firestore_manager.get_latest_readiness.assert_called_once()
 
 def test_get_next_workout_found():
-    with patch('main.local_db') as mock_local_db:
-        mock_local_db.get_next_workout.return_value = {"content": {"activity": "Run"}, "date": "2026-01-06"}
-        
-        response = client.get("/next-workout")
-        assert response.status_code == 200
-        assert response.json() == {"content": {"activity": "Run"}, "date": "2026-01-06"}
+    """Test get_next_workout endpoint with data."""
+    mock_firestore_manager.get_next_workout.return_value = {"content": {"activity": "Run"}, "date": "2026-01-06"}
+    
+    response = client.get("/next-workout")
+    assert response.status_code == 200
+    assert response.json() == {"content": {"activity": "Run"}, "date": "2026-01-06"}
+    mock_firestore_manager.get_next_workout.assert_called_once()
 
 def test_get_next_workout_empty():
-    with patch('main.local_db') as mock_local_db:
-        mock_local_db.get_next_workout.return_value = None
-        
-        response = client.get("/next-workout")
-        assert response.status_code == 200
-        assert response.json() == {}
+    """Test get_next_workout endpoint when no data."""
+    mock_firestore_manager.get_next_workout.return_value = None
+    
+    response = client.get("/next-workout")
+    assert response.status_code == 200
+    assert response.json() == {}
 
 def test_get_weekly_status():
-    with patch('main.local_db') as mock_local_db:
-        mock_local_db.get_weekly_load_status.return_value = (500, 600, {})
-        
-        response = client.get("/workouts/weekly-status")
-        assert response.status_code == 200
-        assert response.json() == {
-            "current_load": 500,
-            "planned_load": 600,
-            "breakdown": {}
-        }
+    """Test get_weekly_status endpoint aggregation."""
+    mock_firestore_manager.get_weekly_load_status.return_value = (500, 600, {})
+    
+    response = client.get("/workouts/weekly-status")
+    assert response.status_code == 200
+    assert response.json() == {
+        "current_load": 500,
+        "planned_load": 600,
+        "breakdown": {}
+    }
+    mock_firestore_manager.get_weekly_load_status.assert_called_once_with("test_user_123")
