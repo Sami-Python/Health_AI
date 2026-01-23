@@ -224,7 +224,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] **Docker image build ja push Container Registry:yn** (#244)
 
 ## 8. Admin Dashboard (Monitoring & Support) 🛠️
-- [x] **Admin Authentication:** Implementoi "Admin Only" -tarkistus (esim. sallittujen sähköpostien lista backendissä).
-- [x] **Dashboard UI:** Uusi sivu `/admin` (suojattu).
-- [x] **Feedback Management:** Näytä käyttäjien palautteet (`GET /admin/feedback`). Mahdollisuus merkitä käsitellyksi.
-- [ ] **User Overview:** Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa).
+- [x] **Admin Authentication:** Implementoi "Admin Only" -tarkistus (esim. sallittujen sähköpostien lista backendissä). (#249)
+- [x] **Dashboard UI:** Uusi sivu `/admin` (suojattu). (#250)
+- [x] **Feedback Management:** Näytä käyttäjien palautteet (`GET /admin/feedback`). Mahdollisuus merkitä käsitellyksi. (#251)
+- [ ] **User Overview:** Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa). (#252)
