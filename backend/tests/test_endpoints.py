@@ -21,8 +21,13 @@ client = TestClient(app)
 def mock_auth_dependency():
     return {"uid": "test_user_123", "email": "test@example.com"}
 
-# Apply override
-app.dependency_overrides[verify_token] = mock_auth_dependency
+@pytest.fixture(autouse=True)
+def override_auth_dependency():
+    """Automatically override auth for all tests in this module."""
+    app.dependency_overrides[verify_token] = mock_auth_dependency
+    yield
+    # Restore original dependency (or clean up)
+    app.dependency_overrides = {}
 
 def test_create_goal_success():
     """Test successful goal creation."""
