@@ -22,6 +22,17 @@ Se yhdistää:
 *   **Backend / AI:** Python, FastAPI, XGBoost, Google Gemini API
 *   **Tietokanta:** DuckDB (Data Science), Firebase Firestore (App Data & Auth)
 *   **Infra:** Docker
+*   **Landing Page:** Static HTML/CSS (Firebase Hosting)
+
+## 🌐 Live Landing Page
+
+**Public website:** https://personal-ai-coach-92c39.web.app
+
+Modern landing page showcasing features, AI capabilities, and download options. Built with:
+- Dark theme design & glassmorphism effects
+- AI-generated health/fitness imagery
+- Responsive layout (mobile, tablet, desktop)
+- Deployed on Firebase Hosting
 
 ## Käynnistys (Local Development)
 

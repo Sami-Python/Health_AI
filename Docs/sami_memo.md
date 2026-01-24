@@ -899,3 +899,147 @@ Tänään fiksattiin kriittinen dataongelma ja rakennettiin työkaluja järjeste
     - **Konfiguraatio:** Admin-oikeudet annetaan lisäämällä sähköposti serverin `.env`-tiedostoon.
 
 Tämä tekee sovelluksesta huomattavasti hallittavamman "oikeassa elämässä". 🚀
+
+
+## 2026-01-24 – Landing Page & Firebase Hosting 🌐🔥
+
+Tänään rakennettiin julkinen landing page sovellukselle ja julkaistiin se Firebase Hostingiin.
+
+### 1. Landing Page Creation
+
+**Rakenne:** [`landing_page/`](file:///c:/Users/samih/code/health_ai/landing_page/)
+- `index.html` - Modern, dark theme landing page (English)
+- `styles.css` - Complete design system with glassmorphism
+- `assets/` - AI-generated images (ECG, hero, analytics)
+- `firebase.json` - Hosting configuration
+- `README.md` - Deployment guide
+
+**Sisältö:**
+- **Hero Section:** "Your Personal AI Coach" with gradient text, CTA buttons
+- **Navigation:** Features, How It Works, Download, Login button
+- **ECG Visualization:** Full-width heart rate monitor display
+- **Features Grid:** 6 glassmorphic cards (Dashboard, Calendar, AI Coach, Goals, Analytics, Garmin)
+- **AI Analytics:** Machine learning brain visualization with 80%+ accuracy claim
+- **How It Works:** 3-step process (Connect → Analyze → Achieve)
+- **Download Section:** App Store & Google Play badges + phone mockup
+- **Footer:** Product/Company/Support columns (side-by-side on mobile)
+
+**Design:**
+- **Theme:** Dark Mode (#0A0E27 base, indigo/purple/pink accents)
+- **Typography:** Inter (Google Fonts), 400-800 weights
+- **Effects:** Floating orbs animation, glassmorphism, gradient text, hover transforms
+- **Responsive:** 3 breakpoints (desktop 1280px+, tablet 768-1024px, mobile <768px)
+
+**AI-Generated Images:**
+1. `ecg-heart-rate.png` - Glowing neon ECG visualization (456 KB)
+2. `hero-fitness.png` - Athletic holographic fitness tracking (645 KB)
+3. `ai-analytics.png` - Neural network brain visualization (625 KB)
+
+### 2. Firebase Hosting Deployment
+
+**Setup:**
+```bash
+npm install -g firebase-tools
+firebase login
+firebase use personal-ai-coach-92c39
+firebase deploy --only hosting
+```
+
+**Configuration:**
+- `firebase.json` - Optimized caching headers (1 year for static assets)
+- `.firebaseignore` - Excluded unnecessary files
+- Public directory: `.` (landing_page folder itself)
+
+**Live URL:**
+🌐 **https://personal-ai-coach-92c39.web.app**
+
+**Deployment Stats:**
+- Files deployed: 5 (HTML, CSS, 3 images)
+- Total size: ~1.76 MB
+- Status: ✅ Deploy complete
+- Console: https://console.firebase.google.com/project/personal-ai-coach-92c39/overview
+
+### 3. Content Updates
+
+**Language:** Converted from Finnish to English for international reach
+- Professional marketing copy
+- Accuracy claim updated to "80%+ - better than device services"
+- SEO metadata (title, description)
+
+**Footer Fix:**
+- CSS grid layout ensures Product, Company, Support columns stay side-by-side on all screen sizes
+- Base styles: `grid-template-columns: repeat(3, 1fr)`
+
+### 4. Dokumentaatio
+
+**Created:**
+- `landing_page/README.md` - Local usage & Firebase deployment guide
+- `landing_page/DEPLOYMENT.md` - Step-by-step deployment instructions
+
+**Reasons for English:**
+- Larger target audience (international users)
+- Professional tech startup standard
+- Easier to scale globally
+- Firebase Hosting is global service
+
+---
+
+### Tulos 🎉
+
+**Landing Page:**
+- ✅ Modern, responsive design with dark theme
+- ✅ AI-generated premium images
+- ✅ Full feature showcase
+- ✅ App download CTAs
+
+**Firebase Hosting:**
+- ✅ Deployed and live globally
+- ✅ Optimized caching for performance
+- ✅ Professional URL (personal-ai-coach-92c39.web.app)
+
+**Seuraavaksi:**
+- Custom domain setup (optional)
+- ~~Analytics integration (Google/Firebase Analytics)~~ ✅ Done!
+- SEO optimization (robots.txt, sitemap.xml)
+
+---
+
+## 2026-01-24 (Ilta) – Firebase Analytics 📊
+
+Lisättiin kävijäseuranta landing pagelle Firebase Analyticsin avulla.
+
+### 1. Firebase Analytics Integration
+
+**Toteutus:**
+- Lisätty Firebase SDK `index.html`:ään (CDN import)
+- Konfiguroitu `measurementId: "G-LTD1T9TF4Q"`
+- Deployattu Firebase Hostingiin
+
+**Seurattavat tapahtumat:**
+- ✅ **Page views** - jokaiselta kävijältä automaattisesti
+- ✅ **CTA clicks** - "Get Started", "See Demo"
+- ✅ **Store clicks** - App Store, Google Play
+- ✅ **Login clicks** - kirjautumisnapin seuranta
+
+**Dashboard:**
+- Realtime: https://console.firebase.google.com/project/personal-ai-coach-92c39/analytics/app/web/streamview/realtime
+- Overview: https://console.firebase.google.com/project/personal-ai-coach-92c39/analytics
+
+### 2. Dokumentaatio
+
+**Päivitetty:**
+- `Docs/production_roadmap.md` - Phase 9.3 Analytics merkitty valmiiksi
+
+---
+
+### Tulos 🎉
+
+- ✅ Firebase Analytics toimii (ilmainen)
+- ✅ Reaaliaikainen kävijäseuranta
+- ✅ Napin klikkausten seuranta
+- ✅ Maantieteellinen data (mistä kävijät tulevat)
+
+**Status:** 🟢 Analytics LIVE!
+
+---
+

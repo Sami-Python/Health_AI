@@ -81,6 +81,19 @@ graph TD
 
 ## Komponentit
 
+### 0. Public Landing Page (Firebase Hosting) 🌐
+*   **Landing Site (`landing_page/`):** Static HTML/CSS landing page for public marketing
+    *   **Hero Section:** "Your Personal AI Coach" with CTAs
+    *   **Features Showcase:** 6 glassmorphic feature cards
+    *   **ECG Visualization:** Heart rate monitor display
+    *   **AI Analytics:** Machine learning brain visualization
+    *   **Download CTAs:** App Store & Google Play badges
+    *   **Phone Mockup:** App preview with live metrics
+*   **Deployment:** Firebase Hosting (global CDN, optimized caching)
+    *   **Live URL:** https://personal-ai-coach-92c39.web.app
+    *   **Size:** ~1.76 MB (HTML/CSS + 3 AI-generated images)
+    *   **Design:** Dark theme, glassmorphism, responsive (mobile/tablet/desktop)
+
 ### 1. Moderni Käyttöliittymä (Next.js)
 *   **Kehitysportaali (`frontend/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
     *   **Dashboard:** Päänäkymä, joka kokoaa kaiken tiedon.
@@ -127,10 +140,11 @@ graph TD
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
+*   **Landing Page:** Static HTML/CSS (Inter font, glassmorphism effects)
 *   **Backend:** Python 3.12 (FastAPI), Pandas, XGBoost
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
-*   **Infra:** Docker Compose
+*   **Infra:** Docker Compose, Firebase Hosting
 
 ---
 
@@ -144,7 +158,8 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-01-18  
+**Last Updated:** 2026-01-24  
 **API Version:** 1.0.0  
 **Architecture Status:** Production Ready
+**Landing Page:** 🌐 https://personal-ai-coach-92c39.web.app
 
