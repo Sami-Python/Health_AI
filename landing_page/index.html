@@ -11,6 +11,66 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
+        // Firebase configuration (same project as main app)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXc3gDH-pF2i2VOlbYlmHJ-4FXkRv-4rQ",
+            authDomain: "personal-ai-coach-92c39.firebaseapp.com",
+            projectId: "personal-ai-coach-92c39",
+            storageBucket: "personal-ai-coach-92c39.firebasestorage.app",
+            messagingSenderId: "561128557040",
+            appId: "1:561128557040:web:cc332becd9f322b410b535",
+            measurementId: "G-LTD1T9TF4Q"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        // Log page view event
+        logEvent(analytics, 'page_view', {
+            page_title: document.title,
+            page_location: window.location.href
+        });
+
+        // Track CTA button clicks
+        document.addEventListener('DOMContentLoaded', () => {
+            // Track "Get Started" clicks
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    logEvent(analytics, 'cta_click', { button: 'get_started' });
+                });
+            });
+
+            // Track "See Demo" clicks
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    logEvent(analytics, 'cta_click', { button: 'see_demo' });
+                });
+            });
+
+            // Track store badge clicks
+            document.querySelectorAll('.store-badge').forEach(badge => {
+                badge.addEventListener('click', () => {
+                    const store = badge.classList.contains('apple') ? 'app_store' : 'google_play';
+                    logEvent(analytics, 'store_click', { store: store });
+                });
+            });
+
+            // Track login clicks
+            document.querySelectorAll('.btn-login').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    logEvent(analytics, 'login_click');
+                });
+            });
+        });
+    </script>
 </head>
 
 <body>

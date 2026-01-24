@@ -232,3 +232,73 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Dashboard UI:** Uusi sivu `/admin` (suojattu). (#250)
 - [x] **Feedback Management:** Näytä käyttäjien palautteet (`GET /admin/feedback`). Mahdollisuus merkitä käsitellyksi. (#251)
 - [ ] **User Overview:** Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa). (#252)
+
+## 9. Landing Page & Public Presence 🌐
+
+### 9.1 Landing Page Development
+> **Status:** ✅ COMPLETED (2026-01-24)
+
+- [x] **Landing Page Design & Build** (#253)
+  - [x] Modern dark theme with glassmorphism effects
+  - [x] Hero section with clear CTAs ("Get Started", "See Demo")
+  - [x] Features grid (6 cards: Dashboard, Calendar, AI Coach, Goals, Analytics, Garmin)
+  - [x] ECG visualization section
+  - [x] AI analytics showcase with brain visualization
+  - [x] "How It Works" 3-step process
+  - [x] Download section with App Store & Google Play badges
+  - [x] Phone mockup with app preview
+  - [x] Responsive design (desktop, tablet, mobile)
+  
+- [x] **AI-Generated Assets** (#254)
+  - [x] ECG heart rate visualization (neon blue/purple gradients)
+  - [x] Hero fitness image (holographic health tracking)
+  - [x] AI analytics brain visualization
+
+- [x] **Content & SEO** (#255)
+  - [x] English translation for international reach
+  - [x] Marketing-focused copywriting
+  - [x] Accuracy claim: "80%+ - better than device services"
+  - [x] SEO metadata (title, description)
+
+### 9.2 Firebase Hosting Deployment
+> **Status:** ✅ COMPLETED (2026-01-24)
+
+- [x] **Firebase Setup** (#256)
+  - [x] Firebase CLI installed (`npm install -g firebase-tools`)
+  - [x] Project configured: `personal-ai-coach-92c39`
+  - [x] `firebase.json` with optimized caching headers
+  - [x] `.firebaseignore` configuration
+
+- [x] **Deployment** (#257)
+  - [x] Live URL: https://personal-ai-coach-92c39.web.app
+  - [x] 5 files deployed (HTML, CSS, 3 images)
+  - [x] Total size: ~1.76 MB
+  - [x] Global CDN distribution
+
+- [x] **Documentation** (#258)
+  - [x] `landing_page/README.md` - Usage & deployment guide
+  - [x] `landing_page/DEPLOYMENT.md` - Step-by-step instructions
+
+### 9.3 Future Enhancements
+- [ ] **Custom Domain** (#259)
+  - [ ] Register domain (e.g., healthai.app)
+  - [ ] Configure DNS in Firebase Console
+  
+- [x] **Analytics** (#260)
+  - [x] Firebase Analytics integration
+  - [x] Page view and CTA click tracking
+  
+- [ ] **SEO Optimization** (#261)
+  - [ ] `robots.txt` for search engine crawlers
+  - [ ] `sitemap.xml` for indexing
+  - [ ] Open Graph meta tags for social sharing
+
+- [ ] **Performance** (#262)
+  - [ ] Convert images to WebP format
+  - [ ] Implement lazy loading
+  - [ ] Minify CSS/HTML
+
+**Completed:** 2026-01-24  
+**Verification:** ✅ Site live and accessible globally  
+**Status:** 🟢 **PRODUCTION READY**
+
