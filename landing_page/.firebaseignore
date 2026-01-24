@@ -1,0 +1,9 @@
+# Firebase
+.firebase/
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
+
+# System
+.DS_Store
+Thumbs.db
