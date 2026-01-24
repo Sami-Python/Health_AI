@@ -239,64 +239,64 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 > **Status:** ✅ COMPLETED (2026-01-24)
 
 - [x] **Landing Page Design & Build** (#253)
-  - [x] Modern dark theme with glassmorphism effects
-  - [x] Hero section with clear CTAs ("Get Started", "See Demo")
-  - [x] Features grid (6 cards: Dashboard, Calendar, AI Coach, Goals, Analytics, Garmin)
-  - [x] ECG visualization section
-  - [x] AI analytics showcase with brain visualization
-  - [x] "How It Works" 3-step process
-  - [x] Download section with App Store & Google Play badges
-  - [x] Phone mockup with app preview
-  - [x] Responsive design (desktop, tablet, mobile)
+  - [x] Modern dark theme with glassmorphism effects (#253)
+  - [x] Hero section with clear CTAs ("Get Started", "See Demo") (#254)
+  - [x] Features grid (6 cards: Dashboard, Calendar, AI Coach, Goals, Analytics, Garmin) (#255)
+  - [x] ECG visualization section (#256)
+  - [x] AI analytics showcase with brain visualization (#257)
+  - [x] "How It Works" 3-step process (#258)
+  - [x] Download section with App Store & Google Play badges (#259)
+  - [x] Phone mockup with app preview (#260)
+  - [x] Responsive design (desktop, tablet, mobile) (#261)
   
 - [x] **AI-Generated Assets** (#254)
-  - [x] ECG heart rate visualization (neon blue/purple gradients)
-  - [x] Hero fitness image (holographic health tracking)
-  - [x] AI analytics brain visualization
+  - [x] ECG heart rate visualization (neon blue/purple gradients) (#262)
+  - [x] Hero fitness image (holographic health tracking) (#263)
+  - [x] AI analytics brain visualization (#264)
 
 - [x] **Content & SEO** (#255)
-  - [x] English translation for international reach
-  - [x] Marketing-focused copywriting
-  - [x] Accuracy claim: "80%+ - better than device services"
-  - [x] SEO metadata (title, description)
+  - [x] English translation for international reach (#265)
+  - [x] Marketing-focused copywriting (#266)
+  - [x] Accuracy claim: "80%+ - better than device services" (#267)
+  - [x] SEO metadata (title, description) (#268)
 
 ### 9.2 Firebase Hosting Deployment
 > **Status:** ✅ COMPLETED (2026-01-24)
 
 - [x] **Firebase Setup** (#256)
-  - [x] Firebase CLI installed (`npm install -g firebase-tools`)
-  - [x] Project configured: `personal-ai-coach-92c39`
-  - [x] `firebase.json` with optimized caching headers
-  - [x] `.firebaseignore` configuration
+  - [x] Firebase CLI installed (`npm install -g firebase-tools`) (#269)
+  - [x] Project configured: `personal-ai-coach-92c39` (#270)
+  - [x] `firebase.json` with optimized caching headers (#271)
+  - [x] `.firebaseignore` configuration (#272)
 
 - [x] **Deployment** (#257)
-  - [x] Live URL: https://personal-ai-coach-92c39.web.app
-  - [x] 5 files deployed (HTML, CSS, 3 images)
-  - [x] Total size: ~1.76 MB
-  - [x] Global CDN distribution
+  - [x] Live URL: https://personal-ai-coach-92c39.web.app (#273)
+  - [x] 5 files deployed (HTML, CSS, 3 images) (#274)
+  - [x] Total size: ~1.76 MB (#275)
+  - [x] Global CDN distribution (#276)
 
 - [x] **Documentation** (#258)
-  - [x] `landing_page/README.md` - Usage & deployment guide
-  - [x] `landing_page/DEPLOYMENT.md` - Step-by-step instructions
+  - [x] `landing_page/README.md` - Usage & deployment guide (#277)
+  - [x] `landing_page/DEPLOYMENT.md` - Step-by-step instructions (#278)
 
 ### 9.3 Future Enhancements
 - [ ] **Custom Domain** (#259)
-  - [ ] Register domain (e.g., healthai.app)
-  - [ ] Configure DNS in Firebase Console
+  - [ ] Register domain (e.g., healthai.app) (#279)
+  - [ ] Configure DNS in Firebase Console (#280)
   
 - [x] **Analytics** (#260)
-  - [x] Firebase Analytics integration
-  - [x] Page view and CTA click tracking
+  - [x] Firebase Analytics integration (#281)
+  - [x] Page view and CTA click tracking (#282)
   
 - [ ] **SEO Optimization** (#261)
-  - [ ] `robots.txt` for search engine crawlers
-  - [ ] `sitemap.xml` for indexing
-  - [ ] Open Graph meta tags for social sharing
+  - [ ] `robots.txt` for search engine crawlers (#283)
+  - [ ] `sitemap.xml` for indexing (#284)
+  - [ ] Open Graph meta tags for social sharing (#285)
 
 - [ ] **Performance** (#262)
-  - [ ] Convert images to WebP format
-  - [ ] Implement lazy loading
-  - [ ] Minify CSS/HTML
+  - [ ] Convert images to WebP format (#286)
+  - [ ] Implement lazy loading (#287)
+  - [ ] Minify CSS/HTML (#288)
 
 **Completed:** 2026-01-24  
 **Verification:** ✅ Site live and accessible globally  
