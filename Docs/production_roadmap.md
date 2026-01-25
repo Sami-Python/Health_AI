@@ -312,19 +312,21 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ### 10.1 Priority 1 (Critical for Production)
 
-- [ ] **Firestore Security Rules** (#263)
-  - [ ] Create `firestore.rules` file (#289)
-  - [ ] Implement row-level security for `goals`, `workouts`, `plans` (#290)
-  - [ ] User profile protection (`users/{userId}`) (#291)
-  - [ ] Admin-only access for feedback collection (#292)
-  - [ ] Deploy rules to Firebase Console (#293)
+- [x] **Firestore Security Rules** (#263) ✅ COMPLETED (2026-01-25)
+  - [x] Create `firestore.rules` file (#289)
+  - [x] Implement row-level security for `goals`, `workouts`, `plans` (#290)
+  - [x] User profile protection (`users/{userId}`) (#291)
+  - [x] Admin-only access for feedback collection (#292)
+  - [x] Deploy rules to Firebase Console (#293)
   - **Impact:** Defense-in-depth (prevents direct Firestore access bypass)
+  - **Status:** Deployed and active in production
 
-- [ ] **CORS Restriction** (#264)
-  - [ ] Replace `allow_origins=["*"]` with specific domains (#294)
-  - [ ] Production: `["https://yourdomain.com"]` (#295)
-  - [ ] Development: `["http://localhost:3000"]` (#296)
+- [x] **CORS Restriction** (#264) ✅ COMPLETED (2026-01-25)
+  - [x] Replace `allow_origins=["*"]` with specific domains (#294)
+  - [x] Production: Uses `FRONTEND_URL` environment variable (#295)
+  - [x] Development: `["http://localhost:3000"]` (#296)
   - **Impact:** Prevents unauthorized domain requests
+  - **Status:** Active in backend/main.py
 
 - [ ] **CSV Migration (Multi-User)** (#265)
   - [ ] Migrate `garmin_merged_features.csv` to per-user storage (#297)

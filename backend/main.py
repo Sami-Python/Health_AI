@@ -67,9 +67,18 @@ Authorization: Bearer <your-firebase-id-token>
 )
 
 # Configure CORS for Frontend
+# Production: Restrict to specific domains to prevent unauthorized access
+# Development: Allow localhost for local testing
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+allowed_origins = [
+    "http://localhost:3000",  # Local development
+    "http://localhost:8000",  # Backend local
+    FRONTEND_URL,  # Production frontend (set via env var)
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
