@@ -313,54 +313,54 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ### 10.1 Priority 1 (Critical for Production)
 
 - [ ] **Firestore Security Rules** (#263)
-  - [ ] Create `firestore.rules` file
-  - [ ] Implement row-level security for `goals`, `workouts`, `plans`
-  - [ ] User profile protection (`users/{userId}`)
-  - [ ] Admin-only access for feedback collection
-  - [ ] Deploy rules to Firebase Console
+  - [ ] Create `firestore.rules` file (#289)
+  - [ ] Implement row-level security for `goals`, `workouts`, `plans` (#290)
+  - [ ] User profile protection (`users/{userId}`) (#291)
+  - [ ] Admin-only access for feedback collection (#292)
+  - [ ] Deploy rules to Firebase Console (#293)
   - **Impact:** Defense-in-depth (prevents direct Firestore access bypass)
 
 - [ ] **CORS Restriction** (#264)
-  - [ ] Replace `allow_origins=["*"]` with specific domains
-  - [ ] Production: `["https://yourdomain.com"]`
-  - [ ] Development: `["http://localhost:3000"]`
+  - [ ] Replace `allow_origins=["*"]` with specific domains (#294)
+  - [ ] Production: `["https://yourdomain.com"]` (#295)
+  - [ ] Development: `["http://localhost:3000"]` (#296)
   - **Impact:** Prevents unauthorized domain requests
 
 - [ ] **CSV Migration (Multi-User)** (#265)
-  - [ ] Migrate `garmin_merged_features.csv` to per-user storage
-  - [ ] Option 1: Firestore collection `garmin_history`
-  - [ ] Option 2: Cloud Storage buckets per user
-  - [ ] Update analytics endpoints to use user-specific data
+  - [ ] Migrate `garmin_merged_features.csv` to per-user storage (#297)
+  - [ ] Option 1: Firestore collection `garmin_history` (#298)
+  - [ ] Option 2: Cloud Storage buckets per user (#299)
+  - [ ] Update analytics endpoints to use user-specific data (#300)
   - **Impact:** Critical when onboarding multiple real users
 
 ### 10.2 Priority 2 (Production Best Practices)
 
 - [ ] **Error Message Sanitization** (#266)
-  - [ ] Generic error messages in production (no stack traces)
-  - [ ] Implement structured logging (e.g., Google Cloud Logging)
-  - [ ] Log security events (login, failed auth, rate limits)
+  - [ ] Generic error messages in production (no stack traces) (#301)
+  - [ ] Implement structured logging (e.g., Google Cloud Logging) (#302)
+  - [ ] Log security events (login, failed auth, rate limits) (#303)
 
 - [ ] **Rate Limit Monitoring** (#267)
-  - [ ] Dashboard to track rate limit hits per user
-  - [ ] Alert system for suspicious activity
-  - [ ] Auto-block for repeated violations
+  - [ ] Dashboard to track rate limit hits per user (#304)
+  - [ ] Alert system for suspicious activity (#305)
+  - [ ] Auto-block for repeated violations (#306)
 
 ### 10.3 Priority 3 (Future Enhancements)
 
 - [ ] **Two-Factor Authentication (2FA)** (#268)
-  - [ ] Optional 2FA for admin accounts
-  - [ ] SMS or authenticator app integration
-  - [ ] Firebase Auth 2FA support
+  - [ ] Optional 2FA for admin accounts (#307)
+  - [ ] SMS or authenticator app integration (#308)
+  - [ ] Firebase Auth 2FA support (#309)
 
 - [ ] **Session Management** (#269)
-  - [ ] Force logout after 30 minutes of inactivity
-  - [ ] "Remember Me" option for trusted devices
-  - [ ] Concurrent session limits
+  - [ ] Force logout after 30 minutes of inactivity (#310)
+  - [ ] "Remember Me" option for trusted devices (#311)
+  - [ ] Concurrent session limits (#312)
 
 - [ ] **Audit Trail** (#270)
-  - [ ] Log all admin actions (viewing feedback, user management)
-  - [ ] Immutable audit log in Firestore
-  - [ ] Admin dashboard for reviewing logs
+  - [ ] Log all admin actions (viewing feedback, user management) (#313)
+  - [ ] Immutable audit log in Firestore (#314)
+  - [ ] Admin dashboard for reviewing logs (#315)
 
 ---
 
