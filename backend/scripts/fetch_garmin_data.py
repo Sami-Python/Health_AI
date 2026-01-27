@@ -296,6 +296,9 @@ def main(user_id: Optional[str] = None):
                     print(f"⚠️ Failed to sync activity {activity_id} to Firestore: {sync_err}")
         else:
             print("⚠️ Skipping Firestore sync: No user_id provided (Legacy Mode)")
+    
+    # 6. NOTE: Daily summary metrics are synced to Firestore by process_garmin_data.py
+    # This ensures calculated metrics (CTL/ATL/TSB) are included.
 
     print(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 
