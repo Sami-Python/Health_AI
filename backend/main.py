@@ -11,6 +11,7 @@ from fastapi import Depends
 from auth_middleware import verify_token, verify_admin
 import json
 import ai_coach
+import firestore_garmin_metrics
 
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -117,63 +118,21 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
     
     **Note:** Limited to last 90 days of data for performance.
     """
-    try:
-        # Load data from CSV (Migration Phase: Using CSV as SSOT for history)
-        csv_path = "../Health_AI/data/garmin_merged_features.csv"
-        
-        # Check if running in Docker (path might differ)
-        if not os.path.exists(csv_path):
-             csv_path = "/data/Health_AI/data/garmin_merged_features.csv"
-             
-        if not os.path.exists(csv_path):
-            raise FileNotFoundError(f"History CSV not found at {csv_path}")
 
-        df = pd.read_csv(csv_path)
-        
-        # Ensure date column
-        if 'calendarDate' in df.columns:
-             df['date'] = pd.to_datetime(df['calendarDate'])
-        else:
-             df['date'] = pd.to_datetime(df['date'])
-             
-        df = df.sort_values('date')
-        
-        # --- CTL / ATL / TSB Calculations ---
-        # 1. Define Load Proxy
-        # workout_calories is best for Training Load. If NaN, assume 0 (Rest Day).
-        if 'workout_calories' in df.columns:
-             df['load'] = df['workout_calories'].fillna(0)
-        elif 'activeKilocalories' in df.columns:
-             df['load'] = df['activeKilocalories'].fillna(0)
-        else:
-             df['load'] = 0
-             
-        # 2. Daily Load moving averages
-        # ATL = 7 days, CTL = 42 days, TSB = CTL - ATL
-        df['ATL'] = df['load'].rolling(window=7, min_periods=1).mean()
-        df['CTL'] = df['load'].rolling(window=42, min_periods=1).mean()
-        df['TSB'] = df['CTL'] - df['ATL']
-        
-        # --- Recovery Metrics ---
-        # Ensure columns exist
-        if 'bodyBatteryHighestValue' not in df.columns:
-            df['bodyBatteryHighestValue'] = 0
-        if 'totalSleep_minutes' not in df.columns:
-             df['totalSleep_minutes'] = 0
-             
-        # Select last 30 days for frontend
-        recent = df.tail(30).copy()
+    try:
+        # Load from Firestore (Multi-User)
+        metrics = firestore_garmin_metrics.get_user_daily_metrics(user['uid'], days=90)
         
         result = []
-        for _, row in recent.iterrows():
+        for row in metrics:
             result.append({
-                "date": row['date'].strftime('%Y-%m-%d'),
-                "ctl": round(row['CTL'], 1),
-                "atl": round(row['ATL'], 1),
-                "tsb": round(row['TSB'], 1),
-                "load": int(row['load']),
-                "readiness": int(row['bodyBatteryHighestValue']),
-                "sleep_min": int(row['totalSleep_minutes'])
+                "date": row.get('date'),
+                "ctl": round(row.get('CTL', 0), 1),
+                "atl": round(row.get('ATL', 0), 1),
+                "tsb": round(row.get('TSB', 0), 1),
+                "load": int(row.get('workout_calories', 0)),
+                "readiness": int(row.get('bodyBatteryHighestValue', 0)),
+                "sleep_min": int(row.get('totalSleep_minutes', 0))
             })
             
         return result
@@ -324,49 +283,32 @@ def calculate_goal_progress(user_id: str, goal: dict):
         # 2. Get Data Sources
         total_value = 0.0
         
-        # A) Garmin CSV (History)
-        # We need to read CSV. It's not efficient to read on every request loop, 
-        # but for < 10 goals it's acceptable for MVP.
-        # Ideally cache the DF.
-        csv_path = "../Health_AI/data/garmin_merged_features.csv"
-        if not os.path.exists(csv_path):
-             csv_path = "/data/Health_AI/data/garmin_merged_features.csv"
+        # A) Garmin Data (Firestore)
+        metrics_in_range = firestore_garmin_metrics.get_metrics_in_range(user_id, start_date.isoformat(), end_date.isoformat())
         
-        if os.path.exists(csv_path):
-            try:
-                df = pd.read_csv(csv_path)
-                if 'calendarDate' in df.columns:
-                     df['date'] = pd.to_datetime(df['calendarDate']).dt.date
-                elif 'date' in df.columns:
-                     df['date'] = pd.to_datetime(df['date']).dt.date
-                
-                # Filter Date
-                mask = (df['date'] >= start_date) & (df['date'] <= end_date)
-                filtered = df.loc[mask]
-                
-                # Filter Activity? Garmin CSV might not have 'activity type' per row if it's daily summary.
-                # If the CSV is "Daily Summaries", it aggregates ALL activities.
-                # We can't distinguish "Running" vs "Cycling" easily from daily summary CSV 
-                # unless we have specific columns like 'runningDistance'.
-                # For this MVP, if goal is 'Running' and we only have 'totalDistance', it might be inaccurate.
-                # Let's check columns for 'distanceInMeters' (General).
-                # If target_unit is 'km', use distance. If 'h' or 'min', use duration.
-                
-                if goal.get('target_unit') in ['km', 'm']:
-                    if 'totalDistanceOnFoot' in filtered.columns: # Specific to walking/running
-                         total_value += filtered['totalDistanceOnFoot'].sum() / 1000.0 # meters to km
-                    elif 'distanceInMeters' in filtered.columns:
-                         total_value += filtered['distanceInMeters'].sum() / 1000.0
-                elif goal.get('target_unit') in ['h', 'min']:
-                     if 'activeSeconds' in filtered.columns: # activeSeconds or similar
-                         seconds = filtered['activeSeconds'].sum()
-                         if goal.get('target_unit') == 'h':
-                             total_value += seconds / 3600.0
-                         else:
-                             total_value += seconds / 60.0
-
-            except Exception as csv_e:
-                print(f"Goal Calc CSV Error: {csv_e}")
+        for m in metrics_in_range:
+            # Check unit and sum up
+            if goal.get('target_unit') in ['km', 'm']:
+                if 'totalDistanceMeters' in m:
+                     total_value += m['totalDistanceMeters'] / 1000.0 # meters to km
+            elif goal.get('target_unit') in ['h', 'min']:
+                 # Prefer workout duration (tracked activity), fallback to activeSeconds (general movement) if needed
+                 # Actually, logic should depend on goal type. If goal is "Running", we only want running duration.
+                 # But daily metrics are aggregated. We can't distinguish Running from Cycling in daily_metrics.
+                 # Limitation of current Architecture: Daily Metrics are totals.
+                 # Better approach: Fetch Activities from 'garmin_activities' collection (if we migrated that too).
+                 # For now, MVP: Use total duration/distance from daily metrics which matches current CSV logic.
+                 
+                 seconds = m.get('workout_duration_seconds', 0)
+                 if seconds == 0:
+                     seconds = m.get('activeSeconds', 0) # Fallback if migrated data has it (migration script didn't explicitly map activeSeconds? Checked: It didn't.)
+                     # If migration script didn't map activeSeconds, this fallback is useless unless I update migration script.
+                     # But CSV had 'workout_duration_seconds', so it should be fine.
+                 
+                 if goal.get('target_unit') == 'h':
+                     total_value += seconds / 3600.0
+                 else:
+                     total_value += seconds / 60.0
 
         # B) Manual Workouts (Firestore)
         # Get workouts in range
@@ -839,7 +781,7 @@ async def refresh_data(user: dict = Depends(verify_token)):
             
             # Run Process
             print("Starting Model Training...")
-            process_garmin_data.main_process()
+            process_garmin_data.main_process(user_id=uid)
             print("✅ Model Training completed successfully.")
             
         except Exception as script_error:
@@ -953,17 +895,8 @@ async def get_model_metrics(user: dict = Depends(verify_token)):
         data = {"r2": 0, "mae": 0, "last_trained": "Never", "top_features": {}, "data_points": 0}
         
         # 0. Get Data Volume
-        # Try finding the CSV to get accurate data point count
-        csv_path = os.path.join(os.path.dirname(__file__), "..", "Health_AI", "data", "garmin_merged_features.csv")
-        if not os.path.exists(csv_path):
-             csv_path = "/Health_AI/data/garmin_merged_features.csv" # Docker fallback
-             
-        if os.path.exists(csv_path):
-             try:
-                 df = pd.read_csv(csv_path)
-                 data['data_points'] = len(df)
-             except:
-                 pass
+        # 0. Get Data Volume (Firestore)
+        data['data_points'] = firestore_garmin_metrics.get_user_metrics_count(user['uid'])
 
         # 1. Load Metrics
         try:

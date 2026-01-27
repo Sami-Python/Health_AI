@@ -133,8 +133,14 @@ graph TD
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
 ### 4. Data Layer (Tietovarasto)
-*   **Firestore (Primary):** Pääasiallinen tietokanta kaikelle käyttäjädatalle (Goals, Workouts, Plans, User Profiles).
-*   **CSV Cache (`backend/data/`):** Garmin-data haetaan CSV-muodossa ja käytetään ML-mallin koulutukseen. Toimii välimuistina historialliselle datalle.
+*   **Firestore (Primary):** Pääasiallinen tietokanta kaikelle käyttäjädatalle:
+    *   Goals, Workouts, Plans, User Profiles
+    *   **NEW: Garmin Metrics** (`garmin_metrics/{user_id}/daily_metrics/{date}`) - Per-user health data
+    *   Daily summaries: Body Battery, sleep, stress, steps, training load
+    *   Time-series: CTL/ATL/TSB calculations for training load management
+*   **CSV Cache (`backend/data/`):** Backward-compatible export for ML model training only
+    *   Used by `process_garmin_data.py` for local model training
+    *   NOT used for production API endpoints (Firestore is source of truth)
 *   **User Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
 
 

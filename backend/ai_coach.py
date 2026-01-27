@@ -15,19 +15,38 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
         Hylätty treeni: {rejected_context.get('activity')} - {rejected_context.get('description')}
         Syy/Muutospyyntö: Urheilija halusi uuden vaihtoehdon. Varmista, että tämä ehdotus on erilainen.
         """
+    
+    # Interpret Body Battery level
+    bb_value = ctx['predicted_charge']
+    if bb_value >= 75:
+        bb_interpretation = "🟢 ERINOMAINEN - Täysin palautunut, valmis kovaan treeniin"
+    elif bb_value >= 60:
+        bb_interpretation = "🟡 HYVÄ - Kohtalainen palautuminen, sopii kohtalaiseen treeniin"
+    elif bb_value >= 40:
+        bb_interpretation = "🟠 MATALA - Heikko palautuminen, suosittele KEVYT/LEPO"
+    else:
+        bb_interpretation = "🔴 KRIITTINEN - Erittäin huono palautuminen, suosittele LEPO"
 
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
     Urheilijan tilanne tänään ({ctx['date']}):
-    - Ennustettu valmius (Body Battery): {ctx['predicted_charge']:.0f}/100
+    - Body Battery (Palautuminen): {ctx['predicted_charge']:.0f}/100 → {bb_interpretation}
     - Unen kesto: {ctx['sleep_hours']:.1f} tuntia
-    - Viimeaikaie kuormitus (7pv keskiarvo): {ctx['recent_load']:.0f}
+    - Viimeaikainen kuormitus (7pv keskiarvo): {ctx['recent_load']:.0f}
     - Viime aikojen toteutus: {compliance_history}
     - Palautteet: {preference_feedback}
     - AKTIIVISET TAVOITTEET: {active_goals}
 
     {rejection_text}
+    
+    ⚠️ KRIITTINEN OHJE - Body Battery Tulkinta:
+    • 75-100: Erinomainen palautuminen → Suosittele tehokasta treeniä (intervals, kova tempo, pitkä kesto)
+    • 60-74: Hyvä palautuminen → Suosittele kohtalaista treeniä (peruskestävyys, kevyt tempo)
+    • 40-59: Matala palautuminen → Suosittele KEVYT aktiivinen palautuminen (VR-lenkki, mobility) TAI lepo
+    • 0-39: Kriittinen väsymys → Suosittele PAKOLLINEN lepopäivä (Rest Day)
+    
+    Jos urheilija on subjektiivisesti väsynyt (huono uni, matala BB), ÄLÄ KOSKAAN suosittele kovaa treeniä!
     
     Tehtävä:
     Luo tarkka ja ammattimainen treenisuunnitelma tälle päivälle JSON-muodossa.
@@ -38,7 +57,7 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     [
         {{
             "day": 1,
-            "activity": "Laji (esim. Juoksu)",
+            "activity": "Laji (esim. Juoksu, Lepo)",
             "description": "Treenin tavoite",
             "duration_min": 45,
             "load_estimate": 60,

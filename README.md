@@ -65,7 +65,7 @@ Sovellus on käytettävissä: `http://localhost:3000`
     *   `backend/data/`: Paikalliset tietovarastot (`health_ai.db`).
 *   **Firebase:**
     *   **Authentication:** Käyttäjien hallinta ja kirjautuminen.
-    *   **Firestore:** Reaaliaikainen tietokanta käyttäjädatalle (tavoitteet, treenit).
+    *   **Firestore:** Reaaliaikainen tietokanta käyttäjädatalle (tavoitteet, treenit, **Garmin-metriikka**).
 
 ## 📸 Screenshots
 

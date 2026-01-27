@@ -5,11 +5,20 @@ from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 import json
 import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def main_process():
+# Ensure backend path is in sys.path for firestore_manager
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
+if BACKEND_DIR not in sys.path:
+    sys.path.insert(0, BACKEND_DIR)
+
+import firestore_garmin_metrics
+
+def main_process(user_id: str = None):
     # --- Path Configuration ---
     # We need to find the data files regardless of whether we run from backend/ or root/
     # or inside Docker.
@@ -94,6 +103,57 @@ def main_process():
     features_csv = get_path("Health_AI/data/garmin_merged_features.csv")
     df_merged.to_csv(features_csv, index=False)
     print(f"Saved merged features to {features_csv}")
+    
+    # --- Sync to Firestore (Multi-User) ---
+    if user_id:
+        print(f"Syncing processed metrics to Firestore for user {user_id}...")
+        try:
+            # Prepare metrics list from df_merged
+            # We sync ALL columns that map to our schema
+            metrics_list = []
+            
+            # Sync last 120 days to be safe (covering history + retraining range)
+            # or sync everything? 400 records is 1 batch. efficient enough.
+            # Let's sync everything for now to ensure consistency.
+            
+            for _, row in df_merged.iterrows():
+                # Convert date to string YYYY-MM-DD
+                date_str = str(row['date'].date()) if hasattr(row['date'], 'date') else str(row['date'])[:10]
+                
+                metric_doc = {
+                    'date': date_str,
+                    # Core
+                    'bodyBatteryChargedValue': int(row.get('bodyBatteryChargedValue', 0)) if pd.notna(row.get('bodyBatteryChargedValue')) else 0,
+                    'bodyBatteryHighestValue': int(row.get('bodyBatteryHighestValue', 0)) if pd.notna(row.get('bodyBatteryHighestValue')) else 0,
+                    'bodyBatteryLowestValue': int(row.get('bodyBatteryLowestValue', 0)) if pd.notna(row.get('bodyBatteryLowestValue')) else 0,
+                    'averageStressLevel': int(row.get('averageStressLevel', 0)) if pd.notna(row.get('averageStressLevel')) else 0,
+                    'totalSteps': int(row.get('totalSteps', 0)) if pd.notna(row.get('totalSteps')) else 0,
+                    'totalSleep_minutes': int(row.get('totalSleep_minutes', 0)) if pd.notna(row.get('totalSleep_minutes')) else 0,
+                    
+                    # Training Load (Calculated)
+                    'workout_calories': int(row.get('workout_calories', 0)) if pd.notna(row.get('workout_calories')) else 0,
+                    'workout_duration_seconds': int(row.get('workout_duration_seconds', 0)) if pd.notna(row.get('workout_duration_seconds')) else 0,
+                    'CTL': float(row.get('CTL', 0)) if pd.notna(row.get('CTL')) else 0.0,
+                    'ATL': float(row.get('ATL', 0)) if pd.notna(row.get('ATL')) else 0.0,
+                    'TSB': float(row.get('TSB', 0)) if pd.notna(row.get('TSB')) else 0.0,
+                }
+                
+                # Add optional fields if they exist
+                if 'averageHR' in row and pd.notna(row['averageHR']): metric_doc['averageHR'] = float(row['averageHR'])
+                if 'restingHeartRate' in row and pd.notna(row['restingHeartRate']): metric_doc['restingHeartRate'] = int(row['restingHeartRate'])
+                
+                metrics_list.append(metric_doc)
+            
+            # Batch save
+            if firestore_garmin_metrics.batch_save_metrics(user_id, metrics_list):
+                 print(f"Successfully synced {len(metrics_list)} daily metrics to Firestore")
+            else:
+                 print("Firestore sync returned false")
+                 
+        except Exception as e:
+            print(f"Failed to sync to Firestore: {e}")
+            import traceback
+            traceback.print_exc()
 
     # --- Training with GridSearchCV & Cross-Validation ---
     print("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
@@ -200,4 +260,9 @@ def main_process():
     print("Plots saved to Health_AI/outputs/")
 
 if __name__ == "__main__":
-    main_process()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--user-id', help='Firebase UID for Firestore sync')
+    args = parser.parse_args()
+    
+    main_process(user_id=args.user_id)

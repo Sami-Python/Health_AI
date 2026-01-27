@@ -7,7 +7,9 @@ from google.cloud.firestore import FieldFilter
 
 # Initialize Firestore
 # It expects GOOGLE_APPLICATION_CREDENTIALS env var or explicit path
-cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "service_account_key.json")
+# Make path absolute relative to this file to support running from different CWD
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", os.path.join(BASE_DIR, "service_account_key.json"))
 
 if not firebase_admin._apps:
     if os.path.exists(cred_path):
@@ -698,3 +700,256 @@ def check_garmin_credentials_exist(user_id: str) -> bool:
         print(f"Firestore Error (check_garmin_credentials_exist): {e}")
         return False
 
+"""
+Firestore manager functions for Garmin daily metrics (per-user storage).
+Part of CSV migration (Phase 10.3 - Multi-User Data Isolation).
+"""
+
+from datetime import datetime, timedelta, date
+from typing import List, Dict, Optional
+import firestore_manager
+
+# Use shared Firestore client
+db = firestore_manager.db
+firestore = firestore_manager.firestore
+
+def save_daily_metric(user_id: str, date_str: str, metric_data: dict) -> bool:
+    """
+    Save or update a daily health metric to Firestore.
+    
+    Schema: garmin_metrics/{user_id}/daily_metrics/{date}
+    
+    Args:
+        user_id: Firebase UID
+        date_str: Date in YYYY-MM-DD format
+        metric_data: Dict containing daily metrics (HRV, stress, sleep, etc.)
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        # Ensure user_id is set
+        metric_data['user_id'] = user_id
+        metric_data['date'] = date_str
+        metric_data['updated_at'] = firestore.SERVER_TIMESTAMP
+        
+        # If this is first save, add created_at
+        doc_ref = db.collection('garmin_metrics').document(user_id)\
+                    .collection('daily_metrics').document(date_str)
+        
+        if not doc_ref.get().exists:
+            metric_data['created_at'] = firestore.SERVER_TIMESTAMP
+        
+        doc_ref.set(metric_data, merge=True)
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (save_daily_metric): {e}")
+        return False
+
+
+def get_user_daily_metrics(user_id: str, days: int = 30) -> List[Dict]:
+    """
+    Get last N days of metrics for a specific user.
+    
+    Args:
+        user_id: Firebase UID
+        days: Number of days to retrieve (default 30)
+    
+    Returns:
+        List of metric dictionaries, ordered by date (oldest first)
+    """
+    try:
+        end_date = date.today()
+        start_date = end_date - timedelta(days=days)
+        
+        docs = db.collection('garmin_metrics').document(user_id)\
+                 .collection('daily_metrics')\
+                 .where('date', '>=', start_date.isoformat())\
+                 .where('date', '<=', end_date.isoformat())\
+                 .order_by('date').stream()
+        
+        metrics = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            metrics.append(data)
+        
+        return metrics
+        
+    except Exception as e:
+        print(f"Firestore Error (get_user_daily_metrics): {e}")
+        return []
+
+
+def get_metrics_in_range(user_id: str, start_date: str, end_date: str) -> List[Dict]:
+    """
+    Get metrics within a specific date range.
+    
+    Args:
+        user_id: Firebase UID
+        start_date: Start date in YYYY-MM-DD format
+        end_date: End date in YYYY-MM-DD format
+    
+    Returns:
+        List of metric dictionaries within the specified range
+    """
+    try:
+        docs = db.collection('garmin_metrics').document(user_id)\
+                 .collection('daily_metrics')\
+                 .where('date', '>=', start_date)\
+                 .where('date', '<=', end_date)\
+                 .order_by('date').stream()
+        
+        metrics = []
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            metrics.append(data)
+        
+        return metrics
+        
+    except Exception as e:
+        print(f"Firestore Error (get_metrics_in_range): {e}")
+        return []
+
+
+def get_user_metrics_count(user_id: str) -> int:
+    """
+    Get total number of daily metric documents for a user.
+    
+    Args:
+        user_id: Firebase UID
+    
+    Returns:
+        Count of metric documents
+    """
+    try:
+        docs = db.collection('garmin_metrics').document(user_id)\
+                 .collection('daily_metrics').stream()
+        
+        count = sum(1 for _ in docs)
+        return count
+        
+    except Exception as e:
+        print(f"Firestore Error (get_user_metrics_count): {e}")
+        return 0
+
+
+def get_latest_metric(user_id: str) -> Optional[Dict]:
+    """
+    Get the most recent daily metric for a user.
+    
+    Args:
+        user_id: Firebase UID
+    
+    Returns:
+        Latest metric dictionary or None if no metrics found
+    """
+    try:
+        docs = db.collection('garmin_metrics').document(user_id)\
+                 .collection('daily_metrics')\
+                 .order_by('date', direction=firestore.Query.DESCENDING)\
+                 .limit(1).stream()
+        
+        for doc in docs:
+            data = doc.to_dict()
+            data['id'] = doc.id
+            return data
+        
+        return None
+        
+    except Exception as e:
+        print(f"Firestore Error (get_latest_metric): {e}")
+        return None
+
+
+def delete_user_metrics(user_id: str) -> bool:
+    """
+    Delete all metrics for a user (GDPR compliance).
+    
+    Args:
+        user_id: Firebase UID
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        # Get all metric documents
+        docs = db.collection('garmin_metrics').document(user_id)\
+                 .collection('daily_metrics').stream()
+        
+        # Batch delete
+        batch = db.batch()
+        count = 0
+        
+        for doc in docs:
+            batch.delete(doc.reference)
+            count += 1
+            
+            # Commit in batches of 400 (Firestore limit is 500)
+            if count >= 400:
+                batch.commit()
+                batch = db.batch()
+                count = 0
+        
+        # Final commit
+        if count > 0:
+            batch.commit()
+        
+        # Delete parent document
+        db.collection('garmin_metrics').document(user_id).delete()
+        
+        print(f"Deleted {count} metric documents for user {user_id}")
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (delete_user_metrics): {e}")
+        return False
+
+
+def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
+    """
+    Batch save multiple metrics efficiently.
+    
+    Args:
+        user_id: Firebase UID
+        metrics_list: List of metric dictionaries (each must have 'date' field)
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        batch = db.batch()
+        count = 0
+        
+        for metric in metrics_list:
+            date_str = metric.get('date')
+            if not date_str:
+                continue
+            
+            metric['user_id'] = user_id
+            metric['updated_at'] = firestore.SERVER_TIMESTAMP
+            
+            doc_ref = db.collection('garmin_metrics').document(user_id)\
+                        .collection('daily_metrics').document(date_str)
+            
+            batch.set(doc_ref, metric, merge=True)
+            count += 1
+            
+            # Commit in batches of 400
+            if count >= 400:
+                batch.commit()
+                batch = db.batch()
+                count = 0
+        
+        # Final commit
+        if count > 0:
+            batch.commit()
+        
+        print(f"Batch saved {len(metrics_list)} metrics for user {user_id}")
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (batch_save_metrics): {e}")
+        return False

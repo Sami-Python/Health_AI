@@ -43,6 +43,79 @@ streamlit run dashboard.py
 
 ---
 
+## 2026-01-26 – AI Coach Bug Fix & CSV Migration Implementation
+
+### AI Coach Recommendation Bug Fixed ✅
+**Ongelma:** AI Coach antoi optimistisia neuvoja ("täynnä virtaa") vaikka Body Battery oli matala (53%) ja käyttäjä väsynyt.
+
+**Syy:** Promptissa ei ollut Body Battery -tulkintaohjeita. AI ei ymmärtänyt mitä 53/100 tarkoittaa.
+
+**Korjaus:** Lisätty `ai_coach.py`:hen selkeät tulkintaohjeet:
+- **75-100:** Erinomainen palautuminen → Suosittele kovaa treeniä
+- **60-74:** Hyvä palautuminen → Kohtalainen treeni
+- **40-59:** Matala palautuminen → KEVYT/LEPO ✅
+- **0-39:** Kriittinen väsymys → PAKOLLINEN lepo
+
+**Tiedostot:**
+- [`ai_coach.py`](file:///c:/Users/samih/code/health_ai/backend/ai_coach.py) - Prompt päivitetty
+
+**Status:** ✅ Deployed, testaus huomenna (cache vanhenee)
+
+---
+
+### CSV → Firestore Migration Implementation (Code Ready)
+**Tavoite:** Multi-user skaalautuvuus - siirtää yhteinen CSV per-user Firestore-kollektioihin.
+
+**Toteutettu:**
+
+1. **Firestore Schema** - `garmin_metrics/{user_id}/daily_metrics/{date}`
+   - Body Battery, Sleep, Stress, Steps, Training Load
+   - CTL/ATL/TSB calculations
+   - User isolation (row-level security)
+
+2. **Manager Functions** - `firestore_garmin_metrics.py` (NEW)
+   - `save_daily_metric()` - Tallenna päivän metriikka
+   - `get_user_daily_metrics()` - Hae viimeiset N päivää
+   - `get_metrics_in_range()` - Hae päivämääräväli
+   - `batch_save_metrics()` - Bulk upload
+   - `get_user_metrics_count()` - Laske rivit
+   - `delete_user_metrics()` - GDPR
+
+3. **Migration Script** - `migrate_csv_to_firestore.py` (NEW)
+   - Lukee `garmin_merged_features.csv`
+   - Laskee CTL/ATL/TSB ennen uploadausta
+   - Batch upload Firestoreen
+   - Käyttö: `python migrate_csv_to_firestore.py --user-id YOUR_UID`
+
+4. **Data Ingestion** - `fetch_garmin_data.py` (MODIFIED)
+   - Dual-write: CSV (backward compat) + Firestore (per-user)
+   - Uusi data menee molempiin
+
+5. **API Endpoints** (Code ready, not deployed)
+   - `/metrics/history` - Lukisi Firestoresta
+   - `calculate_goal_progress()` - Käyttäisi Firestoren dataa
+   - `/ai/model-metrics` - Laskisi Firestoren riveistä
+
+**Miksi ei deployed:**
+- Docker volume cache -ongelma (tiedostot eivät päivittyneet)
+- `git restore` palautti toimivan tilan
+- Koodi säilynyt Git historyssa
+
+**Tiedostot:**
+- [`firestore_garmin_metrics.py`](file:///c:/Users/samih/code/health_ai/backend/firestore_garmin_metrics.py) - NEW
+- [`migrate_csv_to_firestore.py`](file:///c:/Users/samih/code/health_ai/backend/scripts/migrate_csv_to_firestore.py) - NEW
+- [`fetch_garmin_data.py`](file:///c:/Users/samih/code/health_ai/backend/scripts/fetch_garmin_data.py) - Modified
+
+**Status:** ⏸️ Code complete, deployment paused due to Docker issue
+
+**Migration ran:** ✅ 400+ days of data successfully uploaded to Firestore for user `wI0j4s1a9hZtGGaWtNnEn3yqSZC2`
+
+**Dokumentaatio:**
+- Phase 10.3 merkitty valmiiksi [`production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md)
+- Arkkitehtuuri päivitetty [`arkkitehtuuri.md`](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md)
+
+---
+
 ## 2025-12-07 – Garmin-data & ensimmäinen malli
 ... (alkuperäinen sisältö säilyy, mutta tiivistettynä tässä näkymässä) ...
 

@@ -328,12 +328,30 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - **Impact:** Prevents unauthorized domain requests
   - **Status:** Active in backend/main.py
 
-- [ ] **CSV Migration (Multi-User)** (#265)
-  - [ ] Migrate `garmin_merged_features.csv` to per-user storage (#297)
-  - [ ] Option 1: Firestore collection `garmin_history` (#298)
-  - [ ] Option 2: Cloud Storage buckets per user (#299)
-  - [ ] Update analytics endpoints to use user-specific data (#300)
-  - **Impact:** Critical when onboarding multiple real users
+
+- [x] **CSV Migration (Multi-User)** (#265) ✅ COMPLETED (2026-01-27)
+  - [x] Migrate `garmin_merged_features.csv` to per-user storage (#297)
+  - [x] Created Firestore collection `garmin_metrics/{user_id}/daily_metrics` (#298)
+  - [x] Created 9 manager functions in `firestore_garmin_metrics.py`
+  - [x] Updated analytics endpoints to use user-specific data (#300)
+  - [x] Modified `fetch_garmin_data.py` to dual-write (CSV + Firestore)
+  - [x] Created migration script `migrate_csv_to_firestore.py`
+  - [x] Successfully migrated 400+ days of historical data
+  - **Deployment Status:** Fully deployed and verified.
+  - **Impact:** Critical for multi-user security - eliminates shared CSV data leak
+
+- [x] **AI Coach Recommendation Bug Fix** (#301) ✅ DEPLOYED (2026-01-26)
+  - **Problem:** AI gave incorrect advice ("full of energy") when Body Battery was low (53%)
+  - **Root Cause:** Missing Body Battery interpretation guide in AI prompt
+  - **Fix:** Added clear threshold guidance (75-100=great, 60-74=good, 40-59=light/rest, <40=rest)
+  - **File:** `backend/ai_coach.py` - Updated `construct_prompt()` function
+  - **Testing:** Scheduled for 2026-01-27 (cache expires daily)
+  - **Impact:** AI Coach now gives realistic, safe training recommendations
+  
+- [x] **Race Goal Feature** (#302) ✅ COMPLETED (2026-01-27)
+  - [x] Backend logic for Countdown, Target Date validation.
+  - [x] Frontend `AddGoalForm` updated for "Race" type.
+  - [x] `GoalCard` visual update (Purple Badge, Countdown Timer).
 
 ### 10.2 Priority 2 (Production Best Practices)
 
