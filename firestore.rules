@@ -53,6 +53,17 @@ service cloud.firestore {
       }
     }
     
+
+    // Garmin Metrics: Sensitive health data, strictly owner access
+    match /garmin_metrics/{userId} {
+      allow read, write: if isOwner(userId);
+      
+      // Allow access to daily_metrics subcollection
+      match /daily_metrics/{metricId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
     // Feedback: Users can create feedback, admins can read all
     match /feedback/{feedbackId} {
       allow create: if isAuthenticated();

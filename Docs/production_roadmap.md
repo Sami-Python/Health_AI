@@ -315,14 +315,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ### 10.1 Priority 1 (Critical for Production)
 
-- [x] **Firestore Security Rules** (#263) ✅ COMPLETED (2026-01-25)
+- [x] **Firestore Security Rules** (#263) ✅ COMPLETED (2026-01-27)
   - [x] Create `firestore.rules` file (#289)
   - [x] Implement row-level security for `goals`, `workouts`, `plans` (#290)
   - [x] User profile protection (`users/{userId}`) (#291)
+  - [x] Secured `garmin_metrics` (health data) (#299)
   - [x] Admin-only access for feedback collection (#292)
-  - [x] Deploy rules to Firebase Console (#293)
+  - [ ] Deploy rules to Firebase Console (#293)
   - **Impact:** Defense-in-depth (prevents direct Firestore access bypass)
-  - **Status:** Deployed and active in production
+  - **Status:** Ready for deployment (requires `firebase deploy`)
 
 - [x] **CORS Restriction** (#264) ✅ COMPLETED (2026-01-25)
   - [x] Replace `allow_origins=["*"]` with specific domains (#294)
