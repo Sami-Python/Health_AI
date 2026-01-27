@@ -359,8 +359,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ### 10.2 Priority 2 (Production Best Practices)
 
-- [ ] **Error Message Sanitization** (#266)
-  - [ ] Generic error messages in production (no stack traces) (#301)
+- [x] **Error Message Sanitization** (#266) ✅ COMPLETED (2026-01-27)
+  - [x] Generic error messages in production (no stack traces) (#301)
+  - [x] Implemented global exception handler in `main.py` (Env check: `ENVIRONMENT=production`).
   - [ ] Implement structured logging (e.g., Google Cloud Logging) (#302)
   - [ ] Log security events (login, failed auth, rate limits) (#303)
 

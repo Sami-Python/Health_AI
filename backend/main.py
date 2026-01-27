@@ -88,6 +88,33 @@ app.add_middleware(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# Global Error Handling for Production
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """
+    Catch-all exception handler to prevent stack traces in production.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    
+    # 1. Log the error (In real prod, use structured logging)
+    print(f"CRITICAL ERROR ({env}): {exc}") # Print acts as basic logging for now
+    
+    # 2. Return generic message in production
+    if env == "production":
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error", "correlation_id": "contact-support"} 
+        )
+    
+    # 3. In development, re-raise to see stack trace in console/response (FastAPI default behavior)
+    # Actually, to get default FastAPI debug behavior we can return None or just return a response with details
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__}
+    )
+
 @app.get("/metrics/history", tags=["Analytics"])
 async def get_metrics_history(user: dict = Depends(verify_token)):
     """
