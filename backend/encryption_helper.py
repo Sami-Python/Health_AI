@@ -8,11 +8,12 @@ Without the key, encrypted data cannot be recovered.
 import os
 from cryptography.fernet import Fernet
 from typing import Optional
+import secret_loader
 
 
 def _get_cipher():
-    """Gets Fernet cipher instance from environment key."""
-    key = os.getenv("ENCRYPTION_KEY")
+    """Gets Fernet cipher instance from environment key or Secret Manager."""
+    key = secret_loader.get_secret("ENCRYPTION_KEY")
     
     if not key:
         raise ValueError(
