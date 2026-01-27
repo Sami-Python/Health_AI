@@ -332,11 +332,11 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **CSV Migration (Multi-User)** (#265) ✅ COMPLETED (2026-01-27)
   - [x] Migrate `garmin_merged_features.csv` to per-user storage (#297)
   - [x] Created Firestore collection `garmin_metrics/{user_id}/daily_metrics` (#298)
-  - [x] Created 9 manager functions in `firestore_garmin_metrics.py`
+  - [x] Created 9 manager functions in `firestore_garmin_metrics.py` (#316)
   - [x] Updated analytics endpoints to use user-specific data (#300)
-  - [x] Modified `fetch_garmin_data.py` to dual-write (CSV + Firestore)
-  - [x] Created migration script `migrate_csv_to_firestore.py`
-  - [x] Successfully migrated 400+ days of historical data
+  - [x] Modified `fetch_garmin_data.py` to dual-write (CSV + Firestore) (#317)
+  - [x] Created migration script `migrate_csv_to_firestore.py` (#318)
+  - [x] Successfully migrated 400+ days of historical data (#319)
   - **Deployment Status:** Fully deployed and verified.
   - **Impact:** Critical for multi-user security - eliminates shared CSV data leak
 
@@ -349,9 +349,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - **Impact:** AI Coach now gives realistic, safe training recommendations
   
 - [x] **Race Goal Feature** (#302) ✅ COMPLETED (2026-01-27)
-  - [x] Backend logic for Countdown, Target Date validation.
-  - [x] Frontend `AddGoalForm` updated for "Race" type.
-  - [x] `GoalCard` visual update (Purple Badge, Countdown Timer).
+  - [x] Backend logic for Countdown, Target Date validation. (#320)
+  - [x] Frontend `AddGoalForm` updated for "Race" type. (#321)
+  - [x] `GoalCard` visual update (Purple Badge, Countdown Timer). (#322)
 
 ### 10.2 Priority 2 (Production Best Practices)
 
