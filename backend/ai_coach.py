@@ -2,10 +2,11 @@ import os
 from google import genai
 from dotenv import load_dotenv
 import firestore_manager as db_manager
+import secret_loader
 
 # Load API Key
-load_dotenv()
-api_key = os.getenv("GEMINI_API_KEY")
+# Prioritizes Env Var, then Secret Manager
+api_key = secret_loader.get_secret("GEMINI_API_KEY")
 
 def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals="", rejected_context=None):
     rejection_text = ""

@@ -221,7 +221,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - ✅ CI/CD Pipeline updated to run tests on push
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
-- [ ] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240)
+- [x] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240) ✅ COMPLETED (2026-01-27)
+  - [x] Implemented `backend/secret_loader.py` (Hybrid: Env Var > Secret Manager > Local File).
+  - [x] Updated `firestore_manager.py`, `ai_coach.py`, `encryption_helper.py` to use loader.
+  - [x] Added `google-cloud-secret-manager` dependency.
 - [ ] **Environment Config:** Erota dev/staging/prod -ympäristöt (#241)
 - [ ] **CI/CD Expansion:** (#242)
   - [ ] Lisää automaattinen deployment (CD) (#243)

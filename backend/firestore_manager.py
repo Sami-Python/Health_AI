@@ -8,15 +8,26 @@ from google.cloud.firestore import FieldFilter
 # Initialize Firestore
 # It expects GOOGLE_APPLICATION_CREDENTIALS env var or explicit path
 # Make path absolute relative to this file to support running from different CWD
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", os.path.join(BASE_DIR, "service_account_key.json"))
+# Initialize Firestore
+# We use secret_loader to handle Environment variables, Secret Manager, or Local Files
+import secret_loader
+
+cred_source = secret_loader.get_service_account_dict()
 
 if not firebase_admin._apps:
-    if os.path.exists(cred_path):
-        cred = credentials.Certificate(cred_path)
+    if cred_source:
+        # initialize_app accepts both a Certificate object wrapped path/dict, 
+        # OR just the Certificate object.
+        cred = credentials.Certificate(cred_source)
         firebase_admin.initialize_app(cred)
     else:
-        print(f"Warning: Firestore credential file not found at {cred_path}. Firestore will fail.")
+        # Fallback: Rely on Google Application Default Credentials (explicitly set via gcloud auth)
+        # This often works on Cloud Run if the service account is attached directly
+        print("Warning: No specific credential found (env/file/secret). Trying Application Default Credentials...")
+        try:
+             firebase_admin.initialize_app()
+        except Exception as e:
+             print(f"Critical Error: Failed to initialize Firebase: {e}")
 
 db = firestore.client()
 
