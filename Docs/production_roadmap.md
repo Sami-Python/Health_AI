@@ -361,7 +361,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 - [x] **Error Message Sanitization** (#266) ✅ COMPLETED (2026-01-27)
   - [x] Generic error messages in production (no stack traces) (#301)
-  - [x] Implemented global exception handler in `main.py` (Env check: `ENVIRONMENT=production`).
+  - [x] Implemented global exception handler in `main.py` (Env check: `ENVIRONMENT=production`). (#326)
   - [ ] Implement structured logging (e.g., Google Cloud Logging) (#302)
   - [ ] Log security events (login, failed auth, rate limits) (#303)
 
