@@ -218,7 +218,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - ✅ **Testing Infrastructure:** (2026-01-23)
   - ✅ Backend Integration Tests (pytest) implemented
   - ✅ Frontend Unit Tests (Jest + React Testing Library) setup
-  - ✅ CI/CD Pipeline updated to run tests on push
+  - ✅ CI/CD Pipeline updated to run tests on push (Fixed & Verified 2026-01-28)
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
 - [x] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240) ✅ COMPLETED (2026-01-27)
@@ -231,7 +231,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Updated `deployment.md` docs (#328)
 - [ ] **CI/CD Expansion:** (#242)
   - [ ] Lisää automaattinen deployment (CD) (#243)
-  - [ ] **Docker image build ja push Container Registry:yn** (#244)
+  - [x] **Docker image build ja push Container Registry:yn** (#244) ✅ COMPLETED (2026-01-28)
 - [x] **Documentation Site:** MkDocs + GitHub Pages Setup (#245) ✅ COMPLETED (2026-01-28)
 
 ## 8. Admin Dashboard (Monitoring & Support) 🛠️
