@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/API/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>API Reference - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "API Reference";
+        var mkdocs_page_input_path = "API.md";
+        var mkdocs_page_url = "/health_ai/API/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">API Reference</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#authentication">🔐 Authentication</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-endpoints">📊 API Endpoints</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#goals-management">Goals Management</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-goals">GET /goals</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#post-goals">POST /goals</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#put-goalsgoal_id">PUT /goals/{goal_id}</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#delete-goalsgoal_id">DELETE /goals/{goal_id}</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#workouts">Workouts</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-workoutsnext">GET /workouts/next</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#post-workoutslog">POST /workouts/log</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-workoutshistory">GET /workouts/history</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ai-insights">AI &amp; Insights</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-aiinsight">GET /ai/insight</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#post-aigenerate-plan">POST /ai/generate-plan</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#analytics">Analytics</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-metricshistory">GET /metrics/history</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-readinesslatest">GET /readiness/latest</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#user-profile">User Profile</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-userprofile">GET /user/profile</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#post-userprofile">POST /user/profile</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-userexport">GET /user/export</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#delete-useraccount">DELETE /user/account</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#garmin-integration">Garmin Integration</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#post-garmincredentials">POST /garmin/credentials</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-garminstatus">GET /garmin/status</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#delete-garmincredentials">DELETE /garmin/credentials</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#system">System</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#post-systemrefresh">POST /system/refresh</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#post-feedback">POST /feedback</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-adminfeedback">GET /admin/feedback</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#get-health">GET /health</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#response-models">📦 Response Models</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-fields">Common Fields</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#error-responses">⚠️ Error Responses</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#400-bad-request">400 Bad Request</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#401-unauthorized">401 Unauthorized</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#404-not-found">404 Not Found</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#429-too-many-requests">429 Too Many Requests</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#500-internal-server-error">500 Internal Server Error</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#rate-limits">🔢 Rate Limits</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">🧪 Testing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#using-swagger-ui">Using Swagger UI</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-curl">Using cURL</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-postman">Using Postman</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">🔗 Related Documentation</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/API.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="health-ai-coach-api-documentation">📚 Health AI Coach API Documentation</h1>
+<p><strong>Base URL:</strong> <code>http://localhost:8001</code> (development)<br />
+<strong>API Docs:</strong> <code>http://localhost:8001/docs</code> (Swagger UI)<br />
+<strong>Version:</strong> 1.0.0</p>
+<hr />
+<h2 id="authentication">🔐 Authentication</h2>
+<p>All endpoints require Firebase Authentication (except <code>/health</code>).</p>
+<p><strong>Header:</strong></p>
+<pre><code>Authorization: Bearer &lt;firebase-id-token&gt;
+</code></pre>
+<p><strong>Getting a token</strong> (from frontend):</p>
+<pre><code class="language-typescript">const token = await user.getIdToken();
+</code></pre>
+<hr />
+<h2 id="api-endpoints">📊 API Endpoints</h2>
+<h3 id="goals-management">Goals Management</h3>
+<h4 id="get-goals"><code>GET /goals</code></h4>
+<p>Get all active goals for authenticated user.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: &quot;goal123&quot;,
+    &quot;activity_type&quot;: &quot;Running&quot;,
+    &quot;target_value&quot;: 30,
+    &quot;target_unit&quot;: &quot;km&quot;,
+    &quot;period_type&quot;: &quot;weekly&quot;,
+    &quot;status&quot;: &quot;ACTIVE&quot;,
+    &quot;progress&quot;: 65.5
+  }
+]
+</code></pre>
+<hr />
+<h4 id="post-goals"><code>POST /goals</code></h4>
+<p>Create a new training goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;target_value&quot;: 50,
+  &quot;target_unit&quot;: &quot;km&quot;,
+  &quot;period_type&quot;: &quot;weekly&quot;,
+  &quot;frequency&quot;: &quot;Weekly&quot;,
+  &quot;description&quot;: &quot;Marathon prep&quot;
+}
+</code></pre>
+<p><strong>Response:</strong> <code>201 Created</code></p>
+<hr />
+<h4 id="put-goalsgoal_id"><code>PUT /goals/{goal_id}</code></h4>
+<p>Update an existing goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min</p>
+<hr />
+<h4 id="delete-goalsgoal_id"><code>DELETE /goals/{goal_id}</code></h4>
+<p>Delete a goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong> <code>204 No Content</code></p>
+<hr />
+<h3 id="workouts">Workouts</h3>
+<h4 id="get-workoutsnext"><code>GET /workouts/next</code></h4>
+<p>Get the next recommended workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;duration_min&quot;: 45,
+  &quot;intensity&quot;: &quot;Easy&quot;,
+  &quot;description&quot;: &quot;Recovery run at Zone 2&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-workoutslog"><code>POST /workouts/log</code></h4>
+<p>Log a manual workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;date&quot;: &quot;2024-01-15&quot;,
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;duration_min&quot;: 60,
+  &quot;distance_km&quot;: 10.5,
+  &quot;notes&quot;: &quot;Felt great!&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-workoutshistory"><code>GET /workouts/history</code></h4>
+<p>Get workout history (last 30 days).</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min</p>
+<hr />
+<h3 id="ai-insights">AI &amp; Insights</h3>
+<h4 id="get-aiinsight"><code>GET /ai/insight</code></h4>
+<p>Get daily AI-powered training insight.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 10/min<br />
+<strong>Caching:</strong> 24 hours (per user)<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;insight&quot;: &quot;Your recovery is excellent today. Consider a moderate intensity run...&quot;,
+  &quot;cached&quot;: true,
+  &quot;generated_at&quot;: &quot;2024-01-15T08:00:00Z&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-aigenerate-plan"><code>POST /ai/generate-plan</code></h4>
+<p>Generate a weekly training plan with AI.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 5/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;user_context&quot;: &quot;Marathon training, Week 8&quot;
+}
+</code></pre>
+<hr />
+<h3 id="analytics">Analytics</h3>
+<h4 id="get-metricshistory"><code>GET /metrics/history</code></h4>
+<p>Get historical recovery metrics (last 90 days).</p>
+<p><strong>Tags:</strong> Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;date&quot;: &quot;2024-01-15&quot;,
+    &quot;sleep_score&quot;: 85,
+    &quot;body_battery&quot;: 78,
+    &quot;hrv&quot;: 65,
+    &quot;training_load&quot;: 120
+  }
+]
+</code></pre>
+<hr />
+<h4 id="get-readinesslatest"><code>GET /readiness/latest</code></h4>
+<p>Get latest readiness/body battery score.</p>
+<p><strong>Tags:</strong> Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;readiness&quot;: &quot;85&quot;,
+  &quot;date&quot;: &quot;2024-01-15&quot;
+}
+</code></pre>
+<hr />
+<h3 id="user-profile">User Profile</h3>
+<h4 id="get-userprofile"><code>GET /user/profile</code></h4>
+<p>Get user profile data.</p>
+<p><strong>Tags:</strong> User<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;age&quot;: 35,
+  &quot;weight&quot;: 75,
+  &quot;height&quot;: 180,
+  &quot;gender&quot;: &quot;male&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-userprofile"><code>POST /user/profile</code></h4>
+<p>Update user profile.</p>
+<p><strong>Tags:</strong> User<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;age&quot;: 35,
+  &quot;weight&quot;: 75,
+  &quot;height&quot;: 180
+}
+</code></pre>
+<hr />
+<h4 id="get-userexport"><code>GET /user/export</code></h4>
+<p>Export all user data (GDPR compliance).</p>
+<p><strong>Tags:</strong> User, GDPR<br />
+<strong>Rate Limit:</strong> 3/hour<br />
+<strong>Response:</strong> JSON file with all user data</p>
+<hr />
+<h4 id="delete-useraccount"><code>DELETE /user/account</code></h4>
+<p>Delete user account and all data (GDPR).</p>
+<p><strong>Tags:</strong> User, GDPR<br />
+<strong>Rate Limit:</strong> 1/hour<br />
+<strong>Response:</strong> <code>204 No Content</code></p>
+<hr />
+<h3 id="garmin-integration">Garmin Integration</h3>
+<h4 id="post-garmincredentials"><code>POST /garmin/credentials</code></h4>
+<p>Save encrypted Garmin credentials.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;username&quot;: &quot;your_username&quot;,
+  &quot;password&quot;: &quot;your_password&quot;
+}
+</code></pre>
+<p><strong>Security:</strong> Password encrypted with AES-256 before storage.</p>
+<hr />
+<h4 id="get-garminstatus"><code>GET /garmin/status</code></h4>
+<p>Check Garmin connection status.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;connected&quot;: true,
+  &quot;username&quot;: &quot;your_username&quot;
+}
+</code></pre>
+<hr />
+<h4 id="delete-garmincredentials"><code>DELETE /garmin/credentials</code></h4>
+<p>Disconnect Garmin account.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/hour</p>
+<hr />
+<h3 id="system">System</h3>
+<h4 id="post-systemrefresh"><code>POST /system/refresh</code></h4>
+<p>Trigger Garmin data fetch and model retraining.</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Rate Limit:</strong> 2/hour<br />
+<strong>Processing Time:</strong> 30-60 seconds<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;message&quot;: &quot;Data refreshed and model retrained.&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-feedback"><code>POST /feedback</code></h4>
+<p>Submit user feedback.</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Rate Limit:</strong> 10/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;category&quot;: &quot;bug&quot;,
+  &quot;message&quot;: &quot;Dashboard not loading&quot;,
+  &quot;severity&quot;: &quot;medium&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-adminfeedback"><code>GET /admin/feedback</code></h4>
+<p>Get all user feedback (Admin only).</p>
+<p><strong>Tags:</strong> System, Admin<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Parameters:</strong>
+- <code>status</code> (optional): Filter by status (NEW, READ, ARCHIVED)
+- <code>category</code> (optional): Filter by category
+- <code>limit</code> (optional): Max items (default 100)</p>
+<p><strong>Security:</strong> Requires Admin email (verified via <code>verify_admin</code>).</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;total&quot;: 5,
+  &quot;feedback&quot;: [
+    {
+      &quot;category&quot;: &quot;bug&quot;,
+      &quot;message&quot;: &quot;Dashboard error&quot;,
+      &quot;user_id&quot;: &quot;uid123&quot;,
+      &quot;timestamp&quot;: &quot;2024-01-15T12:00:00Z&quot;
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h4 id="get-health"><code>GET /health</code></h4>
+<p>Health check endpoint (no auth required).</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;healthy&quot;,
+  &quot;timestamp&quot;: &quot;2024-01-15T12:00:00Z&quot;
+}
+</code></pre>
+<hr />
+<h2 id="response-models">📦 Response Models</h2>
+<h3 id="common-fields">Common Fields</h3>
+<p>All resources include:
+- <code>created_at</code>: ISO 8601 timestamp
+- <code>updated_at</code>: ISO 8601 timestamp (if applicable)
+- <code>user_id</code>: Firebase UID (internal, not returned to client)</p>
+<hr />
+<h2 id="error-responses">⚠️ Error Responses</h2>
+<h3 id="400-bad-request">400 Bad Request</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid input: target_value must be positive&quot;
+}
+</code></pre>
+<h3 id="401-unauthorized">401 Unauthorized</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid authentication credentials&quot;
+}
+</code></pre>
+<h3 id="404-not-found">404 Not Found</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Goal not found&quot;
+}
+</code></pre>
+<h3 id="429-too-many-requests">429 Too Many Requests</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Rate limit exceeded. Try again in 60 seconds.&quot;
+}
+</code></pre>
+<h3 id="500-internal-server-error">500 Internal Server Error</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;An unexpected error occurred&quot;
+}
+</code></pre>
+<hr />
+<h2 id="rate-limits">🔢 Rate Limits</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard endpoints</td>
+<td>20 requests/minute</td>
+</tr>
+<tr>
+<td>AI endpoints</td>
+<td>10 requests/minute</td>
+</tr>
+<tr>
+<td>Data refresh</td>
+<td>2 requests/hour</td>
+</tr>
+<tr>
+<td>Garmin credentials</td>
+<td>5 requests/hour</td>
+</tr>
+<tr>
+<td>User data export</td>
+<td>3 requests/hour</td>
+</tr>
+<tr>
+<td>Account deletion</td>
+<td>1 request/hour</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="testing">🧪 Testing</h2>
+<h3 id="using-swagger-ui">Using Swagger UI</h3>
+<ol>
+<li>Navigate to <code>http://localhost:8001/docs</code></li>
+<li>Click "Authorize" button</li>
+<li>Enter your Firebase ID token: <code>Bearer &lt;token&gt;</code></li>
+<li>Try endpoints interactively</li>
+</ol>
+<h3 id="using-curl">Using cURL</h3>
+<pre><code class="language-bash"># Get goals
+curl -H &quot;Authorization: Bearer YOUR_TOKEN&quot; \
+     http://localhost:8001/goals
+
+# Create goal
+curl -X POST \
+  -H &quot;Authorization: Bearer YOUR_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;activity_type&quot;:&quot;Running&quot;,&quot;target_value&quot;:50,&quot;target_unit&quot;:&quot;km&quot;,&quot;period_type&quot;:&quot;weekly&quot;}' \
+  http://localhost:8001/goals
+</code></pre>
+<h3 id="using-postman">Using Postman</h3>
+<p>Import collection: <code>docs/postman_collection.json</code> (TODO)</p>
+<hr />
+<h2 id="related-documentation">🔗 Related Documentation</h2>
+<ul>
+<li><a href="../authentication/">Authentication</a> - Firebase Auth setup</li>
+<li><a href="../garmin_setup/">Garmin Setup</a> - Garmin credentials encryption</li>
+<li><a href="../arkkitehtuuri/">Architecture</a> - System architecture</li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-18<br />
+<strong>Maintained by:</strong> Health AI Team</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../arkkitehtuuri/" class="btn btn-neutral float-left" title="Architecture"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../deployment/" class="btn btn-neutral float-right" title="Environment & Deployment">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href="../arkkitehtuuri/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../deployment/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

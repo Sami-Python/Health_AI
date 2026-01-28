@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/arkkitehtuuri/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Architecture - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Architecture";
+        var mkdocs_page_input_path = "arkkitehtuuri.md";
+        var mkdocs_page_url = "/health_ai/arkkitehtuuri/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Architecture</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#jarjestelman-yleiskuva">Järjestelmän Yleiskuva</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#arkkitehtuurikaavio-mermaid">Arkkitehtuurikaavio (Mermaid)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#komponentit">Komponentit</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#0-public-landing-page-firebase-hosting">0. Public Landing Page (Firebase Hosting) 🌐</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#1-moderni-kayttoliittyma-nextjs">1. Moderni Käyttöliittymä (Next.js)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-firebase-platform-pilvipalvelut">2. Firebase Platform (Pilvipalvelut)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-backend-ai-core-alykkyys">3. Backend &amp; AI Core (Älykkyys)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-data-layer-tietovarasto">4. Data Layer (Tietovarasto)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#teknologia-stack">Teknologia-stack</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#katso-myos">📖 Katso myös</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Architecture</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/arkkitehtuuri.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="arkkitehtuuri-samis-ai-coach">Arkkitehtuuri - Sami's AI Coach</h1>
+<h2 id="jarjestelman-yleiskuva">Järjestelmän Yleiskuva</h2>
+<p>Sami's AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 2.5) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.</p>
+<h2 id="arkkitehtuurikaavio-mermaid">Arkkitehtuurikaavio (Mermaid)</h2>
+<pre><code class="language-mermaid">graph TD
+    %% Ulkoiset Palvelut
+    Garmin((Garmin Connect API))
+    Gemini((Gemini 2.5 AI))
+    User((Käyttäjä))
+
+    %% Firebase Platform
+    subgraph &quot;Firebase Platform&quot;
+        FirebaseAuth[Authentication]
+        Firestore[(&quot;Firestore DB&lt;br/&gt;Goals / Workouts / Plans&lt;br/&gt;Metrics / Insights&quot;)]
+    end
+
+    %% Data Ingestion Layer
+    subgraph &quot;Data Ingestion (Scripts)&quot;
+        Fetcher[fetch_garmin_data.py]
+        Processor[process_garmin_data.py]
+        CSV[(&quot;CSV Cache&lt;br/&gt;backend/data/&lt;br/&gt;(Garmin History)&quot;)]
+    end
+
+    %% Machine Learning Core
+    subgraph &quot;AI &amp; ML Core&quot;
+        XGB_Model[XGBoost Model]
+        Predictor[predict_readiness.py]
+        CoachLogic[ai_coach.py]
+    end
+
+    %% Moderni Käyttöliittymä
+    subgraph &quot;Modern UI (Next.js)&quot;
+        UI_Login[Login / Auth]
+        UI_Dashboard[Dashboard Page]
+        UI_Charts[&quot;Recharts&lt;br/&gt;(Recovery, Load, Performance)&quot;]
+        UI_AICard[AI Insight Card]
+    end
+
+    %% Backend Services
+    subgraph &quot;Backend API&quot;
+        FastAPI[FastAPI Service]
+    end
+
+    %% Data Flow - External
+    Garmin --&gt;|JSON| Fetcher
+    Fetcher --&gt;|Tallentaa (Legacy)| CSV
+
+    %% ML Flow
+    CSV -.-&gt;|Opetusdata (Legacy)| Processor
+    Firestore --&gt;|Metrics History| Processor
+    Processor --&gt;|Kouluttaa| XGB_Model
+
+    %% Backend Integration
+    FastAPI --&gt;|Lue Historia| Firestore
+    FastAPI --&gt;|Lue/Kirjoita| Firestore
+    FastAPI --&gt;|Trigger| Fetcher
+    FastAPI --&gt;|Generoi| CoachLogic
+
+    CoachLogic --&gt;|Prompt| Gemini
+
+    %% UI Integration
+    User --&gt;|Kirjautuu| UI_Login
+    UI_Login -.-&gt;|Token| FirebaseAuth
+
+    User --&gt;|Selaa| UI_Dashboard
+    UI_Dashboard --&gt;|Render| UI_Charts
+    UI_Dashboard --&gt;|Render| UI_AICard
+
+    UI_Dashboard &lt;--&gt;|&quot;API Calls (Bearer Token)&quot;| FastAPI
+    FastAPI -.-&gt;|Verify Token| FirebaseAuth
+
+    %% CSV is now just a cache layer for Garmin historical data
+    style CSV fill:#ffffcc,stroke:#ffaa00,stroke-dasharray: 2 2
+</code></pre>
+<p><img alt="alt text" src="image-1.png" /></p>
+<h2 id="komponentit">Komponentit</h2>
+<h3 id="0-public-landing-page-firebase-hosting">0. Public Landing Page (Firebase Hosting) 🌐</h3>
+<ul>
+<li><strong>Landing Site (<code>landing_page/</code>):</strong> Static HTML/CSS landing page for public marketing<ul>
+<li><strong>Hero Section:</strong> "Your Personal AI Coach" with CTAs</li>
+<li><strong>Features Showcase:</strong> 6 glassmorphic feature cards</li>
+<li><strong>ECG Visualization:</strong> Heart rate monitor display</li>
+<li><strong>AI Analytics:</strong> Machine learning brain visualization</li>
+<li><strong>Download CTAs:</strong> App Store &amp; Google Play badges</li>
+<li><strong>Phone Mockup:</strong> App preview with live metrics</li>
+</ul>
+</li>
+<li><strong>Deployment:</strong> Firebase Hosting (global CDN, optimized caching)<ul>
+<li><strong>Live URL:</strong> https://personal-ai-coach-92c39.web.app</li>
+<li><strong>Size:</strong> ~1.76 MB (HTML/CSS + 3 AI-generated images)</li>
+<li><strong>Design:</strong> Dark theme, glassmorphism, responsive (mobile/tablet/desktop)</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-moderni-kayttoliittyma-nextjs">1. Moderni Käyttöliittymä (Next.js)</h3>
+<ul>
+<li><strong>Kehitysportaali (<code>frontend/</code>):</strong> React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.<ul>
+<li><strong>Dashboard:</strong> Päänäkymä, joka kokoaa kaiken tiedon.</li>
+<li><strong>Goal Management:</strong> Tavoitteiden hallinta (CRUD) ja Race-tavoitteet.</li>
+<li><strong>Training Calendar:</strong> Interaktiivinen kalenteri (Drag &amp; Drop) treenien suunnitteluun.</li>
+<li><strong>Recharts / Sparklines:</strong> Interaktiiviset kuvaajat ja minitrendit korteissa.</li>
+<li><strong>AI Insight Card:</strong> Päivittäinen yhteenveto tekoälyltä.</li>
+<li><strong>Authentication:</strong> Firebase Auth -integraatio sisäänkirjautumiseen.</li>
+<li><strong>Toast Notifications:</strong> Reaaliaikaiset käyttäjäilmoitukset (react-hot-toast) - success/error feedback kaikille toiminnoille.</li>
+<li><strong>Admin Dashboard:</strong> Järjestelmän valvonta ja käyttäjäpalaute (suojattu Admin-oikeus).</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-firebase-platform-pilvipalvelut">2. Firebase Platform (Pilvipalvelut)</h3>
+<ul>
+<li><strong>Authentication:</strong> Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).<ul>
+<li><strong>Google Sign-In:</strong> Käyttäjät kirjautuvat Google-tileillään</li>
+<li><strong>Token-Based Security:</strong> Jokainen API-kutsu validoidaan Firebase ID Tokenilla</li>
+<li><strong>Multi-User Isolation:</strong> Data eristetään automaattisesti <code>user_id</code>-perusteella</li>
+<li>📖 <strong>Tekninen dokumentaatio:</strong> <a href="../authentication/">authentication.md</a></li>
+</ul>
+</li>
+<li><strong>Firestore:</strong> NoSQL-tietokanta, joka säilyttää:<ul>
+<li>Käyttäjän tavoitteet (<code>goals</code>)</li>
+<li>Treenit (<code>workouts</code>)</li>
+<li>AI-suunnitelmat (<code>plans</code>)</li>
+<li>Profiilit (<code>users</code>)</li>
+<li><strong>Garmin Credentials:</strong> Salatut Garmin-tunnukset (<code>users/{uid}/garmin_credentials/default</code>)<ul>
+<li><strong>Encryption:</strong> AES-256 (Fernet) - Salasanat luettavissa vain oikealla salausavaimella</li>
+<li><strong>Security:</strong> Admin ei näe salasanoja ilman <code>ENCRYPTION_KEY</code>-avainta</li>
+<li>📖 <strong>Setup Guide:</strong> <a href="../garmin_setup/">garmin_setup.md</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-backend-ai-core-alykkyys">3. Backend &amp; AI Core (Älykkyys)</h3>
+<ul>
+<li><strong>Backend API (<code>backend/</code>):</strong> FastAPI-palvelin (v1.0.0), joka orkestroi liikenteen UI:n, tietokantojen ja AI-mallien välillä.<ul>
+<li><strong>API Documentation:</strong> Interaktiivinen Swagger UI (<code>/docs</code>)</li>
+<li><strong>Rate Limiting:</strong> Endpoint-kohtaiset rajat (slowapi)</li>
+<li><strong>Authentication Middleware:</strong> Firebase token verification</li>
+<li>📖 <strong>API Reference:</strong> <a href="../API/">API.md</a></li>
+</ul>
+</li>
+<li><strong>Backend Scripts (<code>backend/scripts/</code>):</strong> Datan haku- ja käsittelyscriptit (ETL).<ul>
+<li><strong>Per-User Garmin Fetch:</strong> <code>fetch_garmin_data.py</code> tukee käyttäjäkohtaisia tunnuksia</li>
+</ul>
+</li>
+<li><strong>AI Coach (<code>backend/ai_coach.py</code>):</strong> Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin. <strong>Sisältää välimuistin (Firestore Cache)</strong> API-kiintiöiden hallintaan.</li>
+<li><strong>Machine Learning:</strong> XGBoost-mallit ennustavat tulevaa valmiustilaa (<code>readiness</code>) historian perusteella.</li>
+</ul>
+<h3 id="4-data-layer-tietovarasto">4. Data Layer (Tietovarasto)</h3>
+<ul>
+<li><strong>Firestore (Primary):</strong> Pääasiallinen tietokanta kaikelle käyttäjädatalle:<ul>
+<li>Goals, Workouts, Plans, User Profiles</li>
+<li><strong>NEW: Garmin Metrics</strong> (<code>garmin_metrics/{user_id}/daily_metrics/{date}</code>) - Per-user health data</li>
+<li>Daily summaries: Body Battery, sleep, stress, steps, training load</li>
+<li>Time-series: CTL/ATL/TSB calculations for training load management</li>
+</ul>
+</li>
+<li><strong>CSV Cache (<code>backend/data/</code>):</strong> Backward-compatible export for ML model training only<ul>
+<li>Used by <code>process_garmin_data.py</code> for local model training</li>
+<li>NOT used for production API endpoints (Firestore is source of truth)</li>
+</ul>
+</li>
+<li><strong>User Isolation:</strong> Kaikki Firestore-kyselyt filtteröidään automaattisesti <code>user_id</code>:llä (Row-Level Security).</li>
+</ul>
+<h2 id="teknologia-stack">Teknologia-stack</h2>
+<ul>
+<li><strong>Frontend:</strong> Next.js 14, React, Recharts, Tailwind CSS</li>
+<li><strong>Landing Page:</strong> Static HTML/CSS (Inter font, glassmorphism effects)</li>
+<li><strong>Backend:</strong> Python 3.12 (FastAPI), Pandas, XGBoost</li>
+<li><strong>AI/ML:</strong> Google Gemini 2.5 Flash, XGBoost Regressor</li>
+<li><strong>Data:</strong> Firestore (Primary), CSV (Garmin Cache)</li>
+<li><strong>Infra:</strong> Docker Compose, Firebase Hosting</li>
+</ul>
+<hr />
+<h2 id="katso-myos">📖 Katso myös</h2>
+<ul>
+<li><strong><a href="../API/">API.md</a></strong> - Complete API reference (25+ endpoints, examples, rate limits)</li>
+<li><strong><a href="../authentication/">authentication.md</a></strong> - Käyttäjien tunnistautuminen ja multi-user data isolation</li>
+<li><strong><a href="../garmin_setup/">garmin_setup.md</a></strong> - Garmin credentials encryption setup &amp; troubleshooting</li>
+<li><strong><a href="../production_roadmap/">production_roadmap.md</a></strong> - Skaalautuvuussuunnitelma (0 → 10,000 käyttäjää)</li>
+<li><strong><a href="../sami_memo/">sami_memo.md</a></strong> - Kehityspäiväkirja ja projektin historia</li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-24<br />
+<strong>API Version:</strong> 1.0.0<br />
+<strong>Architecture Status:</strong> Production Ready
+<strong>Landing Page:</strong> 🌐 https://personal-ai-coach-92c39.web.app</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../production_roadmap/" class="btn btn-neutral float-left" title="Roadmap"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../API/" class="btn btn-neutral float-right" title="API Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href="../production_roadmap/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../API/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

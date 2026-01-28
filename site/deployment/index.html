@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/deployment/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Environment & Deployment - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Environment \u0026 Deployment";
+        var mkdocs_page_input_path = "deployment.md";
+        var mkdocs_page_url = "/health_ai/deployment/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Environment & Deployment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#environments">Environments</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-development-local">1. Development (Local)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-production">2. Production</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-staging-optional">3. Staging (Optional)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-notes">Security Notes</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Environment & Deployment</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/deployment.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="deployment-guide">Deployment Guide 🚀</h1>
+<h2 id="environments">Environments</h2>
+<p>We support three standard environments:</p>
+<h3 id="1-development-local">1. Development (Local)</h3>
+<ul>
+<li><strong>Use Case:</strong> Local coding and testing.</li>
+<li><strong>Config:</strong> <code>APP_ENV=development</code></li>
+<li><strong>Features:</strong></li>
+<li>Debug Mode: ON (Detailed stack traces)</li>
+<li>CORS: Allows localhost</li>
+<li>Reload: Hot reloading enabled</li>
+<li><strong>Command:</strong>
+  <code>bash
+  docker-compose up</code></li>
+</ul>
+<h3 id="2-production">2. Production</h3>
+<ul>
+<li><strong>Use Case:</strong> Live public usage.</li>
+<li><strong>Config:</strong> <code>APP_ENV=production</code></li>
+<li><strong>Features:</strong></li>
+<li>Debug Mode: OFF (Generic error messages)</li>
+<li>CORS: Strict (requires <code>FRONTEND_URL</code>)</li>
+<li>Reload: Disabled</li>
+<li><strong>Command:</strong>
+  <code>bash
+  docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d</code></li>
+</ul>
+<h3 id="3-staging-optional">3. Staging (Optional)</h3>
+<ul>
+<li><strong>Config:</strong> <code>APP_ENV=staging</code></li>
+<li>Mimics production but might use a test database.</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<p>Settings are managed in <a href="../backend/config.py"><code>backend/config.py</code></a>.<br />
+Hierarchy is handled by Pydantic: <code>Settings</code> -&gt; <code>DevelopmentSettings</code> / <code>ProductionSettings</code>.</p>
+<h2 id="security-notes">Security Notes</h2>
+<ul>
+<li>Ensure <code>.env</code> is <strong>NEVER</strong> committed to Git.</li>
+<li>In production, set <code>FRONTEND_URL</code> to your actual domain (e.g., <code>https://healthai.app</code>).</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../API/" class="btn btn-neutral float-left" title="API Reference"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../garmin_setup/" class="btn btn-neutral float-right" title="Garmin Integration">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href="../API/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../garmin_setup/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

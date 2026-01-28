@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/garmin_setup/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Garmin Integration - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Garmin Integration";
+        var mkdocs_page_input_path = "garmin_setup.md";
+        var mkdocs_page_url = "/health_ai/garmin_setup/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Garmin Integration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#quick-setup-local-development">🚀 Quick Setup (Local Development)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-generate-encryption-key">Step 1: Generate Encryption Key</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-create-env-file">Step 2: Create .env File</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-restart-backend">Step 3: Restart Backend</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verify-setup">✅ Verify Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#test-encryption-helper">Test Encryption Helper</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#test-api-endpoint">Test API Endpoint</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-best-practices">🔒 Security Best Practices</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#do">DO ✅</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dont">DON'T ❌</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#production-deployment">🏭 Production Deployment</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#google-cloud-secret-manager-recommended">Google Cloud Secret Manager (Recommended)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">🧪 Testing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#unit-test-future-todo">Unit Test (Future TODO)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manual-test">Manual Test</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">🔍 Troubleshooting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#error-encryption_key-not-found">Error: "ENCRYPTION_KEY not found"</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#error-invalid-token-when-decrypting">Error: "Invalid token" when decrypting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-encryption-not-working">Docker: Encryption not working</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#firestore-schema">📊 Firestore Schema</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documentation">🔗 Related Documentation</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Garmin Integration</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/garmin_setup.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="garmin-credentials-setup-guide">🔐 Garmin Credentials Setup Guide</h1>
+<p>This guide explains how to configure encrypted per-user Garmin credentials.</p>
+<hr />
+<h2 id="quick-setup-local-development">🚀 Quick Setup (Local Development)</h2>
+<h3 id="step-1-generate-encryption-key">Step 1: Generate Encryption Key</h3>
+<p>Run this command in your backend directory:</p>
+<pre><code class="language-bash">cd backend
+../.venv/Scripts/python -c &quot;from cryptography.fernet import Fernet; print('ENCRYPTION_KEY=' + Fernet.generate_key().decode())&quot;
+</code></pre>
+<p><strong>Output example:</strong></p>
+<pre><code>ENCRYPTION_KEY=NT8pIUxrMs3lDaECrFkC262lg2tcMCFdAxihCE0gvJU=
+</code></pre>
+<h3 id="step-2-create-env-file">Step 2: Create <code>.env</code> File</h3>
+<p>Create <code>backend/.env</code> and add the generated key:</p>
+<pre><code class="language-bash"># backend/.env
+GOOGLE_APPLICATION_CREDENTIALS=service_account_key.json
+ENCRYPTION_KEY=NT8pIUxrMs3lDaECrFkC262lg2tcMCFdAxihCE0gvJU=
+</code></pre>
+<blockquote>
+<p>[!CAUTION]
+<strong>Never commit <code>.env</code> to Git!</strong> The <code>.gitignore</code> should already exclude it.</p>
+</blockquote>
+<h3 id="step-3-restart-backend">Step 3: Restart Backend</h3>
+<pre><code class="language-bash"># If using Docker
+docker-compose restart backend
+
+# If running manually
+cd backend
+../.venv/Scripts/activate
+uvicorn main:app --reload
+</code></pre>
+<hr />
+<h2 id="verify-setup">✅ Verify Setup</h2>
+<h3 id="test-encryption-helper">Test Encryption Helper</h3>
+<pre><code class="language-bash">cd backend
+../.venv/Scripts/python encryption_helper.py
+</code></pre>
+<p><strong>Expected output:</strong></p>
+<pre><code>🔐 Encryption Helper Self-Test
+
+Original:  test_garmin_password_123
+Encrypted: gAAAAABm...
+Decrypted: test_garmin_password_123
+
+✅ Encryption/Decryption working correctly!
+</code></pre>
+<h3 id="test-api-endpoint">Test API Endpoint</h3>
+<ol>
+<li><strong>Frontend:</strong> Navigate to Profile page (<code>/profile</code>)</li>
+<li><strong>Enter Garmin credentials:</strong></li>
+<li>Email: <code>your.garmin.email@example.com</code></li>
+<li>Password: <code>your_garmin_password</code></li>
+<li><strong>Click "Connect Garmin"</strong></li>
+</ol>
+<p><strong>Expected result:</strong>
+- ✅ Success message appears
+- Status shows "Connected" with your email
+- Check Firestore Console → <code>users/{uid}/garmin_credentials/default</code>
+  - <code>password_encrypted</code>: Should be unreadable blob (e.g., <code>gAAAAABm...</code>)</p>
+<hr />
+<h2 id="security-best-practices">🔒 Security Best Practices</h2>
+<h3 id="do">DO ✅</h3>
+<ol>
+<li><strong>Generate unique key per environment:</strong></li>
+<li>Development: One key</li>
+<li>
+<p>Production: Different key (stored in secret manager)</p>
+</li>
+<li>
+<p><strong>Store key securely:</strong></p>
+</li>
+<li>Local: <code>.env</code> file (gitignored)</li>
+<li>
+<p>Production: Google Secret Manager, AWS Secrets Manager, etc.</p>
+</li>
+<li>
+<p><strong>Backup encryption key:</strong></p>
+</li>
+<li>Without the key, encrypted data is <strong>permanently unrecoverable</strong></li>
+<li>Store key backup in secure password manager (1Password, Bitwarden)</li>
+</ol>
+<h3 id="dont">DON'T ❌</h3>
+<ol>
+<li>❌ Never commit <code>ENCRYPTION_KEY</code> to Git</li>
+<li>❌ Never share the key via email/Slack</li>
+<li>❌ Never change the key once data is encrypted (old data becomes unreadable)</li>
+</ol>
+<hr />
+<h2 id="production-deployment">🏭 Production Deployment</h2>
+<h3 id="google-cloud-secret-manager-recommended">Google Cloud Secret Manager (Recommended)</h3>
+<ol>
+<li>
+<p><strong>Create Secret:</strong>
+   <code>bash
+   echo -n "your-encryption-key-here" | gcloud secrets create encryption-key --data-file=-</code></p>
+</li>
+<li>
+<p><strong>Update Docker/Cloud Run:</strong>
+   ```yaml
+   environment:</p>
+<ul>
+<li>ENCRYPTION_KEY=${SECRET:encryption-key}
+   ```</li>
+</ul>
+</li>
+<li>
+<p><strong>Grant Access:</strong>
+   <code>bash
+   gcloud secrets add-iam-policy-binding encryption-key \
+     --member="serviceAccount:your-service-account@project.iam.gserviceaccount.com" \
+     --role="roles/secretmanager.secretAccessor"</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="testing">🧪 Testing</h2>
+<h3 id="unit-test-future-todo">Unit Test (Future TODO)</h3>
+<pre><code class="language-python"># tests/test_encryption.py
+def test_encryption_roundtrip():
+    from encryption_helper import encrypt_text, decrypt_text
+
+    original = &quot;my_password_123&quot;
+    encrypted = encrypt_text(original)
+    decrypted = decrypt_text(encrypted)
+
+    assert decrypted == original
+    assert encrypted != original  # Ensure it's actually encrypted
+</code></pre>
+<h3 id="manual-test">Manual Test</h3>
+<ol>
+<li><strong>Save credentials via UI</strong></li>
+<li><strong>Check Firestore:</strong></li>
+<li>Password should be encrypted (unreadable)</li>
+<li><strong>Fetch with API:</strong>
+   <code>bash
+   curl -H "Authorization: Bearer YOUR_TOKEN" \
+        http://localhost:8001/garmin/status</code>
+   <strong>Expected:</strong>
+   <code>json
+   {
+     "connected": true,
+     "username": "your.email@example.com"
+   }</code></li>
+</ol>
+<hr />
+<h2 id="troubleshooting">🔍 Troubleshooting</h2>
+<h3 id="error-encryption_key-not-found">Error: "ENCRYPTION_KEY not found"</h3>
+<p><strong>Cause:</strong> Environment variable not set</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-bash"># Check if .env exists
+ls backend/.env
+
+# If missing, create it with:
+echo &quot;ENCRYPTION_KEY=your-key-here&quot; &gt; backend/.env
+</code></pre>
+<h3 id="error-invalid-token-when-decrypting">Error: "Invalid token" when decrypting</h3>
+<p><strong>Cause:</strong> Encryption key changed after data was encrypted</p>
+<p><strong>Solution:</strong>
+- Restore original encryption key from backup
+- OR delete all encrypted credentials and re-enter</p>
+<h3 id="docker-encryption-not-working">Docker: Encryption not working</h3>
+<p><strong>Cause:</strong> <code>.env</code> not mounted to Docker container</p>
+<p><strong>Solution:</strong></p>
+<pre><code class="language-yaml"># docker-compose.yml
+services:
+  backend:
+    env_file:
+      - backend/.env
+</code></pre>
+<hr />
+<h2 id="firestore-schema">📊 Firestore Schema</h2>
+<pre><code>users/
+  {uid}/
+    garmin_credentials/
+      default/
+        - username: &quot;user@example.com&quot; (plaintext)
+        - password_encrypted: &quot;gAAAAABm...&quot; (AES-256 encrypted)
+        - created_at: timestamp
+        - last_updated: timestamp
+</code></pre>
+<hr />
+<h2 id="related-documentation">🔗 Related Documentation</h2>
+<ul>
+<li><a href="../authentication/">authentication.md</a> - Firebase Auth implementation</li>
+<li><a href="../backend/encryption_helper.py">Backend Encryption Helper</a></li>
+<li><a href="../backend/firestore_manager.py">Firestore Manager</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-18<br />
+<strong>Security Level:</strong> AES-256 Encryption (Fernet)</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../deployment/" class="btn btn-neutral float-left" title="Environment & Deployment"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../authentication/" class="btn btn-neutral float-right" title="Authentication">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href="../deployment/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../authentication/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,6 +1,9 @@
 import os
 import pytest
-from backend.config import get_settings, DevelopmentSettings, ProductionSettings
+try:
+    from backend.config import get_settings, DevelopmentSettings, ProductionSettings
+except ImportError:
+    from config import get_settings, DevelopmentSettings, ProductionSettings
 
 def test_development_config():
     """Verify development settings are loaded by default."""
