@@ -20,19 +20,23 @@ import os
 from datetime import date, timedelta, datetime
 import calendar
 
+from config import get_settings
+
+settings = get_settings()
+
 limiter = Limiter(key_func=get_remote_address)
 
 # Enhanced API metadata
 app = FastAPI(
     title="Health AI Coach API",
-    version="1.0.0",
+    version=settings.VERSION,
     description="""
 🏃 **Health AI Coach** - Your personal AI-powered endurance training assistant.
 
 ## Features
 
 * **Goal Management**: Create, track, and manage training goals
-* **AI Insights**: Get personalized training recommendations powered by Google Gemini
+* **AI Insights**: Get personalized training recommendations powered by Gemini
 * **Garmin Integration**: Securely connect and sync Garmin data
 * **Training Calendar**: Plan and track workouts
 * **Analytics**: Visualize recovery metrics and training load
@@ -46,17 +50,10 @@ Include the ID token in the `Authorization` header:
 Authorization: Bearer <your-firebase-id-token>
 ```
 
-## Rate Limiting
+## Environment
 
-- Most endpoints: 20 requests/minute
-- AI endpoints: 10 requests/minute  
-- Garmin credentials: 5 requests/hour
+Running in: **{settings.APP_ENV}** mode.
 
-## Data Security
-
-- All passwords encrypted with AES-256
-- Row-level security (user_id filtering)
-- GDPR compliant data export
 """,
     contact={
         "name": "Health AI Support",
@@ -67,19 +64,10 @@ Authorization: Bearer <your-firebase-id-token>
     },
 )
 
-# Configure CORS for Frontend
-# Production: Restrict to specific domains to prevent unauthorized access
-# Development: Allow localhost for local testing
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-allowed_origins = [
-    "http://localhost:3000",  # Local development
-    "http://localhost:8000",  # Backend local
-    FRONTEND_URL,  # Production frontend (set via env var)
-]
-
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,28 +76,26 @@ app.add_middleware(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Global Error Handling for Production
+# Global Error Handling
 from fastapi.responses import JSONResponse
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """
-    Catch-all exception handler to prevent stack traces in production.
+    Catch-all exception handler. Behavior depends on environment settings.
     """
-    env = os.getenv("ENVIRONMENT", "development").lower()
     
     # 1. Log the error (In real prod, use structured logging)
-    print(f"CRITICAL ERROR ({env}): {exc}") # Print acts as basic logging for now
+    print(f"CRITICAL ERROR ({settings.APP_ENV}): {exc}") 
     
     # 2. Return generic message in production
-    if env == "production":
+    if not settings.DEBUG:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error", "correlation_id": "contact-support"} 
         )
     
-    # 3. In development, re-raise to see stack trace in console/response (FastAPI default behavior)
-    # Actually, to get default FastAPI debug behavior we can return None or just return a response with details
+    # 3. In development (debug=True), return detailed error
     return JSONResponse(
         status_code=500,
         content={"detail": str(exc), "type": type(exc).__name__}
