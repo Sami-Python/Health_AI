@@ -1,0 +1,31 @@
+services:
+  backend:
+    # In production, we assume the image is pre-built or built from context without volume sync
+    # For a simple VPS setup (phase 1 scaling), we might still build on host, but we DON'T want hot-reload volume mount.
+    volumes:
+       # Only mount the data directory and persistent files (NOT the source code /app)
+       - ./Health_AI/data:/app/data
+       - ./backend/service_account_key.json:/app/service_account_key.json 
+       # Note: The main code volume (- ./backend:/app) from base docker-compose.yml needs to be overriden (empty) or we rely on the fact that we copy code in Dockerfile.
+       # However, docker-compose merges volumes. To un-mount, it's tricky. 
+       # Best practice: The base docker-compose should be minimal or production-ready, and docker-compose.override.yml adds dev volumes.
+       # But since we are adding prod config on top of existing dev config (legacy), we have to be careful.
+       # Strategy: We will rely on image build. If we mount over it, it overrides image content.
+       # Docker Compose doesn't support "removing" a volume in override easily.
+       # Workaround: valid production workflow often uses a completely separate file `docker-compose.prod.yml` that does NOT include the dev volumes.
+       # So this file is intended to be run AS A REPLACEMENT or with limited inheritance if base is widely clean.
+       
+       # Actually, let's look at the existing docker-compose.yml. It mounts `./backend:/app`.
+       # If we run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up`, the volumes merge.
+       # So the source code will still be mounted. This is "fine" for simple deployment but not "immutable".
+       # To fix this properly, we should rename `docker-compose.yml` to `docker-compose.dev.yml` and have a base `docker-compose.base.yml`.
+       # BUT, to disrupt less, we will just create a `docker-compose.prod.yml` that re-defines the service fully or we accept the mount for now (but turn off reload).
+
+    environment:
+      - APP_ENV=production
+      - DEBUG=false
+      # FRONTEND_URL should be set in .env or CI/CD
+      - FRONTEND_URL=${FRONTEND_URL} 
+
+    # Override command to run WITHOUT reload
+    command: uvicorn main:app --host 0.0.0.0 --port 8000

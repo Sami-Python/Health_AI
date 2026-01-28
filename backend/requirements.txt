@@ -17,4 +17,5 @@ seaborn
 google-genai
 cryptography>=41.0.0
 google-cloud-secret-manager
+pydantic-settings
 
