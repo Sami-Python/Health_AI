@@ -1,0 +1,40 @@
+site_name: Health AI Coach
+site_url: https://Samih.github.io/health_ai/
+repo_url: https://github.com/Samih/health_ai
+repo_name: Samih/health_ai
+
+theme:
+  name: material
+  palette: 
+    # Light mode
+    - scheme: default
+      primary: teal
+      accent: purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - scheme: slate
+      primary: teal
+      accent: lime
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.expand
+    - navigation.indexes
+    - content.code.copy
+
+docs_dir: Docs
+
+nav:
+  - Home: index.md
+  - Roadmap: production_roadmap.md
+  - Architecture: arkkitehtuuri.md
+  - API Reference: API.md
+  - Guides:
+    - Environment & Deployment: deployment.md
+    - Garmin Integration: garmin_setup.md
+    - Authentication: authentication.md
+  - Security Check: security_audit.md
+  - Internal Memos: sami_memo.md

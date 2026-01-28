@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/authentication/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Authentication - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Authentication";
+        var mkdocs_page_input_path = "authentication.md";
+        var mkdocs_page_url = "/health_ai/authentication/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Authentication</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#sisallysluettelo">📋 Sisällysluettelo</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#arkkitehtuuri">Arkkitehtuuri</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#komponentit">Komponentit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tietoturvaperiaatteet">Tietoturvaperiaatteet</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#token-flow-kirjautumisvirta">Token Flow (Kirjautumisvirta)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-kirjautuminen-login">1. Kirjautuminen (Login)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-api-kutsu-tokenilla">2. API-kutsu Tokenilla</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-backend-validointi">3. Backend Validointi</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#frontend-implementaatio">Frontend Implementaatio</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#authcontext-global-authentication-state">AuthContext (Global Authentication State)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#protected-routes">Protected Routes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#api-client-pattern">API Client Pattern</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#backend-implementaatio">Backend Implementaatio</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#middleware-arkkitehtuuri">Middleware Arkkitehtuuri</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#endpoint-pattern">Endpoint Pattern</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-user-data-isolation">Multi-User Data Isolation</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#firestore-schema">Firestore Schema</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#firestore-manager-pattern">Firestore Manager Pattern</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#owner-verification-deleteupdate">Owner Verification (DELETE/UPDATE)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testaus">Testaus</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#manuaalinen-testaus-local-development">Manuaalinen Testaus (Local Development)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#virheellinen-token-testaus">Virheellinen Token (Testaus)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#unit-test-pattern">Unit Test Pattern</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#yleiset-virheet">Yleiset Virheet</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#1-401-unauthorized-frontend">1. 401 Unauthorized (Frontend)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#2-authinvalid-api-key-frontend-login">2. auth/invalid-api-key (Frontend Login)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#3-authunauthorized-domain">3. auth/unauthorized-domain</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#4-cors-error-backend">4. CORS Error (Backend)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#5-backend-invalid-token-vaikka-frontend-toimii">5. Backend: Invalid token (vaikka frontend toimii)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#debug-checklist">Debug Checklist</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-best-practices">Security Best Practices</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#do-tee-nain">✅ DO (Tee näin)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dont-valta-naita">❌ DON'T (Vältä näitä)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#seuraavat-askeleet-multi-user-skaalauksessa">Seuraavat Askeleet (Multi-User Skaalauksessa)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#nykyinen-tilanne-mvp">Nykyinen Tilanne (MVP)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tulevaisuus-production-scaling">Tulevaisuus (Production Scaling)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#yhteenveto">Yhteenveto</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#teknologiat">Teknologiat</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#token-lifecycle">Token Lifecycle</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Guides</li>
+      <li class="breadcrumb-item active">Authentication</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/authentication.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="authentication-multi-user-implementation">🔐 Authentication &amp; Multi-User Implementation</h1>
+<p>Tämä dokumentti kuvaa Health AI -sovelluksen käyttäjien tunnistautumisen toteutuksen Firebase Authenticationin avulla.</p>
+<hr />
+<h2 id="sisallysluettelo">📋 Sisällysluettelo</h2>
+<ol>
+<li><a href="#arkkitehtuuri">Arkkitehtuuri</a></li>
+<li><a href="#token-flow-kirjautumisvirta">Token Flow (Kirjautumisvirta)</a></li>
+<li><a href="#frontend-implementaatio">Frontend Implementaatio</a></li>
+<li><a href="#backend-implementaatio">Backend Implementaatio</a></li>
+<li><a href="#multi-user-data-isolation">Multi-User Data Isolation</a></li>
+<li><a href="#testaus">Testaus</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<hr />
+<h2 id="arkkitehtuuri">Arkkitehtuuri</h2>
+<h3 id="komponentit">Komponentit</h3>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant User
+    participant Frontend as Next.js&lt;br/&gt;(Frontend)
+    participant FirebaseAuth as Firebase Auth
+    participant Backend as FastAPI&lt;br/&gt;(Backend)
+    participant Firestore as Firestore DB
+
+    User-&gt;&gt;Frontend: 1. Klikkaa &quot;Sign in with Google&quot;
+    Frontend-&gt;&gt;FirebaseAuth: 2. signInWithPopup()
+    FirebaseAuth--&gt;&gt;Frontend: 3. ID Token + User Object
+    Frontend-&gt;&gt;Frontend: 4. Tallenna user-state (AuthContext)
+
+    User-&gt;&gt;Frontend: 5. Pyydä dataa (esim. tavoitteet)
+    Frontend-&gt;&gt;Frontend: 6. user.getIdToken()
+    Frontend-&gt;&gt;Backend: 7. GET /goals&lt;br/&gt;Header: Bearer {token}
+    Backend-&gt;&gt;FirebaseAuth: 8. verify_id_token(token)
+    FirebaseAuth--&gt;&gt;Backend: 9. Decoded Token (uid, email)
+    Backend-&gt;&gt;Firestore: 10. WHERE user_id == uid
+    Firestore--&gt;&gt;Backend: 11. User's Goals
+    Backend--&gt;&gt;Frontend: 12. JSON Response
+    Frontend--&gt;&gt;User: 13. Näytä käyttöliittymässä
+</code></pre>
+<h3 id="tietoturvaperiaatteet">Tietoturvaperiaatteet</h3>
+<ol>
+<li><strong>Zero Trust:</strong> Jokainen API-kutsu validoidaan</li>
+<li><strong>Token-Based Auth:</strong> JWT-tokenin (Firebase ID Token) käyttö</li>
+<li><strong>Row-Level Security:</strong> Kaikki data filtteröidään <code>user_id</code>:llä</li>
+<li><strong>Short-Lived Tokens:</strong> Firebase ID Token vanhenee 1 tunnissa (automaattinen refresh)</li>
+</ol>
+<hr />
+<h2 id="token-flow-kirjautumisvirta">Token Flow (Kirjautumisvirta)</h2>
+<h3 id="1-kirjautuminen-login">1. Kirjautuminen (Login)</h3>
+<p><strong>Frontend (<a href="file:///c:/Users/samih/code/health_ai/frontend/src/context/AuthContext.tsx">AuthContext.tsx</a>):</strong></p>
+<pre><code class="language-typescript">const signInWithGoogle = async () =&gt; {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    // Firebase SDK hoitaa automaattisesti:
+    // - Token-tallennus (IndexedDB)
+    // - onAuthStateChanged-tapahtuman
+};
+</code></pre>
+<p><strong>Seuraavat askeleet:</strong>
+1. Firebase palauttaa <code>User</code>-objektin
+2. <code>onAuthStateChanged</code> listener päivittää React state:n
+3. Käyttäjä ohjataan <code>/dashboard</code> -sivulle</p>
+<hr />
+<h3 id="2-api-kutsu-tokenilla">2. API-kutsu Tokenilla</h3>
+<p><strong>Token Haku:</strong></p>
+<p>Jokaisessa API-kutsussa frontend hakee tuoreen tokenin:</p>
+<pre><code class="language-typescript">const token = await user.getIdToken();
+// getIdToken() refreshaa automaattisesti vanhan tokenin tarvittaessa
+</code></pre>
+<p><strong>HTTP Header:</strong></p>
+<pre><code class="language-typescript">const response = await fetch(`${API_BASE_URL}/goals`, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+});
+</code></pre>
+<blockquote>
+<p>[!IMPORTANT]
+<strong>Turvallisuus:</strong> Token lähetetään AINA headerissa, ei URL-parametrissa tai bodyssä.</p>
+</blockquote>
+<hr />
+<h3 id="3-backend-validointi">3. Backend Validointi</h3>
+<p><strong>Middleware (<a href="file:///c:/Users/samih/code/health_ai/backend/auth_middleware.py">auth_middleware.py</a>):</strong></p>
+<pre><code class="language-python">from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token  # {&quot;uid&quot;: &quot;...&quot;, &quot;email&quot;: &quot;...&quot;, ...}
+    except Exception:
+        raise HTTPException(status_code=401, detail=&quot;Invalid token&quot;)
+</code></pre>
+<p><strong>Endpoint-käyttö:</strong></p>
+<pre><code class="language-python">@app.get(&quot;/goals&quot;)
+def get_goals(user: dict = Depends(verify_token)):
+    uid = user['uid']  # Validoitu käyttäjä-ID
+    goals = db_manager.get_active_goals(uid)
+    return goals
+</code></pre>
+<hr />
+<h2 id="frontend-implementaatio">Frontend Implementaatio</h2>
+<h3 id="authcontext-global-authentication-state">AuthContext (Global Authentication State)</h3>
+<p><strong>Tiedosto:</strong> <a href="file:///c:/Users/samih/code/health_ai/frontend/src/context/AuthContext.tsx"><code>frontend/src/context/AuthContext.tsx</code></a></p>
+<p><strong>Vastuut:</strong>
+- Hallinnoi käyttäjän tila (<code>user: User | null</code>)
+- Tarjoaa kirjautumis- ja uloskirjautumisfunktiot
+- Kuuntelee Firebase auth-tilaa (<code>onAuthStateChanged</code>)</p>
+<p><strong>Käyttö komponenteissa:</strong></p>
+<pre><code class="language-typescript">import { useAuth } from &quot;@/context/AuthContext&quot;;
+
+export default function MyComponent() {
+    const { user, loading, signInWithGoogle, signOut } = useAuth();
+
+    if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+    if (!user) return &lt;button onClick={signInWithGoogle}&gt;Login&lt;/button&gt;;
+
+    return &lt;p&gt;Welcome, {user.displayName}!&lt;/p&gt;;
+}
+</code></pre>
+<hr />
+<h3 id="protected-routes">Protected Routes</h3>
+<p><strong>Pattern:</strong> Jokainen suojattu sivu tarkistaa autentikaation:</p>
+<pre><code class="language-typescript">// frontend/src/app/dashboard/page.tsx
+useEffect(() =&gt; {
+    if (!loading &amp;&amp; !user) {
+        router.push(&quot;/login&quot;);
+    }
+}, [user, loading, router]);
+</code></pre>
+<hr />
+<h3 id="api-client-pattern">API Client Pattern</h3>
+<p><strong>Esimerkki:</strong> Tavoitteiden hakeminen (<a href="file:///c:/Users/samih/code/health_ai/frontend/src/app/dashboard/page.tsx#L48-L51">dashboard/page.tsx:48-51</a>)</p>
+<pre><code class="language-typescript">const fetchGoals = async () =&gt; {
+    const token = await user.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/goals`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const goals = await res.json();
+    setGoals(goals);
+};
+</code></pre>
+<blockquote>
+<p>[!TIP]
+<strong>Best Practice:</strong> Älä tallenna tokenia state:en – hae aina <code>getIdToken()</code> juuri ennen API-kutsua välttääksesi vanhan tokenin käytön.</p>
+</blockquote>
+<hr />
+<h2 id="backend-implementaatio">Backend Implementaatio</h2>
+<h3 id="middleware-arkkitehtuuri">Middleware Arkkitehtuuri</h3>
+<p><strong>Flow:</strong></p>
+<ol>
+<li>FastAPI vastaanottaa HTTP-pyynnön</li>
+<li><code>HTTPBearer</code> poimii <code>Authorization: Bearer &lt;token&gt;</code> headerin</li>
+<li><code>verify_token()</code> validoi tokenin Firebase Admin SDK:lla</li>
+<li>Jos validi → <code>decoded_token</code> injektoidaan endpointiin</li>
+<li>Jos ei → <code>401 Unauthorized</code></li>
+</ol>
+<hr />
+<h3 id="endpoint-pattern">Endpoint Pattern</h3>
+<p><strong>Template:</strong></p>
+<pre><code class="language-python">@app.get(&quot;/protected-endpoint&quot;)
+@limiter.limit(&quot;10/minute&quot;)  # Rate limiting
+async def my_endpoint(
+    request: Request, 
+    user: dict = Depends(verify_token)
+):
+    uid = user['uid']
+    # Use uid to filter user-specific data
+    data = db_manager.get_user_data(uid)
+    return data
+</code></pre>
+<p><strong>Kaikki suojatut endpointit:</strong>
+- <code>/goals</code> (GET, POST, PUT, DELETE)
+- <code>/workouts/*</code>
+- <code>/plans/*</code>
+- <code>/profile</code>
+- <code>/ai/insight</code>
+- <code>/user/export</code></p>
+<hr />
+<h2 id="multi-user-data-isolation">Multi-User Data Isolation</h2>
+<h3 id="firestore-schema">Firestore Schema</h3>
+<p><strong>Rakenne:</strong></p>
+<pre><code>firestore/
+├── goals/
+│   ├── {goal_id}
+│   │   ├── user_id: &quot;abc123&quot;         ← PAKOLLINEN
+│   │   ├── activity_type: &quot;Running&quot;
+│   │   └── ...
+├── workouts/
+│   ├── {workout_id}
+│   │   ├── user_id: &quot;abc123&quot;         ← PAKOLLINEN
+│   │   └── ...
+├── users/
+│   ├── {uid}/
+│   │   ├── age: 35
+│   │   └── daily_insights/           ← Subcollection
+│   │       └── {date}/
+│   │           └── insight: &quot;...&quot;
+</code></pre>
+<hr />
+<h3 id="firestore-manager-pattern">Firestore Manager Pattern</h3>
+<p><strong>Tiedosto:</strong> <a href="file:///c:/Users/samih/code/health_ai/backend/firestore_manager.py"><code>backend/firestore_manager.py</code></a></p>
+<p><strong>Automaattinen Filtteröinti:</strong></p>
+<pre><code class="language-python">def get_active_goals(user_id: str):
+    docs = db.collection('goals')\
+             .where(filter=FieldFilter('user_id', '==', user_id))\
+             .where(filter=FieldFilter('status', '==', 'ACTIVE'))\
+             .stream()
+    # ... map results
+</code></pre>
+<blockquote>
+<p>[!CAUTION]
+<strong>Kriittinen Turvallisuussääntö:</strong> Älä KOSKAAN palauta dataa ilman <code>user_id</code>-filtteröintiä!</p>
+</blockquote>
+<p><strong>Esimerkki vaarallisesta koodista:</strong></p>
+<pre><code class="language-python"># ❌ VÄÄRIN - Palauttaa KAIKKIEN käyttäjien tavoitteet
+def get_all_goals():
+    return db.collection('goals').stream()
+
+# ✅ OIKEIN - Palauttaa vain käyttäjän omat
+def get_active_goals(user_id: str):
+    return db.collection('goals')\
+             .where('user_id', '==', user_id)\
+             .stream()
+</code></pre>
+<hr />
+<h3 id="owner-verification-deleteupdate">Owner Verification (DELETE/UPDATE)</h3>
+<p><strong>Pattern:</strong> Varmista omistajuus ennen muokkausta:</p>
+<pre><code class="language-python">def delete_goal(user_id: str, goal_id: str):
+    doc_ref = db.collection('goals').document(goal_id)
+    doc = doc_ref.get()
+
+    if not doc.exists:
+        return False
+
+    # ✅ Tarkista että pyytäjä on omistaja
+    if doc.to_dict().get('user_id') != user_id:
+        return False
+
+    doc_ref.delete()
+    return True
+</code></pre>
+<hr />
+<h2 id="testaus">Testaus</h2>
+<h3 id="manuaalinen-testaus-local-development">Manuaalinen Testaus (Local Development)</h3>
+<p><strong>1. Tarkista Token:</strong></p>
+<pre><code class="language-bash"># Browser Dev Tools → Application → IndexedDB → firebaseLocalStorage
+# Key: authUser - Contains user + token
+</code></pre>
+<p><strong>2. Testaa API Bearer Tokenilla:</strong></p>
+<pre><code class="language-bash"># 1. Hae token frontendista (Console):
+# await firebase.auth().currentUser.getIdToken()
+
+# 2. Testaa cURL:lla
+curl -H &quot;Authorization: Bearer YOUR_TOKEN_HERE&quot; \
+     http://localhost:8001/goals
+</code></pre>
+<p><strong>Odotettu tulos:</strong></p>
+<pre><code class="language-json">[{&quot;id&quot;: &quot;...&quot;, &quot;activity_type&quot;: &quot;Running&quot;, ...}]
+</code></pre>
+<hr />
+<h3 id="virheellinen-token-testaus">Virheellinen Token (Testaus)</h3>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer invalid_token_123&quot; \
+     http://localhost:8001/goals
+</code></pre>
+<p><strong>Odotettu tulos:</strong></p>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid authentication credentials&quot;
+}
+</code></pre>
+<p>HTTP Status: <code>401 Unauthorized</code></p>
+<hr />
+<h3 id="unit-test-pattern">Unit Test Pattern</h3>
+<p><strong>Tulevaisuuden TODO (Phase 7.3):</strong></p>
+<pre><code class="language-python"># tests/test_auth.py
+def test_endpoint_without_token():
+    response = client.get(&quot;/goals&quot;)
+    assert response.status_code == 401
+
+def test_endpoint_with_valid_token(mock_firebase):
+    mock_firebase.verify_id_token.return_value = {&quot;uid&quot;: &quot;test123&quot;}
+    response = client.get(&quot;/goals&quot;, headers={&quot;Authorization&quot;: &quot;Bearer valid&quot;})
+    assert response.status_code == 200
+</code></pre>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="yleiset-virheet">Yleiset Virheet</h3>
+<h4 id="1-401-unauthorized-frontend">1. <code>401 Unauthorized</code> (Frontend)</h4>
+<p><strong>Syyt:</strong>
+- Token vanhentunut (ei pitäisi tapahtua – <code>getIdToken()</code> refreshaa)
+- Väärä header-format
+- Firebase ei ole initalisoitu oikein</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-typescript">// ❌ Väärin
+headers: { 'Authorization': token }
+
+// ✅ Oikein
+headers: { 'Authorization': `Bearer ${token}` }
+</code></pre>
+<hr />
+<h4 id="2-authinvalid-api-key-frontend-login">2. <code>auth/invalid-api-key</code> (Frontend Login)</h4>
+<p><strong>Syy:</strong> Firebase config väärä (<code>.env.local</code>)</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-bash"># frontend/.env.local
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyC...correct_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=health-ai-....firebaseapp.com
+# ... tarkista Firebase Console
+</code></pre>
+<hr />
+<h4 id="3-authunauthorized-domain">3. <code>auth/unauthorized-domain</code></h4>
+<p><strong>Syy:</strong> Domain ei ole whitelistattu Firebase Consolessa</p>
+<p><strong>Ratkaisu:</strong></p>
+<ol>
+<li>Firebase Console → Authentication → Settings → Authorized Domains</li>
+<li>Lisää:</li>
+<li><code>localhost</code> (kehitys)</li>
+<li><code>192.168.1.XXX</code> (mobiilikehitys)</li>
+<li>Tuotanto-domain (production)</li>
+</ol>
+<hr />
+<h4 id="4-cors-error-backend">4. CORS Error (Backend)</h4>
+<p><strong>Syy:</strong> Frontend domain ei ole sallittu backendissä</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-python"># backend/main.py
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&quot;http://localhost:3000&quot;, &quot;http://192.168.1.130:3000&quot;],
+    allow_credentials=True,
+    allow_methods=[&quot;*&quot;],
+    allow_headers=[&quot;*&quot;],
+)
+</code></pre>
+<hr />
+<h4 id="5-backend-invalid-token-vaikka-frontend-toimii">5. Backend: <code>Invalid token</code> (vaikka frontend toimii)</h4>
+<p><strong>Debugging:</strong></p>
+<pre><code class="language-python"># backend/auth_middleware.py - Lisää loggaus
+try:
+    decoded_token = auth.verify_id_token(token)
+    print(f&quot;✅ Valid token for: {decoded_token.get('email')}&quot;)
+    return decoded_token
+except Exception as e:
+    print(f&quot;❌ Token error: {type(e).__name__} - {str(e)}&quot;)
+    raise HTTPException(...)
+</code></pre>
+<p><strong>Yleiset syyt:</strong>
+- Backend käyttää väärää <code>service_account_key.json</code>
+- Firebase Admin SDK ei ole initalisoitu
+- Token on eri Firebase-projektista</p>
+<hr />
+<h3 id="debug-checklist">Debug Checklist</h3>
+<p>Käy läpi tämä lista ongelmatilanteessa:</p>
+<ul>
+<li>[ ] Frontend: <code>user</code> objekti ei ole <code>null</code></li>
+<li>[ ] Frontend: <code>user.getIdToken()</code> palauttaa stringin</li>
+<li>[ ] Network Tab: <code>Authorization: Bearer abc...</code> header lähtee</li>
+<li>[ ] Backend: <code>service_account_key.json</code> on oikea tiedosto</li>
+<li>[ ] Backend: Port <code>8001</code> vastaa (Docker Up)</li>
+<li>[ ] Firebase Console: Käyttäjä näkyy Authentication → Users</li>
+</ul>
+<hr />
+<h2 id="security-best-practices">Security Best Practices</h2>
+<h3 id="do-tee-nain">✅ DO (Tee näin)</h3>
+<ol>
+<li><strong>Käytä HTTPS tuotannossa</strong> (pakollinen Firebase Authille)</li>
+<li><strong>Älä koskaan commitoi <code>.env</code> tai <code>service_account_key.json</code></strong> → <code>.gitignore</code></li>
+<li><strong>Käytä Rate Limiting</strong> → <code>@limiter.limit("10/minute")</code> (slowapi)</li>
+<li><strong>Validoi AINA user_id backendissä</strong> → Älä luota frontend-dataan</li>
+<li><strong>Käytä Bearer Token formatia</strong> → <code>Authorization: Bearer {token}</code></li>
+</ol>
+<h3 id="dont-valta-naita">❌ DON'T (Vältä näitä)</h3>
+<ol>
+<li>❌ Älä tallenna tokenia localStorage:en (Firebase SDK hoitaa turvallisesti)</li>
+<li>❌ Älä lähetä tokenia URL-parametrissa (<code>/api?token=abc</code>)</li>
+<li>❌ Älä jätä test-käyttäjiä tuotantoon (Firebase Console → Users)</li>
+<li>❌ Älä salli <code>allow_origins=["*"]</code> tuotannossa (tarkenna domainit)</li>
+<li>❌ Älä ohita <code>verify_token</code> middleware missään endpointissa</li>
+</ol>
+<hr />
+<h2 id="seuraavat-askeleet-multi-user-skaalauksessa">Seuraavat Askeleet (Multi-User Skaalauksessa)</h2>
+<h3 id="nykyinen-tilanne-mvp">Nykyinen Tilanne (MVP)</h3>
+<ul>
+<li>✅ Firebase Auth integroitu</li>
+<li>✅ Token-validointi toimii</li>
+<li>✅ Multi-user data isolation (Firestore)</li>
+<li>⚠️ <strong>Garmin-data:</strong> Yhteinen CSV kaikille (ei skaalaudu)</li>
+</ul>
+<h3 id="tulevaisuus-production-scaling">Tulevaisuus (Production Scaling)</h3>
+<ol>
+<li><strong>User Roles &amp; Admin Panel:</strong></li>
+<li>Lisää <code>role</code> kenttä Firestoreen (<code>admin</code>, <code>user</code>)</li>
+<li>
+<p>Admin-endpointit ainoastaan <code>role == admin</code> käyttäjille</p>
+</li>
+<li>
+<p><strong>OAuth2 Garmin Integration:</strong></p>
+</li>
+<li>Jokainen käyttäjä kirjautuu omaan Garmin-tiiliinsä</li>
+<li>
+<p>Token tallennetaan: <code>users/{uid}/garmin_credentials</code></p>
+</li>
+<li>
+<p><strong>Email/Password Login:</strong></p>
+</li>
+<li>
+<p>Google-kirjautumisen lisäksi: <code>signInWithEmailAndPassword</code></p>
+</li>
+<li>
+<p><strong>Session Management:</strong></p>
+</li>
+<li>Näytä aktiiviset sessiot käyttäjälle</li>
+<li>"Sign out all devices" -toiminto</li>
+</ol>
+<hr />
+<h2 id="yhteenveto">Yhteenveto</h2>
+<h3 id="teknologiat">Teknologiat</h3>
+<table>
+<thead>
+<tr>
+<th>Kerros</th>
+<th>Teknologia</th>
+<th>Rooli</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frontend</td>
+<td>Firebase JS SDK</td>
+<td>Token management, Login UI</td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>HTTP Bearer Token</td>
+<td>API Authentication</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Firebase Admin SDK</td>
+<td>Token verification</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Firestore</td>
+<td>Row-level security (<code>user_id</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="token-lifecycle">Token Lifecycle</h3>
+<ol>
+<li><strong>Login:</strong> Firebase Auth → ID Token (1h TTL)</li>
+<li><strong>API Call:</strong> Frontend → <code>getIdToken()</code> → Auto-refresh</li>
+<li><strong>Backend:</strong> Verify → Extract <code>uid</code> → Filter data</li>
+<li><strong>Logout:</strong> Firebase SDK → Clear tokens</li>
+</ol>
+<hr />
+<blockquote>
+<p>[!NOTE]
+Tämä dokumentti päivitetään kun uusia autentikointimekanismeja (email/password, admin roles) lisätään.</p>
+</blockquote>
+<p><strong>Viimeksi päivitetty:</strong> 2026-01-18<br />
+<strong>Dokumentaation kattavuus:</strong> Firebase Google Auth (MVP)<br />
+<strong>TODO:</strong> Garmin OAuth2, Email/Password, Admin Roles</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../garmin_setup/" class="btn btn-neutral float-left" title="Garmin Integration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../security_audit/" class="btn btn-neutral float-right" title="Security Check">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href="../garmin_setup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../security_audit/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

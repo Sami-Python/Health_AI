@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/production_roadmap/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Roadmap - Health AI Coach</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Roadmap";
+        var mkdocs_page_input_path = "production_roadmap.md";
+        var mkdocs_page_url = "/health_ai/production_roadmap/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Health AI Coach
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Roadmap</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-arkkitehtuuri-backend-cloud-native">1. Arkkitehtuuri &amp; Backend (Cloud Native)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-tietokanta-multi-user-scalability">2. Tietokanta (Multi-User &amp; Scalability)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-kayttajahallinta-tietoturva-security">3. Käyttäjähallinta &amp; Tietoturva (Security)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#34-garmin-per-user-credentials">3.4 Garmin Per-User Credentials 🔐</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#35-kayttajaprofiili-asetukset-user-management">3.5 Käyttäjäprofiili &amp; Asetukset (User Management) 👤</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-ai-mallit-llm-at-scale">4. AI &amp; Mallit (LLM at Scale)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-frontend-kayttokokemus">5. Frontend (Käyttökokemus)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#55-frontend-features-nextjs">5.5 Frontend Features (Next.js)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-devops-monitoring">6. DevOps &amp; Monitoring</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mvp-beta-ensimmaiset-askeleet">MVP -&gt; Beta (Ensimmäiset askeleet)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#phase-7-legacy-data-migration-quality-2026-01">📋 Phase 7: Legacy Data Migration &amp; Quality (2026-01)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#71-duckdb-firestore-complete-migration">7.1 DuckDB → Firestore Complete Migration 🎯</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#72-gdpr-compliance">7.2 GDPR Compliance 🔒</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#73-code-quality-testing">7.3 Code Quality &amp; Testing 🧪</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#74-infrastructure-prep-pre-deployment">7.4 Infrastructure Prep (Pre-deployment) 🚀</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-admin-dashboard-monitoring-support">8. Admin Dashboard (Monitoring &amp; Support) 🛠️</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-landing-page-public-presence">9. Landing Page &amp; Public Presence 🌐</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#91-landing-page-development">9.1 Landing Page Development</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#92-firebase-hosting-deployment">9.2 Firebase Hosting Deployment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#93-future-enhancements">9.3 Future Enhancements</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#phase-10-security-hardening">Phase 10: Security Hardening 🔒</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#101-priority-1-critical-for-production">10.1 Priority 1 (Critical for Production)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#102-priority-2-production-best-practices">10.2 Priority 2 (Production Best Practices)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#103-priority-3-future-enhancements">10.3 Priority 3 (Future Enhancements)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#security-audit-summary">Security Audit Summary</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sami_memo/">Internal Memos</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Health AI Coach</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Roadmap</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Samih/health_ai/edit/master/docs/production_roadmap.md">Edit on Samih/health_ai</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="health-ai-production-scaling-roadmap-0-10000-users">🚀 Health AI: Production Scaling Roadmap (0 -&gt; 10,000 Users)</h1>
+<p>Jos sovellus skaalattaisiin tuhansille käyttäjille, nykyinen "Local Single-User App" -arkkitehtuuri pitäisi muuttaa moderniksi pilviarkkitehtuuriksi.</p>
+<h2 id="1-arkkitehtuuri-backend-cloud-native">1. Arkkitehtuuri &amp; Backend (Cloud Native)</h2>
+<p>Nykyinen Streamlit + lokaali Python-skripti ei skaalaudu.
+- [x] <strong>Erota Frontend ja Backend:</strong> Siirry pois monoliittisesta Streamlit-rakenteesta. (Aloitettu: Home View hakee datan API:sta) (#105)
+- [x] <strong>Backend-valinta:</strong> Ota käyttöön FastAPI (Python) tai Node.js API:n rakentamiseen. (#106)
+- [x] <strong>API-suunnittelu:</strong> Määrittele REST tai GraphQL rajapinta Fronendin käyttöön. (#107)
+- [x] <strong>Kontitus:</strong> Paketoi sovellus Docker-konteiksi (Backend, Frontend). (#108)
+- [ ] <strong>Hosting:</strong> Valmistele Cloud Run tai yksinkertainen VPS (Docker Compose) ympäristö. (Riittää sadoille käyttäjille) (#109)
+- [ ] <strong>Secrets:</strong> Ota käyttöön Google Secret Manager API-avaimille ja service account -konfiguraatioille. (#110)</p>
+<h2 id="2-tietokanta-multi-user-scalability">2. Tietokanta (Multi-User &amp; Scalability)</h2>
+<p>Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
+- [x] <strong>DB-migraatio:</strong> Vaihda DuckDB -&gt; Firestore. (Workouts &amp; Goals &amp; Plans migrated) (#111)
+- [x] <strong>Data Isolation:</strong> Implementoi Row-Level Security (Firestore Rules) ja <code>user_id</code> jokaiseen dokumenttiin. (Toteutettu backendiin: <code>firestore_manager</code> filtteröi aina user_id:llä) (#112)
+- [x] <strong>Query Filtering:</strong> Päivitä <code>firestore_manager.py</code> käyttämään <code>where('user_id', '==', uid)</code> -filtteriä kaikissa hauissa. (#113)
+- [x] <strong>Legacy Migration (CRITICAL):</strong> Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia). (#114)
+- [x] <strong>Complete Migration (Phase 7):</strong> DuckDB poistettu. CSV käytössä vain Garmin-historialle. (#115)</p>
+<h2 id="3-kayttajahallinta-tietoturva-security">3. Käyttäjähallinta &amp; Tietoturva (Security)</h2>
+<ul>
+<li>[x] <strong>Autentikaatio:</strong> Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth). (#116)</li>
+<li>[x] <strong>Backend Middleware:</strong> Implementoi <code>main.py</code>:hyn middleware, joka verifioi Firebase ID -tokenin jokaisessa pyynnössä. (#117)</li>
+<li>[ ] <strong>Kirjautuminen:</strong> Toteuta Google/Apple/Email -kirjautumisvaihtoehdot. (#118)</li>
+<li>[x] <strong>Data Encryption (GDPR):</strong> Salattu tallennusratkaisu (AES-256) salasanoille ja arkaluonteisille tiedoille. (#119)</li>
+<li>[ ] <strong>Datan hallinta:</strong> Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi"). (#120)</li>
+</ul>
+<h2 id="34-garmin-per-user-credentials">3.4 Garmin Per-User Credentials 🔐</h2>
+<ul>
+<li>[x] <strong>Encryption Infrastructure:</strong> AES-256 salaus (Fernet) arkaluonteisten tietojen tallennukseen. (#121)<ul>
+<li>[x] <code>encryption_helper.py</code> - Keskitetty salaus/purku logiikka (#122)</li>
+<li>[x] Environment-based encryption key (<code>ENCRYPTION_KEY</code>) (#123)</li>
+</ul>
+</li>
+<li>[x] <strong>Firestore Schema:</strong> <code>users/{uid}/garmin_credentials/default</code> (#124)<ul>
+<li>[x] Username (plaintext, email) (#125)</li>
+<li>[x] Password (encrypted blob) (#126)</li>
+</ul>
+</li>
+<li>[x] <strong>Backend API:</strong> (#127)<ul>
+<li>[x] <code>POST /garmin/credentials</code> - Tallenna salatut tunnukset (#128)</li>
+<li>[x] <code>GET /garmin/status</code> - Tarkista yhteys (#129)</li>
+<li>[x] <code>DELETE /garmin/credentials</code> - Poista yhteys (#130)</li>
+</ul>
+</li>
+<li>[x] <strong>Frontend UI:</strong> (#131)<ul>
+<li>[x] <code>GarminCredentialsForm.tsx</code> - Tunnusten hallinta (#132)</li>
+<li>[x] Profile-sivu integraatio (#133)</li>
+<li>[x] Turvallisuusilmoitukset UI:ssa (#134)</li>
+</ul>
+</li>
+<li>[x] <strong>Data Fetch Integration:</strong> (#135)<ul>
+<li>[x] Päivitetty <code>fetch_garmin_data.py</code> käyttämään per-user -tunnuksia (#136)</li>
+<li>[x] Päivitetty <code>/system/refresh</code> endpoint tukemaan molempia tiloja (#137)</li>
+<li>[x] Backward compatibility: Legacy mode jos tunnuksia ei tallennettu (#138)</li>
+<li>[ ] Testaa multi-user datan haku (#139)</li>
+</ul>
+</li>
+<li>[x] <strong>Documentation:</strong> <code>garmin_setup.md</code> - Setup guide ja troubleshooting (#140)</li>
+</ul>
+<p><strong>Security:</strong> Salasanat ovat luettavissa vain oikealla salausavaimella. Admin ei näe salasanoja ilman avainta.</p>
+<p><strong>Completed:</strong> 2026-01-18</p>
+<p><strong>Verification:</strong>
+- ✅ Encryption tested: AES-256 roundtrip successful
+- ✅ Firestore verified: Password stored as encrypted blob (unreadable)
+- ✅ API endpoints working
+- ✅ Frontend UI functional
+- ✅ Data fetch integration complete
+- ✅ Backward compatibility maintained</p>
+<p><strong>Status:</strong> 🟢 <strong>PRODUCTION READY</strong> - Fully implemented and verified</p>
+<h2 id="35-kayttajaprofiili-asetukset-user-management">3.5 Käyttäjäprofiili &amp; Asetukset (User Management) 👤</h2>
+<ul>
+<li>[x] <strong>Hamburger Menu:</strong> Navigaatio oikeaan ylälaitaan (Settings, Profile, Logout). (Toteutettu: UserMenu.tsx) (#141)</li>
+<li>[x] <strong>Profile Page:</strong> (Toteutettu: <code>/profile</code> route + Firestore backend) (#142)<ul>
+<li>[x] Fysiologiset tiedot (Ikä, Paino, Pituus, Sukupuoli). (#143)</li>
+<li>[x] Sykerajat (Lepo- ja Maksimisyke). (#144)</li>
+</ul>
+</li>
+<li>[ ] <strong>Settings &amp; Account Control:</strong> (GDPR) (#145)<ul>
+<li>[x] Settings Page (<code>/settings</code>). (#146)</li>
+<li>[x] <strong>Delete Account:</strong> "Danger Zone" - napin takana. Poistaa käyttäjän ja datat. (#147)</li>
+<li>[x] <strong>Data Export:</strong> Lataa kaikki käyttäjän data JSON-muodossa. (#148)</li>
+<li>[x] <strong>Support / Feedback Form:</strong> Sisäinen lomake palautteen lähettämiseen (ei sähköpostia). Tallenna palautteet tietokantaan. (#149)</li>
+<li>[x] <strong>Data Export (GDPR):</strong> Backend endpoint <code>GET /user/export</code> joka palauttaa käyttäjän kaiken datan JSON-muodossa. (#150)</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-ai-mallit-llm-at-scale">4. AI &amp; Mallit (LLM at Scale)</h2>
+<p>Nykyinen suora Gemini API -kutsu voi hidastua tai maksaa liikaa.
+- [x] <strong>Mallien optimointi:</strong> Vaihda kevyempään malliin (esim. Gemini Flash) rutiinitehtävissä. (Käytetään Flashia + Caching) (#151)
+- [x] <strong>Välimuisti (Caching):</strong> Implementoi vastausten välimuisti samanlaisille kyselyille. (Toteutettu Daily Insightille) (#152)
+- [x] <strong>Rate Limiting:</strong> Rajoita API-kutsujen määrää per käyttäjä väärinkäytösten estämiseksi. (Toteutettu: slowapi) (#153)</p>
+<h2 id="5-frontend-kayttokokemus">5. Frontend (Käyttökokemus)</h2>
+<p>Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
+- [x] <strong>Moderni Web-kehys:</strong> Rakenna käyttöliittymä Reactilla, Vuella tai Next.js:llä. (Toteutettu Next.js) (#154)
+- [x] <strong>Next.js Setup:</strong> Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon <code>frontend</code>. (#155)
+- [x] <strong>Frontend Features:</strong> Training Calendar, Goals, Dashboard. (#156)
+- [x] <strong>Mobiilisovellus:</strong> Web App toimii nyt mobiilissa (Responsive Design + Network Config). (#157)
+- [ ] <strong>Natiivi Mobiili (Optionaalinen):</strong> Harkitse React Nativea tai Flutteria myöhemmin. (#158)
+- [ ] <strong>Flutter Setup:</strong> Alusta uusi Flutter-projekti kansioon <code>mobile</code>. (#159)
+- [ ] <strong>Notifikaatiot:</strong> Lisää Push-ilmoitukset (treenimuistutukset). (#160)
+- [ ] <strong>Integraatiot:</strong> Kytke Apple Health / Google Fit -rajapintoihin. (#161)</p>
+<h2 id="55-frontend-features-nextjs">5.5 Frontend Features (Next.js)</h2>
+<ul>
+<li>[x] <strong>Goal Management:</strong> Mahdollisuus lisätä, muokata ja poistaa tavoitteita. (CRUD valmis: Backend &amp; Frontend) (#162)</li>
+<li>[x] <strong>Visual Goal Cards:</strong> Progress bars ja Race -countdown. (#163)</li>
+<li>[x] <strong>Sparklines:</strong> Trenditiedot (Readiness, Load) dashboardilla. (#164)</li>
+<li>[x] <strong>Training Calendar:</strong> Visuaalinen kuukausinäkymä, treenien tarkastelu (Modal), tulevat suunnitelmat. (#165)<ul>
+<li>[x] <strong>Drag &amp; Drop:</strong> Siirrä treenejä päivältä toiselle. (#166)</li>
+<li>[x] <strong>Trash Can:</strong> Poista treenejä raahaamalla roskikseen. (#167)</li>
+<li>[x] <strong>Regeneration:</strong> AI luo korvaavan treenin poistetun tilalle. (#168)</li>
+</ul>
+</li>
+<li>[x] <strong>Workout Logging:</strong> Lomake treenien lisäämiseen. (#169)</li>
+<li>[x] <strong>UI Polish:</strong> Moderni ilme (Dark Mode, Tailwind Components). (#170)</li>
+</ul>
+<h2 id="6-devops-monitoring">6. DevOps &amp; Monitoring</h2>
+<ul>
+<li>[ ] <strong>CI/CD Pipeline:</strong> Laajenna GitHub Actions kattamaan automaattinen deploy (CD). (#171)</li>
+<li>[ ] <strong>Monitorointi:</strong> Asenna Grafana/Datadog suorituskyvyn seurantaan. (#172)</li>
+<li>[ ] <strong>Alerting:</strong> Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti). (#173)</li>
+<li>[ ] <strong>Developer Experience:</strong> Lisää <code>npm run fix</code> -komento (<code>package.json</code>), joka siivoaa lukot ja välimuistit automaattisesti. (#174)</li>
+</ul>
+<hr />
+<h3 id="mvp-beta-ensimmaiset-askeleet">MVP -&gt; Beta (Ensimmäiset askeleet)</h3>
+<ul>
+<li>[-] Konfiguroi PostgreSQL-tietokanta. (SKIP) (#175)</li>
+<li>[x] Luo uusi FastAPI-projekti Backuiksi. (#176)</li>
+<li>[x] Integroi Firebase Auth. (#177)</li>
+<li>[ ] Konfiguroi Secret Manager. (#178)</li>
+<li>[x] Päivitä Firestore-haut tukemaan multi-user -mallia (user_id). (#179)</li>
+<li>[x] Alusta Next.js -projekti frontendille (frontend). (Kansio olemassa, mutta projekti on tyhjä scaffold) (#180)</li>
+<li>[x] Implementoi Frontendin perusrakenne (Authentication, API Client). (#181)<ul>
+<li>[x] Asenna kirjastot (Firebase SDK, Lucide Icons). (#182)</li>
+<li>[x] Konfiguroi Firebase Client (frontend). (#183)</li>
+<li>[x] Toteuta Login-sivu ja Auth Context. (#184)</li>
+<li>[x] Testaa yhteys backendiin (Protected Route). (#185)</li>
+</ul>
+</li>
+<li>[x] Implementoi "Add Goal" -toiminnallisuus (Create). (#186)<ul>
+<li>[x] Refined UI: Date Picker, Unit Dropdown, Frequency Logic. (#187)</li>
+</ul>
+</li>
+<li>[ ] Tuo Dashboardin ulkoasu (CSS/Tailwind) samalle tasolle kuin Streamlit-versiossa. (#188)</li>
+<li>[ ] Alusta Flutter-projekti (mobile). (#189)<ul>
+<li>[x] Streamlit Migration: Feat Parity (History, Manual Logs, Refresh). (#190)</li>
+</ul>
+</li>
+<li>[x] <strong>Dashboard Visualizations (Phase 5)</strong>: (#191)<ul>
+<li>[x] Backend: Historical Metrics Endpoint (Pandas/CSV). (#192)</li>
+<li>[x] Implement Recovery Chart (Body Battery vs Sleep). (#193)</li>
+<li>[x] Implement Load Chart (Daily Load). (#194)</li>
+<li>[x] Implement Performance Chart (CTL/ATL/TSB) with Tooltips. (#195)</li>
+<li>[x] Integrate Charts into Dashboard Grid. (#196)</li>
+</ul>
+</li>
+<li>[x] <strong>AI Insights (Phase 6)</strong>: (#197)<ul>
+<li>[x] Backend: Add <code>GET /ai/insight</code> endpoint (Gemini API with Rate Limiting). (#198)</li>
+<li>[x] Backend: Create <code>generate_daily_insight</code> prompt. (#199)</li>
+<li>[x] Frontend: Implement <code>AIInsightCard</code> with gradient UI. (#200)</li>
+<li>[x] Dependency: Added <code>google-generativeai</code>. (#201)</li>
+</ul>
+</li>
+<li>[x] <strong>ML Accuracy &amp; Transparency</strong>: (#202)<ul>
+<li>[x] Backend endpoint <code>/ai/model-metrics</code>. (#203)</li>
+<li>[x] Frontend Modal (User Menu -&gt; ML Accuracy). (#204)</li>
+<li>[x] Visualization: Color coded R2 score (Green/Yellow/Red). (#205)</li>
+</ul>
+</li>
+<li>[x] <strong>Refactoring &amp; Fixes</strong>: (#206)<ul>
+<li>[x] <strong>Firestore</strong>: Fixed deprecated <code>where()</code> warnings using <code>FieldFilter</code>. (#207)</li>
+<li>[x] <strong>Data Integrity</strong>: Fixed <code>process_garmin_data.py</code> saving metrics to wrong path. (#208)</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="phase-7-legacy-data-migration-quality-2026-01">📋 Phase 7: Legacy Data Migration &amp; Quality (2026-01)</h2>
+<h3 id="71-duckdb-firestore-complete-migration">7.1 DuckDB → Firestore Complete Migration 🎯</h3>
+<blockquote>
+<p><strong>Status:</strong> ✅ COMPLETED (2026-01-17)
+<strong>Goal:</strong> Poista tekninen velka, yksinkertaista arkkitehtuuri</p>
+</blockquote>
+<ul>
+<li>[x] <strong>CSV/DuckDB Analyysi:</strong> Kartoitettu - DuckDB poistettu backendistä (#209)</li>
+<li>[x] <strong>Migraatio:</strong> Data siirretty Firestoreen (Workouts, Goals, Plans) (#210)</li>
+<li>[x] <strong>Backend Cleanup:</strong> <code>db_manager.py</code> (DuckDB) ei enää käytössä <code>main.py</code>:ssä (#211)</li>
+<li>[x] <strong>Refactor Endpoints:</strong> (#212)</li>
+<li>[x] <code>log_manual_workout</code>: Kirjoittaa suoraan Firestoreen (#213)</li>
+<li>[x] <code>get_goals</code>: Käyttää firestore_manageria (#214)</li>
+<li>[x] <code>get_next_workout</code>: Lukee Firestoresta (#215)</li>
+</ul>
+<p><strong>Huom:</strong> CSV käytössä vielä historiallisessa metriikkadatassa (<code>get_metrics_history</code>). Tämä on hyväksyttävä ratkaisu, koska Garmin-data tulee alunperin CSV-muodossa.
+- [ ] <strong>Update Tests:</strong> Päivitä testit vastaamaan uutta arkkitehtuuria (#216)</p>
+<h3 id="72-gdpr-compliance">7.2 GDPR Compliance 🔒</h3>
+<blockquote>
+<p><strong>Status:</strong> ✅ COMPLETED (2026-01-17)</p>
+</blockquote>
+<ul>
+<li>[x] <strong>Data Export Endpoint:</strong> (#217)</li>
+<li>[x] Backend: <code>GET /user/export</code> (palauttaa JSON-paketin) (#218)</li>
+<li>[x] Frontend: Nappi Settings-sivulle (#219)</li>
+<li>[x] <strong>Feedback Form:</strong> (#220)</li>
+<li>[x] Backend: <code>POST /feedback</code> endpoint (#221)</li>
+<li>[x] Frontend: Feedback-lomake Settings-sivulla (#222)</li>
+<li>[x] Firestore: <code>feedback</code> collection (#223)</li>
+</ul>
+<p><strong>Admin Endpoint:</strong> <code>GET /admin/feedback</code> - Hakee kaikki palautteet suodattimilla (status, category).</p>
+<hr />
+<h3 id="73-code-quality-testing">7.3 Code Quality &amp; Testing 🧪</h3>
+<blockquote>
+<p><strong>Status:</strong> ✅ COMPLETED (2026-01-23)</p>
+</blockquote>
+<ul>
+<li>[x] <strong>Error Handling:</strong> (#224)</li>
+<li>[x] Lisätty toast notifications frontendiin (react-hot-toast) (#225)</li>
+<li>[x] Dashboard: Data refresh, goal delete (#226)</li>
+<li>[x] AddGoalForm: Create/update goals (#227)</li>
+<li>[x] GarminCredentialsForm: Save/disconnect (#228)</li>
+<li>[x] Retry-logiikka epäonnistuneille API-kutsuille (<code>fetchWithRetry</code>) (#229)</li>
+<li>[x] <strong>Loading Skeletons:</strong> Parannettu latauskokemusta kaavioissa ja listoissa (#246)</li>
+<li>[x] <strong>Weekly Load:</strong> Garmin-aktiviteettien synkronointi Firestoreen (#247)</li>
+<li>[x] <strong>ML Diagnostics:</strong> Feature importance ja data-määrän visualisointi (#248)</li>
+<li>[x] <strong>Testing Expansion:</strong> (#230)</li>
+<li>[x] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)</li>
+<li>[x] Frontend: Alusta Jest + React Testing Library (#232)</li>
+<li>[x] Frontend: Testaa kriittiset komponentit (AddGoalForm, TrainingCalendar) (Aloitettu: AddGoalForm) (#233)</li>
+<li>[x] <strong>Documentation:</strong> (#234)</li>
+<li>[x] API.md luotu (kattava endpoint-dokumentaatio) (#235)</li>
+<li>[x] FastAPI metadata päivitetty (versio 1.0.0, kuvaus, tags) (#236)</li>
+<li>[x] README.md päivitetty (API-linkki, screenshot-placeholder) (#237)</li>
+<li>[x] Lisää yksityiskohtaiset docstringit kaikille endpointeille (#238)</li>
+<li>[x] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta (#239)</li>
+</ul>
+<p><strong>Completed Recently:</strong>
+- ✅ Toast notifications (react-hot-toast) (2026-01-18)
+- ✅ API.md documentation (2026-01-18)
+- ✅ FastAPI Swagger enhancements (2026-01-18)
+- ✅ README.md update (2026-01-18)
+- ✅ <strong>Model Training Reliability &amp; Path Fixes</strong> (2026-01-20)
+- ✅ Robust path resolution for Docker/Local environments in all scripts (#245)
+- ✅ Stable XGBoost training (n_jobs=1) for Windows/Docker consistency (#246)
+- ✅ <strong>Infrastructure: Python Upgrade to 3.12</strong> (2026-01-20)
+- ✅ Updated <code>Dockerfile</code> to <code>python:3.12-slim</code> for performance and support (#247)
+- ✅ Verified build and dependency compatibility (#248)
+- ✅ <strong>Frontend Resilience:</strong> <code>fetchWithRetry</code> integrated across all components (2026-01-21)
+- ✅ <strong>UI/UX Polish:</strong> Loading Skeletons for dashboard, charts, and modals (2026-01-21)
+- ✅ <strong>Testing Infrastructure:</strong> (2026-01-23)
+  - ✅ Backend Integration Tests (pytest) implemented
+  - ✅ Frontend Unit Tests (Jest + React Testing Library) setup
+  - ✅ CI/CD Pipeline updated to run tests on push</p>
+<h3 id="74-infrastructure-prep-pre-deployment">7.4 Infrastructure Prep (Pre-deployment) 🚀</h3>
+<ul>
+<li>[x] <strong>Secret Management:</strong> Siirrä <code>service_account_key.json</code> → Google Secret Manager / .env (#240) ✅ COMPLETED (2026-01-27)</li>
+<li>[x] Implemented <code>backend/secret_loader.py</code> (Hybrid: Env Var &gt; Secret Manager &gt; Local File). (#323)</li>
+<li>[x] Updated <code>firestore_manager.py</code>, <code>ai_coach.py</code>, <code>encryption_helper.py</code> to use loader. (#324)</li>
+<li>[x] Added <code>google-cloud-secret-manager</code> dependency. (#325)</li>
+<li>[x] <strong>Environment Config:</strong> Erota dev/staging/prod -ympäristöt (#241) ✅ COMPLETED (2026-01-28)</li>
+<li>[x] Implemented <code>backend/config.py</code> (Pydantic Settings: Dev/Prod/Staging) (#326)</li>
+<li>[x] Created <code>docker-compose.prod.yml</code> override (#327)</li>
+<li>[x] Updated <code>deployment.md</code> docs (#328)</li>
+<li>[ ] <strong>CI/CD Expansion:</strong> (#242)</li>
+<li>[ ] Lisää automaattinen deployment (CD) (#243)</li>
+<li>[ ] <strong>Docker image build ja push Container Registry:yn</strong> (#244)</li>
+</ul>
+<h2 id="8-admin-dashboard-monitoring-support">8. Admin Dashboard (Monitoring &amp; Support) 🛠️</h2>
+<ul>
+<li>[x] <strong>Admin Authentication:</strong> Implementoi "Admin Only" -tarkistus (esim. sallittujen sähköpostien lista backendissä). (#249)</li>
+<li>[x] <strong>Dashboard UI:</strong> Uusi sivu <code>/admin</code> (suojattu). (#250)</li>
+<li>[x] <strong>Feedback Management:</strong> Näytä käyttäjien palautteet (<code>GET /admin/feedback</code>). Mahdollisuus merkitä käsitellyksi. (#251)</li>
+<li>[ ] <strong>User Overview:</strong> Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa). (#252)</li>
+</ul>
+<h2 id="9-landing-page-public-presence">9. Landing Page &amp; Public Presence 🌐</h2>
+<h3 id="91-landing-page-development">9.1 Landing Page Development</h3>
+<blockquote>
+<p><strong>Status:</strong> ✅ COMPLETED (2026-01-24)</p>
+</blockquote>
+<ul>
+<li>[x] <strong>Landing Page Design &amp; Build</strong> (#253)</li>
+<li>[x] Modern dark theme with glassmorphism effects (#253)</li>
+<li>[x] Hero section with clear CTAs ("Get Started", "See Demo") (#254)</li>
+<li>[x] Features grid (6 cards: Dashboard, Calendar, AI Coach, Goals, Analytics, Garmin) (#255)</li>
+<li>[x] ECG visualization section (#256)</li>
+<li>[x] AI analytics showcase with brain visualization (#257)</li>
+<li>[x] "How It Works" 3-step process (#258)</li>
+<li>[x] Download section with App Store &amp; Google Play badges (#259)</li>
+<li>[x] Phone mockup with app preview (#260)</li>
+<li>
+<p>[x] Responsive design (desktop, tablet, mobile) (#261)</p>
+</li>
+<li>
+<p>[x] <strong>AI-Generated Assets</strong> (#254)</p>
+</li>
+<li>[x] ECG heart rate visualization (neon blue/purple gradients) (#262)</li>
+<li>[x] Hero fitness image (holographic health tracking) (#263)</li>
+<li>
+<p>[x] AI analytics brain visualization (#264)</p>
+</li>
+<li>
+<p>[x] <strong>Content &amp; SEO</strong> (#255)</p>
+</li>
+<li>[x] English translation for international reach (#265)</li>
+<li>[x] Marketing-focused copywriting (#266)</li>
+<li>[x] Accuracy claim: "80%+ - better than device services" (#267)</li>
+<li>[x] SEO metadata (title, description) (#268)</li>
+</ul>
+<h3 id="92-firebase-hosting-deployment">9.2 Firebase Hosting Deployment</h3>
+<blockquote>
+<p><strong>Status:</strong> ✅ COMPLETED (2026-01-24)</p>
+</blockquote>
+<ul>
+<li>[x] <strong>Firebase Setup</strong> (#256)</li>
+<li>[x] Firebase CLI installed (<code>npm install -g firebase-tools</code>) (#269)</li>
+<li>[x] Project configured: <code>personal-ai-coach-92c39</code> (#270)</li>
+<li>[x] <code>firebase.json</code> with optimized caching headers (#271)</li>
+<li>
+<p>[x] <code>.firebaseignore</code> configuration (#272)</p>
+</li>
+<li>
+<p>[x] <strong>Deployment</strong> (#257)</p>
+</li>
+<li>[x] Live URL: https://personal-ai-coach-92c39.web.app (#273)</li>
+<li>[x] 5 files deployed (HTML, CSS, 3 images) (#274)</li>
+<li>[x] Total size: ~1.76 MB (#275)</li>
+<li>
+<p>[x] Global CDN distribution (#276)</p>
+</li>
+<li>
+<p>[x] <strong>Documentation</strong> (#258)</p>
+</li>
+<li>[x] <code>landing_page/README.md</code> - Usage &amp; deployment guide (#277)</li>
+<li>[x] <code>landing_page/DEPLOYMENT.md</code> - Step-by-step instructions (#278)</li>
+</ul>
+<h3 id="93-future-enhancements">9.3 Future Enhancements</h3>
+<ul>
+<li>[ ] <strong>Custom Domain</strong> (#259)</li>
+<li>[ ] Register domain (e.g., healthai.app) (#279)</li>
+<li>
+<p>[ ] Configure DNS in Firebase Console (#280)</p>
+</li>
+<li>
+<p>[x] <strong>Analytics</strong> (#260)</p>
+</li>
+<li>[x] Firebase Analytics integration (#281)</li>
+<li>
+<p>[x] Page view and CTA click tracking (#282)</p>
+</li>
+<li>
+<p>[ ] <strong>SEO Optimization</strong> (#261)</p>
+</li>
+<li>[ ] <code>robots.txt</code> for search engine crawlers (#283)</li>
+<li>[ ] <code>sitemap.xml</code> for indexing (#284)</li>
+<li>
+<p>[ ] Open Graph meta tags for social sharing (#285)</p>
+</li>
+<li>
+<p>[ ] <strong>Performance</strong> (#262)</p>
+</li>
+<li>[ ] Convert images to WebP format (#286)</li>
+<li>[ ] Implement lazy loading (#287)</li>
+<li>[ ] Minify CSS/HTML (#288)</li>
+</ul>
+<p><strong>Completed:</strong> 2026-01-24<br />
+<strong>Verification:</strong> ✅ Site live and accessible globally<br />
+<strong>Status:</strong> 🟢 <strong>PRODUCTION READY</strong></p>
+<hr />
+<h2 id="phase-10-security-hardening">Phase 10: Security Hardening 🔒</h2>
+<blockquote>
+<p><strong>Status:</strong> 📋 PLANNED<br />
+<strong>Source:</strong> <a href="file:///c:/Users/samih/code/health_ai/Docs/security_audit.md">Security Audit Report</a> (2026-01-25)<br />
+<strong>Audit Grade:</strong> 🟢 A- (Production Ready)</p>
+</blockquote>
+<h3 id="101-priority-1-critical-for-production">10.1 Priority 1 (Critical for Production)</h3>
+<ul>
+<li>[x] <strong>Firestore Security Rules</strong> (#263) ✅ COMPLETED (2026-01-27)</li>
+<li>[x] Create <code>firestore.rules</code> file (#289)</li>
+<li>[x] Implement row-level security for <code>goals</code>, <code>workouts</code>, <code>plans</code> (#290)</li>
+<li>[x] User profile protection (<code>users/{userId}</code>) (#291)</li>
+<li>[x] Secured <code>garmin_metrics</code> (health data) (#299)</li>
+<li>[x] Admin-only access for feedback collection (#292)</li>
+<li>[ ] Deploy rules to Firebase Console (#293)</li>
+<li><strong>Impact:</strong> Defense-in-depth (prevents direct Firestore access bypass)</li>
+<li>
+<p><strong>Status:</strong> Ready for deployment (requires <code>firebase deploy</code>)</p>
+</li>
+<li>
+<p>[x] <strong>CORS Restriction</strong> (#264) ✅ COMPLETED (2026-01-25)</p>
+</li>
+<li>[x] Replace <code>allow_origins=["*"]</code> with specific domains (#294)</li>
+<li>[x] Production: Uses <code>FRONTEND_URL</code> environment variable (#295)</li>
+<li>[x] Development: <code>["http://localhost:3000"]</code> (#296)</li>
+<li><strong>Impact:</strong> Prevents unauthorized domain requests</li>
+<li>
+<p><strong>Status:</strong> Active in backend/main.py</p>
+</li>
+<li>
+<p>[x] <strong>CSV Migration (Multi-User)</strong> (#265) ✅ COMPLETED (2026-01-27)</p>
+</li>
+<li>[x] Migrate <code>garmin_merged_features.csv</code> to per-user storage (#297)</li>
+<li>[x] Created Firestore collection <code>garmin_metrics/{user_id}/daily_metrics</code> (#298)</li>
+<li>[x] Created 9 manager functions in <code>firestore_garmin_metrics.py</code> (#316)</li>
+<li>[x] Updated analytics endpoints to use user-specific data (#300)</li>
+<li>[x] Modified <code>fetch_garmin_data.py</code> to dual-write (CSV + Firestore) (#317)</li>
+<li>[x] Created migration script <code>migrate_csv_to_firestore.py</code> (#318)</li>
+<li>[x] Successfully migrated 400+ days of historical data (#319)</li>
+<li><strong>Deployment Status:</strong> Fully deployed and verified.</li>
+<li>
+<p><strong>Impact:</strong> Critical for multi-user security - eliminates shared CSV data leak</p>
+</li>
+<li>
+<p>[x] <strong>AI Coach Recommendation Bug Fix</strong> (#301) ✅ DEPLOYED (2026-01-26)</p>
+</li>
+<li><strong>Problem:</strong> AI gave incorrect advice ("full of energy") when Body Battery was low (53%)</li>
+<li><strong>Root Cause:</strong> Missing Body Battery interpretation guide in AI prompt</li>
+<li><strong>Fix:</strong> Added clear threshold guidance (75-100=great, 60-74=good, 40-59=light/rest, &lt;40=rest)</li>
+<li><strong>File:</strong> <code>backend/ai_coach.py</code> - Updated <code>construct_prompt()</code> function</li>
+<li><strong>Testing:</strong> Scheduled for 2026-01-27 (cache expires daily)</li>
+<li>
+<p><strong>Impact:</strong> AI Coach now gives realistic, safe training recommendations</p>
+</li>
+<li>
+<p>[x] <strong>Race Goal Feature</strong> (#302) ✅ COMPLETED (2026-01-27)</p>
+</li>
+<li>[x] Backend logic for Countdown, Target Date validation. (#320)</li>
+<li>[x] Frontend <code>AddGoalForm</code> updated for "Race" type. (#321)</li>
+<li>[x] <code>GoalCard</code> visual update (Purple Badge, Countdown Timer). (#322)</li>
+</ul>
+<h3 id="102-priority-2-production-best-practices">10.2 Priority 2 (Production Best Practices)</h3>
+<ul>
+<li>[x] <strong>Error Message Sanitization</strong> (#266) ✅ COMPLETED (2026-01-27)</li>
+<li>[x] Generic error messages in production (no stack traces) (#301)</li>
+<li>[x] Implemented global exception handler in <code>main.py</code> (Env check: <code>ENVIRONMENT=production</code>). (#326)</li>
+<li>[ ] Implement structured logging (e.g., Google Cloud Logging) (#302)</li>
+<li>
+<p>[ ] Log security events (login, failed auth, rate limits) (#303)</p>
+</li>
+<li>
+<p>[ ] <strong>Rate Limit Monitoring</strong> (#267)</p>
+</li>
+<li>[ ] Dashboard to track rate limit hits per user (#304)</li>
+<li>[ ] Alert system for suspicious activity (#305)</li>
+<li>[ ] Auto-block for repeated violations (#306)</li>
+</ul>
+<h3 id="103-priority-3-future-enhancements">10.3 Priority 3 (Future Enhancements)</h3>
+<ul>
+<li>[ ] <strong>Two-Factor Authentication (2FA)</strong> (#268)</li>
+<li>[ ] Optional 2FA for admin accounts (#307)</li>
+<li>[ ] SMS or authenticator app integration (#308)</li>
+<li>
+<p>[ ] Firebase Auth 2FA support (#309)</p>
+</li>
+<li>
+<p>[ ] <strong>Session Management</strong> (#269)</p>
+</li>
+<li>[ ] Force logout after 30 minutes of inactivity (#310)</li>
+<li>[ ] "Remember Me" option for trusted devices (#311)</li>
+<li>
+<p>[ ] Concurrent session limits (#312)</p>
+</li>
+<li>
+<p>[ ] <strong>Audit Trail</strong> (#270)</p>
+</li>
+<li>[ ] Log all admin actions (viewing feedback, user management) (#313)</li>
+<li>[ ] Immutable audit log in Firestore (#314)</li>
+<li>[ ] Admin dashboard for reviewing logs (#315)</li>
+</ul>
+<hr />
+<h3 id="security-audit-summary">Security Audit Summary</h3>
+<p><strong>Findings:</strong>
+- ✅ <strong>Authentication:</strong> Firebase Auth on all endpoints
+- ✅ <strong>Data Isolation:</strong> <code>user_id</code> filtering on ALL queries (21 functions verified)
+- ✅ <strong>Encryption:</strong> AES-256 for Garmin passwords
+- ✅ <strong>Rate Limiting:</strong> SlowAPI on all endpoints
+- ✅ <strong>GDPR:</strong> Data export + account deletion implemented</p>
+<p><strong>Minor Issues:</strong>
+- ⚠️ No Firestore Rules (server-side only)
+- ⚠️ CORS allows all origins
+- ⚠️ CSV data shared across users (legacy)</p>
+<p><strong>Overall:</strong> 🟢 <strong>Multi-user ready</strong> - Safe to deploy with current architecture.<br />
+<strong>Recommendation:</strong> Implement Priority 1 items before scaling to 100+ users.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../arkkitehtuuri/" class="btn btn-neutral float-right" title="Architecture">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
+        </span>
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../arkkitehtuuri/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
