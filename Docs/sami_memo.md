@@ -1204,3 +1204,24 @@ firebase deploy --only firestore:rules
 
 ---
 
+
+---
+## 2026-01-28: Infrastructure & Documentation Upgrade 🏗️
+
+**Goal:** Erottaa kehitys- ja tuotantoympäristöt, parantaa dokumentaatiota ja korjata CI/CD-putki.
+
+**Actions:**
+1.  **Environment Separation:**
+    *   Toteutettu `backend/config.py` käyttäen Pydantic Settings -kirjastoa.
+    *   Eritelty `DevelopmentSettings` (Debug=True, Localhost CORS) ja `ProductionSettings` (Debug=False, Strict CORS).
+    *   Luotu `docker-compose.prod.yml` tuotantoajoa varten (ei hot-reloadia, optimoitu).
+2.  **Documentation Site:**
+    *   Asennettu **MkDocs** + **Material Theme**.
+    *   Konfiguroitu GitHub Actions deployaamaan dokumentaatio automaattisesti `gh-pages` -haaralle.
+    *   Sivusto: https://Samih.github.io/health_ai/
+3.  **CI Fixes:**
+    *   Korjattu `pytest` ajuritestit GitHub Actionsissa (Import path issues).
+    *   Päivitetty `config.py` Pydantic V2 -yhteensopivaksi.
+
+**Status:** ✅ Config system toimii, Dokumentaatio on livenä, CI Testit menevät läpi, Docker Build & Push konfiguroitu.
+**Next:** Deployment (VPS/Cloud Run).

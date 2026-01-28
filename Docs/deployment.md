@@ -1,5 +1,7 @@
 # Deployment Guide 🚀
 
+> **Note:** For the full, searchable documentation, visit our [Documentation Site](https://Samih.github.io/health_ai/).
+
 ## Environments
 
 We support three standard environments:

@@ -144,6 +144,21 @@ graph TD
 *   **User Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
 
 
+
+### 5. Configuration & DevOps (Infrastructure)
+*   **Environment Configuration:** `backend/config.py` (Pydantic Settings)
+    *   **Development:** `APP_ENV=development` (Debug ON, Loose CORS)
+    *   **Production:** `APP_ENV=production` (Debug OFF, Strict CORS)
+    *   **Validation:** Type-safe configuration loading from `.env` or environment variables
+*   **Documentation Site:** MkDocs + Material Theme
+    *   **Source:** `Docs/` directory
+    *   **Auto-Deployment:** GitHub Actions builds and deploys to GitHub Pages on push
+    *   **URL:** https://Samih.github.io/health_ai/
+*   **CI/CD Pipeline:** GitHub Actions
+    *   **Tests:** Runs backend (pytest) and frontend (jest) tests on push
+    *   **Linting:** Ruff (Python)
+    *   **Docs:** Auto-deploy documentation
+
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
 *   **Landing Page:** Static HTML/CSS (Inter font, glassmorphism effects)
@@ -164,7 +179,7 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-01-24  
+**Last Updated:** 2026-01-28  
 **API Version:** 1.0.0  
 **Architecture Status:** Production Ready
 **Landing Page:** 🌐 https://personal-ai-coach-92c39.web.app
