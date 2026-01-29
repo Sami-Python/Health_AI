@@ -32,25 +32,58 @@ def main_process(user_id: str = None):
     # Let's check environment or explicit paths.
     
     def get_path(rel_path):
-        # 1. Try relative to CWD
-        if os.path.exists(rel_path):
-            return rel_path
-        # 2. Try relative to project root
-        p_root_path = os.path.join(project_root, rel_path)
-        if os.path.exists(p_root_path):
-            return p_root_path
-        # 3. Docker specific mapping: /Health_AI
-        if "Health_AI" in rel_path:
-            docker_path = os.path.join("/", rel_path)
-            if os.path.exists(docker_path):
-                return docker_path
-        return rel_path
+        # 1. Base Strategy
+        # If rel_path starts with Health_AI/, we try to map it.
+        # But now rel_path might be "Health_AI/data/{uid}/garmin..."
+        
+        # Split base from potential user-specific part is tricky.
+        # Instead, we define base directories.
+        
+        base_data_path = "Health_AI/data"
+        base_models_path = "Health_AI/models"
+        base_outputs_path = "Health_AI/outputs"
+        
+        # Docker overrides
+        if os.path.exists("/Health_AI"):
+            prefix = "/Health_AI"
+        elif os.path.exists(os.path.join(project_root, "Health_AI")):
+            prefix = os.path.join(project_root, "Health_AI")
+        else:
+            prefix = "Health_AI" # Fallback relative
+            
+        # If user_id is provided, inject it into the path structure
+        # Structure: {prefix}/{subdir}/{user_id}/{filename}
+        
+        # Heuristic: Detect if we are looking for data, models, or outputs
+        if "data/" in rel_path:
+            subdir = "data"
+            filename = rel_path.split("data/")[-1]
+        elif "models/" in rel_path:
+            subdir = "models"
+            filename = rel_path.split("models/")[-1]
+        elif "outputs/" in rel_path:
+            subdir = "outputs"
+            filename = rel_path.split("outputs/")[-1]
+        else:
+            return os.path.join(prefix, rel_path) # Fallback for other files
+            
+        # Construct path with user_id if present
+        if user_id:
+             # Check if filename already starts with user_id (unlikely but safe)
+             final_dir = os.path.join(prefix, subdir, user_id)
+        else:
+             final_dir = os.path.join(prefix, subdir)
+             
+        # Ensure directories exist (lazy creation)
+        os.makedirs(final_dir, exist_ok=True)
+            
+        return os.path.join(final_dir, filename)
 
     print("Loading data...")
     try:
-        df_summary = pd.read_csv(get_path("Health_AI/data/garmin_daily_summary.csv"))
-        df_sleep = pd.read_csv(get_path("Health_AI/data/garmin_sleep_data.csv"))
-        df_activities = pd.read_csv(get_path("Health_AI/data/garmin_activities.csv"))
+        df_summary = pd.read_csv(get_path("data/garmin_daily_summary.csv"))
+        df_sleep = pd.read_csv(get_path("data/garmin_sleep_data.csv"))
+        df_activities = pd.read_csv(get_path("data/garmin_activities.csv"))
     except FileNotFoundError as e:
         print(f"Error: Missing data file. {e}")
         return
@@ -102,7 +135,7 @@ def main_process(user_id: str = None):
 
     df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
     
-    features_csv = get_path("Health_AI/data/garmin_merged_features.csv")
+    features_csv = get_path("data/garmin_merged_features.csv")
     df_merged.to_csv(features_csv, index=False)
     print(f"Saved merged features to {features_csv}")
     
@@ -157,8 +190,9 @@ def main_process(user_id: str = None):
             import traceback
             traceback.print_exc()
 
-    # --- MLflow Setup ---
     # Set tracking URI to local SQLite database in backend/data
+    # For MLflow logic, we keep a shared DB for experiment tracking, 
+    # OR we could isolate. Shared DB is usually fine for experiments if we tag run with user_id.
     mlflow_db_path = os.path.join(backend_dir, "data", "mlflow.db")
     os.makedirs(os.path.dirname(mlflow_db_path), exist_ok=True)
     mlflow.set_tracking_uri(f"sqlite:///{mlflow_db_path}")
@@ -200,7 +234,8 @@ def main_process(user_id: str = None):
             "subsample": param_grid['subsample'][0],
             "colsample_bytree": param_grid['colsample_bytree'][0],
             "cv_splits": 3,
-            "test_size": 0.2
+            "test_size": 0.2,
+            "user_id": user_id if user_id else "global"
         })
         
         grid_search.fit(X_train, y_train)
@@ -231,7 +266,7 @@ def main_process(user_id: str = None):
         })
 
         # Save Model (traditional way)
-        model_path = get_path("Health_AI/models/xgb_model.pkl")
+        model_path = get_path("models/xgb_model.pkl")
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         joblib.dump(best_model, model_path)
         print(f"Model saved to {model_path}")
@@ -246,7 +281,7 @@ def main_process(user_id: str = None):
         feat_imp_dict = dict(zip(feature_names, [float(x) for x in importance]))
         feat_imp_dict = dict(sorted(feat_imp_dict.items(), key=lambda item: item[1], reverse=True))
         
-        fi_json_path = get_path("feature_importance.json")
+        fi_json_path = get_path("outputs/feature_importance.json")
         with open(fi_json_path, "w") as f:
             json.dump(feat_imp_dict, f, indent=4)
             
@@ -267,7 +302,7 @@ def main_process(user_id: str = None):
         if os.path.exists("/app/data"):
             output_metrics_path = "/app/data/model_metrics.json"
         else:
-            output_metrics_path = os.path.join(backend_dir, "data", "model_metrics.json")
+            output_metrics_path = os.path.join(backend_dir, "data", user_id if user_id else "", "model_metrics.json")
         
         os.makedirs(os.path.dirname(output_metrics_path), exist_ok=True)
         
@@ -282,7 +317,7 @@ def main_process(user_id: str = None):
         plt.title('Top 10 Feature Importance')
         plt.xlabel('Importance')
         plt.tight_layout()
-        fi_png_path = get_path('Health_AI/outputs/feature_importance.png')
+        fi_png_path = get_path('outputs/feature_importance.png')
         os.makedirs(os.path.dirname(fi_png_path), exist_ok=True)
         plt.savefig(fi_png_path)
         plt.close()
@@ -297,7 +332,7 @@ def main_process(user_id: str = None):
         plt.ylabel('Predicted')
         plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
         plt.tight_layout()
-        perf_png_path = get_path('Health_AI/outputs/model_performance.png')
+        perf_png_path = get_path('outputs/model_performance.png')
         plt.savefig(perf_png_path)
         plt.close()
         
@@ -309,7 +344,7 @@ def main_process(user_id: str = None):
         print(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
 
 
-    print("Plots saved to Health_AI/outputs/")
+    print(f"Plots saved to {os.path.dirname(fi_png_path)}")
 
 if __name__ == "__main__":
     import argparse

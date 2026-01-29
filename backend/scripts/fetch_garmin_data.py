@@ -216,18 +216,22 @@ def main(user_id: Optional[str] = None):
     backend_dir = os.path.dirname(script_dir)
     project_root = os.path.dirname(backend_dir)
     
-    def get_data_dir():
-        # 1. Try local data dir
-        local_path = os.path.join(project_root, "Health_AI/data")
-        if os.path.exists(local_path):
-            return local_path
-        # 2. Try Docker path
-        if os.path.exists("/Health_AI/data"):
-            return "/Health_AI/data"
-        # 3. Fallback
-        return "Health_AI/data"
+    def get_data_dir(uid: Optional[str] = None):
+        # 1. Base data path
+        base_path = "Health_AI/data"
+        if os.path.exists("/Health_AI/data"): # Docker
+            base_path = "/Health_AI/data"
+        elif os.path.exists(os.path.join(project_root, "Health_AI/data")): # Local
+            base_path = os.path.join(project_root, "Health_AI/data")
+            
+        # 2. Append user_id if provided
+        if uid:
+            user_path = os.path.join(base_path, uid)
+            return user_path
+        
+        return base_path
 
-    data_dir = get_data_dir()
+    data_dir = get_data_dir(user_id)
     os.makedirs(data_dir, exist_ok=True)
     print(f"📁 Using data directory: {data_dir}")
     
