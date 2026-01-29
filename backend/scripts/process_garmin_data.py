@@ -1,7 +1,7 @@
 import pandas as pd
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 import joblib
 import json
 import os
@@ -9,6 +9,8 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import mlflow
+import mlflow.sklearn
 
 # Ensure backend path is in sys.path for firestore_manager
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -155,6 +157,13 @@ def main_process(user_id: str = None):
             import traceback
             traceback.print_exc()
 
+    # --- MLflow Setup ---
+    # Set tracking URI to local SQLite database in backend/data
+    mlflow_db_path = os.path.join(backend_dir, "data", "mlflow.db")
+    os.makedirs(os.path.dirname(mlflow_db_path), exist_ok=True)
+    mlflow.set_tracking_uri(f"sqlite:///{mlflow_db_path}")
+    mlflow.set_experiment("xgboost_readiness_prediction")
+    
     # --- Training with GridSearchCV & Cross-Validation ---
     print("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
     
@@ -181,80 +190,123 @@ def main_process(user_id: str = None):
     grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
                                cv=tscv, n_jobs=1, scoring='r2', verbose=1)
     
-    grid_search.fit(X_train, y_train)
-    
-    best_model = grid_search.best_estimator_
-    print(f"Best Parameters: {grid_search.best_params_}")
-    print(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
-
-    preds = best_model.predict(X_test)
-    mae = mean_absolute_error(y_test, preds)
-    r2 = r2_score(y_test, preds)
-    
-    print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}")
-
-    # Save Model
-    model_path = get_path("Health_AI/models/xgb_model.pkl")
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    joblib.dump(best_model, model_path)
-    print(f"Model saved to {model_path}")
-    
-    # --- Feature Importance ---
-    importance = best_model.feature_importances_
-    feature_names = X.columns.tolist()
-    feat_imp_dict = dict(zip(feature_names, [float(x) for x in importance]))
-    feat_imp_dict = dict(sorted(feat_imp_dict.items(), key=lambda item: item[1], reverse=True))
-    
-    fi_json_path = get_path("feature_importance.json")
-    with open(fi_json_path, "w") as f:
-        json.dump(feat_imp_dict, f, indent=4)
+    # Start MLflow run
+    with mlflow.start_run():
+        # Log hyperparameters from grid search
+        mlflow.log_params({
+            "n_estimators_grid": str(param_grid['n_estimators']),
+            "learning_rate_grid": str(param_grid['learning_rate']),
+            "max_depth_grid": str(param_grid['max_depth']),
+            "subsample": param_grid['subsample'][0],
+            "colsample_bytree": param_grid['colsample_bytree'][0],
+            "cv_splits": 3,
+            "test_size": 0.2
+        })
         
-    print(f"Feature importance saved to {fi_json_path}")
-    
-    # Save Metrics to backend/data where API expects it
-    metrics = {
-        "mae": float(mae),
-        "r2": float(r2),
-        "last_trained": str(pd.Timestamp.now().date())
-    }
-    
-    # CRITICAL: In Docker, backend is at /app. Locally it might be ./backend
-    # Let's ensure we find the backend/data directory.
-    if os.path.exists("/app/data"):
-        output_metrics_path = "/app/data/model_metrics.json"
-    else:
-        output_metrics_path = os.path.join(backend_dir, "data", "model_metrics.json")
-    
-    os.makedirs(os.path.dirname(output_metrics_path), exist_ok=True)
-    
-    with open(output_metrics_path, "w") as f:
-        json.dump(metrics, f)
-    
-    print(f"Model metrics saved to {output_metrics_path}")
+        grid_search.fit(X_train, y_train)
+        
+        best_model = grid_search.best_estimator_
+        print(f"Best Parameters: {grid_search.best_params_}")
+        print(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
+        
+        # Log best parameters
+        mlflow.log_params(grid_search.best_params_)
+        mlflow.log_metric("best_cv_r2", grid_search.best_score_)
 
-    # --- Plotting --- (kept for context)
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
-    plt.title('Top 10 Feature Importance')
-    plt.xlabel('Importance')
-    plt.tight_layout()
-    fi_png_path = get_path('Health_AI/outputs/feature_importance.png')
-    os.makedirs(os.path.dirname(fi_png_path), exist_ok=True)
-    plt.savefig(fi_png_path)
-    plt.close()
+        preds = best_model.predict(X_test)
+        mae = mean_absolute_error(y_test, preds)
+        r2 = r2_score(y_test, preds)
+        rmse = np.sqrt(mean_squared_error(y_test, preds))
+        
+        print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
+        
+        # Log metrics
+        mlflow.log_metrics({
+            "mae": mae,
+            "r2_score": r2,
+            "rmse": rmse,
+            "train_samples": len(X_train),
+            "test_samples": len(X_test),
+            "total_features": X.shape[1]
+        })
 
-    plt.figure(figsize=(10, 6))
-    plt.scatter(y_test, preds, alpha=0.5)
-    plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
-    plt.xlabel('Actual')
-    plt.ylabel('Predicted')
-    plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
-    plt.tight_layout()
-    perf_png_path = get_path('Health_AI/outputs/model_performance.png')
-    plt.savefig(perf_png_path)
-    plt.close()
+        # Save Model (traditional way)
+        model_path = get_path("Health_AI/models/xgb_model.pkl")
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        joblib.dump(best_model, model_path)
+        print(f"Model saved to {model_path}")
+        
+        # Log model to MLflow
+        mlflow.sklearn.log_model(best_model, "xgboost_model")
+        print("Model logged to MLflow")
+    
+        # --- Feature Importance ---
+        importance = best_model.feature_importances_
+        feature_names = X.columns.tolist()
+        feat_imp_dict = dict(zip(feature_names, [float(x) for x in importance]))
+        feat_imp_dict = dict(sorted(feat_imp_dict.items(), key=lambda item: item[1], reverse=True))
+        
+        fi_json_path = get_path("feature_importance.json")
+        with open(fi_json_path, "w") as f:
+            json.dump(feat_imp_dict, f, indent=4)
+            
+        print(f"Feature importance saved to {fi_json_path}")
+        
+        # Log feature importance as MLflow artifact
+        mlflow.log_artifact(fi_json_path, "feature_importance")
+    
+        # Save Metrics to backend/data where API expects it
+        metrics = {
+            "mae": float(mae),
+            "r2": float(r2),
+            "last_trained": str(pd.Timestamp.now().date())
+        }
+        
+        # CRITICAL: In Docker, backend is at /app. Locally it might be ./backend
+        # Let's ensure we find the backend/data directory.
+        if os.path.exists("/app/data"):
+            output_metrics_path = "/app/data/model_metrics.json"
+        else:
+            output_metrics_path = os.path.join(backend_dir, "data", "model_metrics.json")
+        
+        os.makedirs(os.path.dirname(output_metrics_path), exist_ok=True)
+        
+        with open(output_metrics_path, "w") as f:
+            json.dump(metrics, f)
+        
+        print(f"Model metrics saved to {output_metrics_path}")
 
-    print(f"Plots saved to {os.path.dirname(fi_png_path)}")
+        # --- Plotting --- (kept for context)
+        plt.figure(figsize=(10, 6))
+        sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
+        plt.title('Top 10 Feature Importance')
+        plt.xlabel('Importance')
+        plt.tight_layout()
+        fi_png_path = get_path('Health_AI/outputs/feature_importance.png')
+        os.makedirs(os.path.dirname(fi_png_path), exist_ok=True)
+        plt.savefig(fi_png_path)
+        plt.close()
+        
+        # Log to MLflow
+        mlflow.log_artifact(fi_png_path, "plots")
+
+        plt.figure(figsize=(10, 6))
+        plt.scatter(y_test, preds, alpha=0.5)
+        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
+        plt.xlabel('Actual')
+        plt.ylabel('Predicted')
+        plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
+        plt.tight_layout()
+        perf_png_path = get_path('Health_AI/outputs/model_performance.png')
+        plt.savefig(perf_png_path)
+        plt.close()
+        
+        # Log to MLflow
+        mlflow.log_artifact(perf_png_path, "plots")
+
+        print(f"Plots saved to {os.path.dirname(fi_png_path)}")
+        print(f"\n✅ MLflow tracking complete. View experiments at: http://localhost:5000")
+        print(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
 
 
     print("Plots saved to Health_AI/outputs/")

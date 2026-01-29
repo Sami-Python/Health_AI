@@ -36,5 +36,6 @@ nav:
     - Environment & Deployment: deployment.md
     - Garmin Integration: garmin_setup.md
     - Authentication: authentication.md
+    - MLOps (MLflow): MLflow.md
   - Security Check: security_audit.md
   - Internal Memos: sami_memo.md

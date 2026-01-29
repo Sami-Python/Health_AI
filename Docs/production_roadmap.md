@@ -233,6 +233,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] Lisää automaattinen deployment (CD) (#243)
   - [x] **Docker image build ja push Container Registry:yn** (#244) ✅ COMPLETED (2026-01-28)
 - [x] **Documentation Site:** MkDocs + GitHub Pages Setup (#245) ✅ COMPLETED (2026-01-28)
+- [x] **MLOps:** MLflow experiment tracking integration (#246) ✅ COMPLETED (2026-01-29)
 
 ## 8. Admin Dashboard (Monitoring & Support) 🛠️
 - [x] **Admin Authentication:** Implementoi "Admin Only" -tarkistus (esim. sallittujen sähköpostien lista backendissä). (#249)
