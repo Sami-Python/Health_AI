@@ -36,7 +36,7 @@ Tuemme kolmea standardia ympäristöä:
 
 ## Konfigurointi
 
-Asetuksia hallitaan tiedostossa [`backend/config.py`](../backend/config.py).  
+Asetuksia hallitaan tiedostossa [`backend/config.py`](https://github.com/Samih/health_ai/blob/main/backend/config.py).  
 Hierarkiaa käsittelee Pydantic: `Settings` -> `DevelopmentSettings` / `ProductionSettings`.
 
 ## Tietoturvahuomiot

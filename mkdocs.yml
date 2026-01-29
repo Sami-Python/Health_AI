@@ -23,9 +23,6 @@ theme:
   features:
     - navigation.expand
     - navigation.indexes
-    - navigation.sections
-    - toc.follow
-    - toc.integrate
     - content.code.copy
     - navigation.top
 
@@ -33,7 +30,6 @@ docs_dir: Docs
 
 nav:
   - Etusivu: index.md
-  
   - Käytön aloitus:
     - Yleiskatsaus: index.md
     - Ympäristö & Julkaisu: deployment.md

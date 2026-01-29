@@ -1,372 +1,3768 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Samih.github.io/health_ai/sami_memo/" />
-      <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Internal Memos - Health AI Coach</title>
-    <link rel="stylesheet" href="../css/theme.css" />
-    <link rel="stylesheet" href="../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
     
-      <script>
-        // Current page data
-        var mkdocs_page_name = "Internal Memos";
-        var mkdocs_page_input_path = "sami_memo.md";
-        var mkdocs_page_url = "/health_ai/sami_memo/";
-      </script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../production_roadmap/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
-    <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
-    <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
+    
+      
+        <title>Sisäiset muistiot - [DEBUG] Health AI Coach</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
 
-<body class="wy-body-for-nav" role="document">
 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href=".." class="icon icon-home"> Health AI Coach
-        </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
-  </form>
-</div>
-      </div>
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../production_roadmap/">Roadmap</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../arkkitehtuuri/">Architecture</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../API/">API Reference</a>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Guides</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../deployment/">Environment & Deployment</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../garmin_setup/">Garmin Integration</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../authentication/">Authentication</a>
-                  </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../security_audit/">Security Check</a>
-                </li>
-              </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Internal Memos</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#muutokset-main-haarasta-ja-yhdista-ne-omiisi-rebase">Muutokset main-haarasta ja yhdistä ne omiisi (rebase):</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#backend-api">Backend (API)</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#frontend-nextjs">Frontend (Next.js)</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#1-datan-paivitys-inkrementaalinen">1. Datan päivitys (Inkrementaalinen)</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2-mallin-koulutus">2. Mallin koulutus</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#3-dashboardin-kaynnistys">3. Dashboardin käynnistys</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-26-ai-coach-bug-fix-csv-migration-implementation">2026-01-26 – AI Coach Bug Fix &amp; CSV Migration Implementation</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#ai-coach-recommendation-bug-fixed">AI Coach Recommendation Bug Fixed ✅</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#csv-firestore-migration-implementation-code-ready">CSV → Firestore Migration Implementation (Code Ready)</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2025-12-07-garmin-data-ensimmainen-malli">2025-12-07 – Garmin-data &amp; ensimmäinen malli</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2025-12-08-hybrid-ai-coach-dashboard">2025-12-08 – Hybrid AI Coach &amp; Dashboard</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-dashboard-streamlit">1. Dashboard (Streamlit)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-ai-coach-gemini-25">2. AI Coach (Gemini 2.5)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-inkrementaalinen-data">3. Inkrementaalinen data</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#nykytilanne">Nykytilanne</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#joulukuu-8-the-great-restoration-upgrade">Joulukuu 8. - "The Great Restoration &amp; Upgrade" 🛠️</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2025-12-30-mallin-paivitys-ja-analyysi">2025-12-30 – Mallin päivitys ja analyysi</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#mallin-tarkkuus">Mallin tarkkuus</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#laatu-ja-tulokset">Laatu ja Tulokset</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2025-12-31-ui-visuals-calendar-uudistus">2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-kalenterinakyma-streamlit-calendar">1. Kalenterinäkymä (streamlit-calendar)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-visuaalinen-ilme-uiux">2. Visuaalinen ilme (UI/UX)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-2-intelligence-goals-tavoitteet-alykkyys">Phase 2: Intelligence &amp; Goals (Tavoitteet &amp; Älykkyys) 🧠🎯</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-3-data-analytics-data-analytiikka">Phase 3: Data &amp; Analytics (Data &amp; Analytiikka) 📊</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-4-optimization-optimointi-etusivu">Phase 4: Optimization (Optimointi - Etusivu) 🏠</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-5-cicd-quality">Phase 5: CI/CD &amp; Quality 🛡️</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-6-production-readiness-tuotantovalmius">Phase 6: Production Readiness (Tuotantovalmius) 🏗️</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-02-backend-security-hardening">2026-01-02 – Backend Security Hardening 🔒</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-firebase-authentication">1. Firebase Authentication</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-data-isolation-user_id">2. Data Isolation (user_id)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-verifikaatio">3. Verifikaatio</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-02-frontend-nextjs-firebase-auth">2026-01-02 – Frontend: Next.js &amp; Firebase Auth ⚛️🔥</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-perusrakenne-scaffolding">1. Perusrakenne (Scaffolding)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-autentikaatio-auth-context">2. Autentikaatio (Auth Context)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-integraatio-backendin-kanssa">3. Integraatio Backendin kanssa</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#lopetustoimet-seuraavat-askeleet">Lopetustoimet &amp; Seuraavat askeleet</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-05-full-stack-feature-add-goals-start-up-fixes">2026-01-05 – Full Stack Feature: Add Goals &amp; Start-up Fixes 🎯</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-add-goal-toiminnallisuus">1. Add Goal -toiminnallisuus</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-laadunvarmistus">2. Laadunvarmistus</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-bugikorjaukset-kaytettavyys">3. Bugikorjaukset &amp; Käytettävyys</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-vianetsinta-viimeistely">4. Vianetsintä &amp; Viimeistely</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#5-ai-insights-phase-6">5. AI Insights (Phase 6)</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-06-sdk-migration-goal-management-calendar-polish">2026-01-06 – SDK Migration, Goal Management &amp; Calendar Polish 🛠️📅</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-sdk-migraatio-google-generativeai-google-genai">1. SDK Migraatio (google-generativeai -&gt; google-genai)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-training-calendar-nextjs">2. Training Calendar (Next.js)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-goal-management-active-goals">3. Goal Management (Active Goals)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-ai-plan-logic-overwrite-fix">4. AI Plan Logic (Overwrite Fix)</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-07-bugit-mobiili-workout-logging">2026-01-07 – Bugit, Mobiili &amp; Workout Logging 📱🐛</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-kriittiset-bugikorjaukset">1. Kriittiset Bugikorjaukset</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-mobiilikaytto-local-network">2. Mobiilikäyttö (Local Network)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-workout-logging-dual-write">3. Workout Logging (Dual Write) 🏋️‍♂️</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-user-menu-uiux">4. User Menu (UI/UX) 🍔</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-08-calendar-drag-drop-regeneration">2026-01-08 – Calendar Drag &amp; Drop &amp; Regeneration 📅✨</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-drag-drop-siirra-jarjesta">1. Drag &amp; Drop (Siirrä &amp; Järjestä)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-trash-can-roskakori">2. Trash Can (Roskakori) 🗑️</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-smart-regeneration-alykas-korvaus">3. Smart Regeneration (Älykäs Korvaus) 🤖</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-backend-api-expansion">4. Backend (API Expansion)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#5-ci-linting">5. CI &amp; Linting 🧹</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#6-2026-01-15-dashboard-migration-ai-caching-fixes">6. 2026-01-15 – Dashboard Migration, AI Caching &amp; Fixes 🏥⚡</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#1-dashboard-korttien-korjaus-legacy-migration">1. Dashboard Korttien Korjaus (Legacy Migration)</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#2-datan-synkronointi-legacy-sync">2. Datan Synkronointi (Legacy Sync) 🔄</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#3-ai-quota-caching-optimointi">3. AI Quota &amp; Caching (Optimointi) 🧠</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#4-ml-metrics-transparency">4. ML Metrics (Transparency) 📊</a>
-    </li>
-        </ul>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-17-duckdb-migration-complete-gdpr-compliance">2026-01-17 – DuckDB Migration Complete &amp; GDPR Compliance ✅🔒</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-71-duckdb-firestore-migraatio-valmis">Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 🎯</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#phase-72-gdpr-compliance-valmis">Phase 7.2: GDPR Compliance (VALMIS) 🔐</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tekniset-korjaukset">Tekniset korjaukset 🔧</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos">Tulos 🎉</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-18-garmin-per-user-credentials">2026-01-18 – Garmin Per-User Credentials 🔐</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#tavoite">Tavoite</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#1-encryption-infrastructure-salausinfrastruktuuri">1. Encryption Infrastructure (Salausinfrastruktuuri)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-backend-firestore-credentials-management">2. Backend: Firestore Credentials Management</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-backend-api-endpoints">3. Backend: API Endpoints</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-data-fetch-integration">4. Data Fetch Integration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#5-frontend-user-interface">5. Frontend: User Interface</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#6-configuration-documentation">6. Configuration &amp; Documentation</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#turvallisuus">Turvallisuus</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#kaytto">Käyttö</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos_1">Tulos</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-18-ilta-phase-73-quick-wins">2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-toast-notifications-react-hot-toast">1. Toast Notifications (react-hot-toast)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-api-documentation">2. API Documentation</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-readmemd-updates">3. README.md Updates</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-production-roadmap-update">4. Production Roadmap Update</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos_2">Tulos</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-23-testing-cicd-pipeline">2026-01-23 – Testing &amp; CI/CD Pipeline 🧪🚀</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-backend-testing-pytest">1. Backend Testing (Pytest)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-frontend-testing-jest-rtl">2. Frontend Testing (Jest + RTL)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-cicd-pipeline-github-actions">3. CI/CD Pipeline (GitHub Actions)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#ux-improvements">UX Improvements</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-20-model-training-reliability-docker-path-fixes">2026-01-20 – Model Training Reliability &amp; Docker Path Fixes 🛠️🤖</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-robust-path-resolution-polkujen-korjaus">1. Robust Path Resolution (Polkujen korjaus)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-training-stability-xgboost">2. Training Stability (XGBoost)</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-api-logging">3. API &amp; Logging</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-python-paivitys-version-312">4. Python-päivitys (Version 3.12)</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-23-dashboard-refresh-fix-admin-dashboard">2026-01-23 – Dashboard Refresh Fix &amp; Admin Dashboard 🛠️🛡️</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-dashboard-refresh-fix">1. Dashboard Refresh Fix 🔄</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-admin-dashboard">2. Admin Dashboard 🛡️</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-24-landing-page-firebase-hosting">2026-01-24 – Landing Page &amp; Firebase Hosting 🌐🔥</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-landing-page-creation">1. Landing Page Creation</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-firebase-hosting-deployment">2. Firebase Hosting Deployment</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-content-updates">3. Content Updates</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-dokumentaatio">4. Dokumentaatio</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos_3">Tulos 🎉</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-24-ilta-firebase-analytics">2026-01-24 (Ilta) – Firebase Analytics 📊</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-firebase-analytics-integration">1. Firebase Analytics Integration</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-dokumentaatio">2. Dokumentaatio</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos_4">Tulos 🎉</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#2026-01-25-security-hardening">2026-01-25 – Security Hardening 🔒</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-security-audit">1. Security Audit</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-cors-rajoitus">2. CORS-rajoitus</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-firestore-security-rules">3. Firestore Security Rules</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-dokumentaatio_1">4. Dokumentaatio</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#tulos_5">Tulos 🎉</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
-                </li>
-              </ul>
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#quick-start" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="[DEBUG] Health AI Coach" class="md-header__button md-logo" aria-label="[DEBUG] Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            [DEBUG] Health AI Coach
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sisäiset muistiot
+            
+          </span>
+        </div>
       </div>
     </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="..">Health AI Coach</a>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
         
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Internal Memos</li>
-    <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/Samih/health_ai/edit/master/docs/sami_memo.md">Edit on Samih/health_ai</a>
-    </li>
-  </ul>
-  <hr/>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
               
-                <h1 id="quick-start">🚀 Quick Start</h1>
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="[DEBUG] Health AI Coach" class="md-nav__button md-logo" aria-label="[DEBUG] Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    [DEBUG] Health AI Coach
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Etusivu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Käytön aloitus
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Käytön aloitus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ympäristö & Julkaisu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autentikaatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arkkitehtuuri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuurin yleiskuvaus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vaatimusmaarittely/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vaatimusmäärittely
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tietoturva-auditointi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kehitysoppaat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kehitysoppaat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin-integraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-viitteet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operointi
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operointi
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MLflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLOps (MLflow)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../production_roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuotannon Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viitteet
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Viitteet
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sisäiset muistiot
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sisäiset muistiot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#muutokset-main-haarasta-ja-yhdista-ne-omiisi-rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Muutokset main-haarasta ja yhdistä ne omiisi (rebase):
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend (API)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-nextjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend (Next.js)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-datan-paivitys-inkrementaalinen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Datan päivitys (Inkrementaalinen)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mallin-koulutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Mallin koulutus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-dashboardin-kaynnistys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Dashboardin käynnistys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-26-ai-coach-bug-fix-csv-migration-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-26 – AI Coach Bug Fix &amp; CSV Migration Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-26 – AI Coach Bug Fix &amp; CSV Migration Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ai-coach-recommendation-bug-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Coach Recommendation Bug Fixed ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csv-firestore-migration-implementation-code-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV → Firestore Migration Implementation (Code Ready)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-07-garmin-data-ensimmainen-malli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-07 – Garmin-data &amp; ensimmäinen malli
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-08-hybrid-ai-coach-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-08 – Hybrid AI Coach &amp; Dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-08 – Hybrid AI Coach &amp; Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-streamlit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard (Streamlit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ai-coach-gemini-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. AI Coach (Gemini 2.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inkrementaalinen-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inkrementaalinen data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nykytilanne" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nykytilanne
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#joulukuu-8-the-great-restoration-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Joulukuu 8. - "The Great Restoration &amp; Upgrade" 🛠️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-30-mallin-paivitys-ja-analyysi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-30 – Mallin päivitys ja analyysi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-30 – Mallin päivitys ja analyysi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mallin-tarkkuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mallin tarkkuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#laatu-ja-tulokset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Laatu ja Tulokset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-31-ui-visuals-calendar-uudistus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kalenterinakyma-streamlit-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kalenterinäkymä (streamlit-calendar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-visuaalinen-ilme-uiux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Visuaalinen ilme (UI/UX)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-intelligence-goals-tavoitteet-alykkyys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Intelligence &amp; Goals (Tavoitteet &amp; Älykkyys) 🧠🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-data-analytics-data-analytiikka" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Data &amp; Analytics (Data &amp; Analytiikka) 📊
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-optimization-optimointi-etusivu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Optimization (Optimointi - Etusivu) 🏠
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-cicd-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: CI/CD &amp; Quality 🛡️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-production-readiness-tuotantovalmius" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Production Readiness (Tuotantovalmius) 🏗️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-02-backend-security-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-02 – Backend Security Hardening 🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-02 – Backend Security Hardening 🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-firebase-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Firebase Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-isolation-user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Data Isolation (user_id)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-verifikaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Verifikaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-02-frontend-nextjs-firebase-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-02 – Frontend: Next.js &amp; Firebase Auth ⚛️🔥
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-02 – Frontend: Next.js &amp; Firebase Auth ⚛️🔥">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-perusrakenne-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Perusrakenne (Scaffolding)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-autentikaatio-auth-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Autentikaatio (Auth Context)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-integraatio-backendin-kanssa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Integraatio Backendin kanssa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lopetustoimet-seuraavat-askeleet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lopetustoimet &amp; Seuraavat askeleet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-05-full-stack-feature-add-goals-start-up-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-05 – Full Stack Feature: Add Goals &amp; Start-up Fixes 🎯
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-05 – Full Stack Feature: Add Goals &amp; Start-up Fixes 🎯">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-add-goal-toiminnallisuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Add Goal -toiminnallisuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-laadunvarmistus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Laadunvarmistus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bugikorjaukset-kaytettavyys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Bugikorjaukset &amp; Käytettävyys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-vianetsinta-viimeistely" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Vianetsintä &amp; Viimeistely
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-ai-insights-phase-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. AI Insights (Phase 6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-06-sdk-migration-goal-management-calendar-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-06 – SDK Migration, Goal Management &amp; Calendar Polish 🛠️📅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-06 – SDK Migration, Goal Management &amp; Calendar Polish 🛠️📅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sdk-migraatio-google-generativeai-google-genai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. SDK Migraatio (google-generativeai -&gt; google-genai)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-training-calendar-nextjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Training Calendar (Next.js)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-goal-management-active-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Goal Management (Active Goals)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ai-plan-logic-overwrite-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. AI Plan Logic (Overwrite Fix)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-07-bugit-mobiili-workout-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-07 – Bugit, Mobiili &amp; Workout Logging 📱🐛
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-07 – Bugit, Mobiili &amp; Workout Logging 📱🐛">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kriittiset-bugikorjaukset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kriittiset Bugikorjaukset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-mobiilikaytto-local-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Mobiilikäyttö (Local Network)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-workout-logging-dual-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Workout Logging (Dual Write) 🏋️‍♂️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-user-menu-uiux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. User Menu (UI/UX) 🍔
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-08-calendar-drag-drop-regeneration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-08 – Calendar Drag &amp; Drop &amp; Regeneration 📅✨
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-08 – Calendar Drag &amp; Drop &amp; Regeneration 📅✨">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-drag-drop-siirra-jarjesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Drag &amp; Drop (Siirrä &amp; Järjestä)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-trash-can-roskakori" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Trash Can (Roskakori) 🗑️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-smart-regeneration-alykas-korvaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Smart Regeneration (Älykäs Korvaus) 🤖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-backend-api-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Backend (API Expansion)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-ci-linting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. CI &amp; Linting 🧹
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-2026-01-15-dashboard-migration-ai-caching-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 2026-01-15 – Dashboard Migration, AI Caching &amp; Fixes 🏥⚡
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 2026-01-15 – Dashboard Migration, AI Caching &amp; Fixes 🏥⚡">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-korttien-korjaus-legacy-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard Korttien Korjaus (Legacy Migration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-datan-synkronointi-legacy-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Datan Synkronointi (Legacy Sync) 🔄
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-ai-quota-caching-optimointi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. AI Quota &amp; Caching (Optimointi) 🧠
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ml-metrics-transparency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. ML Metrics (Transparency) 📊
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-17-duckdb-migration-complete-gdpr-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-17 – DuckDB Migration Complete &amp; GDPR Compliance ✅🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-17 – DuckDB Migration Complete &amp; GDPR Compliance ✅🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-71-duckdb-firestore-migraatio-valmis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-72-gdpr-compliance-valmis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7.2: GDPR Compliance (VALMIS) 🔐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tekniset-korjaukset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tekniset korjaukset 🔧
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-18-garmin-per-user-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-18 – Garmin Per-User Credentials 🔐
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-18 – Garmin Per-User Credentials 🔐">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tavoite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tavoite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-encryption-infrastructure-salausinfrastruktuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Encryption Infrastructure (Salausinfrastruktuuri)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-backend-firestore-credentials-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Backend: Firestore Credentials Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-backend-api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Backend: API Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-data-fetch-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Data Fetch Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-frontend-user-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Frontend: User Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-configuration-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Configuration &amp; Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#turvallisuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turvallisuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kaytto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Käyttö
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-18-ilta-phase-73-quick-wins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-toast-notifications-react-hot-toast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Toast Notifications (react-hot-toast)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-api-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. API Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-readmemd-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. README.md Updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-production-roadmap-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Production Roadmap Update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-23-testing-cicd-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-23 – Testing &amp; CI/CD Pipeline 🧪🚀
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-23 – Testing &amp; CI/CD Pipeline 🧪🚀">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-backend-testing-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Backend Testing (Pytest)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-frontend-testing-jest-rtl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Frontend Testing (Jest + RTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cicd-pipeline-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. CI/CD Pipeline (GitHub Actions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ux-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UX Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-20-model-training-reliability-docker-path-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-20 – Model Training Reliability &amp; Docker Path Fixes 🛠️🤖
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-20 – Model Training Reliability &amp; Docker Path Fixes 🛠️🤖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-robust-path-resolution-polkujen-korjaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Robust Path Resolution (Polkujen korjaus)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-training-stability-xgboost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Training Stability (XGBoost)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-api-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. API &amp; Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-python-paivitys-version-312" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Python-päivitys (Version 3.12)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-23-dashboard-refresh-fix-admin-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-23 – Dashboard Refresh Fix &amp; Admin Dashboard 🛠️🛡️
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-23 – Dashboard Refresh Fix &amp; Admin Dashboard 🛠️🛡️">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-refresh-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard Refresh Fix 🔄
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-admin-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Admin Dashboard 🛡️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-24-landing-page-firebase-hosting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-24 – Landing Page &amp; Firebase Hosting 🌐🔥
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-24 – Landing Page &amp; Firebase Hosting 🌐🔥">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-landing-page-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Landing Page Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-firebase-hosting-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Firebase Hosting Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-content-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Content Updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dokumentaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-24-ilta-firebase-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-24 (Ilta) – Firebase Analytics 📊
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-24 (Ilta) – Firebase Analytics 📊">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-firebase-analytics-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Firebase Analytics Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dokumentaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-25-security-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-25 – Security Hardening 🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-25 – Security Hardening 🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-security-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Security Audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-cors-rajoitus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. CORS-rajoitus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-firestore-security-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Firestore Security Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dokumentaatio_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-28-infrastructure-documentation-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-28: Infrastructure &amp; Documentation Upgrade 🏗️
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-29-mlops-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-29: MLOps Integration 🧪
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#muutokset-main-haarasta-ja-yhdista-ne-omiisi-rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Muutokset main-haarasta ja yhdistä ne omiisi (rebase):
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend (API)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-nextjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend (Next.js)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-datan-paivitys-inkrementaalinen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Datan päivitys (Inkrementaalinen)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-mallin-koulutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Mallin koulutus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-dashboardin-kaynnistys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Dashboardin käynnistys
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-26-ai-coach-bug-fix-csv-migration-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-26 – AI Coach Bug Fix &amp; CSV Migration Implementation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-26 – AI Coach Bug Fix &amp; CSV Migration Implementation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ai-coach-recommendation-bug-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Coach Recommendation Bug Fixed ✅
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#csv-firestore-migration-implementation-code-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSV → Firestore Migration Implementation (Code Ready)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-07-garmin-data-ensimmainen-malli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-07 – Garmin-data &amp; ensimmäinen malli
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-08-hybrid-ai-coach-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-08 – Hybrid AI Coach &amp; Dashboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-08 – Hybrid AI Coach &amp; Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-streamlit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard (Streamlit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ai-coach-gemini-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. AI Coach (Gemini 2.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-inkrementaalinen-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Inkrementaalinen data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nykytilanne" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nykytilanne
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#joulukuu-8-the-great-restoration-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Joulukuu 8. - "The Great Restoration &amp; Upgrade" 🛠️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-30-mallin-paivitys-ja-analyysi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-30 – Mallin päivitys ja analyysi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-30 – Mallin päivitys ja analyysi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mallin-tarkkuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mallin tarkkuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#laatu-ja-tulokset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Laatu ja Tulokset
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2025-12-31-ui-visuals-calendar-uudistus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kalenterinakyma-streamlit-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kalenterinäkymä (streamlit-calendar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-visuaalinen-ilme-uiux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Visuaalinen ilme (UI/UX)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-intelligence-goals-tavoitteet-alykkyys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Intelligence &amp; Goals (Tavoitteet &amp; Älykkyys) 🧠🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-data-analytics-data-analytiikka" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: Data &amp; Analytics (Data &amp; Analytiikka) 📊
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-optimization-optimointi-etusivu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: Optimization (Optimointi - Etusivu) 🏠
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-cicd-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: CI/CD &amp; Quality 🛡️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-6-production-readiness-tuotantovalmius" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 6: Production Readiness (Tuotantovalmius) 🏗️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-02-backend-security-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-02 – Backend Security Hardening 🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-02 – Backend Security Hardening 🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-firebase-authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Firebase Authentication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-data-isolation-user_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Data Isolation (user_id)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-verifikaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Verifikaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-02-frontend-nextjs-firebase-auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-02 – Frontend: Next.js &amp; Firebase Auth ⚛️🔥
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-02 – Frontend: Next.js &amp; Firebase Auth ⚛️🔥">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-perusrakenne-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Perusrakenne (Scaffolding)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-autentikaatio-auth-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Autentikaatio (Auth Context)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-integraatio-backendin-kanssa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Integraatio Backendin kanssa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lopetustoimet-seuraavat-askeleet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lopetustoimet &amp; Seuraavat askeleet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-05-full-stack-feature-add-goals-start-up-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-05 – Full Stack Feature: Add Goals &amp; Start-up Fixes 🎯
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-05 – Full Stack Feature: Add Goals &amp; Start-up Fixes 🎯">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-add-goal-toiminnallisuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Add Goal -toiminnallisuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-laadunvarmistus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Laadunvarmistus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-bugikorjaukset-kaytettavyys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Bugikorjaukset &amp; Käytettävyys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-vianetsinta-viimeistely" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Vianetsintä &amp; Viimeistely
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-ai-insights-phase-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. AI Insights (Phase 6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-06-sdk-migration-goal-management-calendar-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-06 – SDK Migration, Goal Management &amp; Calendar Polish 🛠️📅
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-06 – SDK Migration, Goal Management &amp; Calendar Polish 🛠️📅">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-sdk-migraatio-google-generativeai-google-genai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. SDK Migraatio (google-generativeai -&gt; google-genai)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-training-calendar-nextjs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Training Calendar (Next.js)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-goal-management-active-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Goal Management (Active Goals)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ai-plan-logic-overwrite-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. AI Plan Logic (Overwrite Fix)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-07-bugit-mobiili-workout-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-07 – Bugit, Mobiili &amp; Workout Logging 📱🐛
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-07 – Bugit, Mobiili &amp; Workout Logging 📱🐛">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kriittiset-bugikorjaukset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kriittiset Bugikorjaukset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-mobiilikaytto-local-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Mobiilikäyttö (Local Network)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-workout-logging-dual-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Workout Logging (Dual Write) 🏋️‍♂️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-user-menu-uiux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. User Menu (UI/UX) 🍔
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-08-calendar-drag-drop-regeneration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-08 – Calendar Drag &amp; Drop &amp; Regeneration 📅✨
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-08 – Calendar Drag &amp; Drop &amp; Regeneration 📅✨">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-drag-drop-siirra-jarjesta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Drag &amp; Drop (Siirrä &amp; Järjestä)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-trash-can-roskakori" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Trash Can (Roskakori) 🗑️
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-smart-regeneration-alykas-korvaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Smart Regeneration (Älykäs Korvaus) 🤖
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-backend-api-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Backend (API Expansion)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-ci-linting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. CI &amp; Linting 🧹
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-2026-01-15-dashboard-migration-ai-caching-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 2026-01-15 – Dashboard Migration, AI Caching &amp; Fixes 🏥⚡
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 2026-01-15 – Dashboard Migration, AI Caching &amp; Fixes 🏥⚡">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-korttien-korjaus-legacy-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard Korttien Korjaus (Legacy Migration)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-datan-synkronointi-legacy-sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Datan Synkronointi (Legacy Sync) 🔄
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-ai-quota-caching-optimointi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. AI Quota &amp; Caching (Optimointi) 🧠
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-ml-metrics-transparency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. ML Metrics (Transparency) 📊
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-17-duckdb-migration-complete-gdpr-compliance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-17 – DuckDB Migration Complete &amp; GDPR Compliance ✅🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-17 – DuckDB Migration Complete &amp; GDPR Compliance ✅🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-71-duckdb-firestore-migraatio-valmis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 🎯
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-72-gdpr-compliance-valmis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7.2: GDPR Compliance (VALMIS) 🔐
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tekniset-korjaukset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tekniset korjaukset 🔧
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-18-garmin-per-user-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-18 – Garmin Per-User Credentials 🔐
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-18 – Garmin Per-User Credentials 🔐">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tavoite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tavoite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-encryption-infrastructure-salausinfrastruktuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Encryption Infrastructure (Salausinfrastruktuuri)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-backend-firestore-credentials-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Backend: Firestore Credentials Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-backend-api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Backend: API Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-data-fetch-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Data Fetch Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-frontend-user-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Frontend: User Interface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-configuration-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Configuration &amp; Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#turvallisuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Turvallisuus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kaytto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Käyttö
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-18-ilta-phase-73-quick-wins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-toast-notifications-react-hot-toast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Toast Notifications (react-hot-toast)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-api-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. API Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-readmemd-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. README.md Updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-production-roadmap-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Production Roadmap Update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-23-testing-cicd-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-23 – Testing &amp; CI/CD Pipeline 🧪🚀
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-23 – Testing &amp; CI/CD Pipeline 🧪🚀">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-backend-testing-pytest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Backend Testing (Pytest)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-frontend-testing-jest-rtl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Frontend Testing (Jest + RTL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-cicd-pipeline-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. CI/CD Pipeline (GitHub Actions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ux-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UX Improvements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-20-model-training-reliability-docker-path-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-20 – Model Training Reliability &amp; Docker Path Fixes 🛠️🤖
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-20 – Model Training Reliability &amp; Docker Path Fixes 🛠️🤖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-robust-path-resolution-polkujen-korjaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Robust Path Resolution (Polkujen korjaus)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-training-stability-xgboost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Training Stability (XGBoost)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-api-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. API &amp; Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-python-paivitys-version-312" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Python-päivitys (Version 3.12)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-23-dashboard-refresh-fix-admin-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-23 – Dashboard Refresh Fix &amp; Admin Dashboard 🛠️🛡️
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-23 – Dashboard Refresh Fix &amp; Admin Dashboard 🛠️🛡️">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-dashboard-refresh-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard Refresh Fix 🔄
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-admin-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Admin Dashboard 🛡️
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-24-landing-page-firebase-hosting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-24 – Landing Page &amp; Firebase Hosting 🌐🔥
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-24 – Landing Page &amp; Firebase Hosting 🌐🔥">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-landing-page-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Landing Page Creation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-firebase-hosting-deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Firebase Hosting Deployment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-content-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Content Updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dokumentaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-24-ilta-firebase-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-24 (Ilta) – Firebase Analytics 📊
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-24 (Ilta) – Firebase Analytics 📊">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-firebase-analytics-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Firebase Analytics Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-dokumentaatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-25-security-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-25 – Security Hardening 🔒
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-01-25 – Security Hardening 🔒">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-security-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Security Audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-cors-rajoitus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. CORS-rajoitus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-firestore-security-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Firestore Security Rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-dokumentaatio_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Dokumentaatio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulos_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulos 🎉
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-28-infrastructure-documentation-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-28: Infrastructure &amp; Documentation Upgrade 🏗️
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-01-29-mlops-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-01-29: MLOps Integration 🧪
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="quick-start">🚀 Quick Start</h1>
 <p>Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.</p>
 <h3 id="muutokset-main-haarasta-ja-yhdista-ne-omiisi-rebase">Muutokset main-haarasta ja yhdistä ne omiisi (rebase):</h3>
 <pre><code class="language-bash">git pull origin main --rebase
@@ -570,9 +3966,9 @@ streamlit run dashboard.py
 <p>Kuvista näemme:
 1.  <strong>Merkittävimmät tekijät:</strong> Uusi <code>poor_night_flag</code> (huono yöuni) nousi heti tärkeimmäksi muuttujaksi. Tämä kertoo, että unen laadun raja-arvo (&lt; 45 pistettä) on kriittinen päivän vireystilalle.
 2.  <strong>Ennustekyky:</strong> Pisteparvivisualisointi osoittaa, että ennusteet seuraavat todellisia arvoja tiiviisti lineaarisesti.</p>
-<p><img alt="Feature Importance" src="Health_AI/outputs/feature_importance.png" />
+<p><img alt="Feature Importance" src="../pics/feature_importance.png" />
 <em>(Mitkä tekijät vaikuttavat eniten)</em></p>
-<p><img alt="Model Performance" src="Health_AI/outputs/model_performance.png" />
+<p><img alt="Model Performance" src="../pics/model_performance.png" />
 <em>(Ennuste vs Todellinen - mitä lähempänä punaista viivaa pisteet ovat, sen parempi)</em></p>
 <h2 id="2025-12-31-ui-visuals-calendar-uudistus">2025-12-31 – UI Visuals &amp; Calendar Uudistus 🖌️📅</h2>
 <p>Tänään keskityttiin käyttöliittymän modernisointiin ja käytettävyyden parantamiseen.</p>
@@ -1436,52 +4832,107 @@ firebase deploy --only firestore:rules
 <p><strong>Status:</strong> 🟢 <strong>PRODUCTION READY</strong> - Turvallinen monikäyttäjäympäristö</p>
 <p><strong>Lines of Code:</strong> ~200 lines (rules + config + docs)</p>
 <hr />
-              
+<hr />
+<h2 id="2026-01-28-infrastructure-documentation-upgrade">2026-01-28: Infrastructure &amp; Documentation Upgrade 🏗️</h2>
+<p><strong>Goal:</strong> Erottaa kehitys- ja tuotantoympäristöt, parantaa dokumentaatiota ja korjata CI/CD-putki.</p>
+<p><strong>Actions:</strong>
+1.  <strong>Environment Separation:</strong>
+    *   Toteutettu <code>backend/config.py</code> käyttäen Pydantic Settings -kirjastoa.
+    *   Eritelty <code>DevelopmentSettings</code> (Debug=True, Localhost CORS) ja <code>ProductionSettings</code> (Debug=False, Strict CORS).
+    *   Luotu <code>docker-compose.prod.yml</code> tuotantoajoa varten (ei hot-reloadia, optimoitu).
+2.  <strong>Documentation Site:</strong>
+    *   Asennettu <strong>MkDocs</strong> + <strong>Material Theme</strong>.
+    *   Konfiguroitu GitHub Actions deployaamaan dokumentaatio automaattisesti <code>gh-pages</code> -haaralle.
+    *   Sivusto: https://Samih.github.io/health_ai/
+3.  <strong>CI Fixes:</strong>
+    *   Korjattu <code>pytest</code> ajuritestit GitHub Actionsissa (Import path issues).
+    *   Päivitetty <code>config.py</code> Pydantic V2 -yhteensopivaksi.</p>
+<p><strong>Status:</strong> ✅ Config system toimii, Dokumentaatio on livenä, CI Testit menevät läpi, Docker Build &amp; Push konfiguroitu.
+<strong>Next:</strong> Deployment (VPS/Cloud Run).</p>
+<hr />
+<h2 id="2026-01-29-mlops-integration">2026-01-29: MLOps Integration 🧪</h2>
+<p><strong>Goal:</strong> Implementoi MLflow-pohjainen MLOps-infrastruktuuri mallin kehitys- ja seurantavaiheita varten.</p>
+<p><strong>Actions:</strong>
+1.  <strong>MLflow Integration:</strong>
+    *   Asennettu <code>mlflow&gt;=2.10.0</code> ja <code>protobuf&lt;5.0.0</code> <code>backend/requirements.txt</code>:iin.
+    *   Päivitetty <code>backend/scripts/process_garmin_data.py</code>:
+        *   Lisätty experiment tracking (<code>xgboost_readiness_prediction</code>)
+        *   Logitetaan parametrit (hyperparametrit, CV splits, test size)
+        *   Logitetaan metriikat (R², MAE, RMSE, sample counts)
+        *   Logitetaan artifaktat (feature importance JSON + PNG, performance plots, model)
+    *   Tracking database: <code>backend/data/mlflow.db</code> (SQLite)
+2.  <strong>Documentation:</strong>
+    *   Luotu <code>Docs/MLflow.md</code> (300+ riviä)
+        *   Setup ja asennus
+        *   MLflow UI käyttö (<code>mlflow ui</code>)
+        *   Eksperimenttien vertailu
+        *   Model Registry
+        *   Troubleshooting
+    *   Päivitetty <code>Docs/arkkitehtuuri.md</code> (lisätty MLOps-osio)
+    *   Päivitetty <code>Docs/production_roadmap.md</code> (merkitty MLOps valmiiksi)
+    *   Päivitetty <code>mkdocs.yml</code> (lisätty MLflow.md navigaatioon)</p>
+<p><strong>Status:</strong> ✅ MLflow integroitu, dokumentaatio valmis, valmis testaukseen.
+<strong>Next:</strong> Aja <code>python scripts/process_garmin_data.py</code> ja tarkista MLflow UI (<code>mlflow ui</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
             </div>
-          </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../security_audit/" class="btn btn-neutral float-left" title="Security Check"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
-
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-</footer>
           
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-        <span>
-          <a href="https://github.com/Samih/health_ai" class="fa fa-code-fork" style="color: #fcfcfc"> Samih/health_ai</a>
-        </span>
-    
-    
-      <span><a href="../security_audit/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-  </span>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
 </div>
-    <script src="../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "..";</script>
-    <script src="../js/theme_extra.js"></script>
-    <script src="../js/theme.js"></script>
-      <script src="../search/main.js"></script>
-    <script>
-        jQuery(function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        });
-    </script>
-
-</body>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.expand", "navigation.indexes", "content.code.copy", "navigation.top"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
 </html>
