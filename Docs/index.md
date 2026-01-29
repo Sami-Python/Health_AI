@@ -1,25 +1,25 @@
-# Welcome to Health AI Coach 🏃
+# Tervetuloa Health AI Coach -ohjelmaan 🏃
 
-Your personal AI-powered endurance training assistant.
+Sinun henkilökohtainen tekoälyavusteinen kestävyysurheiluvalmentajasi.
 
-## Overview
+## Yleiskatsaus
 
-Health AI Coach combines data from Garmin wearables, physiological metrics (HRV, Sleep, Stress), and advanced machine learning (XGBoost + Google Gemini) to provide personalized, adaptive training plans.
+Health AI Coach yhdistää Garmin-laitteiden datan, fysiologiset mittarit (Sykevälivaihtelu, Uni, Stressi) ja edistyneen koneoppimisen (XGBoost + Google Gemini) tarjotakseen yksilöityjä ja mukautuvia harjoitusohjelmia.
 
-## Quick Links
+## Pikalinkit
 
-- [🚀 Production Roadmap](production_roadmap.md) - Current status and future plans.
-- [🏗️ Architecture](arkkitehtuuri.md) - System design and component interaction.
-- [🔌 API Reference](API.md) - Backend API documentation.
-- [🔒 Security Audit](security_audit.md) - Security findings and status.
+- [🚀 Tuotannon Roadmap](production_roadmap.md) - Nykyinen tila ja tulevaisuuden tavoitteet.
+- [🏗️ Arkkitehtuuri](arkkitehtuuri.md) - Järjestelmäsuunnittelu ja komponenttien vuorovaikutus.
+- [🔌 API-viitteet](API.md) - Backend API -dokumentaatio.
+- [🔒 Tietoturva-auditointi](security_audit.md) - Tietoturvahavainnot ja tila.
 
-## Deployment
+## Julkaisu (Deployment)
 
-Check out the [Deployment Guide](deployment.md) to get started with Dev or Prod environments.
+Tutustu [Julkaisuoppaaseen (Deployment Guide)](deployment.md) aloittaaksesi kehitys- tai tuotantoympäristössä.
 
-## Features
+## Ominaisuudet
 
-- **Adaptive Training:** Plans that adjust to your daily recovery (Body Battery, TSB).
-- **AI Coaching:** Daily insights and workout adjustments powered by LLM.
-- **Race Prep:** Targeted goal tracking for races.
-- **Data Privacy:** Full GDPR compliance and encrypted credentials.
+- **Mukautuva harjoittelu:** Ohjelmat, jotka joustavat päivittäisen palautumisesi mukaan (Body Battery, TSB).
+- **AI-valmennus:** Päivittäiset oivallukset ja treenimuokkaukset LLM:n avulla.
+- **Kisavalmistautuminen:** Kohdistettu tavoit seuranta kisoja varten.
+- **Tietosuoja:** Täysi GDPR-yhteensopivuus ja salatut tunnukset.

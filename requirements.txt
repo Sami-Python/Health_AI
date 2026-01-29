@@ -16,4 +16,6 @@ duckdb
 streamlit
 plotly
 streamlit-calendar
+mkdocs
+mkdocs-material
 

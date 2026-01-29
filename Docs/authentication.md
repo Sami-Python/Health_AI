@@ -1,4 +1,4 @@
-# 🔐 Authentication & Multi-User Implementation
+# 🔐 Autentikaatio & Monen käyttäjän toteutus
 
 Tämä dokumentti kuvaa Health AI -sovelluksen käyttäjien tunnistautumisen toteutuksen Firebase Authenticationin avulla.
 
@@ -7,12 +7,12 @@ Tämä dokumentti kuvaa Health AI -sovelluksen käyttäjien tunnistautumisen tot
 ## 📋 Sisällysluettelo
 
 1. [Arkkitehtuuri](#arkkitehtuuri)
-2. [Token Flow (Kirjautumisvirta)](#token-flow-kirjautumisvirta)
-3. [Frontend Implementaatio](#frontend-implementaatio)
-4. [Backend Implementaatio](#backend-implementaatio)
-5. [Multi-User Data Isolation](#multi-user-data-isolation)
+2. [Kirjautumisvirta (Token Flow)](#kirjautumisvirta-token-flow)
+3. [Frontend-toteutus](#frontend-toteutus)
+4. [Backend-toteutus](#backend-toteutus)
+5. [Käyttäjädatan eriyttäminen](#kayttajadatan-eriyttaminen)
 6. [Testaus](#testaus)
-7. [Troubleshooting](#troubleshooting)
+7. [Vianmääritys](#vianmaaritys)
 
 ---
 
@@ -53,7 +53,7 @@ sequenceDiagram
 
 ---
 
-## Token Flow (Kirjautumisvirta)
+## Kirjautumisvirta (Token Flow)
 
 ### 1. Kirjautuminen (Login)
 
@@ -132,7 +132,7 @@ def get_goals(user: dict = Depends(verify_token)):
 
 ---
 
-## Frontend Implementaatio
+## Frontend-toteutus
 
 ### AuthContext (Global Authentication State)
 
@@ -195,7 +195,7 @@ const fetchGoals = async () => {
 
 ---
 
-## Backend Implementaatio
+## Backend-toteutus
 
 ### Middleware Arkkitehtuuri
 
@@ -236,7 +236,7 @@ async def my_endpoint(
 
 ---
 
-## Multi-User Data Isolation
+## Käyttäjädatan eriyttäminen
 
 ### Firestore Schema
 
@@ -383,7 +383,7 @@ def test_endpoint_with_valid_token(mock_firebase):
 
 ---
 
-## Troubleshooting
+## Vianmääritys
 
 ### Yleiset Virheet
 
@@ -489,7 +489,7 @@ Käy läpi tämä lista ongelmatilanteessa:
 
 ---
 
-## Security Best Practices
+## Tietoturvan parhaat käytännöt
 
 ### ✅ DO (Tee näin)
 
@@ -509,7 +509,7 @@ Käy läpi tämä lista ongelmatilanteessa:
 
 ---
 
-## Seuraavat Askeleet (Multi-User Skaalauksessa)
+## Seuraavat askeleet (Monen käyttäjän skaalautuvuus)
 
 ### Nykyinen Tilanne (MVP)
 
