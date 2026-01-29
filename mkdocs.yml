@@ -38,7 +38,7 @@ nav:
   - Arkkitehtuuri & Suunnittelu:
     - Arkkitehtuurin yleiskuvaus: arkkitehtuuri.md
     - Vaatimusmäärittely: vaatimusmaarittely.md
-    - Tietoturva-auditointi: security_audit.md
+    - Tietoturvaraportti: security_audit.md
   
   - Kehitysoppaat:
     - Garmin-integraatio: garmin_setup.md
