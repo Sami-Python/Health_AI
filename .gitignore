@@ -15,3 +15,10 @@ logs/
 .png
 
 backend/service_account_key.json
+
+# MLflow tracking
+mlruns/
+backend/mlruns/
+backend/data/mlflow.db
+backend/data/mlflow.db-shm
+backend/data/mlflow.db-wal
