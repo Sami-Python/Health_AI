@@ -224,8 +224,8 @@ users/
 ## 🔗 Related Documentation
 
 - [authentication.md](authentication.md) - Firebase Auth implementation
-- [Backend Encryption Helper](../backend/encryption_helper.py)
-- [Firestore Manager](../backend/firestore_manager.py)
+- [Backend Encryption Helper](https://github.com/Samih/health_ai/blob/main/backend/encryption_helper.py)
+- [Firestore Manager](https://github.com/Samih/health_ai/blob/main/backend/firestore_manager.py)
 
 ---
 

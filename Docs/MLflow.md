@@ -6,14 +6,14 @@
 
 ## 📋 Sisällysluettelo
 
-1. [Mikä on MLflow?](#mikä-on-mlflow)
-2. [Miksi käytämme MLflow:ta?](#miksi-käytämme-mlflowta)
+1. [Mikä on MLflow?](#mika-on-mlflow)
+2. [Miksi käytämme MLflow:ta?](#miksi-kaytamme-mlflowta)
 3. [Asennus](#asennus)
-4. [Käyttö: Mallin Treenaami nen](#käyttö-mallin-treenaaminen)
+4. [Käyttö: Mallin Treenaaminen](#kaytto-mallin-treenaaminen)
 5. [MLflow UI](#mlflow-ui)
 6. [Eksperimenttien Vertailu](#eksperimenttien-vertailu)
 7. [Model Registry](#model-registry)
-8. [Tuotantokäyttö](#tuotantokäyttö)
+8. [Tuotantokäyttö](#tuotantokaytto)
 9. [Troubleshooting](#troubleshooting)
 
 ---

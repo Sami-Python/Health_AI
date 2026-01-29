@@ -77,7 +77,7 @@ graph TD
     style CSV fill:#ffffcc,stroke:#ffaa00,stroke-dasharray: 2 2
 ```
 
-![alt text](image-1.png)
+![alt text](pics/architecture.png)
 
 ## Komponentit
 

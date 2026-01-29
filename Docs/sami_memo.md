@@ -198,10 +198,10 @@ Kuvista näemme:
 1.  **Merkittävimmät tekijät:** Uusi `poor_night_flag` (huono yöuni) nousi heti tärkeimmäksi muuttujaksi. Tämä kertoo, että unen laadun raja-arvo (< 45 pistettä) on kriittinen päivän vireystilalle.
 2.  **Ennustekyky:** Pisteparvivisualisointi osoittaa, että ennusteet seuraavat todellisia arvoja tiiviisti lineaarisesti.
 
-![Feature Importance](Health_AI/outputs/feature_importance.png)
+![Feature Importance](pics/feature_importance.png)
 *(Mitkä tekijät vaikuttavat eniten)*
 
-![Model Performance](Health_AI/outputs/model_performance.png)
+![Model Performance](pics/model_performance.png)
 *(Ennuste vs Todellinen - mitä lähempänä punaista viivaa pisteet ovat, sen parempi)*
 
 ## 2025-12-31 – UI Visuals & Calendar Uudistus 🖌️📅
