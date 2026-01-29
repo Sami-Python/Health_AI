@@ -1,44 +1,44 @@
-# Deployment Guide 🚀
+# Julkaisuopas (Deployment Guide) 🚀
 
-> **Note:** For the full, searchable documentation, visit our [Documentation Site](https://Samih.github.io/health_ai/).
+> **Huom:** Täydellisen, haettavan dokumentaation löydät [Dokumentaatiosivustoltamme](https://Samih.github.io/health_ai/).
 
-## Environments
+## Ympäristöt
 
-We support three standard environments:
+Tuemme kolmea standardia ympäristöä:
 
-### 1. Development (Local)
-- **Use Case:** Local coding and testing.
-- **Config:** `APP_ENV=development`
-- **Features:**
-  - Debug Mode: ON (Detailed stack traces)
-  - CORS: Allows localhost
-  - Reload: Hot reloading enabled
-- **Command:**
+### 1. Kehitys (Development - Local)
+- **Käyttötapaus:** Paikallinen koodaus ja testaus.
+- **Konfiguraatio:** `APP_ENV=development`
+- **Ominaisuudet:**
+  - Debug-tila: PÄÄLLÄ (Yksityiskohtaiset virhelokit)
+  - CORS: Sallii localhostin
+  - Reload: Hot reloading käytössä
+- **Komento:**
   ```bash
   docker-compose up
   ```
 
-### 2. Production
-- **Use Case:** Live public usage.
-- **Config:** `APP_ENV=production`
-- **Features:**
-  - Debug Mode: OFF (Generic error messages)
-  - CORS: Strict (requires `FRONTEND_URL`)
-  - Reload: Disabled
-- **Command:**
+### 2. Tuotanto (Production)
+- **Käyttötapaus:** Julkinen käyttö.
+- **Konfiguraatio:** `APP_ENV=production`
+- **Ominaisuudet:**
+  - Debug-tila: POIS (Yleiset virheilmoitukset)
+  - CORS: Tiukka (vaatii `FRONTEND_URL`:n)
+  - Reload: Ei käytössä
+- **Komento:**
   ```bash
   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
   ```
 
-### 3. Staging (Optional)
-- **Config:** `APP_ENV=staging`
-- Mimics production but might use a test database.
+### 3. Staging (Valinnainen)
+- **Konfiguraatio:** `APP_ENV=staging`
+- Jäljittelee tuotantoa, mutta saattaa käyttää testitietokantaa.
 
-## Configuration
+## Konfigurointi
 
-Settings are managed in [`backend/config.py`](../backend/config.py).  
-Hierarchy is handled by Pydantic: `Settings` -> `DevelopmentSettings` / `ProductionSettings`.
+Asetuksia hallitaan tiedostossa [`backend/config.py`](../backend/config.py).  
+Hierarkiaa käsittelee Pydantic: `Settings` -> `DevelopmentSettings` / `ProductionSettings`.
 
-## Security Notes
-- Ensure `.env` is **NEVER** committed to Git.
-- In production, set `FRONTEND_URL` to your actual domain (e.g., `https://healthai.app`).
+## Tietoturvahuomiot
+- Varmista, että `.env` tiedostoa **EI KOSKAAN** tallenneta Gitiin.
+- Tuotannossa aseta `FRONTEND_URL` vastaamaan oikeaa domainia (esim. `https://healthai.app`).
