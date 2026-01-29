@@ -158,14 +158,28 @@ graph TD
     *   **Tests:** Runs backend (pytest) and frontend (jest) tests on push
     *   **Linting:** Ruff (Python)
     *   **Docs:** Auto-deploy documentation
+    *   **Docker Build & Push:** Automates backend image builds to GHCR
+
+### 6. MLOps (Machine Learning Operations)
+*   **MLflow Experiment Tracking:**
+    *   **Database:** SQLite (`backend/data/mlflow.db`)
+    *   **Experiment:** `xgboost_readiness_prediction`
+    *   **Logged Data:** Parameters (hyperparameters), Metrics (R², MAE, RMSE), Artifacts (plots, models)
+*   **Model Registry:** Version control for trained XGBoost models
+*   **Benefits:**
+    *   Compare hyperparameter configurations
+    *   Track model performance over time
+    *   Reproducibility and rollback capability
+*   **MLflow UI:** `mlflow ui --backend-store-uri sqlite:///backend/data/mlflow.db`
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
 *   **Landing Page:** Static HTML/CSS (Inter font, glassmorphism effects)
 *   **Backend:** Python 3.12 (FastAPI), Pandas, XGBoost
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
+*   **MLOps:** MLflow (Experiment tracking, Model registry)
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
-*   **Infra:** Docker Compose, Firebase Hosting
+*   **Infra:** Docker Compose, Firebase Hosting, GitHub Actions
 
 ---
 
@@ -179,8 +193,8 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-01-28  
+**Last Updated:** 2026-01-29  
 **API Version:** 1.0.0  
-**Architecture Status:** Production Ready
+**Architecture Status:** Production Ready (MLOps-Enabled)
 **Landing Page:** 🌐 https://personal-ai-coach-92c39.web.app
 

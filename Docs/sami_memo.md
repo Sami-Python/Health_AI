@@ -1225,3 +1225,31 @@ firebase deploy --only firestore:rules
 
 **Status:** ✅ Config system toimii, Dokumentaatio on livenä, CI Testit menevät läpi, Docker Build & Push konfiguroitu.
 **Next:** Deployment (VPS/Cloud Run).
+
+---
+## 2026-01-29: MLOps Integration 🧪
+
+**Goal:** Implementoi MLflow-pohjainen MLOps-infrastruktuuri mallin kehitys- ja seurantavaiheita varten.
+
+**Actions:**
+1.  **MLflow Integration:**
+    *   Asennettu `mlflow>=2.10.0` ja `protobuf<5.0.0` `backend/requirements.txt`:iin.
+    *   Päivitetty `backend/scripts/process_garmin_data.py`:
+        *   Lisätty experiment tracking (`xgboost_readiness_prediction`)
+        *   Logitetaan parametrit (hyperparametrit, CV splits, test size)
+        *   Logitetaan metriikat (R², MAE, RMSE, sample counts)
+        *   Logitetaan artifaktat (feature importance JSON + PNG, performance plots, model)
+    *   Tracking database: `backend/data/mlflow.db` (SQLite)
+2.  **Documentation:**
+    *   Luotu `Docs/MLflow.md` (300+ riviä)
+        *   Setup ja asennus
+        *   MLflow UI käyttö (`mlflow ui`)
+        *   Eksperimenttien vertailu
+        *   Model Registry
+        *   Troubleshooting
+    *   Päivitetty `Docs/arkkitehtuuri.md` (lisätty MLOps-osio)
+    *   Päivitetty `Docs/production_roadmap.md` (merkitty MLOps valmiiksi)
+    *   Päivitetty `mkdocs.yml` (lisätty MLflow.md navigaatioon)
+
+**Status:** ✅ MLflow integroitu, dokumentaatio valmis, valmis testaukseen.
+**Next:** Aja `python scripts/process_garmin_data.py` ja tarkista MLflow UI (`mlflow ui`).
