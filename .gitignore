@@ -22,3 +22,4 @@ backend/mlruns/
 backend/data/mlflow.db
 backend/data/mlflow.db-shm
 backend/data/mlflow.db-wal
+site/
