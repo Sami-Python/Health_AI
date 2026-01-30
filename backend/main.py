@@ -20,8 +20,8 @@ import os
 from datetime import date, timedelta, datetime
 import calendar
 
-from backend.config import get_settings
-from backend.logger import setup_logging, logger
+from config import get_settings
+from logger import setup_logging, logger
 
 settings = get_settings()
 
