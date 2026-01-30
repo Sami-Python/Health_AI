@@ -13,6 +13,9 @@ BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
+from backend.logger import logger
+
+
 def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     """
     Authenticate to Garmin using credentials.
@@ -40,11 +43,11 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
             if creds:
                 email = creds['username']
                 password = creds['password']
-                print(f"✅ Using Garmin credentials for user: {user_id}")
+                logger.info(f"✅ Using Garmin credentials for user: {user_id}")
             else:
                 raise ValueError(f"No Garmin credentials found for user: {user_id}. Please connect your Garmin account in Profile settings.")
         except Exception as e:
-            print(f"❌ Failed to load Garmin credentials for user {user_id}: {e}")
+            logger.error(f"❌ Failed to load Garmin credentials for user {user_id}: {e}")
             raise ValueError(f"Could not load Garmin credentials: {str(e)}")
     else:
         # LEGACY: Environment variables (for backward compatibility)
@@ -55,16 +58,16 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         if not email or not password:
             raise ValueError("No user_id provided and GARMIN_EMAIL/GARMIN_PASSWORD not set in environment. Please provide user_id or configure legacy credentials.")
         
-        print(f"⚠️  Using legacy GARMIN_EMAIL from environment: {email}")
+        logger.warning(f"⚠️  Using legacy GARMIN_EMAIL from environment: {email}")
 
     # Authenticate
     try:
         client = Garmin(email, password)
         client.login()
-        print(f"✅ Garmin login successful for: {email}")
+        logger.info(f"✅ Garmin login successful for: {email}")
         return client
     except Exception as e:
-        print(f"❌ Garmin authentication failed: {e}")
+        logger.error(f"❌ Garmin authentication failed: {e}")
         raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
 
 
@@ -102,7 +105,7 @@ def fetch_daily_heart_rate(client: Garmin, start: date, end: date) -> pd.DataFra
         try:
                 hr_data = client.get_heart_rates(iso)
         except Exception as e:
-                print(f"Failed to get HR data for {iso}: {e}")
+                logger.error(f"Failed to get HR data for {iso}: {e}")
                 continue
 
         if not hr_data:
@@ -127,7 +130,7 @@ def fetch_sleep_data(client: Garmin, start: date, end: date) -> pd.DataFrame:
         try:
             sleep_data = client.get_sleep_data(iso)
         except Exception as e:
-            print(f"Failed to get sleep data for {iso}: {e}")
+            logger.error(f"Failed to get sleep data for {iso}: {e}")
             continue
 
         if not sleep_data:
@@ -153,7 +156,7 @@ def fetch_activities(client: Garmin, start: date, end: date) -> pd.DataFrame:
             # Get activities for the specific date
             activities = client.get_activities_by_date(iso, iso)
         except Exception as e:
-            print(f"Failed to get activities for {iso}: {e}")
+            logger.error(f"Failed to get activities for {iso}: {e}")
             continue
 
         if not activities:
@@ -195,13 +198,14 @@ def update_csv(new_df, filename, key_col='date'):
             combined = pd.concat([old_df, new_df], ignore_index=True)
             combined = combined.drop_duplicates(subset=[key_col], keep='last')
             combined.to_csv(filename, index=False)
-            print(f"Updated {filename}: Added {len(new_df)} new rows (Total: {len(combined)})")
+            combined.to_csv(filename, index=False)
+            logger.info(f"Updated {filename}: Added {len(new_df)} new rows (Total: {len(combined)})")
         except Exception as e:
-            print(f"Error updating {filename}: {e}. Overwriting...")
+            logger.error(f"Error updating {filename}: {e}. Overwriting...")
             new_df.to_csv(filename, index=False)
     else:
         new_df.to_csv(filename, index=False)
-        print(f"Created {filename} with {len(new_df)} rows")
+        logger.info(f"Created {filename} with {len(new_df)} rows")
 
 def main(user_id: Optional[str] = None):
     """
@@ -217,12 +221,16 @@ def main(user_id: Optional[str] = None):
     project_root = os.path.dirname(backend_dir)
     
     def get_data_dir(uid: Optional[str] = None):
-        # 1. Base data path
-        base_path = "Health_AI/data"
-        if os.path.exists("/Health_AI/data"): # Docker
-            base_path = "/Health_AI/data"
-        elif os.path.exists(os.path.join(project_root, "Health_AI/data")): # Local
-            base_path = os.path.join(project_root, "Health_AI/data")
+        # 1. Base data path relative to this script
+        # Script is in .../backend/scripts/
+        # Data is in .../backend/data/ (or /app/data in Docker)
+        
+        # Robust path resolution
+        if os.path.exists("/app/data"):
+            base_path = "/app/data"
+        else:
+            # Local: .../backend/data
+            base_path = os.path.join(backend_dir, "data")
             
         # 2. Append user_id if provided
         if uid:
@@ -233,19 +241,21 @@ def main(user_id: Optional[str] = None):
 
     data_dir = get_data_dir(user_id)
     os.makedirs(data_dir, exist_ok=True)
-    print(f"📁 Using data directory: {data_dir}")
+    data_dir = get_data_dir(user_id)
+    os.makedirs(data_dir, exist_ok=True)
+    logger.info(f"📁 Using data directory: {data_dir}")
     
     last_sync = get_latest_date(f"{data_dir}/garmin_daily_summary.csv")
     
     if last_sync:
         start = last_sync - timedelta(days=5)
-        print(f"Found existing data up to {last_sync}. Fetching from {start} (5-day overlap)...")
+        logger.info(f"Found existing data up to {last_sync}. Fetching from {start} (5-day overlap)...")
     else:
         start = today - timedelta(days=360)
-        print(f"No existing data. Fetching full history from {start}...")
+        logger.info(f"No existing data. Fetching full history from {start}...")
 
     if start > today:
-        print("Data is already up to date!")
+        logger.info("Data is already up to date!")
         return
 
     # 1. Summary
@@ -268,7 +278,9 @@ def main(user_id: Optional[str] = None):
 
     # 5. Sync to Firestore (NEW: To power Weekly Load widget)
     if not df_activities.empty:
-        print(f"Syncing {len(df_activities)} activities to Firestore for Weekly Load...")
+    # 5. Sync to Firestore (NEW: To power Weekly Load widget)
+    if not df_activities.empty:
+        logger.info(f"Syncing {len(df_activities)} activities to Firestore for Weekly Load...")
         import firestore_manager
         
         # Only sync if user_id is provided
@@ -297,14 +309,14 @@ def main(user_id: Optional[str] = None):
                     
                     firestore_manager.save_garmin_workout(user_id, workout_doc, activity_id)
                 except Exception as sync_err:
-                    print(f"⚠️ Failed to sync activity {activity_id} to Firestore: {sync_err}")
+                    logger.warning(f"⚠️ Failed to sync activity {activity_id} to Firestore: {sync_err}")
         else:
-            print("⚠️ Skipping Firestore sync: No user_id provided (Legacy Mode)")
+            logger.warning("⚠️ Skipping Firestore sync: No user_id provided (Legacy Mode)")
     
     # 6. NOTE: Daily summary metrics are synced to Firestore by process_garmin_data.py
     # This ensures calculated metrics (CTL/ATL/TSB) are included.
 
-    print(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
+    logger.info(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 
 if __name__ == "__main__":
     main()

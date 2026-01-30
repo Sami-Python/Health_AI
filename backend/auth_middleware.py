@@ -2,6 +2,8 @@ from fastapi import HTTPException, Security, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from firebase_admin import auth
 import os
+from backend.logger import logger
+
 
 security = HTTPBearer()
 
@@ -19,7 +21,15 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
         decoded_token = auth.verify_id_token(token)
         return decoded_token
     except Exception as e:
-        print(f"Auth Error: {e}")
+        # Log security event: Authentication Failed
+        logger.warning(
+            "Authentication Failed", 
+            extra={
+                "event": "security_auth_failure",
+                "error": str(e),
+                "token_preview": token[:10] + "..." if token else "None"
+            }
+        )
         raise HTTPException(
             status_code=401,
             detail="Invalid authentication credentials",
@@ -37,9 +47,18 @@ def verify_admin(user: dict = Depends(verify_token)):
     user_email = user.get("email")
     
     if not user_email:
+        logger.warning("Admin access denied: Email missing in token", extra={"event": "security_admin_denied", "uid": user.get("uid")})
         raise HTTPException(status_code=403, detail="Email required for admin access")
 
     if user_email not in admin_emails.split(","):
+        logger.warning(
+            "Admin access denied: Unauthorized email", 
+            extra={
+                "event": "security_admin_denied", 
+                "email": user_email,
+                "uid": user.get("uid")
+            }
+        )
         raise HTTPException(status_code=403, detail="Admin access denied")
     
     return user

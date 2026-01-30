@@ -141,7 +141,12 @@ graph TD
 *   **CSV Cache (`backend/data/`):** Backward-compatible export for ML model training only
     *   Used by `process_garmin_data.py` for local model training
     *   NOT used for production API endpoints (Firestore is source of truth)
-*   **User Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
+*   **Data Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
+*   **File System (local):**
+    *   **CSV Data:** `backend/data/{user_id}/` - User-specific Garmin data history
+    *   **Models:** `backend/models/{user_id}/xgb_model.pkl` - User-specific trained models
+    *   **Outputs:** `backend/outputs/{user_id}/` - User-specific plots/json metrics
+*   **MLOps:** MLflow experiment tracking uses a shared database, but runs are tagged with `user_id`.
 
 
 
@@ -171,6 +176,17 @@ graph TD
     *   Track model performance over time
     *   Reproducibility and rollback capability
 *   **MLflow UI:** `mlflow ui --backend-store-uri sqlite:///backend/data/mlflow.db`
+
+### 7. Logging & Monitoring (Observability)
+*   **Structured Logging (JSON):**
+    *   **Format:** Google Cloud Logging compatible JSON
+    *   **Fields:** timestamp, severity (INFO/WARN/ERROR), message, module, trace_id
+    *   **Lib:** `python-json-logger`
+*   **Request Tracing:**
+    *   Middleware logs every HTTP request (method, path, status, duration_ms, ip)
+*   **Security Events:**
+    *   Dedicated logging for `security_auth_failure`, `security_rate_limit`, `security_admin_denied`
+    *   Allows easy alerting on suspicious activities
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
