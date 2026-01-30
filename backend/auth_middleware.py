@@ -1,8 +1,9 @@
 from fastapi import HTTPException, Security, Request
+
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from firebase_admin import auth
 import os
-from backend.logger import logger
+from logger import logger
 
 
 security = HTTPBearer()

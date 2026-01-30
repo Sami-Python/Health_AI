@@ -1,7 +1,7 @@
 import logging
 import sys
 from pythonjsonlogger import jsonlogger
-from backend.config import get_settings
+from config import get_settings
 
 settings = get_settings()
 
