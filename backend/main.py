@@ -20,9 +20,16 @@ import os
 from datetime import date, timedelta, datetime
 import calendar
 
-from config import get_settings
+from backend.config import get_settings
+from backend.logger import setup_logging, logger
 
 settings = get_settings()
+
+# Initialize Structured Logging
+setup_logging()
+
+# Load secrets (handled by config.py and environment variables)
+# SecretLoader is used individually where needed.
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -67,14 +74,63 @@ Running in: **{settings.APP_ENV}** mode.
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.CORS_ORIGINS, # Reverted to settings.CORS_ORIGINS for syntactic correctness
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# --- Middleware: Request Logging ---
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """
+    Structured logging for every incoming HTTP request.
+    Logs method, path, status_code, and duration.
+    """
+    import time
+    start_time = time.time()
+    
+    # Extract request ID if present, otherwise generate one?
+    # For now, just log basic info
+    
+    response = await call_next(request)
+    
+    process_time = (time.time() - start_time) * 1000
+    
+    # Log structured JSON
+    logger.info(
+        "Request processed",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "duration_ms": round(process_time, 2),
+            "ip": request.client.host if request.client else "unknown"
+        }
+    )
+    
+    return response
+
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Custom Rate Limit Handler with Logging
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    """
+    Logs the rate limit violation before returning the standard response.
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    logger.warning(
+        "Rate limit exceeded",
+        extra={
+            "event": "security_rate_limit",
+            "ip": client_ip,
+            "path": request.url.path,
+            "limit": str(exc)
+        }
+    )
+    return _rate_limit_exceeded_handler(request, exc)
+
+app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
 # Global Error Handling
 from fastapi.responses import JSONResponse
@@ -86,7 +142,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     """
     
     # 1. Log the error (In real prod, use structured logging)
-    print(f"CRITICAL ERROR ({settings.APP_ENV}): {exc}") 
+    logger.error(f"CRITICAL ERROR ({settings.APP_ENV}): {exc}", extra={"path": request.url.path})
+ 
     
     # 2. Return generic message in production
     if not settings.DEBUG:
@@ -525,8 +582,9 @@ async def delete_account_endpoint(request: Request, user: dict = Depends(verify_
         # 2. Delete Auth User
         try:
             auth.delete_user(uid)
+            logger.info("User Account Deleted Permantently", extra={"event": "security_account_deletion", "uid": uid})
         except Exception as auth_error:
-            print(f"Auth Deletion Error: {auth_error}")
+            logger.error(f"Auth Deletion Error: {auth_error}")
             raise HTTPException(status_code=500, detail="Failed to delete authentication user")
 
         return {"status": "success", "message": "Account deleted permanently"}
@@ -615,6 +673,8 @@ async def get_all_feedback_admin(
         # Simple admin check: you can enhance this by checking user role in Firestore
         # For now, any authenticated user can access (you can restrict to specific UIDs)
         
+        logger.info("Admin accessing feedback logs", extra={"event": "security_admin_access", "uid": user.get("uid")})
+
         all_feedback = db_manager.get_all_feedback(limit=limit)
         
         # Apply filters if provided
@@ -760,20 +820,11 @@ async def refresh_data(user: dict = Depends(verify_token)):
         if script_dir not in sys.path:
             sys.path.append(script_dir)
             
-        # Change CWD to project root (../) so that scripts finding "Health_AI/data" works
-        # Current file: .../backend/main.py
-        # Root: .../
-        backend_dir = os.path.dirname(os.path.abspath(__file__))
-        project_root = os.path.dirname(backend_dir)
-        
-        original_cwd = os.getcwd()
-        os.chdir(project_root)
-        
         try:
             import fetch_garmin_data
             import process_garmin_data
             
-            # Force reload to ensure fresh execution
+            # Force reload to ensure fresh execution (in case module state persists)
             importlib.reload(fetch_garmin_data)
             importlib.reload(process_garmin_data)
             
@@ -802,9 +853,6 @@ async def refresh_data(user: dict = Depends(verify_token)):
             import traceback
             traceback.print_exc()
             raise script_error
-        finally:
-            # Always restore CWD to avoid side effects
-            os.chdir(original_cwd)
         
         return {"status": "success", "message": "Data refreshed and model retrained."}
         

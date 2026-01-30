@@ -362,18 +362,18 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Frontend `AddGoalForm` updated for "Race" type. (#321)
   - [x] `GoalCard` visual update (Purple Badge, Countdown Timer). (#322)
 
-- [ ] **ML Pipeline Isolation (Multi-User)** (#303)
-  - [ ] Refactor `fetch_garmin_data.py` to use `data/{user_id}/` (#329)
-  - [ ] Refactor `process_garmin_data.py` to use `models/{user_id}/` (#330)
-  - [ ] Update `main.py` refresh endpoint (#331)
+- [x] **ML Pipeline Isolation (Multi-User)** (#303) ✅ COMPLETED (2026-01-30)
+  - [x] Refactor `fetch_garmin_data.py` to use `data/{user_id}/` (#329)
+  - [x] Refactor `process_garmin_data.py` to use `models/{user_id}/` (#330)
+  - [x] Update `main.py` refresh endpoint (removed unsafe `os.chdir`) (#331)
 
 ### 10.2 Priority 2 (Production Best Practices)
 
 - [x] **Error Message Sanitization** (#266) ✅ COMPLETED (2026-01-27)
   - [x] Generic error messages in production (no stack traces) (#301)
   - [x] Implemented global exception handler in `main.py` (Env check: `ENVIRONMENT=production`). (#326)
-  - [ ] Implement structured logging (e.g., Google Cloud Logging) (#302)
-  - [ ] Log security events (login, failed auth, rate limits) (#303)
+  - [x] Implement structured logging (e.g., Google Cloud Logging) (#302) ✅ COMPLETED (2026-01-30)
+  - [x] Log security events (login, failed auth, rate limits) (#303) ✅ COMPLETED (2026-01-30)
 
 - [ ] **Rate Limit Monitoring** (#267)
   - [ ] Dashboard to track rate limit hits per user (#304)

@@ -1253,3 +1253,28 @@ firebase deploy --only firestore:rules
 
 **Status:** ✅ MLflow integroitu, dokumentaatio valmis, valmis testaukseen.
 **Next:** Aja `python scripts/process_garmin_data.py` ja tarkista MLflow UI (`mlflow ui`).
+
+---
+## 2026-01-30: Production Logging & Security Monitoring 🛡️📊
+
+**Goal:** Valmistella backend tuotantoon ottamalla käyttöön rakenteellinen lokitus (Google Cloud Logging) ja parantamalla tietoturvan seurantaa.
+
+**Actions:**
+1.  **Structured Logging (JSON):**
+    *   Implementoitu `backend/logger.py` käyttäen `python-json-logger` -kirjastoa.
+    *   Kaikki lokit ovat nyt JSON-muodossa (sis. `timestamp`, `severity`, `message`, `module`).
+    *   Tämä mahdollistaa lokien automaattisen parsinnan ja suodatuksen Google Cloud Loggingissa.
+    *   Päivitetty `fetch_garmin_data.py` ja `process_garmin_data.py` käyttämään uutta loggeria `print()`-komentojen sijaan.
+
+2.  **Request Logging Middleware:**
+    *   Lisätty `log_requests` middleware `backend/main.py`:hyn.
+    *   Lokittaa automaattisesti jokaisen HTTP-pyynnön: Method, Path, Status Code, Duration (ms), Client IP.
+
+3.  **Security Event Logging:**
+    *   **Authentication Failed:** Lokitetaan `event: security_auth_failure` (`auth_middleware.py`).
+    *   **Admin Access Denied:** Lokitetaan `event: security_admin_denied` (`auth_middleware.py`).
+    *   **Rate Limit Exceeded:** Lokitetaan `event: security_rate_limit` (Custom handler `main.py`:ssä).
+    *   **Critical Actions:** Lokitetaan tilien poistot ja adminien tietokantahaut audit-jälkeä varten.
+
+**Status:** ✅ Backend tuottaa nyt ammattimaista, koneellisesti luettavaa lokia. Tietoturvatapahtumat on helppo erottaa massasta.
+**Next:** Deployment Google Cloud Runiin ja logien tarkastelu Logs Explorerissa.

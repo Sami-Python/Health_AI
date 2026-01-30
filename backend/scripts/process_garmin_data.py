@@ -18,6 +18,9 @@ BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
+from backend.logger import logger
+
+
 import firestore_garmin_metrics
 
 def main_process(user_id: str = None):
@@ -31,61 +34,64 @@ def main_process(user_id: str = None):
     # In Docker, project_root might be /app? No, usually it's /app and Health_AI is at /Health_AI
     # Let's check environment or explicit paths.
     
-    def get_path(rel_path):
-        # 1. Base Strategy
-        # If rel_path starts with Health_AI/, we try to map it.
-        # But now rel_path might be "Health_AI/data/{uid}/garmin..."
-        
-        # Split base from potential user-specific part is tricky.
-        # Instead, we define base directories.
-        
-        base_data_path = "Health_AI/data"
-        base_models_path = "Health_AI/models"
-        base_outputs_path = "Health_AI/outputs"
-        
-        # Docker overrides
-        if os.path.exists("/Health_AI"):
-            prefix = "/Health_AI"
-        elif os.path.exists(os.path.join(project_root, "Health_AI")):
-            prefix = os.path.join(project_root, "Health_AI")
-        else:
-            prefix = "Health_AI" # Fallback relative
-            
-        # If user_id is provided, inject it into the path structure
-        # Structure: {prefix}/{subdir}/{user_id}/{filename}
-        
-        # Heuristic: Detect if we are looking for data, models, or outputs
-        if "data/" in rel_path:
-            subdir = "data"
-            filename = rel_path.split("data/")[-1]
-        elif "models/" in rel_path:
-            subdir = "models"
-            filename = rel_path.split("models/")[-1]
-        elif "outputs/" in rel_path:
-            subdir = "outputs"
-            filename = rel_path.split("outputs/")[-1]
-        else:
-            return os.path.join(prefix, rel_path) # Fallback for other files
-            
-        # Construct path with user_id if present
-        if user_id:
-             # Check if filename already starts with user_id (unlikely but safe)
-             final_dir = os.path.join(prefix, subdir, user_id)
-        else:
-             final_dir = os.path.join(prefix, subdir)
-             
-        # Ensure directories exist (lazy creation)
-        os.makedirs(final_dir, exist_ok=True)
-            
-        return os.path.join(final_dir, filename)
+    # Determine path to backend root
+    # script: .../backend/scripts/process_garmin_data.py
+    # backend: .../backend/
+    script_path = os.path.abspath(__file__)
+    backend_dir = os.path.dirname(os.path.dirname(script_path))
 
-    print("Loading data...")
+    def get_path(rel_path):
+        """
+        Resolves path relative to backend root, handling docker/local differences.
+        rel_path should be like "data/garmin.csv" or "models/xgb.pkl"
+        """
+        # Determine base directory for data/models/outputs
+        # In Docker, we might map volumes to /app/data, /app/models
+        # Locally, they are in backend/data, backend/models
+        
+        # Check if we are running in Docker where /app is the workdir
+        # Actually, let's just stick to reliable relative paths from backend_dir
+        # If /app is the backend dir in Docker, this works
+        
+        base_dir = backend_dir
+        
+        # Docker special case: sometimes data is mounted elsewhere?
+        # Assuming standard structure:
+        # /app/data
+        # /app/models
+        # /app/outputs
+        
+        if os.path.exists("/app/data"):
+           base_dir = "/app"
+           
+        # Initial path construction
+        full_path = os.path.join(base_dir, rel_path)
+        
+        # Handle user isolation
+        # If user_id is present, inject it into the path
+        # e.g., data/UID/file.csv instead of data/file.csv
+        
+        if user_id:
+            directory, filename = os.path.split(full_path)
+            # Check if directory already ends with user_id to avoid double nesting
+            if os.path.basename(directory) != user_id:
+                final_dir = os.path.join(directory, user_id)
+            else:
+                final_dir = directory
+            
+            # Ensure directory exists
+            os.makedirs(final_dir, exist_ok=True)
+            return os.path.join(final_dir, filename)
+            
+        return full_path
+
+    logger.info("Loading data...")
     try:
         df_summary = pd.read_csv(get_path("data/garmin_daily_summary.csv"))
         df_sleep = pd.read_csv(get_path("data/garmin_sleep_data.csv"))
         df_activities = pd.read_csv(get_path("data/garmin_activities.csv"))
     except FileNotFoundError as e:
-        print(f"Error: Missing data file. {e}")
+        logger.error(f"Error: Missing data file. {e}")
         return
 
     # --- Preprocessing ---
@@ -137,11 +143,11 @@ def main_process(user_id: str = None):
     
     features_csv = get_path("data/garmin_merged_features.csv")
     df_merged.to_csv(features_csv, index=False)
-    print(f"Saved merged features to {features_csv}")
+    logger.info(f"Saved merged features to {features_csv}")
     
     # --- Sync to Firestore (Multi-User) ---
     if user_id:
-        print(f"Syncing processed metrics to Firestore for user {user_id}...")
+        logger.info(f"Syncing processed metrics to Firestore for user {user_id}...")
         try:
             # Prepare metrics list from df_merged
             # We sync ALL columns that map to our schema
@@ -181,12 +187,12 @@ def main_process(user_id: str = None):
             
             # Batch save
             if firestore_garmin_metrics.batch_save_metrics(user_id, metrics_list):
-                 print(f"Successfully synced {len(metrics_list)} daily metrics to Firestore")
+                 logger.info(f"Successfully synced {len(metrics_list)} daily metrics to Firestore")
             else:
-                 print("Firestore sync returned false")
+                 logger.error("Firestore sync returned false")
                  
         except Exception as e:
-            print(f"Failed to sync to Firestore: {e}")
+            logger.error(f"Failed to sync to Firestore: {e}")
             import traceback
             traceback.print_exc()
 
@@ -199,7 +205,7 @@ def main_process(user_id: str = None):
     mlflow.set_experiment("xgboost_readiness_prediction")
     
     # --- Training with GridSearchCV & Cross-Validation ---
-    print("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
+    logger.info("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
     
     target = 'bodyBatteryChargedValue'
     drop_cols = ['date', 'bodyBatteryChargedValue', 'bodyBatteryDrainedValue', 'calendarDate', 'calendarDate_sleep']
@@ -241,8 +247,8 @@ def main_process(user_id: str = None):
         grid_search.fit(X_train, y_train)
         
         best_model = grid_search.best_estimator_
-        print(f"Best Parameters: {grid_search.best_params_}")
-        print(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
+        logger.info(f"Best Parameters: {grid_search.best_params_}")
+        logger.info(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
         
         # Log best parameters
         mlflow.log_params(grid_search.best_params_)
@@ -254,6 +260,7 @@ def main_process(user_id: str = None):
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         
         print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
+        logger.info(f"Final Test Model Performance", extra={"mae": mae, "r2": r2, "rmse": rmse})
         
         # Log metrics
         mlflow.log_metrics({
@@ -269,11 +276,11 @@ def main_process(user_id: str = None):
         model_path = get_path("models/xgb_model.pkl")
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         joblib.dump(best_model, model_path)
-        print(f"Model saved to {model_path}")
+        logger.info(f"Model saved to {model_path}")
         
         # Log model to MLflow
         mlflow.sklearn.log_model(best_model, "xgboost_model")
-        print("Model logged to MLflow")
+        logger.info("Model logged to MLflow")
     
         # --- Feature Importance ---
         importance = best_model.feature_importances_
@@ -285,7 +292,7 @@ def main_process(user_id: str = None):
         with open(fi_json_path, "w") as f:
             json.dump(feat_imp_dict, f, indent=4)
             
-        print(f"Feature importance saved to {fi_json_path}")
+        logger.info(f"Feature importance saved to {fi_json_path}")
         
         # Log feature importance as MLflow artifact
         mlflow.log_artifact(fi_json_path, "feature_importance")
@@ -309,7 +316,7 @@ def main_process(user_id: str = None):
         with open(output_metrics_path, "w") as f:
             json.dump(metrics, f)
         
-        print(f"Model metrics saved to {output_metrics_path}")
+        logger.info(f"Model metrics saved to {output_metrics_path}")
 
         # --- Plotting --- (kept for context)
         plt.figure(figsize=(10, 6))
@@ -339,12 +346,12 @@ def main_process(user_id: str = None):
         # Log to MLflow
         mlflow.log_artifact(perf_png_path, "plots")
 
-        print(f"Plots saved to {os.path.dirname(fi_png_path)}")
-        print(f"\n✅ MLflow tracking complete. View experiments at: http://localhost:5000")
-        print(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
+        logger.info(f"Plots saved to {os.path.dirname(fi_png_path)}")
+        logger.info(f"✅ MLflow tracking complete. View experiments at: http://localhost:5000")
+        logger.info(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
 
 
-    print(f"Plots saved to {os.path.dirname(fi_png_path)}")
+
 
 if __name__ == "__main__":
     import argparse
