@@ -278,8 +278,6 @@ def main(user_id: Optional[str] = None):
 
     # 5. Sync to Firestore (NEW: To power Weekly Load widget)
     if not df_activities.empty:
-    # 5. Sync to Firestore (NEW: To power Weekly Load widget)
-    if not df_activities.empty:
         logger.info(f"Syncing {len(df_activities)} activities to Firestore for Weekly Load...")
         import firestore_manager
         
