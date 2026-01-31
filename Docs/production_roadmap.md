@@ -8,8 +8,8 @@ Nykyinen Streamlit + lokaali Python-skripti ei skaalaudu.
 - [x] **Backend-valinta:** Ota käyttöön FastAPI (Python) tai Node.js API:n rakentamiseen. (#106)
 - [x] **API-suunnittelu:** Määrittele REST tai GraphQL rajapinta Fronendin käyttöön. (#107)
 - [x] **Kontitus:** Paketoi sovellus Docker-konteiksi (Backend, Frontend). (#108)
-- [ ] **Hosting:** Valmistele Cloud Run tai yksinkertainen VPS (Docker Compose) ympäristö. (Riittää sadoille käyttäjille) (#109)
-- [ ] **Secrets:** Ota käyttöön Google Secret Manager API-avaimille ja service account -konfiguraatioille. (#110)
+- [x] **Hosting:** Valmistele Cloud Run tai yksinkertainen VPS (Docker Compose) ympäristö. (Riittää sadoille käyttäjille) (#109) ✅ COMPLETED (2026-01-31)
+- [x] **Secrets:** Ota käyttöön Google Secret Manager API-avaimille ja service account -konfiguraatioille. (#110) ✅ COMPLETED (2026-01-31)
 
 ## 2. Tietokanta (Multi-User & Scalability)
 Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
@@ -103,7 +103,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **UI Polish:** Moderni ilme (Dark Mode, Tailwind Components). (#170)
 
 ## 6. DevOps & Monitoring
-- [ ] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD). (#171)
+- [x] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD). (#171) ✅ COMPLETED (2026-01-31)
 - [ ] **Monitorointi:** Asenna Grafana/Datadog suorituskyvyn seurantaan. (#172)
 - [ ] **Alerting:** Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti). (#173)
 - [ ] **Developer Experience:** Lisää `npm run fix` -komento (`package.json`), joka siivoaa lukot ja välimuistit automaattisesti. (#174)

@@ -195,7 +195,7 @@ graph TD
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **MLOps:** MLflow (Experiment tracking, Model registry)
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
-*   **Infra:** Docker Compose, Firebase Hosting, GitHub Actions
+*   **Infra:** Google Cloud Run (Backend), Firebase Hosting (Frontend), GitHub Actions (CI/CD)
 
 ---
 
