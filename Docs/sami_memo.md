@@ -1277,4 +1277,25 @@ firebase deploy --only firestore:rules
     *   **Critical Actions:** Lokitetaan tilien poistot ja adminien tietokantahaut audit-jälkeä varten.
 
 **Status:** ✅ Backend tuottaa nyt ammattimaista, koneellisesti luettavaa lokia. Tietoturvatapahtumat on helppo erottaa massasta.
-**Next:** Deployment Google Cloud Runiin ja logien tarkastelu Logs Explorerissa.
+**Next:** Deployment Google Cloud Runiin ja logien tarkastelu Logs Explorerissa. (VALMIS)
+
+## 2026-01-31 – Backend Deployment ✅
+
+Tänään saavutettiin merkittävä virstanpylväs: Backendin onnistunut julkaisu tuotantoympäristöön (Cloud Run).
+
+### 1. Cloud Run Deployment
+- **Service URL:** `https://health-ai-backend-35976089058.europe-north1.run.app`
+- **Docs/Swagger:** `https://health-ai-backend-35976089058.europe-north1.run.app/docs`
+- **Region:** `europe-north1`
+- **Project ID:** `health-ai-prod-486016`
+
+### 2. Tietoturva & Konfiguraatio
+- **Service Account:** Luotu erillinen `github-deployer` julkaisuun ja `health-ai-backend` (oletus) runtime-käyttäjä.
+- **Secrets:** Kaikki arkaluonteiset tiedot (`GARMIN_EMAIL`, `GARMIN_PASSWORD`, `FIREBASE_CREDENTIALS`, `GEMINI_API_KEY`, `ENCRYPTION_KEY`) on tallennettu Google Secret Manageriin.
+- **IAM:** Cloud Runille annettu `Secret Accessor` -oikeudet, jotta se voi purkaa salaisuudet käynnistyksen yhteydessä.
+- **GitHub Actions:** CI/CD-putki pakottaa Docker-tagit pieniksi kirjaimiksi (`tr '[:upper:]' '[:lower:]'`) yhteensopivuuden takaamiseksi.
+
+### 3. Seuraavat askeleet
+- **Frontendintegraatio:** Päivitä Next.js frontendin `NEXT_PUBLIC_API_URL` osoittamaan tähän uuteen Cloud Run -osoitteeseen.
+- **Monitorointi:** Aseta Cloud Monitoring / Alerting (jos tarpeen).
+
