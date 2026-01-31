@@ -42,20 +42,26 @@ jobs:
         run: |
           gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      # 4. Build and Push Container
+      # 4. Prepare Image Tag (Force Lowercase)
+      - name: Prepare Image Tag
+        run: |
+          RAW_TAG="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          echo "IMAGE_TAG=$(echo $RAW_TAG | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # 5. Build and Push Container
       - name: Build and Push
         run: |
-          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }} ./backend
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          docker build -t ${{ env.IMAGE_TAG }} ./backend
+          docker push ${{ env.IMAGE_TAG }}
 
-      # 5. Deploy to Cloud Run
+      # 6. Deploy to Cloud Run
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          image: ${{ env.IMAGE_TAG }}
           flags: '--allow-unauthenticated'
           env_vars: |
             APP_ENV=production
