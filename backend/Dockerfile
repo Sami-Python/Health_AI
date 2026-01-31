@@ -8,4 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # We will mount the database file from the host for now (Hybrid approach)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Cloud Run expects the container to listen on $PORT (default 8080)
+CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}

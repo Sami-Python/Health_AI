@@ -61,6 +61,9 @@ class ProductionSettings(Settings):
         origins = []
         if self.FRONTEND_URL:
             origins.append(self.FRONTEND_URL)
+        else:
+            # Allow all for initial deployment to get the URL
+            origins.append("*")
         # Add actual production domains here if known statically
         # origins.append("https://healthai.app") 
         return origins

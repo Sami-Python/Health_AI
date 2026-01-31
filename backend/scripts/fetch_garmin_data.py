@@ -13,7 +13,7 @@ BACKEND_DIR = os.path.dirname(SCRIPT_DIR)
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
 
-from backend.logger import logger
+from logger import logger
 
 
 def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
