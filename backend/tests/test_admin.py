@@ -2,16 +2,9 @@ import sys
 import os
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-# 1. Setup Mocks BEFORE imports
-# We need to mock firestore_manager because main.py imports it at top level
-# and we don't want to connect to real Firestore.
-mock_firestore = MagicMock()
-sys.modules["firestore_manager"] = mock_firestore
-
-# 2. Import app
-# Add parent dir to path if needed (though pytest usually handles this, specific to this project structure)
+# Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import app
@@ -42,10 +35,11 @@ def test_admin_feedback_access_granted(set_admin_env, admin_user):
     # Mock Auth to return admin user
     app.dependency_overrides[verify_token] = lambda: admin_user
     
-    # Mock DB response
-    mock_firestore.get_all_feedback.return_value = [{"message": "Test feedback"}]
-
-    response = client.get("/admin/feedback")
+    # Mock DB using patch on main.db_manager
+    with patch("main.db_manager") as mock_db:
+        mock_db.get_all_feedback.return_value = [{"message": "Test feedback"}]
+        
+        response = client.get("/admin/feedback")
     
     # Cleanup dependency override
     app.dependency_overrides = {}

@@ -9,6 +9,27 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Health AI Coach",
   description: "Your personnel AI powered endurance coach.",
+  openGraph: {
+    title: "Health AI Coach",
+    description: "Your personnel AI powered endurance coach. Train smarter, not harder.",
+    url: "https://personal-ai-coach-92c39.web.app",
+    siteName: "Health AI",
+    images: [
+      {
+        url: "https://personal-ai-coach-92c39.web.app/hero-fitness.png", // Assuming this exists from landing deployment or we should use one
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Health AI Coach",
+    description: "Your personnel AI powered endurance coach.",
+    images: ["https://personal-ai-coach-92c39.web.app/hero-fitness.png"],
+  },
 };
 
 export default function RootLayout({
