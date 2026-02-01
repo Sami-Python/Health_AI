@@ -69,6 +69,10 @@ Jos saat virheen `Error: Address already in use`, se tarkoittaa että Next.js on
 ### Turbopack-virheet
 Jos `npm run dev` (Turbopack) kaatuu Tailwind-virheisiin, käytä testaukseen aina **tuotantobuildia** (`npm run build && npm run start`), kuten yllä ohjeistettu. Tämä on kestävämpi tapa ajaa E2E-testejä CI-ympäristössä.
 
+### Yleiset CI-virheet
+- **"Class extends value undefined":** Tämä johtuu Next.js 16:n ja Playwrightin TypeScript-yhteensopivuusongelmasta. Korjaus: `frontend/e2e/tsconfig.json` eristää testit sovelluksen kääntäjäasetuksista.
+- **Jest yrittää ajaa Playwright-testejä:** Jos `npm test` epäonnistuu `e2e/`-kansiossa, varmista että `jest.config.js` sisältää `testPathIgnorePatterns: ['<rootDir>/e2e/']`.
+
 ## 🤖 CI/CD Integraatio
 
 Testit on suunniteltu ajettavaksi osana **GitHub Actions** CI-putkea. Jokainen Pull Request käy läpi automaattisen testauksen ennen mergeä, mikä estää rikkinäisten muutosten pääsyn tuotantoon. 

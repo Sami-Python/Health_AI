@@ -1333,3 +1333,23 @@ Tänään saavutettiin merkittävä virstanpylväs: Backendin onnistunut julkais
 - **Frontendintegraatio:** Päivitä Next.js frontendin `NEXT_PUBLIC_API_URL` osoittamaan tähän uuteen Cloud Run -osoitteeseen.
 - **Monitorointi:** Aseta Cloud Monitoring / Alerting (jos tarpeen).
 
+
+## 2026-02-01: CI/CD & Testifkisaus ja SEO
+
+Tänään keskityin saamaan projektin testit ja automaation kuntoon, sekä parantamaan frontendin SEO:ta.
+
+### 1. Testauksen korjaukset (Blocking Issues)
+- **Backend (`pytest`):** `firestore_manager` kaatui CI-ympäristössä, koska Google-kredentiaalit puuttuivat. Lisäsin "lazy loading" -logiikan, jossa Firestore-client alustetaan vasta tarvittaessa (try-except block).
+- **Frontend (`Playwright`):**
+  - Next.js 16 + Playwright aiheutti `TypeError: Class extends value undefined` -virheen TypeScript-käännöksessä.
+  - **Ratkaisu:** Loin erillisen `frontend/e2e/tsconfig.json` tiedoston, joka pakottaa testit käyttämään `commonjs`-moduuleja, eristäen ne Next.js-sovelluksen (ESM/Bundler) asetuksista.
+  - Palautin Playwright-version vakaampaan `1.53.0` (yhteensopiva Next.js peer-depsin kanssa).
+- **Jest vs Playwright:** `npm test` yritti ajaa myös E2E-testit. Estin tämän lisäämällä `testPathIgnorePatterns: ['<rootDir>/e2e/']` Jestin konfiguraatioon.
+
+### 2. Frontend & Käyttökokemus
+- **SEO:** Lisäsin `robots.txt` ja `sitemap.xml` tiedostot (`frontend/public/`).
+- **Social Sharing:** Lisäsin Open Graph ja Twitter -metatiedot `layout.tsx`:ään.
+- **Suorituskyky:** Landing pagen kuville (paitsi Herolle) lisättiin `loading="lazy"`.
+
+### 3. Yhteenveto
+Projekti on nyt teknisesti erittäin vakaalla pohjalla. CI-putken pitäisi mennä läpi vihreänä, ja sekä SEO että testauskäytännöt ovat dokumentoitua.
