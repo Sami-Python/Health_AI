@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -6,9 +6,22 @@ import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+  themeColor: "#0f172a",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://personal-ai-coach-92c39.web.app"),
   title: "Health AI Coach",
   description: "Your personnel AI powered endurance coach.",
+  manifest: "/manifest.json",
+  icons: {
+    apple: "/icons/icon-192x192.png",
+  },
   openGraph: {
     title: "Health AI Coach",
     description: "Your personnel AI powered endurance coach. Train smarter, not harder.",
@@ -16,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "Health AI",
     images: [
       {
-        url: "https://personal-ai-coach-92c39.web.app/hero-fitness.png", // Assuming this exists from landing deployment or we should use one
+        url: "/hero-fitness.png",
         width: 1200,
         height: 630,
       },
@@ -28,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Health AI Coach",
     description: "Your personnel AI powered endurance coach.",
-    images: ["https://personal-ai-coach-92c39.web.app/hero-fitness.png"],
+    images: ["/hero-fitness.png"],
   },
 };
 
@@ -39,12 +52,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0f172a" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </head>
       <body className={`${inter.className} antialiased bg-slate-950 text-slate-100`}>
         <AuthProvider>
           {children}
