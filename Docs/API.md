@@ -357,7 +357,55 @@ Get all user feedback (Admin only).
 }
 ```
 
+
 ---
+
+#### `GET /admin/security-events`
+Get security logs (rate limit hits, auth failures).
+
+**Tags:** System, Admin  
+**Rate Limit:** 50/min  
+**Parameters:**
+- `limit` (optional): Max items (default 100)
+- `type` (optional): Filter by event type (e.g., `rate_limit_exceeded`)
+
+**Security:** Requires Admin email.
+
+**Response:**
+```json
+{
+  "total": 5,
+  "events": [
+    {
+      "type": "rate_limit_exceeded",
+      "ip": "1.2.3.4",
+      "limit": "5 per minute",
+      "timestamp": "2024-01-15T12:05:00Z"
+    }
+  ]
+}
+```
+
+---
+
+#### `POST /admin/revoke-tokens/{uid}`
+Force logout a user by revoking their refresh tokens.
+
+**Tags:** System, Admin  
+**Rate Limit:** 5/min  
+**Parameters:**
+- `uid` (path): User UID to logout
+
+**Security:** Requires Admin email.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Tokens revoked for uid123"
+}
+```
+
 
 #### `GET /health`
 Health check endpoint (no auth required).

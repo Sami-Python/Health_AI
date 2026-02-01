@@ -12,6 +12,10 @@ from auth_middleware import verify_token, verify_admin
 import json
 import ai_coach
 import firestore_garmin_metrics
+try:
+    from google.cloud import error_reporting
+except ImportError:
+    error_reporting = None
 
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -27,6 +31,19 @@ settings = get_settings()
 
 # Initialize Structured Logging
 setup_logging()
+
+# Initialize Google Cloud Error Reporting (Production Only)
+error_reporting_client = None
+if settings.APP_ENV == "production":
+    if error_reporting:
+        try:
+            # Client automatically pulls credentials from GOOGLE_APPLICATION_CREDENTIALS or Cloud Run metadata
+            error_reporting_client = error_reporting.Client(service=settings.APP_NAME, version=settings.VERSION)
+            logger.info("Google Cloud Error Reporting initialized")
+        except Exception as e:
+            logger.warning(f"Failed to initialize Error Reporting: {e}")
+    else:
+        logger.warning("google-cloud-error-reporting library not found")
 
 # Load secrets (handled by config.py and environment variables)
 # SecretLoader is used individually where needed.
@@ -128,6 +145,18 @@ async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
             "limit": str(exc)
         }
     )
+    
+    # Persist to Firestore for Admin Dashboard
+    try:
+        db_manager.log_security_event("rate_limit_exceeded", {
+            "ip": client_ip,
+            "path": request.url.path,
+            "limit": str(exc),
+            "user_agent": request.headers.get("user-agent", "unknown")
+        })
+    except Exception as e:
+        logger.error(f"Failed to log security event: {e}")
+
     return _rate_limit_exceeded_handler(request, exc)
 
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
@@ -143,6 +172,14 @@ async def global_exception_handler(request: Request, exc: Exception):
     
     # 1. Log the error (In real prod, use structured logging)
     logger.error(f"CRITICAL ERROR ({settings.APP_ENV}): {exc}", extra={"path": request.url.path})
+ 
+    # 2. Report to Google Cloud Error Reporting (Production only)
+    if error_reporting_client:
+        try:
+            # Automatically grabs stack trace and context
+            error_reporting_client.report_exception()
+        except Exception as er_err:
+            logger.error(f"Failed to report to Cloud Error Reporting: {er_err}")
  
     
     # 2. Return generic message in production
@@ -690,6 +727,67 @@ async def get_all_feedback_admin(
         }
     except Exception as e:
         print(f"Admin Feedback Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/admin/revoke-tokens/{uid}")
+@limiter.limit("5/minute")
+async def revoke_user_tokens(uid: str, user: dict = Depends(verify_admin)):
+    """
+    Revokes all refresh tokens for a user. Forces them to re-login.
+    Admin only.
+    """
+    try:
+        auth.revoke_refresh_tokens(uid)
+        logger.info(f"Revoked tokens for user {uid}", extra={"admin": user['uid'], "target_uid": uid, "event": "security_token_revocation"})
+        return {"status": "success", "message": f"Tokens revoked for {uid}"}
+    except Exception as e:
+        logger.error(f"Token Revocation Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/users")
+@limiter.limit("20/minute")
+async def list_users_admin(request: Request, user: dict = Depends(verify_admin)):
+    """
+    List all users from Firebase Auth.
+    """
+    try:
+        # List users in batches of 1000 (default)
+        page = auth.list_users()
+        users_list = []
+        for u in page.users:
+            users_list.append({
+                "uid": u.uid,
+                "email": u.email,
+                "display_name": u.display_name,
+                "disabled": u.disabled,
+                "metadata": {
+                    "last_sign_in": u.user_metadata.last_sign_in_timestamp,
+                    "creation_time": u.user_metadata.creation_timestamp
+                }
+            })
+        
+        logger.info("Admin listed users", extra={"admin": user['uid'], "count": len(users_list)})
+        return {"users": users_list, "total": len(users_list)}
+    except Exception as e:
+        logger.error(f"User List Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/admin/security-events")
+@limiter.limit("50/minute")
+async def get_security_events_admin(
+    request: Request,
+    user: dict = Depends(verify_admin),
+    limit: int = 100,
+    type: Optional[str] = None
+):
+    """
+    Admin endpoint: Returns security logs (rate limits, auth failures).
+    """
+    try:
+        logger.info("Admin accessing security logs", extra={"event": "security_admin_access", "uid": user.get("uid")})
+        events = db_manager.get_security_events(limit=limit, event_type=type)
+        return {"total": len(events), "events": events}
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
