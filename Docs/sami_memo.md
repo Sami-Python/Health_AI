@@ -796,8 +796,42 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
 
 **Swagger UI:**
 - `http://localhost:8001/docs` - Enhanced with metadata
-- Endpoints grouped by tags
-- Interactive testing
+
+---
+
+## 2026-02-01 – Observability & Monitoring Implementation 🛡️📊
+
+Tänään keskityttiin tuotantovalmiuuden parantamiseen lisäämällä kattava virheenseuranta ja admin-tason valvonta.
+
+### 1. Observability (Google Cloud Error Reporting)
+Backend integroitiin Google Cloud Error Reportingiin.
+- **Tuotanto:** Kun `APP_ENV=production`, kaikki käsittelemättömät virheet (500 Internal Server Error) raportoidaan automaattisesti Google Cloudiin stack traceineen.
+- **Kehitys:** Kehitysympäristössä (`APP_ENV=development`) virheet tulostuvat edelleen konsoliin debuggausta varten.
+- **Muutokset:** `main.py` exception handler ja `requirements.txt` (`google-cloud-error-reporting`).
+
+### 2. Rate Limit Monitoring (Visibility)
+Aiemmin Rate Limiting (`slowapi`) oli "pimeä" – tiesimme että se toimii, mutta emme tienneet kuka siihen osuu.
+- **Security Logs:** Nyt jokainen "429 Too Many Requests" -tapahtuma tallennetaan Firestoreen `security_events` -kokoelmaan.
+- **Admin API:** Lisätty `GET /admin/security-events` endpoint, jolla admin voi tarkastella näitä logeja.
+- **Kentät:** `ip`, `path`, `limit`, `user_agent`, `timestamp`.
+
+### 3. Session Security (Force Logout)
+Administraattorille lisättiin "hätäpainike" epäilyttävän toiminnan varalle.
+- **Revoke Tokens:** Uusi endpoint `POST /admin/revoke-tokens/{uid}`.
+- **Vaatimus:** Firebase Authentication, `verify_admin` middleware.
+- **Vaikutus:** Mitätöi käyttäjän refresh tokenit. Käyttäjä lentää ulos sovelluksesta heti kun nykyinen ID-token vanhenee (max 1h).
+
+### 4. E2E Testing (Playwright) 🎭
+Automatisoitu selaimen laajuinen testaus on nyt pystytetty (`frontend/e2e/`).
+- **Setup:** Asennettu Playwright ja konfiguroitu ajamaan testit `npm run start` -tuotantobuildia vasten (koska Turbopack aiheutti ongelmia testiajossa).
+- **Testit:**
+    - `landing_page.spec.ts`: Tarkistaa otsikot ja "Log In" -napin.
+    - `login_page.spec.ts`: Tarkistaa navigaation ja Google-kirjautumispainikkeen näkyvyyden.
+- **CI Valmius:** Valmis ajettavaksi GitHub Actionsissa.
+
+### Yhteenveto
+Olemme nyt poistaneet "sokeat pisteet" backendistä. Tiedämme jos se kaatuu, tiedämme jos joku spämmää sitä, ja voimme tarvittaessa estää pääsyn. Lisäksi meillä on nyt E2E-automaatio, joka varmistaa, että etusivu ei hajoa. 🟢
+
 
 ---
 

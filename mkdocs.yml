@@ -44,8 +44,12 @@ nav:
     - Garmin-integraatio: garmin_setup.md
     - API-viitteet: API.md
   
+  - Laadunvarmistus & Testaus:
+    - E2E Testaus (Playwright): testing.md
+
   - Operointi:
     - MLOps (MLflow): MLflow.md
+    - Observability & Monitoring: observability.md
     - Tuotannon Roadmap: production_roadmap.md
   
   - Viitteet:

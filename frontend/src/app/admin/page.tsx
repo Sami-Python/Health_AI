@@ -2,12 +2,14 @@
 
 import AdminGuard from "@/components/AdminGuard";
 import FeedbackTable from "@/components/FeedbackTable";
+import SecurityEventsTable from "@/components/SecurityEventsTable";
+import UsersTable from "@/components/UsersTable";
 import { Shield, Users, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import AnimateEntry from "@/components/ui/AnimateEntry";
 
 export default function AdminPage() {
-    const [activeTab, setActiveTab] = useState<'feedback' | 'users'>('feedback');
+    const [activeTab, setActiveTab] = useState<'feedback' | 'users' | 'security'>('feedback');
 
     return (
         <AdminGuard>
@@ -31,8 +33,8 @@ export default function AdminPage() {
                             <button
                                 onClick={() => setActiveTab('feedback')}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'feedback'
-                                        ? 'bg-slate-800 text-white'
-                                        : 'text-slate-500 hover:text-slate-300'
+                                    ? 'bg-slate-800 text-white'
+                                    : 'text-slate-500 hover:text-slate-300'
                                     }`}
                             >
                                 <MessageSquare className="h-4 w-4" /> Feedback
@@ -40,11 +42,20 @@ export default function AdminPage() {
                             <button
                                 onClick={() => setActiveTab('users')}
                                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'users'
-                                        ? 'bg-slate-800 text-white'
-                                        : 'text-slate-500 hover:text-slate-300'
+                                    ? 'bg-slate-800 text-white'
+                                    : 'text-slate-500 hover:text-slate-300'
                                     }`}
                             >
-                                <Users className="h-4 w-4" /> Users (Coming Soon)
+                                <Users className="h-4 w-4" /> Users
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('security')}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${activeTab === 'security'
+                                    ? 'bg-slate-800 text-white'
+                                    : 'text-slate-500 hover:text-slate-300'
+                                    }`}
+                            >
+                                <Shield className="h-4 w-4" /> Security
                             </button>
                         </div>
 
@@ -57,9 +68,16 @@ export default function AdminPage() {
                         )}
 
                         {activeTab === 'users' && (
-                            <div className="p-12 text-center border dashed border-slate-800 rounded-xl text-slate-500">
-                                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                <p>User management interface is under construction.</p>
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-200">User Management</h2>
+                                <UsersTable />
+                            </div>
+                        )}
+
+                        {activeTab === 'security' && (
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-semibold text-slate-200">Rate Limit & Security Logs</h2>
+                                <SecurityEventsTable />
                             </div>
                         )}
 
