@@ -29,7 +29,11 @@ if not firebase_admin._apps:
         except Exception as e:
              print(f"Critical Error: Failed to initialize Firebase: {e}")
 
-db = firestore.client()
+try:
+    db = firestore.client()
+except Exception as e:
+    print(f"Warning: Could not initialize Firestore Client (likely missing credential in CI/Test env): {e}")
+    db = None
 
 def get_next_workout(user_id: str):
     """Fetches next pending workout from 'workouts' collection for specific user."""
