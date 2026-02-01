@@ -57,6 +57,25 @@ npm run dev
 ```
 Sovellus on käytettävissä: `http://localhost:3000`
 
+## Testaus
+
+### 1. Backend Tests (Pytest)
+```bash
+cd backend
+pytest tests/
+```
+
+### 2. Frontend Tests (Jest & Playwright)
+```bash
+cd frontend
+
+# Komponenttitestit
+npm test
+
+# E2E-testit (vaatii buildin tai dev-serverin)
+npx playwright test
+```
+
 ## Arkkitehtuuri
 *   **Frontend:** Next.js - Moderni ja responsiivinen käyttöliittymä.
 *   **Backend:** FastAPI - Tehokas rajapinta datan käsittelyyn ja AI-logiikkaan.
