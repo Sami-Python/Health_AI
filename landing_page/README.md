@@ -62,9 +62,9 @@ landing_page/
 ├── index.html              # Main page (HTML)
 ├── styles.css              # Stylesheet (CSS)
 ├── assets/                 # Images
-│   ├── ecg-heart-rate.png  # Heart rate curve
-│   ├── hero-fitness.png    # Hero image
-│   └── ai-analytics.png    # AI visualization
+│   ├── ecg-heart-rate.webp  # Heart rate curve
+│   ├── hero-fitness.webp    # Hero image
+│   └── ai-analytics.webp    # AI visualization
 └── README.md               # This file
 ```
 

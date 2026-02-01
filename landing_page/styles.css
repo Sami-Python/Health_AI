@@ -537,7 +537,10 @@ body {
 
 .ecg-section {
     padding: var(--spacing-3xl) 0;
-    background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.05) 100%);
+    background-image: linear-gradient(rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.9)), url('assets/hero-fitness.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
 }
 
 .ecg-container {

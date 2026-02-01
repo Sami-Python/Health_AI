@@ -18,6 +18,13 @@ Tuemme kolmea standardia ympäristöä:
   docker-compose up
   ```
 
+#### Vianetsintä (Troubleshooting)
+Jos kohtaat ongelmia välimuistien tai riippuvuuksien kanssa (esim. Tailwind ei päivity), aja frontend-kansiossa:
+```bash
+npm run fix
+```
+Tämä komento tuhoaa turvallisesti `node_modules`, `.next` (build cache) ja `package-lock.json` -tiedostot ja asentaa riippuvuudet puhtaalta pöydältä.
+
 ### 2. Tuotanto (Production)
 - **Käyttötapaus:** Julkinen käyttö.
 - **Konfiguraatio:** `APP_ENV=production`
