@@ -106,7 +106,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD). (#171) ✅ COMPLETED (2026-01-31)
 - [ ] **Monitorointi:** Asenna Grafana/Datadog suorituskyvyn seurantaan. (#172)
 - [ ] **Alerting:** Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti). (#173)
-- [ ] **Developer Experience:** Lisää `npm run fix` -komento (`package.json`), joka siivoaa lukot ja välimuistit automaattisesti. (#174)
+- [x] **Developer Experience:** Lisää `npm run fix` -komento (`package.json`), joka siivoaa lukot ja välimuistit automaattisesti. (#174) ✅ COMPLETED (2026-02-01)
 
 ---
 ### MVP -> Beta (Ensimmäiset askeleet)
@@ -308,7 +308,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Open Graph meta tags for social sharing (#285) ✅ COMPLETED (2026-02-01)
 
 - [ ] **Performance** (#262)
-  - [ ] Convert images to WebP format (#286)
+  - [x] Convert images to WebP format (#286) ✅ COMPLETED (2026-02-01)
   - [x] Implement lazy loading (#287) ✅ COMPLETED (2026-02-01)
   - [ ] Minify CSS/HTML (#288)
 
@@ -332,9 +332,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] User profile protection (`users/{userId}`) (#291)
   - [x] Secured `garmin_metrics` (health data) (#299)
   - [x] Admin-only access for feedback collection (#292)
-  - [ ] Deploy rules to Firebase Console (#293)
+  - [x] Deploy rules to Firebase Console (#293) ✅ COMPLETED (2026-02-01)
   - **Impact:** Defense-in-depth (prevents direct Firestore access bypass)
-  - **Status:** Ready for deployment (requires `firebase deploy`)
+  - **Status:** Deployed and Active
 
 - [x] **CORS Restriction** (#264) ✅ COMPLETED (2026-01-25)
   - [x] Replace `allow_origins=["*"]` with specific domains (#294)
