@@ -1,5 +1,26 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Health AI Coach",
+  description: "Your personnel AI powered endurance coach.",
+  openGraph: {
+    title: "Health AI Coach",
+    description: "Your personnel AI powered endurance coach. Train smarter, not harder.",
+    url: "https://personal-ai-coach-92c39.web.app",
+    siteName: "Health AI",
+    images: [
+      {
+        url: "/hero-fitness.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+};
 
 export default function Home() {
   return (
