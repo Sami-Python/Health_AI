@@ -731,7 +731,7 @@ async def get_all_feedback_admin(
 
 @app.post("/admin/revoke-tokens/{uid}")
 @limiter.limit("5/minute")
-async def revoke_user_tokens(uid: str, user: dict = Depends(verify_admin)):
+async def revoke_user_tokens(request: Request, uid: str, user: dict = Depends(verify_admin)):
     """
     Revokes all refresh tokens for a user. Forces them to re-login.
     Admin only.

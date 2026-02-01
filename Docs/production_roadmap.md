@@ -303,13 +303,13 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] Test Dashboard rendering (requires mocked data) (#329)
 
 - [ ] **SEO Optimization** (#261)
-  - [ ] `robots.txt` for search engine crawlers (#283)
-  - [ ] `sitemap.xml` for indexing (#284)
-  - [ ] Open Graph meta tags for social sharing (#285)
+  - [x] `robots.txt` for search engine crawlers (#283) ✅ COMPLETED (2026-02-01)
+  - [x] `sitemap.xml` for indexing (#284) ✅ COMPLETED (2026-02-01)
+  - [x] Open Graph meta tags for social sharing (#285) ✅ COMPLETED (2026-02-01)
 
 - [ ] **Performance** (#262)
   - [ ] Convert images to WebP format (#286)
-  - [ ] Implement lazy loading (#287)
+  - [x] Implement lazy loading (#287) ✅ COMPLETED (2026-02-01)
   - [ ] Minify CSS/HTML (#288)
 
 **Completed:** 2026-01-24  
