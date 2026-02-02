@@ -41,7 +41,24 @@ run_dashboard.bat
 streamlit run dashboard.py
 ```
 
+### 4. MLflow (Experiments)
+ экспериmental tracking for model training.
+```bash
+cd backend
+source .venv/Scripts/activate
+mlflow ui --backend-store-uri sqlite:///data/mlflow.db
+```
+*UI: http://localhost:5000*
+
+### 5. Monitorointi (Grafana & Prometheus)
+Käynnistä vain tarvittaessa (Raskas).
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
+```
+*Grafana: http://localhost:3001 (admin/admin)*
+
 ---
+
 
 ## 2026-01-26 – AI Coach Bug Fix & CSV Migration Implementation
 
@@ -338,7 +355,7 @@ Käyttäjä voi nyt luoda uusia tavoitteita suoraan Dashboardilta.
 
 ### 3. Bugikorjaukset & Käytettävyys
 - **Porttikorjaus:** Frontend yritti kutsua porttia `8001`, mutta Docker pyörii portissa `8000`. Tämä korjattiin configiin.
-- **Käynnistys:** `source .venv/Scripts/activate` Selkeytettiin, että Next.js-frontend ajetaan `frontend`-kansiossa komennolla `npm run dev` ja backend `docker-compose up`.
+- **Käynnistys:** ` ` Selkeytettiin, että Next.js-frontend ajetaan `frontend`-kansiossa komennolla `npm run dev` ja backend `docker-compose up`.
 
 ### 4. Vianetsintä & Viimeistely
 - **Data Refresh**: Korjattu ongelma, jossa "Refresh"-nappi ei päivittänyt tietoja. Syynä oli puuttuvat ympäristömuuttujat (`.env`) Dockerissa ja väärä työhakemisto (`CWD`) skriptejä ajettaessa. Korjattu pakottamalla polku `/data`-kansioon.
@@ -1352,4 +1369,9 @@ Tänään keskityin saamaan projektin testit ja automaation kuntoon, sekä paran
 - **Suorituskyky:** Landing pagen kuville (paitsi Herolle) lisättiin `loading="lazy"`.
 
 ### 3. Yhteenveto
-Projekti on nyt teknisesti erittäin vakaalla pohjalla. CI-putken pitäisi mennä läpi vihreänä, ja sekä SEO että testauskäytännöt ovat dokumentoitua.
+### 4. Illan Viimeistelyt (Final Polish) 🧹
+- **Developer Experience:** Luotu `npm run fix` -komento, joka siivoaa frontendin välimuistit ja asentaa riippuvuudet uudelleen (`frontend/scripts/cleanup.js`).
+- **Performance:** Landing pagen kuvat konvertoitu automaattisesti WebP-muotoon (`convert_images.py`), mikä pienensi latauskokoja merkittävästi.
+- **Security:** Firestore Rules deployattu tuotantoon (`firebase deploy`), varmistaen datan eristyksen pilvessä.
+
+**Status:** Kaikki toimii, CI/CD vihreä, ja tietoturva on tiukka. Hyvä päivä! 🚀

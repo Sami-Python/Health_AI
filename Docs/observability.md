@@ -67,3 +67,29 @@ Kaikki merkittävät tietoturvatapahtumat, mukaan lukien adminien tekemät toime
   "timestamp": "Firestore Timestamp"
 }
 ```
+
+## 6. Performance Monitoring (Prometheus & Grafana) 📊
+Kehitystä ja valvontaa varten järjestelmään on integroitu Prometheus-tilastot.
+
+### Käynnistys
+Koska monitorointikontit ovat raskaita, ne on eriytetty omaan tiedostoonsa. Pääset monitorointiin käsiksi ajamalla:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
+```
+
+### Palvelut:
+*   **Prometheus:** `http://localhost:9090` - Kerää datan.
+*   **Grafana:** `http://localhost:3001` - Dashboard.
+    *   **User:** `admin`
+    *   **Pass:** `admin`
+    *   **Setup:** Lisää Data Source "Prometheus" osoitteella `http://prometheus:9090` (internal docker network).
+
+### Metric Data (`/metrics`)
+Backend tarjoaa automaattisesti metriikkaa osoitteessa `/metrics`. Prometheus käy hakemassa ("Scrape") tämän 15 sekunnin välein.
+
+Mitatut suureet:
+*   **http_requests_total:** Pyyntöjen kokonaismäärä.
+*   **http_request_duration_seconds:** Vasteajat.
+*   **process_cpu_seconds:** Backendin prosessorikuorma.
+

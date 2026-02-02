@@ -161,6 +161,13 @@ async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 app.add_exception_handler(RateLimitExceeded, custom_rate_limit_handler)
 
+# --- Monitoring ---
+from prometheus_fastapi_instrumentator import Instrumentator
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)
+
+
 # Global Error Handling
 from fastapi.responses import JSONResponse
 

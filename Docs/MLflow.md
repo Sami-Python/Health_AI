@@ -392,3 +392,6 @@ mlflow.set_tags({
 **Viimeksi päivitetty:** 2026-01-29  
 **Dokumentaation kattavuus:** Experiment Tracking, Model Registry, Local Deployment  
 **TODO:** Cloud Deployment (Cloud Run, Vertex AI), A/B Testing, Drift Detection
+
+
+![alt text](image.png)
