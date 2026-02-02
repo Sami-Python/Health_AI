@@ -798,34 +798,22 @@ async def get_security_events_admin(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ... existing code ...
-
+@app.get("/next-workout", tags=["Workouts"])
+@limiter.limit("20/minute")
+async def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
     """
     Retrieve the next planned workout for the user.
     
     Returns the soonest 'PENDING' workout where date >= today.
     """
     try:
-        # Implementation relying on firestore_manager
-        workout = db_manager.get_next_workout(user['uid'])
-        if workout:
-            return workout
-        return {} # Empty dict if no workout found
-    except Exception as e:
-        # Log error but return empty to not crash UI
-        print(f"Error fetching next workout: {e}")
-        return {}
-
-    try:
-        # Use Firestore for next workout (Logic Updated in firestore_manager.py)
         workout = db_manager.get_next_workout(user['uid'])
         if not workout:
-            return {} # Frontend expects empty object or specific null handling?
-            # Looking at frontend: `value={nextWorkout?.content?.activity || "Rest Day"}`. 
-            # If {} returned, nextWorkout is {}, optional chaining works.
+            return {}
         return workout
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Error fetching next workout: {e}")
+        return {}
 
 @app.get("/workouts/weekly-status", tags=["Analytics"])
 async def get_weekly_status(user: dict = Depends(verify_token)):
