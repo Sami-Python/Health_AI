@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import ChatInterface from "@/components/ChatInterface";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -384,6 +385,9 @@ export default function DashboardPage() {
                     </div>
                 </div>
             )}
+
+            <ChatInterface />
         </div>
     );
 }
+

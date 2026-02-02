@@ -38,11 +38,13 @@ graph TD
         UI_Dashboard[Dashboard Page]
         UI_Charts["Recharts<br/>(Recovery, Load, Performance)"]
         UI_AICard[AI Insight Card]
+        UI_Chat[AI Chat Widget]
     end
 
     %% Backend Services
     subgraph "Backend API"
         FastAPI[FastAPI Service]
+        ChatManager[ai_chat_manager.py]
     end
 
     %% Data Flow - External
@@ -59,8 +61,10 @@ graph TD
     FastAPI -->|Lue/Kirjoita| Firestore
     FastAPI -->|Trigger| Fetcher
     FastAPI -->|Generoi| CoachLogic
+    FastAPI -->|Keskustele| ChatManager
     
     CoachLogic -->|Prompt| Gemini
+    ChatManager -->|Prompt| Gemini
     
     %% UI Integration
     User -->|Kirjautuu| UI_Login
@@ -69,6 +73,7 @@ graph TD
     User -->|Selaa| UI_Dashboard
     UI_Dashboard -->|Render| UI_Charts
     UI_Dashboard -->|Render| UI_AICard
+    UI_Dashboard -->|Render| UI_Chat
     
     UI_Dashboard <-->|"API Calls (Bearer Token)"| FastAPI
     FastAPI -.->|Verify Token| FirebaseAuth
@@ -101,6 +106,7 @@ graph TD
     *   **Training Calendar:** Interaktiivinen kalenteri (Drag & Drop) treenien suunnitteluun.
     *   **Recharts / Sparklines:** Interaktiiviset kuvaajat ja minitrendit korteissa.
     *   **AI Insight Card:** Päivittäinen yhteenveto tekoälyltä.
+    *   **AI Chat Coach:** Interaktiivinen chatti, joka antaa reaaliaikaista palautetta käyttäjän datan perusteella.
     *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
     *   **Toast Notifications:** Reaaliaikaiset käyttäjäilmoitukset (react-hot-toast) - success/error feedback kaikille toiminnoille.
     *   **Admin Dashboard:** Järjestelmän valvonta ja käyttäjäpalaute (suojattu Admin-oikeus).
@@ -130,6 +136,7 @@ graph TD
 *   **Backend Scripts (`backend/scripts/`):** Datan haku- ja käsittelyscriptit (ETL).
     *   **Per-User Garmin Fetch:** `fetch_garmin_data.py` tukee käyttäjäkohtaisia tunnuksia
 *   **AI Coach (`backend/ai_coach.py`):** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin. **Sisältää välimuistin (Firestore Cache)** API-kiintiöiden hallintaan.
+*   **AI Chat Manager (`backend/ai_chat_manager.py`):** Hallinnoi interaktiivista keskustelua, ylläpitää historiaa ja injektoi käyttäjän tuoreimmat metriikat (Body Battery, Uni, Stressi) Gemini Flashille suositusten antamiseksi.
 *   **Machine Learning:** XGBoost-mallit ennustavat tulevaa valmiustilaa (`readiness`) historian perusteella.
 
 ### 4. Data Layer (Tietovarasto)

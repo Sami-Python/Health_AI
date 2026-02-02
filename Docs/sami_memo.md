@@ -60,7 +60,30 @@ docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
 ---
 
 
-## 2026-01-26 – AI Coach Bug Fix & CSV Migration Implementation
+## 2026-02-02 – AI Chat Coach Implementation 🤖💬
+
+Tänään toteutettiin yksi projektin suurimmista ominaisuuksista: interaktiivinen AI-valmentaja, jonka kanssa käyttäjä voi keskustella suoraan Dashboardilta.
+
+### 1. AI Chat Backend (`ai_chat_manager.py`)
+- **Malli:** Käyttää Gemini Flash 1.5 (`gemini-flash-latest`) mallia sen nopeuden ja stabiiliuden vuoksi.
+- **Guardrails:** Implementoitu tiukat rajoitukset (System Prompt), jotka pitävät tekoälyn valmennusmoodissa ja estävät muiden aiheiden (politiikka, koodaus jne.) käsittelyn.
+- **Kontekstikietoisuus:** Tekoäly hakee automaattisesti käyttäjän tuoreimmat fysiologiset tiedot (Body Battery, Uni, Stressi) Firestoresta ja käyttää niitä vastauksissaan.
+- **Endpoint:** Uusi `/ai/chat` (POST) endpoint, joka hallinnoi keskusteluhistoriaa.
+
+### 2. AI Chat Frontend (`ChatInterface.tsx`)
+- **Käyttöliittymä:** Kelluva, tyylikäs chat-widget dashboardin alakulmassa.
+- **UX:** Tukee Enter-painiketta, sisältää latausanimaatiot ja virheenkäsittelyn.
+- **Teema:** Moderni tumma teema lasiefekteillä (glassmorphism), joka sopii muuhun dashboardiin.
+- **Resilience:** Käyttää `fetchWithRetry`-logiikkaa ja Firebase-autentikaatiota.
+
+### 3. Tekniset parannukset
+- **Mallin valinta:** Debugattu Gemini-mallien saatavuus (v1beta vs v1). Päädytty käyttämään `gemini-flash-latest` nimeä, joka osoittautui vakaimmaksi.
+- **Token-hallinta:** Nostettu `max_output_tokens` 2000:een, jotta valmentaja voi antaa kattavia vastauksia keskeytymättä.
+- **Virheenkäsittely:** Lisätty selkeät ilmoitukset käyttäjälle, jos API-quota (429) täyttyy tai yhteys pätkii.
+
+**Status:** ✅ Täysin integroitu ja testattu dashboardissa.
+
+---
 
 ### AI Coach Recommendation Bug Fixed ✅
 **Ongelma:** AI Coach antoi optimistisia neuvoja ("täynnä virtaa") vaikka Body Battery oli matala (53%) ja käyttäjä väsynyt.

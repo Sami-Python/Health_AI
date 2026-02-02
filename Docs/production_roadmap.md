@@ -407,6 +407,22 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ---
 
+## Phase 11: Interactive AI Chat (Coaching 2.0) 🤖💬
+> **Status:** ✅ COMPLETED (2026-02-02)
+
+- [x] **Interactive Chat Infrastructure:** (#400)
+    - [x] Backend: `ai_chat_manager.py` (Gemini SDK integration). (#401)
+    - [x] Context Injection: Inject profile + daily metrics into chat context. (#402)
+    - [x] Guardrails: Strict topic filtering (No politics, code, health only). (#403)
+- [x] **Real-time Chat UI:** (#404)
+    - [x] `ChatInterface.tsx` floating widget. (#405)
+    - [x] Message history persistence (current session). (#406)
+- [x] **Optimization & Scaling:** (#407)
+    - [x] Switched to `gemini-flash-latest` for cost/speed. (#408)
+    - [x] Rate limiting (10 req/min) per user. (#409)
+
+---
+
 ### Security Audit Summary
 
 **Findings:**

@@ -800,14 +800,22 @@ async def get_security_events_admin(
 
 # ... existing code ...
 
-@app.get("/next-workout", tags=["Workouts"])
-@limiter.limit("20/minute")
-def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
     """
     Retrieve the next planned workout for the user.
     
     Returns the soonest 'PENDING' workout where date >= today.
     """
+    try:
+        # Implementation relying on firestore_manager
+        workout = db_manager.get_next_workout(user['uid'])
+        if workout:
+            return workout
+        return {} # Empty dict if no workout found
+    except Exception as e:
+        # Log error but return empty to not crash UI
+        print(f"Error fetching next workout: {e}")
+        return {}
+
     try:
         # Use Firestore for next workout (Logic Updated in firestore_manager.py)
         workout = db_manager.get_next_workout(user['uid'])
@@ -1359,4 +1367,26 @@ async def delete_garmin_credentials_endpoint(
     except Exception as e:
         print(f"Delete Garmin Credentials Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- AI Chat Endpoint ---
+
+from ai_chat_manager import chat_manager
+
+class ChatRequest(BaseModel):
+    message: str
+    history: List[dict] # [{"role": "user", "content": "..."}, ...]
+
+@app.post("/ai/chat", tags=["AI"])
+@limiter.limit("10/minute")
+async def chat_endpoint(request_body: ChatRequest, request: Request, user: dict = Depends(verify_token)):
+    """
+    Interactive AI Coach Chat (Gemini Flash v2).
+    """
+    try:
+        reply = chat_manager.generate_reply(user['uid'], request_body.message, request_body.history)
+        return {"reply": reply}
+    except Exception as e:
+        logger.error(f"Chat Endpoint Error: {e}")
+        raise HTTPException(status_code=500, detail="Chat failed")
 
