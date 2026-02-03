@@ -57,6 +57,74 @@ docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
 ```
 *Grafana: http://localhost:3001 (admin/admin)*
 
+### 6. Testit (Unit Tests)
+Aja backend unit testit (vaatii pytest asennuksen).
+```bash
+cd backend
+python -m pytest tests/test_endpoints.py tests/test_admin.py tests/test_config.py -v
+```
+*Katso: [Docs/testing.md](file:///c:/Users/samih/code/health_ai/Docs/testing.md)*
+
+---
+
+## 2026-02-03 – Backend Integration Tests 🧪✅
+
+Toteutettiin kattavat backend integration testit tuotantoympäristön valmisteluun.
+
+### 1. Integration Tests (20+ testiä) ✅
+
+**Tavoite:** Testata kriittiset backend-flowt oikeilla Firebase tokeneilla ja database-operaatioilla.
+
+**Toteutus:**
+- **Test Suite:** [`test_integration.py`](file:///c:/Users/samih/code/health_ai/backend/tests/test_integration.py) (20+ testiä)
+- **Fixtures:** [`conftest_integration.py`](file:///c:/Users/samih/code/health_ai/backend/tests/conftest_integration.py) (Firebase Emulator support)
+- **Helpers:** [`test_helpers.py`](file:///c:/Users/samih/code/health_ai/backend/tests/test_helpers.py) (Utilities)
+
+**Testikategoriat:**
+1. **Authentication & Authorization (5 testiä)**
+   - Token validation
+   - User isolation
+   - Admin-only endpoints
+   
+2. **GDPR Compliance (4 testiä)**
+   - Data export completeness
+   - Account deletion (Firestore + Auth)
+   - Multi-collection deletion
+   
+3. **Garmin Integration (5 testiä)**
+   - AES-256 encryption/decryption
+   - Credentials storage
+   - User isolation
+   
+4. **Core Endpoints (6 testiä)**
+   - Goals CRUD
+   - Profile updates
+   - Workout logging
+   
+5. **Error Handling (3 testiä)**
+   - Invalid inputs
+   - Missing resources
+   - Validation errors
+
+**Dokumentaatio:**
+- [`backend/tests/README.md`](file:///c:/Users/samih/code/health_ai/backend/tests/README.md) - Kattava testausohje
+- [`backend/tests/NO_JAVA_SETUP.md`](file:///c:/Users/samih/code/health_ai/backend/tests/NO_JAVA_SETUP.md) - Vaihtoehto ilman Javaa
+- [`Docs/testing.md`](file:///c:/Users/samih/code/health_ai/Docs/testing.md) - Testauksen yhteenveto
+
+**Status:**
+- ✅ Testit toteutettu ja dokumentoitu
+- ⚠️ Vaatii Firebase Emulator (Java) tai oikean Firebase test-projektin
+- ✅ Unit testit (11 kpl) toimivat ilman riippuvuuksia
+- 🟢 Valmis beta-julkaisuun (unit testit riittävät)
+
+**Tiedostot:**
+- `backend/tests/test_integration.py` - Integration testit
+- `backend/tests/conftest_integration.py` - Firebase fixtures
+- `backend/tests/conftest.py` - Minimal config unit testeille
+- `backend/tests/test_helpers.py` - Apufunktiot
+- `backend/pytest.ini` - Pytest config
+- `backend/.env.test` - Test environment
+
 ---
 
 ## 2026-02-03 – Admin User Overview & Monitoring Stack 🛡️📊
