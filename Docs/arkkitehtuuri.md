@@ -184,7 +184,7 @@ graph TD
     *   Reproducibility and rollback capability
 *   **MLflow UI:** `mlflow ui --backend-store-uri sqlite:///backend/data/mlflow.db`
 
-### 7. Logging & Monitoring (Observability)
+### 7. Observability & Monitoring (Production Operations)
 *   **Structured Logging (JSON):**
     *   **Format:** Google Cloud Logging compatible JSON
     *   **Fields:** timestamp, severity (INFO/WARN/ERROR), message, module, trace_id
@@ -194,6 +194,34 @@ graph TD
 *   **Security Events:**
     *   Dedicated logging for `security_auth_failure`, `security_rate_limit`, `security_admin_denied`
     *   Allows easy alerting on suspicious activities
+*   **Prometheus & Grafana Stack:**
+    *   **Prometheus:** Metrics collection from backend `/metrics` endpoint
+        *   Scrape interval: 5s (backend), 15s (global)
+        *   Config: `prometheus.yml`
+        *   Port: `9090` (http://localhost:9090)
+    *   **Grafana:** Metrics visualization and dashboards
+        *   Port: `3001` (http://localhost:3001)
+        *   Default credentials: admin/admin
+        *   Data source: Prometheus (http://prometheus:9090)
+    *   **Metrics Tracked:**
+        *   `http_requests_total` - Total API requests
+        *   `http_request_duration_seconds` - Response times
+        *   `process_cpu_seconds` - Backend CPU usage
+    *   **Deployment:** `docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up`
+    *   📖 **Documentation:** [observability.md](observability.md)
+*   **Google Cloud Error Reporting:**
+    *   Production crash tracking (`APP_ENV=production`)
+    *   Automatic stack trace reporting to Google Cloud
+    *   Email alerts for critical failures
+*   **Admin User Management:**
+    *   **Backend:** `GET /admin/users` endpoint (Firebase Auth integration)
+    *   **Frontend:** `UsersTable.tsx` component in Admin Dashboard
+    *   **Features:**
+        *   View all registered users (email, UID, creation date, last login)
+        *   Garmin connection status indicator
+        *   Force logout functionality (revoke tokens)
+        *   Account status (Active/Disabled)
+    *   **Security:** Admin-only access via `verify_admin` middleware
 
 ## Teknologia-stack
 *   **Frontend:** Next.js 14, React, Recharts, Tailwind CSS
@@ -216,8 +244,8 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-01-29  
+**Last Updated:** 2026-02-03  
 **API Version:** 1.0.0  
-**Architecture Status:** Production Ready (MLOps-Enabled)
+**Architecture Status:** Production Ready (MLOps + Observability Enabled)
 **Landing Page:** 🌐 https://personal-ai-coach-92c39.web.app
 

@@ -59,6 +59,79 @@ docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
 
 ---
 
+## 2026-02-03 – Admin User Overview & Monitoring Stack 🛡️📊
+
+Tänään saatiin valmiiksi kaksi tärkeää tuotantoympäristön ominaisuutta: käyttäjähallinta ja suorituskyvyn monitorointi.
+
+### 1. Admin User Overview (Phase 8) ✅
+
+**Tavoite:** Antaa admineille mahdollisuus nähdä kaikki rekisteröityneet käyttäjät ja heidän tilansa.
+
+**Backend:**
+- Uusi endpoint `GET /admin/users` ([main.py](file:///c:/Users/samih/code/health_ai/backend/main.py))
+- Hakee kaikki käyttäjät Firebase Authista
+- Tarkistaa Garmin-yhteyden tilan Firestoresta
+- Admin-only access (`verify_admin` middleware)
+
+**Frontend:**
+- Uusi komponentti [`UsersTable.tsx`](file:///c:/Users/samih/code/health_ai/frontend/src/components/UsersTable.tsx)
+- Integroitu `/admin` -sivulle
+- **Näyttää:**
+  - Email & UID
+  - Account status (Active/Disabled)
+  - Garmin connection status
+  - Creation date & Last login
+- **Toiminnot:**
+  - Force Logout -nappi (revoke tokens)
+  - Refresh-nappi
+
+**Käyttö:** Admin Dashboard → Users-välilehti
+
+### 2. Prometheus & Grafana Monitoring (Phase 6) 📊
+
+**Tavoite:** Reaaliaikainen suorituskyvyn seuranta ja metriikka.
+
+**Toteutus:**
+- **Docker Compose:** Luotu [`docker-compose.monitor.yml`](file:///c:/Users/samih/code/health_ai/docker-compose.monitor.yml)
+- **Prometheus:** Kerää metriikat backendistä (`/metrics` endpoint)
+  - Konfiguraatio: [`prometheus.yml`](file:///c:/Users/samih/code/health_ai/prometheus.yml)
+  - Scrape interval: 5s (backend), 15s (global)
+- **Grafana:** Visualisoi metriikat dashboardeissa
+  - Port: `3001` (http://localhost:3001)
+  - Default credentials: admin/admin
+
+**Metriikat:**
+- `http_requests_total` - Pyyntöjen määrä
+- `http_request_duration_seconds` - Vasteajat
+- `process_cpu_seconds` - CPU-kuorma
+
+**Dokumentaatio:**
+- Luotu [`Docs/observability.md`](file:///c:/Users/samih/code/health_ai/Docs/observability.md)
+- Sisältää:
+  - Google Cloud Error Reporting
+  - Structured Logging (JSON)
+  - Rate Limit Monitoring
+  - Session Management
+  - Audit Trail
+  - Prometheus & Grafana setup
+
+**Käynnistys:**
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
+```
+
+### 3. Alerting & Security Monitoring ✅
+
+**Toteutettu aiemmin (Phase 10.2):**
+- ✅ Google Cloud Error Reporting (production crashes)
+- ✅ Rate limit events → Firestore `security_events`
+- ✅ Admin dashboard for security events
+- ✅ Audit trail for admin actions
+
+**Status:** 🟢 **PRODUCTION READY** - Täysi observability stack käytössä!
+
+---
+
 
 ## 2026-02-02 – AI Chat Coach Implementation 🤖💬
 

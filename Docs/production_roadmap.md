@@ -24,7 +24,14 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **Backend Middleware:** Implementoi `main.py`:hyn middleware, joka verifioi Firebase ID -tokenin jokaisessa pyynnössä. (#117)
 - [ ] **Kirjautuminen:** Toteuta Google/Apple/Email -kirjautumisvaihtoehdot. (#118)
 - [x] **Data Encryption (GDPR):** Salattu tallennusratkaisu (AES-256) salasanoille ja arkaluonteisille tiedoille. (#119)
-- [ ] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi"). (#120)
+- [x] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi"). (#120) ✅ COMPLETED (2026-01-17)
+  - [x] Backend endpoint `DELETE /account` (#347)
+  - [x] Deletes all Firestore data (`delete_all_user_data`) (#348)
+  - [x] Deletes Firebase Auth user (#349)
+  - [x] Frontend "Danger Zone" in Settings page (#350)
+  - [x] Confirmation modal with warnings (#351)
+  - [x] GDPR compliant (Right to Erasure) (#352)
+
 
 ## 3.4 Garmin Per-User Credentials 🔐
 - [x] **Encryption Infrastructure:** AES-256 salaus (Fernet) arkaluonteisten tietojen tallennukseen. (#121)
@@ -104,8 +111,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ## 6. DevOps & Monitoring
 - [x] **CI/CD Pipeline:** Laajenna GitHub Actions kattamaan automaattinen deploy (CD). (#171) ✅ COMPLETED (2026-01-31)
-- [ ] **Monitorointi:** Asenna Grafana/Datadog suorituskyvyn seurantaan. (#172)
-- [ ] **Alerting:** Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti). (#173)
+- [x] **Monitorointi:** Asenna Grafana/Datadog suorituskyvyn seurantaan. (#172) ✅ COMPLETED (2026-02-03)
+  - [x] Prometheus metrics endpoint (`/metrics`) (#335)
+  - [x] Docker Compose monitoring stack (`docker-compose.monitor.yml`) (#336)
+  - [x] Grafana dashboard setup (http://localhost:3001) (#337)
+  - [x] Documentation (`Docs/observability.md`) (#338)
+- [x] **Alerting:** Määritä hälytykset virhetilanteista (esim. API vastaa hitaasti). (#173) ✅ COMPLETED (2026-02-03)
+  - [x] Google Cloud Error Reporting integration (#339)
+  - [x] Rate limit monitoring (Firestore `security_events`) (#340)
+  - [x] Admin dashboard for security events (#341)
 - [x] **Developer Experience:** Lisää `npm run fix` -komento (`package.json`), joka siivoaa lukot ja välimuistit automaattisesti. (#174) ✅ COMPLETED (2026-02-01)
 
 ---
@@ -239,7 +253,12 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Admin Authentication:** Implementoi "Admin Only" -tarkistus (esim. sallittujen sähköpostien lista backendissä). (#249)
 - [x] **Dashboard UI:** Uusi sivu `/admin` (suojattu). (#250)
 - [x] **Feedback Management:** Näytä käyttäjien palautteet (`GET /admin/feedback`). Mahdollisuus merkitä käsitellyksi. (#251)
-- [ ] **User Overview:** Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa). (#252)
+- [x] **User Overview:** Listaa käyttäjät ja heidän perustietonsa (auttaa debuggauksessa). (#252) ✅ COMPLETED (2026-02-03)
+  - [x] Backend endpoint `GET /admin/users` (#342)
+  - [x] Frontend `UsersTable.tsx` component (#343)
+  - [x] User metadata display (email, UID, creation date, last login) (#344)
+  - [x] Garmin connection status indicator (#345)
+  - [x] Force logout functionality (#346)
 
 ## 9. Landing Page & Public Presence 🌐
 
