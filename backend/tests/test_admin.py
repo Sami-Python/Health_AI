@@ -7,6 +7,10 @@ from unittest.mock import MagicMock, patch
 # Add parent dir to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Mock firestore_manager to avoid circular import
+if "firestore_manager" not in sys.modules:
+    sys.modules["firestore_manager"] = MagicMock()
+
 from main import app
 from auth_middleware import verify_token
 
