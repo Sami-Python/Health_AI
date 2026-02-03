@@ -1,13 +1,14 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
+import { onAuthStateChanged, User, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
     signInWithGoogle: () => Promise<void>;
+    signInWithApple: () => Promise<void>;
     signOut: () => Promise<void>;
 }
 
@@ -35,6 +36,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const signInWithApple = async () => {
+        try {
+            const provider = new OAuthProvider('apple.com');
+            provider.addScope('email');
+            provider.addScope('name');
+            await signInWithPopup(auth, provider);
+        } catch (error) {
+            console.error("Error signing in with Apple", error);
+        }
+    };
+
     const signOut = async () => {
         try {
             await firebaseSignOut(auth);
@@ -44,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut }}>
+        <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithApple, signOut }}>
             {children}
         </AuthContext.Provider>
     );

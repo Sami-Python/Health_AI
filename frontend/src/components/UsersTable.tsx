@@ -13,7 +13,8 @@ interface UserData {
     metadata: {
         last_sign_in: number;
         creation_time: number;
-    }
+    },
+    garmin_connected: boolean;
 }
 
 export default function UsersTable() {
@@ -118,16 +119,28 @@ export default function UsersTable() {
                                             <span className="text-xs text-slate-500 font-mono">{userData.uid}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 align-middle">
-                                        {userData.disabled ? (
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 text-red-400 text-xs font-medium">
-                                                <XCircle className="h-3 w-3" /> Disabled
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium">
-                                                <CheckCircle className="h-3 w-3" /> Active
-                                            </span>
-                                        )}
+                                    <td className="p-4 align-middle space-y-2">
+                                        <div className="flex flex-col gap-2">
+                                            {userData.disabled ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 text-red-400 text-xs font-medium w-fit">
+                                                    <XCircle className="h-3 w-3" /> Disabled
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium w-fit">
+                                                    <CheckCircle className="h-3 w-3" /> Active
+                                                </span>
+                                            )}
+
+                                            {userData.garmin_connected ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-medium w-fit">
+                                                    <CheckCircle className="h-3 w-3" /> Garmin Connected
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-800 text-slate-500 text-xs font-medium w-fit">
+                                                    <XCircle className="h-3 w-3" /> Garmin Disconnected
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="p-4 align-middle text-slate-400 text-xs">
                                         <div>Created: {new Date(userData.metadata.creation_time).toLocaleDateString()}</div>

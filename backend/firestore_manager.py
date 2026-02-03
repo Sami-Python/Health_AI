@@ -11,6 +11,7 @@ from google.cloud.firestore import FieldFilter
 # Initialize Firestore
 # We use secret_loader to handle Environment variables, Secret Manager, or Local Files
 import secret_loader
+import firestore_garmin_metrics
 
 cred_source = secret_loader.get_service_account_dict()
 
@@ -492,6 +493,9 @@ def delete_all_user_data(user_id: str):
                 batch = db.batch()
                 count = 0
         
+        # Delete garmin_credentials subcollection (GDPR - encrypted passwords)
+        delete_garmin_credentials(user_id)
+        
         # Delete user profile document
         batch.delete(user_ref)
         count += 1
@@ -500,11 +504,17 @@ def delete_all_user_data(user_id: str):
         if count > 0:
             batch.commit()
         
-        print(f"Deleted all data for user {user_id}")
+        # Delete Garmin metrics (separate collection structure)
+        firestore_garmin_metrics.delete_user_metrics(user_id)
+        
+        # Delete user feedback submissions
+        delete_user_feedback(user_id)
+        
+        print(f"✅ Deleted ALL data for user {user_id} (GDPR compliant)")
         return True
         
     except Exception as e:
-        print(f"User Data Deletion Error: {e}")
+        print(f"❌ User Data Deletion Error: {e}")
         return False
 """
 GDPR Compliance Helper Functions
@@ -579,6 +589,46 @@ def save_feedback(user_id: str, feedback_data: dict):
     except Exception as e:
         print(f"Firestore Error (save_feedback): {e}")
         return False
+
+def delete_user_feedback(user_id: str) -> bool:
+    """
+    Deletes all feedback submitted by a user (GDPR compliance).
+    
+    Args:
+        user_id: Firebase UID
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        docs = db.collection('feedback')\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .stream()
+        
+        batch = db.batch()
+        count = 0
+        
+        for doc in docs:
+            batch.delete(doc.reference)
+            count += 1
+            
+            if count >= 400:
+                batch.commit()
+                batch = db.batch()
+                count = 0
+        
+        if count > 0:
+            batch.commit()
+        
+        if count > 0:
+            print(f"🗑️ Deleted {count} feedback documents for user {user_id}")
+        
+        return True
+        
+    except Exception as e:
+        print(f"Firestore Error (delete_user_feedback): {e}")
+        return False
+
 def get_all_feedback(limit: int = 100):
     """Fetches all feedback for admin review (NO user_id filter)."""
     try:

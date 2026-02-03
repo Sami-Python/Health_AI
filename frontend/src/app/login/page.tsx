@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
+import { Apple } from "lucide-react";
 
 export default function LoginPage() {
-    const { user, signInWithGoogle, loading } = useAuth();
+    const { user, signInWithGoogle, signInWithApple, loading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -32,6 +33,16 @@ export default function LoginPage() {
                     className="w-full font-bold"
                 >
                     Sign in with Google
+                </Button>
+
+                <Button
+                    onClick={() => signInWithApple()}
+                    size="lg"
+                    variant="outline"
+                    className="w-full font-bold bg-black hover:bg-gray-900 text-white border-gray-700"
+                >
+                    <Apple className="mr-2 h-5 w-5" />
+                    Sign in with Apple
                 </Button>
             </div>
         </div>

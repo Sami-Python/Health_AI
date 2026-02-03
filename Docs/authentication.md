@@ -28,8 +28,8 @@ sequenceDiagram
     participant Backend as FastAPI<br/>(Backend)
     participant Firestore as Firestore DB
 
-    User->>Frontend: 1. Klikkaa "Sign in with Google"
-    Frontend->>FirebaseAuth: 2. signInWithPopup()
+    User->>Frontend: 1. Klikkaa "Sign in with Google" tai "Sign in with Apple"
+    Frontend->>FirebaseAuth: 2. signInWithPopup(GoogleAuthProvider/OAuthProvider)
     FirebaseAuth-->>Frontend: 3. ID Token + User Object
     Frontend->>Frontend: 4. Tallenna user-state (AuthContext)
     
@@ -60,13 +60,22 @@ sequenceDiagram
 **Frontend ([AuthContext.tsx](file:///c:/Users/samih/code/health_ai/frontend/src/context/AuthContext.tsx)):**
 
 ```typescript
+// Google Sign-In
 const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
-    // Firebase SDK hoitaa automaattisesti:
-    // - Token-tallennus (IndexedDB)
-    // - onAuthStateChanged-tapahtuman
 };
+
+// Apple Sign-In
+const signInWithApple = async () => {
+    const provider = new OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    await signInWithPopup(auth, provider);
+};
+// Firebase SDK hoitaa automaattisesti:
+// - Token-tallennus (IndexedDB)
+// - onAuthStateChanged-tapahtuman
 ```
 
 **Seuraavat askeleet:**
@@ -149,10 +158,15 @@ def get_goals(user: dict = Depends(verify_token)):
 import { useAuth } from "@/context/AuthContext";
 
 export default function MyComponent() {
-    const { user, loading, signInWithGoogle, signOut } = useAuth();
+    const { user, loading, signInWithGoogle, signInWithApple, signOut } = useAuth();
     
     if (loading) return <p>Loading...</p>;
-    if (!user) return <button onClick={signInWithGoogle}>Login</button>;
+    if (!user) return (
+        <>
+            <button onClick={signInWithGoogle}>Sign in with Google</button>
+            <button onClick={signInWithApple}>Sign in with Apple</button>
+        </>
+    );
     
     return <p>Welcome, {user.displayName}!</p>;
 }
@@ -513,9 +527,10 @@ Käy läpi tämä lista ongelmatilanteessa:
 
 ### Nykyinen Tilanne (MVP)
 
-- ✅ Firebase Auth integroitu
+- ✅ Firebase Auth integroitu (Google + Apple)
 - ✅ Token-validointi toimii
 - ✅ Multi-user data isolation (Firestore)
+- ⏳ **Apple Sign-In:** Koodi valmis, Firebase Console konfiguraatio odottaa
 - ⚠️ **Garmin-data:** Yhteinen CSV kaikille (ei skaalaudu)
 
 ### Tulevaisuus (Production Scaling)
@@ -528,8 +543,8 @@ Käy läpi tämä lista ongelmatilanteessa:
    - Jokainen käyttäjä kirjautuu omaan Garmin-tiiliinsä
    - Token tallennetaan: `users/{uid}/garmin_credentials`
 
-3. **Email/Password Login:**
-   - Google-kirjautumisen lisäksi: `signInWithEmailAndPassword`
+3. **Email/Password Login (Optional):**
+   - Google/Apple-kirjautumisen lisäksi: `signInWithEmailAndPassword`
 
 4. **Session Management:**
    - Näytä aktiiviset sessiot käyttäjälle
@@ -560,6 +575,6 @@ Käy läpi tämä lista ongelmatilanteessa:
 > [!NOTE]
 > Tämä dokumentti päivitetään kun uusia autentikointimekanismeja (email/password, admin roles) lisätään.
 
-**Viimeksi päivitetty:** 2026-01-18  
-**Dokumentaation kattavuus:** Firebase Google Auth (MVP)  
-**TODO:** Garmin OAuth2, Email/Password, Admin Roles
+**Viimeksi päivitetty:** 2026-02-03  
+**Dokumentaation kattavuus:** Firebase Google Auth + Apple Sign-In (koodi valmis)  
+**TODO:** Apple Firebase Console setup, Garmin OAuth2, Admin Roles

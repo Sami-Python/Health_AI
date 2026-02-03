@@ -209,12 +209,24 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Backend: Lisää integraatiotestejä (AI coach, goal progress) (#231)
   - [x] Frontend: Alusta Jest + React Testing Library (#232)
   - [x] Frontend: Testaa kriittiset komponentit (AddGoalForm, TrainingCalendar) (Aloitettu: AddGoalForm) (#233)
+  - [x] **Backend Integration Tests (2026-02-03):** (#353)
+    - [x] 20+ integration tests (`test_integration.py`) (#354)
+    - [x] Firebase Emulator fixtures (`conftest_integration.py`) (#355)
+    - [x] Test helpers and utilities (`test_helpers.py`) (#356)
+    - [x] GDPR compliance testing (account deletion, data export) (#357)
+    - [x] Garmin encryption/decryption testing (#358)
+    - [x] User isolation testing (#359)
+    - [x] Comprehensive test documentation (`tests/README.md`) (#360)
 - [x] **Documentation:** (#234)
   - [x] API.md luotu (kattava endpoint-dokumentaatio) (#235)
   - [x] FastAPI metadata päivitetty (versio 1.0.0, kuvaus, tags) (#236)
   - [x] README.md päivitetty (API-linkki, screenshot-placeholder) (#237)
   - [x] Lisää yksityiskohtaiset docstringit kaikille endpointeille (#238)
   - [x] Päivitä arkkitehtuuri.md vastaamaan uutta tilannetta (#239)
+  - [x] **Testing Documentation (2026-02-03):** (#361)
+    - [x] `Docs/testing.md` - Testing overview and status (#362)
+    - [x] `backend/tests/README.md` - Comprehensive test guide (#363)
+    - [x] `backend/tests/NO_JAVA_SETUP.md` - Alternative setup without Java (#364)
 
 **Completed Recently:**
 - ✅ Toast notifications (react-hot-toast) (2026-01-18)
@@ -233,6 +245,11 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - ✅ Backend Integration Tests (pytest) implemented
   - ✅ Frontend Unit Tests (Jest + React Testing Library) setup
   - ✅ CI/CD Pipeline updated to run tests on push (Fixed & Verified 2026-01-28)
+- ✅ **Backend Integration Tests Expansion:** (2026-02-03)
+  - ✅ 20+ integration tests for authentication, GDPR, Garmin, core endpoints
+  - ✅ Firebase Emulator support with fixtures
+  - ✅ Alternative setup for running without Java
+  - ✅ Comprehensive test documentation
 
 ### 7.4 Infrastructure Prep (Pre-deployment) 🚀
 - [x] **Secret Management:** Siirrä `service_account_key.json` → Google Secret Manager / .env (#240) ✅ COMPLETED (2026-01-27)
