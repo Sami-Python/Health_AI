@@ -541,6 +541,8 @@ def delete_all_user_data(user_id: str):
             batch.commit()
         
         # Delete Garmin metrics (separate collection structure)
+        # Import here to avoid circular dependency at module level
+        import firestore_garmin_metrics
         firestore_garmin_metrics.delete_user_metrics(user_id)
         
         # Delete user feedback submissions
