@@ -5,36 +5,72 @@ import os
 from datetime import datetime
 from google.cloud.firestore import FieldFilter
 
-# Initialize Firestore
-# It expects GOOGLE_APPLICATION_CREDENTIALS env var or explicit path
-# Make path absolute relative to this file to support running from different CWD
-# Initialize Firestore
-# We use secret_loader to handle Environment variables, Secret Manager, or Local Files
+# Lazy Initialization Pattern
+# Firestore connection is deferred until first API request
+# This allows FastAPI server to start immediately in Cloud Run
 import secret_loader
-import firestore_garmin_metrics
 
-cred_source = secret_loader.get_service_account_dict()
+# Global state for lazy initialization
+_db = None
+_initialized = False
+_init_lock = False  # Simple lock to prevent concurrent initialization
 
-if not firebase_admin._apps:
-    if cred_source:
-        # initialize_app accepts both a Certificate object wrapped path/dict, 
-        # OR just the Certificate object.
-        cred = credentials.Certificate(cred_source)
-        firebase_admin.initialize_app(cred)
-    else:
-        # Fallback: Rely on Google Application Default Credentials (explicitly set via gcloud auth)
-        # This often works on Cloud Run if the service account is attached directly
-        print("Warning: No specific credential found (env/file/secret). Trying Application Default Credentials...")
-        try:
-             firebase_admin.initialize_app()
-        except Exception as e:
-             print(f"Critical Error: Failed to initialize Firebase: {e}")
+def _ensure_initialized():
+    """
+    Lazy initialization of Firestore client.
+    Called automatically by get_db() on first use.
+    """
+    global _db, _initialized, _init_lock
+    
+    if _initialized:
+        return
+    
+    # Simple lock to prevent concurrent initialization
+    if _init_lock:
+        import time
+        while _init_lock and not _initialized:
+            time.sleep(0.1)
+        return
+    
+    _init_lock = True
+    
+    try:
+        cred_source = secret_loader.get_service_account_dict()
+        
+        if not firebase_admin._apps:
+            if cred_source:
+                cred = credentials.Certificate(cred_source)
+                firebase_admin.initialize_app(cred)
+            else:
+                # Fallback: Application Default Credentials (Cloud Run)
+                print("Warning: No specific credential found. Trying Application Default Credentials...")
+                firebase_admin.initialize_app()
+        
+        _db = firestore.client()
+        _initialized = True
+        print("✅ Firestore initialized successfully")
+        
+    except Exception as e:
+        print(f"❌ Firestore initialization failed: {e}")
+        raise
+    finally:
+        _init_lock = False
 
-try:
-    db = firestore.client()
-except Exception as e:
-    print(f"Warning: Could not initialize Firestore Client (likely missing credential in CI/Test env): {e}")
-    db = None
+def get_db():
+    """
+    Get Firestore client, initializing if needed.
+    This is the main entry point for all Firestore operations.
+    """
+    _ensure_initialized()
+    return _db
+
+# Legacy compatibility: db attribute for backward compatibility
+# This will initialize on first access
+class _LazyDB:
+    def __getattr__(self, name):
+        return getattr(get_db(), name)
+
+db = _LazyDB()
 
 def get_next_workout(user_id: str):
     """Fetches next pending workout from 'workouts' collection for specific user."""
