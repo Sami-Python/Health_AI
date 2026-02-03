@@ -93,3 +93,36 @@ Mitatut suureet:
 *   **http_request_duration_seconds:** Vasteajat.
 *   **process_cpu_seconds:** Backendin prosessorikuorma.
 
+## 7. Admin User Management 👥
+
+Admin Dashboard sisältää **Users**-välilehden, joka tarjoaa kokonaiskuvan kaikista rekisteröityneistä käyttäjistä.
+
+### Backend Endpoint
+- **Endpoint:** `GET /admin/users`
+- **Authentication:** Admin-only (`verify_admin` middleware)
+- **Data Source:** Firebase Authentication + Firestore
+- **Response:**
+  - User ID (UID)
+  - Email address
+  - Display name (if set)
+  - Account status (Active/Disabled)
+  - Garmin connection status
+  - Creation timestamp
+  - Last sign-in timestamp
+
+### Frontend Component
+- **Component:** `UsersTable.tsx`
+- **Location:** Admin Dashboard → Users tab
+- **Features:**
+  - Sortable table with user metadata
+  - Status badges (Active/Disabled, Garmin Connected/Disconnected)
+  - **Force Logout** button - Revokes user's refresh tokens
+  - Refresh button to reload user list
+  - Loading skeletons for better UX
+
+### Use Cases
+- **User Support:** Quickly identify user issues (e.g., Garmin not connected)
+- **Security:** Monitor account activity and force logout suspicious sessions
+- **Analytics:** Track user growth and engagement (last login times)
+- **Debugging:** Verify user account status during troubleshooting
+
