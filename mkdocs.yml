@@ -34,6 +34,7 @@ nav:
     - Yleiskatsaus: index.md
     - Ympäristö & Julkaisu: deployment.md
     - Autentikaatio: authentication.md
+    - Landing Page: landing_page.md
   
   - Arkkitehtuuri & Suunnittelu:
     - Arkkitehtuurin yleiskuvaus: arkkitehtuuri.md
@@ -54,3 +55,4 @@ nav:
   
   - Viitteet:
     - Sisäiset muistiot: sami_memo.md
+

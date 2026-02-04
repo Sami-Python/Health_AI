@@ -67,7 +67,107 @@ python -m pytest tests/test_endpoints.py tests/test_admin.py tests/test_config.p
 
 ---
 
+## 2026-02-04 – Landing Page Cloudflare Pages Deployment 🌐✅
+
+Toteutettiin landing pagen siirto Cloudflare Pagesiin ja konfiguroitiin tuotantoympäristö.
+
+### 1. Cloudflare Pages Deployment ✅
+
+**Tavoite:** Siirtää landing page Firebase Hostingista Cloudflare Pagesiin ja konfiguroida custom domain.
+
+**Toteutus:**
+- **Platform:** Cloudflare Pages (global CDN, 200+ edge locations)
+- **Project:** `personalaicoach-landing`
+- **Production branch:** `main`
+- **Build settings:** Static site (no build command)
+- **Root directory:** `landing_page`
+
+**Live URLs:**
+- Production: `https://www.personalaicoach.ai` ✅
+- Apex: `https://personalaicoach.ai` ✅
+- Temporary: `https://personalaicoach-landing.pages.dev` ✅
+
+### 2. Custom Domain Configuration ✅
+
+**DNS Records (Auto-configured):**
+- CNAME: `www` → `personalaicoach-landing.pages.dev`
+- CNAME: `@` → `personalaicoach-landing.pages.dev`
+
+**SSL/TLS:**
+- Encryption mode: **Full (strict)**
+- Always Use HTTPS: **Enabled**
+- Automatic HTTPS Rewrites: **Enabled**
+- SSL certificate: **Active**
+
+### 3. Email Routing ✅
+
+**Email forwarding:**
+- Address: `info@personalaicoach.ai`
+- MX records: Auto-configured by Cloudflare
+- Status: **Active**
+
+### 4. Code Changes
+
+**Updated Files:**
+- [`index.html`](file:///c:/Users/samih/code/health_ai/landing_page/index.html) - Updated URLs to production
+  - Login buttons → `https://app.personalaicoach.ai`
+  - API docs → Cloud Run URL
+- Removed `wrangler.toml` (not needed for Pages)
+
+**Documentation:**
+- Created [`Docs/landing_page.md`](file:///c:/Users/samih/code/health_ai/Docs/landing_page.md) - Dedicated landing page docs
+- Updated [`landing_page/README.md`](file:///c:/Users/samih/code/health_ai/landing_page/README.md) - Cloudflare deployment
+- Updated [`Docs/arkkitehtuuri.md`](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md) - Architecture changes
+
+### 5. Issues Resolved
+
+**wrangler.toml Error:**
+- **Problem:** Cloudflare Pages doesn't support `[build]` section in `wrangler.toml`
+- **Solution:** Removed `wrangler.toml` entirely (not needed for static sites)
+- **Commits:** `d554d76`, `516c5f9`
+
+**GitHub App Authorization:**
+- **Problem:** Confusion with GitHub App installation
+- **Solution:** Closed GitHub settings and returned to Cloudflare Dashboard
+
+### 6. Automatic Deployments
+
+**Git Integration Active:**
+- Any push to `main` branch → Automatic deployment
+- Build time: ~1-2 minutes
+- No manual intervention needed
+
+**Workflow:**
+```bash
+git add landing_page/
+git commit -m "Update landing page"
+git push origin main
+# Cloudflare Pages deploys automatically
+```
+
+### 7. Performance Benefits
+
+With Cloudflare Pages:
+- ✅ Global CDN (200+ locations)
+- ✅ Automatic SSL with auto-renewal
+- ✅ DDoS protection
+- ✅ HTTP/3 support
+- ✅ Brotli compression
+- ✅ Edge caching
+- ✅ Web Application Firewall
+
+**Status:** 🟢 **PRODUCTION READY** - Landing page live and operational!
+
+**Deployment Time:** ~90 minutes (including troubleshooting)
+
+**Dokumentaatio:**
+- [`Docs/landing_page.md`](file:///c:/Users/samih/code/health_ai/Docs/landing_page.md) - Complete landing page documentation
+- [`landing_page/CLOUDFLARE_DEPLOYMENT.md`](file:///c:/Users/samih/code/health_ai/landing_page/CLOUDFLARE_DEPLOYMENT.md) - Deployment guide
+
+---
+
 ## 2026-02-03 – Backend Integration Tests 🧪✅
+
 
 Toteutettiin kattavat backend integration testit tuotantoympäristön valmisteluun.
 
