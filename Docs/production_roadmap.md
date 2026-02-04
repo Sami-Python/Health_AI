@@ -304,55 +304,83 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Accuracy claim: "80%+ - better than device services" (#267)
   - [x] SEO metadata (title, description) (#268)
 
-### 9.2 Firebase Hosting Deployment
-> **Status:** ✅ COMPLETED (2026-01-24)
+### 9.2 Cloudflare Pages Deployment
+> **Status:** ✅ COMPLETED (2026-02-04)
 
-- [x] **Firebase Setup** (#256)
-  - [x] Firebase CLI installed (`npm install -g firebase-tools`) (#269)
-  - [x] Project configured: `personal-ai-coach-92c39` (#270)
-  - [x] `firebase.json` with optimized caching headers (#271)
-  - [x] `.firebaseignore` configuration (#272)
+- [x] **Cloudflare Pages Setup** (#256)
+  - [x] Project created: `personalaicoach-landing` (#269)
+  - [x] GitHub integration configured (#270)
+  - [x] Build settings: Static site (no build command) (#271)
+  - [x] Root directory: `landing_page` (#272)
+  - [x] Production branch: `main` (#273)
 
-- [x] **Deployment** (#257)
-  - [x] Live URL: https://personal-ai-coach-92c39.web.app (#273)
-  - [x] 5 files deployed (HTML, CSS, 3 images) (#274)
-  - [x] Total size: ~1.76 MB (#275)
-  - [x] Global CDN distribution (#276)
+- [x] **Custom Domain Configuration** (#257)
+  - [x] Primary domain: `www.personalaicoach.ai` (#274)
+  - [x] Apex domain: `personalaicoach.ai` (#275)
+  - [x] DNS records auto-configured by Cloudflare (#276)
+  - [x] SSL/TLS: Full (strict) mode (#277)
+  - [x] Always Use HTTPS enabled (#278)
+  - [x] Automatic HTTPS Rewrites enabled (#279)
 
-- [x] **Documentation** (#258)
-  - [x] `landing_page/README.md` - Usage & deployment guide (#277)
-  - [x] `landing_page/DEPLOYMENT.md` - Step-by-step instructions (#278)
+- [x] **Email Routing** (#258)
+  - [x] Cloudflare Email Routing enabled (#280)
+  - [x] Email address: `info@personalaicoach.ai` (#281)
+  - [x] MX records auto-configured (#282)
+  - [x] Destination email verified (#283)
+
+- [x] **Code Updates** (#259)
+  - [x] Updated production URLs in `index.html` (#284)
+  - [x] Login buttons → `https://app.personalaicoach.ai` (#285)
+  - [x] API docs → Cloud Run URL (#286)
+  - [x] Removed `wrangler.toml` (not needed) (#287)
+
+- [x] **Documentation** (#260)
+  - [x] Created `Docs/landing_page.md` - Dedicated documentation (#288)
+  - [x] Updated `landing_page/README.md` - Cloudflare deployment (#289)
+  - [x] Updated `landing_page/CLOUDFLARE_DEPLOYMENT.md` - Deployment guide (#290)
+  - [x] Updated `Docs/arkkitehtuuri.md` - Architecture changes (#291)
+
+- [x] **Deployment** (#261)
+  - [x] Live URLs:
+    - Production: https://www.personalaicoach.ai (#292)
+    - Apex: https://personalaicoach.ai (#293)
+    - Temporary: https://personalaicoach-landing.pages.dev (#294)
+  - [x] Automatic deployments via Git push (#295)
+  - [x] Global CDN distribution (200+ locations) (#296)
+  - [x] SSL certificate active and verified (#297)
 
 ### 9.3 Future Enhancements
-- [ ] **Custom Domain** (#259)
-  - [ ] Register domain (e.g., healthai.app) (#279)
-  - [ ] Configure DNS in Firebase Console (#280)
+- [ ] **Custom Domain** (#262)
+  - [x] Register domain (personalaicoach.ai) (#298)
+  - [x] Configure DNS in Cloudflare (#299)
   
-- [x] **Analytics** (#260)
-  - [x] Firebase Analytics integration (#281)
-  - [x] Page view and CTA click tracking (#282)
+- [x] **Analytics** (#263)
+  - [x] Firebase Analytics integration (#300)
+  - [x] Page view and CTA click tracking (#301)
   
-- [x] **End-to-End Testing (Playwright)** (#260) ✅ COMPLETED (2026-02-01)
-  - [x] Setup Playwright framework (`frontend/e2e/`). (#326)
-  - [x] Test critical flows (Landing Page, Navigation to Login). (#327)
-  - [ ] Test Auth flow (Mocked Google Auth) (#328)
-  - [ ] Test Dashboard rendering (requires mocked data) (#329)
+- [x] **End-to-End Testing (Playwright)** (#264) ✅ COMPLETED (2026-02-01)
+  - [x] Setup Playwright framework (`frontend/e2e/`). (#302)
+  - [x] Test critical flows (Landing Page, Navigation to Login). (#303)
+  - [ ] Test Auth flow (Mocked Google Auth) (#304)
+  - [ ] Test Dashboard rendering (requires mocked data) (#305)
 
-- [ ] **SEO Optimization** (#261)
-  - [x] `robots.txt` for search engine crawlers (#283) ✅ COMPLETED (2026-02-01)
-  - [x] `sitemap.xml` for indexing (#284) ✅ COMPLETED (2026-02-01)
-  - [x] Open Graph meta tags for social sharing (#285) ✅ COMPLETED (2026-02-01)
+- [ ] **SEO Optimization** (#265)
+  - [x] `robots.txt` for search engine crawlers (#306) ✅ COMPLETED (2026-02-01)
+  - [x] `sitemap.xml` for indexing (#307) ✅ COMPLETED (2026-02-01)
+  - [x] Open Graph meta tags for social sharing (#308) ✅ COMPLETED (2026-02-01)
 
-- [ ] **Performance** (#262)
-  - [x] Convert images to WebP format (#286) ✅ COMPLETED (2026-02-01)
-  - [x] Implement lazy loading (#287) ✅ COMPLETED (2026-02-01)
-  - [ ] Minify CSS/HTML (#288)
+- [ ] **Performance** (#266)
+  - [x] Convert images to WebP format (#309) ✅ COMPLETED (2026-02-01)
+  - [x] Implement lazy loading (#310) ✅ COMPLETED (2026-02-01)
+  - [ ] Minify CSS/HTML (#311)
 
-**Completed:** 2026-01-24  
+**Completed:** 2026-02-04  
 **Verification:** ✅ Site live and accessible globally  
-**Status:** 🟢 **PRODUCTION READY**
+**Status:** 🟢 **PRODUCTION READY**  
+**Hosting:** Cloudflare Pages (migrated from Firebase Hosting)
 
 ---
+
 
 ## Phase 10: Security Hardening 🔒
 
