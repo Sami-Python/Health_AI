@@ -341,7 +341,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Updated `Docs/arkkitehtuuri.md` - Architecture changes (#291)
 
 - [x] **Deployment** (#261)
-  - [x] Live URLs:
+  - [x] Live URLs: (#327)
     - Production: https://www.personalaicoach.ai (#292)
     - Apex: https://personalaicoach.ai (#293)
     - Temporary: https://personalaicoach-landing.pages.dev (#294)
