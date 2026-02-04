@@ -86,7 +86,7 @@ graph TD
 
 ## Komponentit
 
-### 0. Public Landing Page (Firebase Hosting) 🌐
+### 0. Public Landing Page (Cloudflare Pages) 🌐
 *   **Landing Site (`landing_page/`):** Static HTML/CSS landing page for public marketing
     *   **Hero Section:** "Your Personal AI Coach" with CTAs
     *   **Features Showcase:** 6 glassmorphic feature cards
@@ -94,10 +94,12 @@ graph TD
     *   **AI Analytics:** Machine learning brain visualization
     *   **Download CTAs:** App Store & Google Play badges
     *   **Phone Mockup:** App preview with live metrics
-*   **Deployment:** Firebase Hosting (global CDN, optimized caching)
-    *   **Live URL:** https://personal-ai-coach-92c39.web.app
+*   **Deployment:** Cloudflare Pages (global CDN, edge network, automatic SSL)
+    *   **Live URL:** https://www.personalaicoach.ai
     *   **Size:** ~1.76 MB (HTML/CSS + 3 AI-generated images)
     *   **Design:** Dark theme, glassmorphism, responsive (mobile/tablet/desktop)
+    *   **Email:** info@personalaicoach.ai (Cloudflare Email Routing)
+
 
 ### 1. Moderni Käyttöliittymä (Next.js)
 *   **Kehitysportaali (`frontend/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
@@ -230,7 +232,7 @@ graph TD
 *   **AI/ML:** Google Gemini 2.5 Flash, XGBoost Regressor
 *   **MLOps:** MLflow (Experiment tracking, Model registry)
 *   **Data:** Firestore (Primary), CSV (Garmin Cache)
-*   **Infra:** Google Cloud Run (Backend), Firebase Hosting (Frontend), GitHub Actions (CI/CD)
+*   **Infra:** Google Cloud Run (Backend), Cloudflare Pages (Landing), Firebase Hosting (Frontend), GitHub Actions (CI/CD)
 
 ---
 
@@ -244,8 +246,8 @@ graph TD
 
 ---
 
-**Last Updated:** 2026-02-03  
+**Last Updated:** 2026-02-04  
 **API Version:** 1.0.0  
 **Architecture Status:** Production Ready (MLOps + Observability Enabled)
-**Landing Page:** 🌐 https://personal-ai-coach-92c39.web.app
+**Landing Page:** 🌐 https://www.personalaicoach.ai
 

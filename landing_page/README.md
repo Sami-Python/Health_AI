@@ -1,11 +1,11 @@
 # Health AI Landing Page
 
-Modern landing page for Health AI training application. Dark theme, responsive design, optimized for Firebase Hosting deployment.
+Modern landing page for Health AI training application. Dark theme, responsive design, deployed on Cloudflare Pages.
 
 ## 📋 Contents
 
 - **Hero Section** with clear CTA button
-- **Navigation** with Login button (-> http://localhost:3000)
+- **Navigation** with Login button (→ https://app.personalaicoach.ai)
 - **ECG Visualization** with heart rate curve
 - **Features** (6 feature cards)
 - **AI Analytics** machine learning visualization
@@ -26,34 +26,30 @@ python -m http.server 8080
 # Open: http://localhost:8080
 ```
 
-## 🔥 Firebase Hosting Deployment
+## ☁️ Cloudflare Pages Deployment
 
-### 1. Install Firebase CLI
-```bash
-npm install -g firebase-tools
-firebase login
-```
+See **[CLOUDFLARE_DEPLOYMENT.md](CLOUDFLARE_DEPLOYMENT.md)** for complete deployment guide.
 
-### 2. Initialize Project
-```bash
-cd landing_page
-firebase init hosting
-```
+### Quick Deploy
 
-**Answers:**
-- Public directory: `.` (current directory)
-- Single-page app: `No`
-- Overwrite index.html: `No`
+1. **Create Cloudflare Pages project**
+   - Connect GitHub repository
+   - Build output directory: `landing_page`
+   - No build command needed (static site)
 
-### 3. Deploy
-```bash
-firebase deploy --only hosting
-```
+2. **Configure custom domain**
+   - Add `www.personalaicoach.ai` in Pages dashboard
+   - Cloudflare automatically configures DNS
 
-Your site is now live at: `https://your-project-id.web.app`
+3. **Set up SSL/TLS**
+   - Enable Full (Strict) mode
+   - Enable Always Use HTTPS
 
-### 4. Custom Domain (Optional)
-Firebase Console → Hosting → "Add custom domain"
+4. **Configure email routing**
+   - Set up `info@personalaicoach.ai` forwarding
+
+**Live URL:** https://www.personalaicoach.ai
+
 
 ## 📁 Structure
 
@@ -75,23 +71,25 @@ landing_page/
 - **Typography**: Inter (Google Fonts)
 - **Effects**: Glassmorphism, Gradients, Animations
 
-## ⚙️ Before Production Deployment
+## ⚙️ Production Status
 
-1. **Update URLs:**
-   - Change `http://localhost:3000` → production URL
-   - Change `http://localhost:8001/docs` → production API docs
+1. **URLs:**
+   - ✅ Updated to production URLs
+   - Frontend App: `https://app.personalaicoach.ai`
+   - Backend API: `https://health-ai-backend-35976089058.europe-north1.run.app`
 
-2. **Add Analytics:**
-   - Google Analytics or Firebase Analytics
+2. **Analytics:**
+   - ✅ Firebase Analytics integrated
 
 3. **SEO:**
-   - Add `robots.txt`
-   - Add `sitemap.xml`
-   - Add Open Graph meta tags
+   - ⏳ Add `robots.txt`
+   - ⏳ Add `sitemap.xml`
+   - ⏳ Add Open Graph meta tags
 
-4. **Optimize Images:**
-   - Convert PNG → WebP (smaller file size)
-   - Lazyload images
+4. **Images:**
+   - ✅ Optimized WebP format
+   - ✅ Lazy loading enabled
+
 
 ## 📱 Responsiveness
 
@@ -99,12 +97,14 @@ landing_page/
 - ✅ Tablet (768px - 1024px)
 - ✅ Mobile (< 768px)
 
-## 🔗 Links
+## 🔗 Production Links
 
-- **Frontend App**: Update to production URL before deployment
-- **API Docs**: Update to production URL before deployment
-- **GitHub**: Add your repository URL
+- **Landing Page**: https://www.personalaicoach.ai
+- **Frontend App**: https://app.personalaicoach.ai
+- **API Docs**: https://health-ai-backend-35976089058.europe-north1.run.app/docs
+- **Email**: info@personalaicoach.ai
 
 ---
 
 **Ready to deploy!** 🚀
+
