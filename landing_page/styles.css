@@ -101,6 +101,185 @@ body {
    Navigation
    ======================================== */
 
+/* ========================================
+   Waitlist Modal
+   ======================================== */
+
+.waitlist-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-base);
+    padding: var(--spacing-lg);
+}
+
+.waitlist-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.waitlist-container {
+    position: relative;
+    background: rgba(17, 22, 50, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-2xl);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(99, 102, 241, 0.1);
+    transform: scale(0.9) translateY(20px);
+    transition: all var(--transition-slow);
+}
+
+.waitlist-modal.active .waitlist-container {
+    transform: scale(1) translateY(0);
+}
+
+.close-btn {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-primary);
+    transform: rotate(90deg);
+}
+
+.waitlist-content {
+    text-align: center;
+}
+
+.waitlist-icon {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-md);
+    animation: float 3s ease-in-out infinite;
+}
+
+.waitlist-title {
+    font-size: var(--font-size-4xl);
+    font-weight: 800;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+.waitlist-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+}
+
+.waitlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.waitlist-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    transition: all var(--transition-base);
+}
+
+.waitlist-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.waitlist-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.waitlist-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    font-family: var(--font-family);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-lg);
+}
+
+.waitlist-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.waitlist-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.form-message {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    margin-bottom: var(--spacing-sm);
+}
+
+.form-message.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: var(--color-success);
+}
+
+.form-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #EF4444;
+}
+
+.waitlist-note {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+/* ========================================
+   Navigation
+   ======================================== */
+
 .navbar {
     position: fixed;
     top: 0;
@@ -828,6 +1007,24 @@ body {
 .download-note {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
+}
+
+/* Coming Soon state for store badges */
+.store-badge.coming-soon {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.store-badge.coming-soon:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.02);
+    box-shadow: none;
+}
+
+.store-badge.coming-soon .badge-small {
+    color: var(--color-warning);
+    font-weight: 600;
 }
 
 .text-link {
