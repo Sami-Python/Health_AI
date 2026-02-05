@@ -36,9 +36,18 @@ Three-step process:
 3. Achieve fitness goals
 
 ### 5. **Download Section**
-- App Store badge (placeholder)
-- Google Play badge (placeholder)
+- App Store badge (Coming Soon)
+- Google Play badge (Coming Soon)
 - Mobile-first design emphasis
+
+### 6. **Waitlist Pop-up Widget** ✨ NEW
+- Auto-displays 2 seconds after page load
+- Email collection with Firebase Firestore integration
+- Modern glassmorphism design with dark theme
+- Form validation and success/error messages
+- LocalStorage persistence (doesn't show again after closing)
+- Analytics tracking (`waitlist_popup_view`, `waitlist_signup`)
+- Multiple close methods (X button, backdrop click, auto-close)
 
 ---
 
@@ -59,6 +68,7 @@ Three-step process:
 ### Analytics
 - **Firebase Analytics** - Page views, user behavior
 - **Event Tracking:** CTA clicks, navigation events
+- **Firebase Firestore** - Waitlist email collection (`waitlist` collection)
 
 ---
 
@@ -157,6 +167,18 @@ Tracked events:
 - `cta_click` - "Get Started" button clicks
 - `demo_click` - "See Demo" button clicks
 - `nav_click` - Navigation interactions
+- `waitlist_popup_view` - Waitlist pop-up displayed
+- `waitlist_signup` - User joined waitlist (includes email)
+
+### Firestore Collections
+
+**Waitlist Collection:**
+- Collection: `waitlist`
+- Document fields:
+  - `email` (string) - User email address
+  - `timestamp` (timestamp) - Signup time
+  - `source` (string) - Always "landing_page"
+- Security: Public write (create only), admin read only
 
 ### Performance Metrics
 
@@ -287,7 +309,7 @@ Update `<head>` section in `index.html`:
 - [ ] Video demo of app features
 - [ ] Pricing page (if monetization planned)
 - [ ] FAQ section
-- [ ] Newsletter signup
+- [x] ~~Newsletter signup~~ → **Waitlist widget implemented** (2026-02-05)
 
 ### Performance Optimizations
 - [ ] Minify HTML/CSS
@@ -312,7 +334,7 @@ For landing page issues:
 
 ---
 
-**Last Updated:** 2026-02-04  
+**Last Updated:** 2026-02-05  
 **Status:** ✅ Production  
 **Deployment:** Cloudflare Pages  
 **URL:** https://www.personalaicoach.ai

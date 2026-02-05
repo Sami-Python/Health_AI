@@ -374,8 +374,18 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Implement lazy loading (#310) ✅ COMPLETED (2026-02-01)
   - [ ] Minify CSS/HTML (#311)
 
-**Completed:** 2026-02-04  
-**Verification:** ✅ Site live and accessible globally  
+- [x] **Waitlist Widget & Coming Soon Badges** (#267) ✅ COMPLETED (2026-02-05)
+  - [x] Waitlist pop-up modal with glassmorphism design (#312)
+  - [x] Firebase Firestore integration for email collection (#313)
+  - [x] Form validation and success/error messages (#314)
+  - [x] LocalStorage persistence (no repeat display) (#315)
+  - [x] Analytics tracking (popup_view, waitlist_signup) (#316)
+  - [x] Coming Soon badges on App Store/Google Play buttons (#317)
+  - [x] Firestore Security Rules for waitlist collection (#318)
+  - [x] Documentation updates (landing_page.md, production_roadmap.md) (#319)
+
+**Completed:** 2026-02-05  
+**Verification:** ✅ Localhost tested, ready for production deployment  
 **Status:** 🟢 **PRODUCTION READY**  
 **Hosting:** Cloudflare Pages (migrated from Firebase Hosting)
 
