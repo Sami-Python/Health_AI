@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { onAuthStateChanged, User, GoogleAuthProvider, OAuthProvider, signInWithPopup, signOut as firebaseSignOut, Auth } from "firebase/auth";
+import { getFirebaseAuth } from "../lib/firebase";
 
 interface AuthContextType {
     user: User | null;
@@ -17,17 +17,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [auth, setAuth] = useState<Auth | null>(null);
 
+    // Initialize Firebase Auth on client-side only
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-            setLoading(false);
-        });
+        if (typeof window !== "undefined") {
+            const firebaseAuth = getFirebaseAuth();
+            setAuth(firebaseAuth);
 
-        return () => unsubscribe();
+            const unsubscribe = onAuthStateChanged(firebaseAuth, (currentUser) => {
+                setUser(currentUser);
+                setLoading(false);
+            });
+
+            return () => unsubscribe();
+        }
     }, []);
 
     const signInWithGoogle = async () => {
+        if (!auth) return;
         try {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
@@ -37,6 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signInWithApple = async () => {
+        if (!auth) return;
         try {
             const provider = new OAuthProvider('apple.com');
             provider.addScope('email');
@@ -48,6 +57,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const signOut = async () => {
+        if (!auth) return;
         try {
             await firebaseSignOut(auth);
         } catch (error) {
