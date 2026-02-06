@@ -58,14 +58,12 @@ class ProductionSettings(Settings):
     
     @property
     def cors_origins_list(self) -> List[str]:
-        origins = []
+        origins = [
+            "https://app.personalaicoach.ai",  # Production frontend
+            "https://www.personalaicoach.ai",  # Landing page (for any API calls)
+        ]
         if self.FRONTEND_URL:
             origins.append(self.FRONTEND_URL)
-        else:
-            # Allow all for initial deployment to get the URL
-            origins.append("*")
-        # Add actual production domains here if known statically
-        # origins.append("https://healthai.app") 
         return origins
 
     # Override Pydantic Validator if we want dynamic CORS_ORIGINS based on FRONTEND_URL

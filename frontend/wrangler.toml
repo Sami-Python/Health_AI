@@ -1,0 +1,10 @@
+name = "personalaicoach-app"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NODE_ENV = "production"
+
+# Assets configuration
+[site]
+bucket = ".open-next/assets"
