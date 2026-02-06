@@ -118,7 +118,55 @@ Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri
 - [`landing_page/index.html`](file:///c:/Users/samih/code/health_ai/landing_page/index.html) - Cookie banner + conditional analytics
 - [`landing_page/styles.css`](file:///c:/Users/samih/code/health_ai/landing_page/styles.css) - Legal page + cookie banner styles
 
-**Status:** 🟢 **READY FOR DEPLOYMENT** - Push to Cloudflare Pages!
+**Status:** 🟢 **READY FOR DEPLOYMENT**Seuraava:** Cloudflare analytics + email routing testaus
+
+---
+
+## 2026-02-06 – Web App Cloudflare Pages Deployment 🌐⏳
+
+Deployattiin Next.js frontend `app.personalaicoach.ai`:hin Cloudflare Pagesilla.
+
+### 1. Cloudflare Pages Setup ✅
+
+**Ongelmat:**
+- OpenNext worker-approach ei toiminut (404)
+- Cloudflare ei välittänyt UI env-muuttujia buildiin
+
+**Ratkaisu:**
+- Vaihdettiin static export tilaan (`output: 'export'`)
+- Lisättiin `.env.production` repositorioon (NEXT_PUBLIC_ vars julkisia joka tapauksessa)
+- Firebase lazy initialization (`getFirebaseAuth()` vasta client-sidessa)
+
+**Deployment:**
+- Build output: `out/` folder
+- Domain: `app.personalaicoach.ai`
+- Sivu latautuu onnistuneesti ✅
+
+### 2. Google/Apple Auth - PENDING FIX ⏳
+
+**Ongelma:**
+- Google Sign In popup avautuu ja sulkeutuu heti
+- Browser console: `auth/api-key-not-valid` error
+- API endpoint: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectConfig?key=AIza...` → 400 Bad Request
+
+**Tehty:**
+- ✅ Firebase Authorized Domains: `app.personalaicoach.ai` lisätty
+- ✅ Google Cloud OAuth redirect URIs: `https://app.personalaicoach.ai/__/auth/handler` lisätty
+- ✅ API Key restrictions tarkistettu (Application: None, API: Don't restrict)
+- ⏳ **Seuraava:** Luo uusi API key tai odota propagaatiota
+
+**Tiedostot:**
+```
+frontend/
+├── .env.production (NEW - Firebase config)
+├── next.config.ts (output: 'export')
+├── wrangler.toml (pages_build_output_dir: 'out')
+└── src/lib/firebase.ts (lazy init)
+```
+
+**Roadmap:**
+- #506-511: Web App deployment ✅
+- #512-516: Google/Apple Auth fix ⏳
 
 ---
 
