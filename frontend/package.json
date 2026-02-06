@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
-    "build:cloudflare": "npx @opennextjs/cloudflare build",
-    "preview": "npx wrangler pages dev .open-next/assets --compatibility-flags=nodejs_compat",
-    "deploy": "npx wrangler pages deploy .open-next/assets --project-name=personalaicoach-app",
+    "build:cloudflare": "next build",
+    "preview": "npx serve out",
+    "deploy": "npx wrangler pages deploy out --project-name=personalaicoach-app",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
