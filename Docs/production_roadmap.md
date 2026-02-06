@@ -389,12 +389,33 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 **Status:** 🟢 **PRODUCTION READY**  
 **Hosting:** Cloudflare Pages (migrated from Firebase Hosting)
 
-- [x] **GDPR Compliance (Privacy & Cookies)** (#500) ✅ COMPLETED (2026-02-06)
-  - [x] Privacy Policy page (`privacy.html`) (#501)
-  - [x] Terms of Service page (`terms.html`) (#502)
-  - [x] Cookie Consent Banner with Accept/Decline (#503)
-  - [x] Conditional Firebase Analytics (loads after consent) (#504)
-  - [x] Footer links updated (#505)
+### 9.5 GDPR Compliance
+> **Status:** ✅ COMPLETED (2026-02-06)
+
+- [x] **Privacy Policy & Terms Pages** (#500)
+  - [x] Create `privacy.html` with GDPR-compliant privacy policy (#501)
+  - [x] Create `terms.html` with terms of service (#502)
+  - [x] Footer links to legal pages (#503)
+
+- [x] **Cookie Consent Banner** (#504)
+  - [x] Cookie consent banner on landing page (#505)
+
+### 9.6 Web App Deployment (app.personalaicoach.ai)
+> **Status:** 🟡 IN PROGRESS (2026-02-06)
+
+- [x] **Cloudflare Pages Setup** (#506)
+  - [x] Static export configuration (`output: 'export'`) (#507)
+  - [x] Custom domain: `app.personalaicoach.ai` (#508)
+  - [x] Environment variables in `.env.production` (#509)
+  - [x] Firebase lazy initialization for build compatibility (#510)
+  - [x] Site deployed and accessible (#511)
+
+- [ ] **Google/Apple Authentication** (#512)
+  - [x] OAuth redirect URIs configured in Google Cloud Console (#513)
+  - [ ] **Fix Google API Key issue** - "API key not valid" error (#514)
+    - Investigation: Browser key restrictions or new API key needed
+  - [ ] Test Google Sign In flow (#515)
+  - [ ] Test Apple Sign In flow (#516)
 
 ---
 
