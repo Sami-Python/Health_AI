@@ -1,5 +1,7 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+"use client";
+
+import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,8 +12,27 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (Singleton pattern)
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
+// Lazy initialization - only initialize on client-side
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
 
-export { app, auth };
+function getFirebaseApp(): FirebaseApp {
+    if (typeof window === "undefined") {
+        throw new Error("Firebase can only be initialized on the client side");
+    }
+    if (!app) {
+        app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    }
+    return app;
+}
+
+function getFirebaseAuth(): Auth {
+    if (!auth) {
+        auth = getAuth(getFirebaseApp());
+    }
+    return auth;
+}
+
+export { getFirebaseApp, getFirebaseAuth };
+// Legacy exports for compatibility
+export { getFirebaseApp as app, getFirebaseAuth as auth };
