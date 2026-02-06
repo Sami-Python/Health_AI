@@ -30,30 +30,54 @@
             measurementId: "G-LTD1T9TF4Q"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase App and Firestore (always needed for waitlist)
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getFirestore(app);
 
-        // Log page view event
-        logEvent(analytics, 'page_view', {
-            page_title: document.title,
-            page_location: window.location.href
-        });
+        // Analytics - only initialize if user has consented
+        let analytics = null;
+        const cookieConsent = localStorage.getItem('cookieConsent');
+
+        if (cookieConsent === 'accepted') {
+            analytics = getAnalytics(app);
+            logEvent(analytics, 'page_view', {
+                page_title: document.title,
+                page_location: window.location.href
+            });
+        }
+
+        // Make analytics available globally for consent handler
+        window.initAnalytics = () => {
+            if (!analytics) {
+                analytics = getAnalytics(app);
+                logEvent(analytics, 'page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href
+                });
+            }
+            return analytics;
+        };
+
+        // Helper to log events (only if analytics is enabled)
+        window.logAnalyticsEvent = (eventName, params) => {
+            if (analytics) {
+                logEvent(analytics, eventName, params);
+            }
+        };
 
         // Track CTA button clicks
         document.addEventListener('DOMContentLoaded', () => {
             // Track "Get Started" clicks
             document.querySelectorAll('.btn-primary').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    logEvent(analytics, 'cta_click', { button: 'get_started' });
+                    window.logAnalyticsEvent('cta_click', { button: 'get_started' });
                 });
             });
 
             // Track "See Demo" clicks
             document.querySelectorAll('.btn-secondary').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    logEvent(analytics, 'cta_click', { button: 'see_demo' });
+                    window.logAnalyticsEvent('cta_click', { button: 'see_demo' });
                 });
             });
 
@@ -61,14 +85,14 @@
             document.querySelectorAll('.store-badge').forEach(badge => {
                 badge.addEventListener('click', () => {
                     const store = badge.classList.contains('apple') ? 'app_store' : 'google_play';
-                    logEvent(analytics, 'store_click', { store: store });
+                    window.logAnalyticsEvent('store_click', { store: store });
                 });
             });
 
             // Track login clicks
             document.querySelectorAll('.btn-login').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    logEvent(analytics, 'login_click');
+                    window.logAnalyticsEvent('login_click');
                 });
             });
 
@@ -85,7 +109,7 @@
             if (!hasClosedPopup) {
                 setTimeout(() => {
                     waitlistModal.classList.add('active');
-                    logEvent(analytics, 'waitlist_popup_view');
+                    window.logAnalyticsEvent('waitlist_popup_view');
                 }, 2000);
             }
 
@@ -130,7 +154,7 @@
                     });
 
                     // Track analytics
-                    logEvent(analytics, 'waitlist_signup', { email: email });
+                    window.logAnalyticsEvent('waitlist_signup', { email: email });
 
                     // Show success message
                     showMessage('🎉 Success! You\'re on the waitlist!', 'success');
@@ -684,8 +708,8 @@
                     <div class="footer-column">
                         <h4>Company</h4>
                         <a href="#">About</a>
-                        <a href="#">Privacy</a>
-                        <a href="#">Terms</a>
+                        <a href="privacy.html">Privacy Policy</a>
+                        <a href="terms.html">Terms of Service</a>
                     </div>
                     <div class="footer-column">
                         <h4>Support</h4>
@@ -707,6 +731,23 @@
             </div>
         </div>
     </footer>
+
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+        <div class="cookie-content">
+            <div class="cookie-text">
+                <h4>🍪 We use cookies</h4>
+                <p>We use cookies and Firebase Analytics to improve your experience and analyze site traffic.
+                    By clicking "Accept", you consent to our use of cookies.
+                    <a href="privacy.html">Learn more</a>
+                </p>
+            </div>
+            <div class="cookie-buttons">
+                <button class="cookie-btn cookie-btn-decline" id="declineCookies">Decline</button>
+                <button class="cookie-btn cookie-btn-accept" id="acceptCookies">Accept</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Mobile menu toggle
@@ -760,6 +801,33 @@
 
         document.querySelectorAll('.feature-card, .step-card, .floating-card').forEach(el => {
             observer.observe(el);
+        });
+
+        // Cookie Consent Banner Logic
+        const cookieBanner = document.getElementById('cookieBanner');
+        const acceptCookiesBtn = document.getElementById('acceptCookies');
+        const declineCookiesBtn = document.getElementById('declineCookies');
+
+        // Show banner if no consent choice made
+        const savedConsent = localStorage.getItem('cookieConsent');
+        if (!savedConsent) {
+            setTimeout(() => {
+                cookieBanner.classList.add('active');
+            }, 1000);
+        }
+
+        acceptCookiesBtn.addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'accepted');
+            cookieBanner.classList.remove('active');
+            // Initialize analytics after consent
+            if (window.initAnalytics) {
+                window.initAnalytics();
+            }
+        });
+
+        declineCookiesBtn.addEventListener('click', () => {
+            localStorage.setItem('cookieConsent', 'declined');
+            cookieBanner.classList.remove('active');
         });
     </script>
 </body>
