@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
+    "build:cloudflare": "npx @opennextjs/cloudflare build",
+    "preview": "npx wrangler pages dev .open-next/assets --compatibility-flags=nodejs_compat",
+    "deploy": "npx wrangler pages deploy .open-next/assets --project-name=personalaicoach-app",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
@@ -19,7 +22,7 @@
     "firebase": "^12.7.0",
     "framer-motion": "^12.24.7",
     "lucide-react": "^0.562.0",
-    "next": "16.1.1",
+    "next": "^16.1.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hot-toast": "^2.6.0",
@@ -27,6 +30,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.16.3",
     "@playwright/test": "1.53.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
@@ -42,6 +46,7 @@
     "jest-environment-jsdom": "^30.2.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.63.0"
   }
 }
