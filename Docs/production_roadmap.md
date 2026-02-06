@@ -22,7 +22,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth). (#116)
 - [x] **Backend Middleware:** Implementoi `main.py`:hyn middleware, joka verifioi Firebase ID -tokenin jokaisessa pyynnössä. (#117)
-- [ ] **Kirjautuminen:** Toteuta Google/Apple/Email -kirjautumisvaihtoehdot. (#118)
+- [x] **Kirjautuminen:** Toteuta Google/Apple/Email -kirjautumisvaihtoehdot. (#118) ✅ COMPLETED
 - [x] **Data Encryption (GDPR):** Salattu tallennusratkaisu (AES-256) salasanoille ja arkaluonteisille tiedoille. (#119)
 - [x] **Datan hallinta:** Työkalu käyttäjän datan poistoon ("Oikeus tulla unohdetuksi"). (#120) ✅ COMPLETED (2026-01-17)
   - [x] Backend endpoint `DELETE /account` (#347)
@@ -388,6 +388,13 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 **Verification:** ✅ Localhost tested, ready for production deployment  
 **Status:** 🟢 **PRODUCTION READY**  
 **Hosting:** Cloudflare Pages (migrated from Firebase Hosting)
+
+- [x] **GDPR Compliance (Privacy & Cookies)** (#500) ✅ COMPLETED (2026-02-06)
+  - [x] Privacy Policy page (`privacy.html`) (#501)
+  - [x] Terms of Service page (`terms.html`) (#502)
+  - [x] Cookie Consent Banner with Accept/Decline (#503)
+  - [x] Conditional Firebase Analytics (loads after consent) (#504)
+  - [x] Footer links updated (#505)
 
 ---
 

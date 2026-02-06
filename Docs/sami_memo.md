@@ -67,6 +67,61 @@ python -m pytest tests/test_endpoints.py tests/test_admin.py tests/test_config.p
 
 ---
 
+## 2026-02-06 – GDPR Compliance for Landing Page 🔒✅
+
+Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri landing pagelle.
+
+### 1. Privacy Policy (`privacy.html`) ✅
+
+**Sisältö:**
+- Data Controller tiedot
+- Kerätyt tiedot (Garmin, Firebase Analytics, käyttäjäprofiili)
+- Datan käsittelyn tarkoitukset
+- Kolmannet osapuolet (Firebase, Gemini AI, Garmin)
+- Käyttäjän oikeudet (GDPR Artikla 15-21)
+- Datan säilytysajat
+- Yhteystiedot
+
+### 2. Terms of Service (`terms.html`) ✅
+
+**Sisältö:**
+- Palvelun kuvaus
+- Käyttäjän velvollisuudet
+- Tilin luominen ja hallinta
+- Terveysvastuu (medical disclaimer)
+- Vastuunrajoitukset
+- Immateriaalioikeudet
+- Ehtojen muutokset
+
+### 3. Cookie Consent Banner ✅
+
+**Toiminta:**
+- Ilmestyy 1 sekunnin kuluttua sivulle saapumisesta
+- **Accept** → Firebase Analytics aktivoidaan, valinta tallennetaan LocalStorageen
+- **Decline** → Analytics EI lataudu lainkaan (GDPR-yhteensopiva)
+- Banneri ei näy enää valinnan jälkeen
+
+**Tekninen toteutus:**
+- Conditional Analytics: Firebase Analytics ladataan vain jos `localStorage.getItem('cookieConsent') === 'accepted'`
+- `window.initAnalytics()` ja `window.logAnalyticsEvent()` helper-funktiot
+- CSS-animaatiot (slide-up efekti)
+
+### 4. Päivitetyt dokumentaatiot ✅
+
+- [`Docs/landing_page.md`](file:///c:/Users/samih/code/health_ai/Docs/landing_page.md) - GDPR-osio lisätty
+- [`Docs/production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md) - #500-505 merkitty valmiiksi
+- Footer-linkit päivitetty: Privacy Policy, Terms of Service
+
+**Tiedostot:**
+- [`landing_page/privacy.html`](file:///c:/Users/samih/code/health_ai/landing_page/privacy.html) - NEW
+- [`landing_page/terms.html`](file:///c:/Users/samih/code/health_ai/landing_page/terms.html) - NEW
+- [`landing_page/index.html`](file:///c:/Users/samih/code/health_ai/landing_page/index.html) - Cookie banner + conditional analytics
+- [`landing_page/styles.css`](file:///c:/Users/samih/code/health_ai/landing_page/styles.css) - Legal page + cookie banner styles
+
+**Status:** 🟢 **READY FOR DEPLOYMENT** - Push to Cloudflare Pages!
+
+---
+
 ## 2026-02-04 – Landing Page Cloudflare Pages Deployment 🌐✅
 
 Toteutettiin landing pagen siirto Cloudflare Pagesiin ja konfiguroitiin tuotantoympäristö.

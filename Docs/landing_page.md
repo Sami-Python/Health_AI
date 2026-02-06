@@ -49,6 +49,13 @@ Three-step process:
 - Analytics tracking (`waitlist_popup_view`, `waitlist_signup`)
 - Multiple close methods (X button, backdrop click, auto-close)
 
+### 7. **GDPR Compliance** ✨ NEW (2026-02-06)
+- **Privacy Policy page** (`privacy.html`) - Full GDPR-compliant data protection policy
+- **Terms of Service page** (`terms.html`) - Legal terms and conditions
+- **Cookie Consent Banner** - Accept/Decline buttons with localStorage persistence
+- **Conditional Analytics** - Firebase Analytics only loads after user consent
+- Footer links updated to point to legal pages
+
 ---
 
 ## 🏗️ Technical Stack
@@ -66,9 +73,10 @@ Three-step process:
 - **Images:** WebP format with lazy loading
 
 ### Analytics
-- **Firebase Analytics** - Page views, user behavior
+- **Firebase Analytics** - Page views, user behavior (GDPR-compliant with consent)
 - **Event Tracking:** CTA clicks, navigation events
 - **Firebase Firestore** - Waitlist email collection (`waitlist` collection)
+- **Cookie Consent:** Analytics only loads after user accepts cookies
 
 ---
 
@@ -77,6 +85,8 @@ Three-step process:
 ```
 landing_page/
 ├── index.html              # Main HTML file
+├── privacy.html            # Privacy Policy (GDPR)
+├── terms.html              # Terms of Service
 ├── styles.css              # Stylesheet
 ├── images/                 # Assets
 │   ├── hero_fitness.webp   # Hero section image
@@ -334,7 +344,7 @@ For landing page issues:
 
 ---
 
-**Last Updated:** 2026-02-05  
+**Last Updated:** 2026-02-06  
 **Status:** ✅ Production  
 **Deployment:** Cloudflare Pages  
 **URL:** https://www.personalaicoach.ai
