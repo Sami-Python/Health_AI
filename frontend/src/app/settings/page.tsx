@@ -2,6 +2,7 @@
 
 import UserMenu from "@/components/UserMenu";
 import FeedbackForm from "@/components/FeedbackForm";
+import GarminCredentialsForm from "@/components/GarminCredentialsForm";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -118,6 +119,9 @@ export default function SettingsPage() {
                     <h2 className="text-lg font-semibold text-white mb-4">General</h2>
                     <p className="text-slate-400 text-sm">App preferences are currently managed automatically (Dark Mode, Metric Units).</p>
                 </div>
+
+                {/* Garmin Credentials Section */}
+                <GarminCredentialsForm />
 
                 {/* Data Privacy Section */}
                 <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">

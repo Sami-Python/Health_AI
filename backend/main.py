@@ -100,7 +100,7 @@ Running in: **{settings.APP_ENV}** mode.
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS, # Reverted to settings.CORS_ORIGINS for syntactic correctness
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
