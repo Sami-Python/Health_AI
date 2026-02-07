@@ -415,7 +415,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Google/Apple Authentication** (#512)
   - [x] OAuth redirect URIs configured in Google Cloud Console (#513)
   - [x] **Fix Google API Key issue** - "API key not valid" error (#514)
-    - [x] Resolution: Rotated API Key, Updated Restrictions, Fixed Backend Config
+    - [x] Resolution: Rotated API Key, Updated Restrictions, Fixed Backend Config (#328)
   - [x] Test Google Sign In flow (#515)
   - [ ] Test Apple Sign In flow (#516)
 
