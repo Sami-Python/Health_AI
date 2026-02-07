@@ -1742,3 +1742,37 @@ Tänään keskityin saamaan projektin testit ja automaation kuntoon, sekä paran
 - **Security:** Firestore Rules deployattu tuotantoon (`firebase deploy`), varmistaen datan eristyksen pilvessä.
 
 **Status:** Kaikki toimii, CI/CD vihreä, ja tietoturva on tiukka. Hyvä päivä! 🚀
+
+---
+
+## 2026-02-07 – Google Auth & API Key Fixes 🔐✅
+
+Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.personalaicoach.ai`).
+
+### 1. API Key Mismatch
+- **Ongelma:** `auth/api-key-not-valid` virhe.
+- **Syy:** Tuotannon (`.env.production`) API-avain oli vanhentunut tai väärin rajoitettu. Kehitysympäristö (`localhost`) toimi eri avaimella.
+- **Ratkaisu:**
+    - Luotiin uusi API-avain Google Cloud Consolessa.
+    - Päivitettiin `frontend/.env.production`.
+    - Rajoitukset (Security hardening):
+        - **Application:** `app.personalaicoach.ai`, `www.personalaicoach.ai`, `localhost:3000`.
+        - **API:** `Identity Toolkit API`, `Token Service API`.
+
+### 2. OAuth Domain Verification
+- **Ongelma:** `auth/popup-closed-by-user` virhe (vaikka käyttäjä ei sulkenut ikkunaa).
+- **Syy:** Google OAuth 2.0 Client ID ei luottanut `app.personalaicoach.ai` -osoitteeseen. Pelkkä Firebase Console whitelist ei riittänyt.
+- **Ratkaisu:**
+    - Lisätty `https://app.personalaicoach.ai` **Google Cloud Console > API & Services > Credentials > OAuth 2.0 Client IDs** -listalle ("Authorized JavaScript origins").
+
+### 3. CORS & Backend Config
+- **Ongelma:** Backend hylkäsi pyynnöt (`CORS error`) ja `401 Unauthorized`.
+- **Ratkaisu:**
+    - Päivitetty `backend/config.py` sallimaan `https://app.personalaicoach.ai` explicitisti CORS-listalla.
+    - Varmistettu, että backend käyttää samaa Firebase Project ID:tä (`personal-ai-coach-92c39`).
+
+**Dokumentaatio:**
+- Luotu [`Docs/troubleshooting_auth.md`](file:///c:/Users/samih/code/health_ai/Docs/troubleshooting_auth.md) tulevia vianmäärityksiä varten.
+- Päivitetty [`Docs/production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md).
+
+**Status:** 🟢 **AUTH WORKING** - Kirjautuminen ja datan haku toimii tuotannossa.
