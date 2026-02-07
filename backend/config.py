@@ -56,14 +56,17 @@ class ProductionSettings(Settings):
     # In production, we expect FRONTEND_URL to be set, or we default to a specific domain
     FRONTEND_URL: Optional[str] = None
     
+    CORS_ORIGINS: List[str] = [
+        "https://app.personalaicoach.ai",
+        "https://www.personalaicoach.ai"
+    ]
+    
     @property
     def cors_origins_list(self) -> List[str]:
-        origins = [
-            "https://app.personalaicoach.ai",  # Production frontend
-            "https://www.personalaicoach.ai",  # Landing page (for any API calls)
-        ]
-        if self.FRONTEND_URL:
-            origins.append(self.FRONTEND_URL)
+        # This property is kept for reference but CORS_ORIGINS above is what Pydantic uses
+        origins = self.CORS_ORIGINS.copy()
+        if self.FRONTEND_URL and self.FRONTEND_URL not in origins:
+             origins.append(self.FRONTEND_URL)
         return origins
 
     # Override Pydantic Validator if we want dynamic CORS_ORIGINS based on FRONTEND_URL
