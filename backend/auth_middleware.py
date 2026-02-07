@@ -33,7 +33,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
         )
         raise HTTPException(
             status_code=401,
-            detail="Invalid authentication credentials",
+            detail=f"Invalid authentication credentials: {str(e)}", # DEBUG: Exposing error
             headers={"WWW-Authenticate": "Bearer"},
         )
 
