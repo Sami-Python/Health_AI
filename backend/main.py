@@ -32,6 +32,15 @@ settings = get_settings()
 # Initialize Structured Logging
 setup_logging()
 
+# FORCE FIREBASE INITIALIZATION
+# This ensures firebase_admin.initialize_app() is called BEFORE any request is processed.
+# Without this, auth_middleware.verify_token() might run before initialization, causing 401 errors.
+try:
+    db_manager.get_db()
+    logger.info("Firebase Admin forced initialization successful")
+except Exception as e:
+    logger.error(f"Failed to force-initialize Firebase: {e}")
+
 # Initialize Google Cloud Error Reporting (Production Only)
 error_reporting_client = None
 if settings.APP_ENV == "production":
