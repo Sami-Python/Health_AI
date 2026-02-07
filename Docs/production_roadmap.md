@@ -401,7 +401,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Cookie consent banner on landing page (#505)
 
 ### 9.6 Web App Deployment (app.personalaicoach.ai)
-> **Status:** 🟡 IN PROGRESS (2026-02-06)
+> **Status:** 🟢 COMPLETED (2026-02-07)
 
 - [x] **Cloudflare Pages Setup** (#506)
   - [x] Static export configuration (`output: 'export'`) (#507)
@@ -410,11 +410,13 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Firebase lazy initialization for build compatibility (#510)
   - [x] Site deployed and accessible (#511)
 
-- [ ] **Google/Apple Authentication** (#512)
+> **Status:** 🟢 COMPLETED (2026-02-07)
+
+- [x] **Google/Apple Authentication** (#512)
   - [x] OAuth redirect URIs configured in Google Cloud Console (#513)
-  - [ ] **Fix Google API Key issue** - "API key not valid" error (#514)
-    - Investigation: Browser key restrictions or new API key needed
-  - [ ] Test Google Sign In flow (#515)
+  - [x] **Fix Google API Key issue** - "API key not valid" error (#514)
+    - [x] Resolution: Rotated API Key, Updated Restrictions, Fixed Backend Config
+  - [x] Test Google Sign In flow (#515)
   - [ ] Test Apple Sign In flow (#516)
 
 ---
