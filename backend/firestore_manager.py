@@ -44,7 +44,15 @@ def _ensure_initialized():
             else:
                 # Fallback: Application Default Credentials (Cloud Run)
                 print("Warning: No specific credential found. Trying Application Default Credentials...")
-                firebase_admin.initialize_app()
+                
+                # FIX: Explicitly specify Project ID to avoid mismatch between Cloud Run project and Firebase Auth project
+                from config import get_settings
+                settings = get_settings()
+                print(f"Initializing Firebase with Target Project ID: {settings.FIREBASE_PROJECT_ID}")
+                
+                firebase_admin.initialize_app(options={
+                    'projectId': settings.FIREBASE_PROJECT_ID
+                })
         
         _db = firestore.client()
         _initialized = True
