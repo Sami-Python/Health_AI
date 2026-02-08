@@ -1405,3 +1405,42 @@ async def chat_endpoint(request_body: ChatRequest, request: Request, user: dict 
         logger.error(f"Chat Endpoint Error: {e}")
         raise HTTPException(status_code=500, detail="Chat failed")
 
+@app.get("/debug/files", tags=["Debug"])
+async def debug_files(user: dict = Depends(verify_admin)):
+    """
+    Debug endpoint to list files in data directories.
+    """
+    import os
+    
+    paths_to_check = [
+        "/app/data",
+        "/app/outputs",
+        os.path.join(os.getcwd(), "data"),
+        os.path.join(os.getcwd(), "backend", "data"),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
+    ]
+    
+    results = {}
+    
+    for path in paths_to_check:
+        if os.path.exists(path):
+            try:
+                # List top level
+                items = os.listdir(path)
+                results[path] = items
+                
+                # If user directory exists, list that too
+                if user.get('uid') in items:
+                    user_path = os.path.join(path, user['uid'])
+                    if os.path.isdir(user_path):
+                        results[user_path] = os.listdir(user_path)
+            except Exception as e:
+                results[path] = f"Error: {str(e)}"
+        else:
+            results[path] = "Not Found"
+            
+    return {
+        "cwd": os.getcwd(),
+        "files": results,
+        "uid": user.get('uid')
+    }
