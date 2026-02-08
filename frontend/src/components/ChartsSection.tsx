@@ -7,6 +7,7 @@ import { Info } from "lucide-react";
 import Skeleton from "./ui/Skeleton";
 import AIInsightCard from "./AIInsightCard";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
+import ErrorBoundary from "./ui/ErrorBoundary";
 
 // Helper for Info Tooltip
 function InfoTooltip({ text }: { text: string }) {
@@ -68,7 +69,9 @@ export default function ChartsSection() {
 
             {/* AI Insight Card */}
             <div className="mb-6">
-                <AIInsightCard />
+                <ErrorBoundary fallback={<div className="p-4 border border-slate-800 rounded-xl bg-slate-900/50 text-slate-400 text-sm">AI Insights unavailable</div>}>
+                    <AIInsightCard />
+                </ErrorBoundary>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -79,7 +82,9 @@ export default function ChartsSection() {
                         <InfoTooltip text="Comparison of Body Battery (max daily value) vs. Sleep Duration. Helps visualize if your recovery matches your sleep volume." />
                     </h3>
                     <div className="h-[250px]">
-                        <RecoveryChart data={data} />
+                        <ErrorBoundary>
+                            <RecoveryChart data={data} />
+                        </ErrorBoundary>
                     </div>
                 </div>
 
@@ -90,7 +95,9 @@ export default function ChartsSection() {
                         <InfoTooltip text="Daily training load (proxy from calories/duration). High bars indicate strenuous training days." />
                     </h3>
                     <div className="h-[250px]">
-                        <LoadChart data={data} />
+                        <ErrorBoundary>
+                            <LoadChart data={data} />
+                        </ErrorBoundary>
                     </div>
                 </div>
 
@@ -101,7 +108,9 @@ export default function ChartsSection() {
                         <InfoTooltip text="Tracks Fitness (CTL), Fatigue (ATL), and Form (TSB) over time to optimize training peaks and avoid overtraining." />
                     </h3>
                     <div className="h-[300px]">
-                        <PerformanceChart data={data} />
+                        <ErrorBoundary>
+                            <PerformanceChart data={data} />
+                        </ErrorBoundary>
                     </div>
                 </div>
             </div>
