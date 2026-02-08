@@ -100,9 +100,10 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label className={labelClass}>Activity</label>
+                    <label htmlFor="goal-activity" className={labelClass}>Activity</label>
                     <div className="relative">
                         <select
+                            id="goal-activity"
                             className={inputClass + " appearance-none"}
                             value={formData.activity_type}
                             onChange={(e) => setFormData({ ...formData, activity_type: e.target.value })}
@@ -152,8 +153,9 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {(formData.period_type === 'target_date' || formData.period_type === 'race') ? (
                     <div className="col-span-2">
-                        <label className={labelClass}>{formData.period_type === 'race' ? 'Race Date' : 'Target Date'}</label>
+                        <label htmlFor="goal-target-date" className={labelClass}>{formData.period_type === 'race' ? 'Race Date' : 'Target Date'}</label>
                         <input
+                            id="goal-target-date"
                             type="date"
                             className={inputClass}
                             value={formData.target_date}
@@ -163,9 +165,10 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                     </div>
                 ) : (
                     <div className="col-span-2">
-                        <label className={labelClass}>Frequency</label>
+                        <label htmlFor="goal-frequency" className={labelClass}>Frequency</label>
                         <div className="relative">
                             <select
+                                id="goal-frequency"
                                 className={inputClass + " appearance-none"}
                                 value={formData.frequency}
                                 onChange={(e) => setFormData({ ...formData, frequency: e.target.value })}
@@ -183,8 +186,9 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label className={labelClass}>Target Value</label>
+                    <label htmlFor="goal-target-value" className={labelClass}>Target Value</label>
                     <input
+                        id="goal-target-value"
                         type="number"
                         step="0.1"
                         className={inputClass}
@@ -195,9 +199,10 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
                     />
                 </div>
                 <div>
-                    <label className={labelClass}>Unit</label>
+                    <label htmlFor="goal-target-unit" className={labelClass}>Unit</label>
                     <div className="relative">
                         <select
+                            id="goal-target-unit"
                             className={inputClass + " appearance-none"}
                             value={formData.target_unit}
                             onChange={(e) => setFormData({ ...formData, target_unit: e.target.value })}
@@ -217,8 +222,9 @@ export default function AddGoalForm({ onSuccess, initialData, goalId }: AddGoalF
             </div>
 
             <div>
-                <label className={labelClass}>Description (Optional)</label>
+                <label htmlFor="goal-description" className={labelClass}>Description (Optional)</label>
                 <input
+                    id="goal-description"
                     type="text"
                     className={inputClass}
                     placeholder="e.g. Prepare for marathon"

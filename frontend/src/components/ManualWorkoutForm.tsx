@@ -81,8 +81,9 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</label>
+                            <label htmlFor="workout-date" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Date</label>
                             <input
+                                id="workout-date"
                                 type="date"
                                 name="date"
                                 value={formData.date}
@@ -92,8 +93,9 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Activity</label>
+                            <label htmlFor="workout-activity" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Activity</label>
                             <select
+                                id="workout-activity"
                                 name="activity"
                                 value={formData.activity}
                                 onChange={handleChange}
@@ -108,8 +110,9 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Duration (min)</label>
+                            <label htmlFor="workout-duration" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Duration (min)</label>
                             <input
+                                id="workout-duration"
                                 type="number"
                                 name="duration_min"
                                 value={formData.duration_min}
@@ -120,8 +123,9 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">RPE (1-10)</label>
+                            <label htmlFor="workout-rpe" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">RPE (1-10)</label>
                             <input
+                                id="workout-rpe"
                                 type="number"
                                 name="rpe"
                                 value={formData.rpe}
@@ -134,8 +138,9 @@ export default function ManualWorkoutForm({ onSuccess, onCancel }: ManualWorkout
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Notes</label>
+                        <label htmlFor="workout-notes" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Notes</label>
                         <textarea
+                            id="workout-notes"
                             name="notes"
                             value={formData.notes}
                             onChange={handleChange}
