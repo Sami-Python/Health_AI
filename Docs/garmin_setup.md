@@ -76,10 +76,8 @@ Decrypted: test_garmin_password_123
 3. **Click "Connect Garmin"**
 
 **Expected result:**
-- ✅ Success message appears
-- Status shows "Connected" with your email
-- Check Firestore Console → `users/{uid}/garmin_credentials/default`
   - `password_encrypted`: Should be unreadable blob (e.g., `gAAAAABm...`)
+- ✅ Dashboard Banner: The "Connect Garmin" banner on the dashboard should disappear.
 
 ---
 
