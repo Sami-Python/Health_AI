@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { X, Activity, Brain, Calendar } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { fetchWithRetry } from "@/lib/utils";
+import { fetchWithRetry, API_BASE_URL } from "@/lib/utils";
 import Skeleton from "./ui/Skeleton";
 
 interface MLMetrics {
@@ -46,7 +46,7 @@ export default function MLMetricsModal({ isOpen, onClose }: MLMetricsModalProps)
         if (isOpen && user) {
             setLoading(true);
             user.getIdToken().then((token) => {
-                fetchWithRetry(`${process.env.NEXT_PUBLIC_API_URL}/ai/model-metrics`, {
+                fetchWithRetry(`${API_BASE_URL}/ai/model-metrics`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
