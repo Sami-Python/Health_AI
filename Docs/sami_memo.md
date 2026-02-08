@@ -1809,3 +1809,19 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
     - Korjattu `UnicodeEncodeError` Windowsin komborivillä poistamalla emoji-ikonit logeista (`firestore_manager.py`, `process_garmin_data.py`).
 
 **Status:** ✅ **FIXED** - Widget toimii ja data on turvassa pilvitietokannassa.
+
+---
+## 2026-02-08 – Production Dashboard Fix (Stale DB Reference) 🚑
+
+**Issue:** User reported dashboard widgets disappearing/emptying in production.
+**Cause:** 
+- `firestore_garmin_metrics.py` initialized `db = firestore_manager.db` at the module level.
+- Because of circular imports or import order in production (Cloud Run/Gunicorn), `firestore_manager.db` was likely `None` or uninitialized when `firestore_garmin_metrics` was imported.
+- This caused `save_daily_metric` and other functions to fail silently or throw errors that weren't immediately visible in the frontend generic error handler.
+
+**Fix:**
+- Refactored `firestore_garmin_metrics.py` to remove module-level `db` assignment.
+- Replaced all `db.` calls with `firestore_manager.get_db().`, which ensures the Firestore client is initialized on demand (lazy initialization).
+- Also added accessibility improvements (id/htmlFor) to `ManualWorkoutForm` and `AddGoalForm` based on linter feedback.
+
+**Result:** ✅ Dashboard confirmed working by user.
