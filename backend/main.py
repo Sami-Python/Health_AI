@@ -1054,15 +1054,33 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
 async def get_model_metrics(user: dict = Depends(verify_token)):
     try:
         # Paths
-        metrics_path = os.path.join(os.path.dirname(__file__), "data", "model_metrics.json")
-        fi_path = os.path.join(os.path.dirname(__file__), "..", "feature_importance.json")
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        uid = user['uid']
         
-        # Docker paths
-        if os.path.exists("/app/data/model_metrics.json"):
-            metrics_path = "/app/data/model_metrics.json"
-        if os.path.exists("/feature_importance.json"):
-            fi_path = "/feature_importance.json"
+        # Determine base directories
+        if os.path.exists("/app/data"):
+             data_dir = "/app/data"
+             # Assuming outputs directory exists in Docker image or volume
+             outputs_dir = "/app/outputs" 
+        else:
+             data_dir = os.path.join(base_dir, "data")
+             outputs_dir = os.path.join(base_dir, "outputs")
+             
+        # Construct Per-User Paths
+        metrics_path = os.path.join(data_dir, uid, "model_metrics.json")
+        fi_path = os.path.join(outputs_dir, uid, "feature_importance.json")
         
+        # Fallback to global/legacy paths if user-specific not found
+        if not os.path.exists(metrics_path):
+             metrics_path = os.path.join(data_dir, "model_metrics.json")
+             
+        if not os.path.exists(fi_path):
+             # Try older locations or global
+             fi_path = os.path.join(outputs_dir, "feature_importance.json")
+             if not os.path.exists(fi_path):
+                  # Check parent dir (legacy: backend/feature_importance.json)
+                  fi_path = os.path.join(base_dir, "..", "feature_importance.json")
+
         data = {"r2": 0, "mae": 0, "last_trained": "Never", "top_features": {}, "data_points": 0}
         
         # 0. Get Data Volume
