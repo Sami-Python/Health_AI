@@ -251,3 +251,41 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
     except Exception as e:
         print(f"Firestore Error (batch_save_metrics): {e}")
         return False
+
+
+def save_model_performance(user_id: str, metrics: dict, feature_importance: dict) -> bool:
+    """
+    Save AI model performance metrics and feature importance.
+    
+    Schema: garmin_metrics/{user_id}/model_performance/latest
+    """
+    try:
+        doc_data = {
+            "metrics": metrics, # {r2, mae, last_trained}
+            "feature_importance": feature_importance,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        }
+        
+        db.collection('garmin_metrics').document(user_id)\
+          .collection('model_performance').document('latest')\
+          .set(doc_data, merge=True)
+          
+        return True
+    except Exception as e:
+        print(f"Firestore Error (save_model_performance): {e}")
+        return False
+
+def get_model_performance(user_id: str) -> Optional[Dict]:
+    """
+    Retrieve latest AI model performance metrics.
+    """
+    try:
+        doc = db.collection('garmin_metrics').document(user_id)\
+                .collection('model_performance').document('latest').get()
+        
+        if doc.exists:
+            return doc.to_dict()
+        return None
+    except Exception as e:
+        print(f"Firestore Error (get_model_performance): {e}")
+        return None
