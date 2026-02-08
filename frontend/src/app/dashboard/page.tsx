@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import ChatInterface from "@/components/ChatInterface";
+import GarminConnectBanner from "@/components/GarminConnectBanner";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -176,6 +177,10 @@ export default function DashboardPage() {
                             <UserMenu />
                         </div>
                     </div>
+                </AnimateEntry>
+
+                <AnimateEntry delay={0.05}>
+                    <GarminConnectBanner />
                 </AnimateEntry>
 
                 <AnimateEntry delay={0.1}>
