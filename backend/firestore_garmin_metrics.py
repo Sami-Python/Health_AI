@@ -5,11 +5,9 @@ Part of CSV migration (Phase 10.3 - Multi-User Data Isolation).
 
 from datetime import datetime, timedelta, date
 from typing import List, Dict, Optional
+# Use shared Firestore client via get_db() to ensure initialization
 import firestore_manager
 
-# Use shared Firestore client
-db = firestore_manager.db
-firestore = firestore_manager.firestore
 
 def save_daily_metric(user_id: str, date_str: str, metric_data: dict) -> bool:
     """
@@ -29,14 +27,14 @@ def save_daily_metric(user_id: str, date_str: str, metric_data: dict) -> bool:
         # Ensure user_id is set
         metric_data['user_id'] = user_id
         metric_data['date'] = date_str
-        metric_data['updated_at'] = firestore.SERVER_TIMESTAMP
+        metric_data['updated_at'] = firestore_manager.firestore.SERVER_TIMESTAMP
         
         # If this is first save, add created_at
-        doc_ref = db.collection('garmin_metrics').document(user_id)\
+        doc_ref = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                     .collection('daily_metrics').document(date_str)
         
         if not doc_ref.get().exists:
-            metric_data['created_at'] = firestore.SERVER_TIMESTAMP
+            metric_data['created_at'] = firestore_manager.firestore.SERVER_TIMESTAMP
         
         doc_ref.set(metric_data, merge=True)
         return True
@@ -61,7 +59,7 @@ def get_user_daily_metrics(user_id: str, days: int = 30) -> List[Dict]:
         end_date = date.today()
         start_date = end_date - timedelta(days=days)
         
-        docs = db.collection('garmin_metrics').document(user_id)\
+        docs = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                  .collection('daily_metrics')\
                  .where('date', '>=', start_date.isoformat())\
                  .where('date', '<=', end_date.isoformat())\
@@ -93,7 +91,7 @@ def get_metrics_in_range(user_id: str, start_date: str, end_date: str) -> List[D
         List of metric dictionaries within the specified range
     """
     try:
-        docs = db.collection('garmin_metrics').document(user_id)\
+        docs = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                  .collection('daily_metrics')\
                  .where('date', '>=', start_date)\
                  .where('date', '<=', end_date)\
@@ -123,7 +121,7 @@ def get_user_metrics_count(user_id: str) -> int:
         Count of metric documents
     """
     try:
-        docs = db.collection('garmin_metrics').document(user_id)\
+        docs = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                  .collection('daily_metrics').stream()
         
         count = sum(1 for _ in docs)
@@ -145,9 +143,9 @@ def get_latest_metric(user_id: str) -> Optional[Dict]:
         Latest metric dictionary or None if no metrics found
     """
     try:
-        docs = db.collection('garmin_metrics').document(user_id)\
+        docs = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                  .collection('daily_metrics')\
-                 .order_by('date', direction=firestore.Query.DESCENDING)\
+                 .order_by('date', direction=firestore_manager.firestore.Query.DESCENDING)\
                  .limit(1).stream()
         
         for doc in docs:
@@ -174,11 +172,11 @@ def delete_user_metrics(user_id: str) -> bool:
     """
     try:
         # Get all metric documents
-        docs = db.collection('garmin_metrics').document(user_id)\
+        docs = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                  .collection('daily_metrics').stream()
         
         # Batch delete
-        batch = db.batch()
+        batch = firestore_manager.get_db().batch()
         count = 0
         
         for doc in docs:
@@ -188,7 +186,7 @@ def delete_user_metrics(user_id: str) -> bool:
             # Commit in batches of 400 (Firestore limit is 500)
             if count >= 400:
                 batch.commit()
-                batch = db.batch()
+                batch = firestore_manager.get_db().batch()
                 count = 0
         
         # Final commit
@@ -196,7 +194,7 @@ def delete_user_metrics(user_id: str) -> bool:
             batch.commit()
         
         # Delete parent document
-        db.collection('garmin_metrics').document(user_id).delete()
+        firestore_manager.get_db().collection('garmin_metrics').document(user_id).delete()
         
         print(f"Deleted {count} metric documents for user {user_id}")
         return True
@@ -218,7 +216,7 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
         True if successful, False otherwise
     """
     try:
-        batch = db.batch()
+        batch = firestore_manager.get_db().batch()
         count = 0
         
         for metric in metrics_list:
@@ -227,9 +225,9 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
                 continue
             
             metric['user_id'] = user_id
-            metric['updated_at'] = firestore.SERVER_TIMESTAMP
+            metric['updated_at'] = firestore_manager.firestore.SERVER_TIMESTAMP
             
-            doc_ref = db.collection('garmin_metrics').document(user_id)\
+            doc_ref = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                         .collection('daily_metrics').document(date_str)
             
             batch.set(doc_ref, metric, merge=True)
@@ -238,7 +236,7 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
             # Commit in batches of 400
             if count >= 400:
                 batch.commit()
-                batch = db.batch()
+                batch = firestore_manager.get_db().batch()
                 count = 0
         
         # Final commit
@@ -263,10 +261,10 @@ def save_model_performance(user_id: str, metrics: dict, feature_importance: dict
         doc_data = {
             "metrics": metrics, # {r2, mae, last_trained}
             "feature_importance": feature_importance,
-            "updated_at": firestore.SERVER_TIMESTAMP
+            "updated_at": firestore_manager.firestore.SERVER_TIMESTAMP
         }
         
-        db.collection('garmin_metrics').document(user_id)\
+        firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
           .collection('model_performance').document('latest')\
           .set(doc_data, merge=True)
           
@@ -280,7 +278,7 @@ def get_model_performance(user_id: str) -> Optional[Dict]:
     Retrieve latest AI model performance metrics.
     """
     try:
-        doc = db.collection('garmin_metrics').document(user_id)\
+        doc = firestore_manager.get_db().collection('garmin_metrics').document(user_id)\
                 .collection('model_performance').document('latest').get()
         
         if doc.exists:
