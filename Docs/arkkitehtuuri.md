@@ -111,6 +111,7 @@ graph TD
     *   **AI Chat Coach:** Interaktiivinen chatti, joka antaa reaaliaikaista palautetta käyttäjän datan perusteella.
     *   **Authentication:** Firebase Auth -integraatio sisäänkirjautumiseen.
     *   **Toast Notifications:** Reaaliaikaiset käyttäjäilmoitukset (react-hot-toast) - success/error feedback kaikille toiminnoille.
+    *   **Garmin Connect Banner:** Kehottaa uusia käyttäjiä yhdistämään Garmin-tilinsä (näkyy vain jos ei yhteyttä).
     *   **Admin Dashboard:** Järjestelmän valvonta ja käyttäjäpalaute (suojattu Admin-oikeus).
 
 ### 2. Firebase Platform (Pilvipalvelut)
