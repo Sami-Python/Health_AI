@@ -132,6 +132,26 @@ def main_process(user_id: str = None):
         df_merged['totalSleep_minutes'] = 0
 
     df_merged = df_merged.sort_values('date')
+    
+    # --- Performance Management Chart (PMC) Calculation ---
+    # Using 'workout_calories' as a proxy for TSS (Training Stress Score)
+    # Ideally, TSS = (Duration * Intensity / FTP) ... but Calories is a decent proxy for volume+intensity.
+    
+    # fillna(0) ensures we have valid numbers
+    df_merged['workout_calories'] = df_merged['workout_calories'].fillna(0)
+    
+    # ATL (Acute Training Load) = Fatigue = 7-day exponentially weighted moving average
+    df_merged['ATL'] = df_merged['workout_calories'].ewm(span=7, adjust=False).mean()
+    
+    # CTL (Chronic Training Load) = Fitness = 42-day exponentially weighted moving average
+    df_merged['CTL'] = df_merged['workout_calories'].ewm(span=42, adjust=False).mean()
+    
+    # TSB (Training Stress Balance) = Form = CTL - ATL (Actually usually TSB = CTL_yesterday - ATL_yesterday)
+    # But for today's snapshot: TSB = CTL - ATL
+    # Positive TSB = Freshness, Negative TSB = Fatigue accumulated
+    df_merged['TSB'] = df_merged['CTL'] - df_merged['ATL']
+    
+    # Roll 7d for simple stats
     df_merged['workout_calories_roll_7d'] = df_merged['workout_calories'].rolling(7, min_periods=1).mean()
     
     lag_cols = ['bodyBatteryChargedValue', 'averageStressLevel', 'totalSteps', 'totalSleep_minutes']
