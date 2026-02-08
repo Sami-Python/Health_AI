@@ -56,10 +56,10 @@ def _ensure_initialized():
         
         _db = firestore.client()
         _initialized = True
-        print("✅ Firestore initialized successfully")
+        print("[SUCCESS] Firestore initialized successfully")
         
     except Exception as e:
-        print(f"❌ Firestore initialization failed: {e}")
+        print(f"[ERROR] Firestore initialization failed: {e}")
         raise
     finally:
         _init_lock = False
@@ -556,11 +556,11 @@ def delete_all_user_data(user_id: str):
         # Delete user feedback submissions
         delete_user_feedback(user_id)
         
-        print(f"✅ Deleted ALL data for user {user_id} (GDPR compliant)")
+        print(f"[SUCCESS] Deleted ALL data for user {user_id} (GDPR compliant)")
         return True
         
     except Exception as e:
-        print(f"❌ User Data Deletion Error: {e}")
+        print(f"[ERROR] User Data Deletion Error: {e}")
         return False
 """
 GDPR Compliance Helper Functions
@@ -667,7 +667,7 @@ def delete_user_feedback(user_id: str) -> bool:
             batch.commit()
         
         if count > 0:
-            print(f"🗑️ Deleted {count} feedback documents for user {user_id}")
+            print(f"[DELETED] Deleted {count} feedback documents for user {user_id}")
         
         return True
         
@@ -731,7 +731,7 @@ def save_garmin_credentials(user_id: str, username: str, password: str) -> bool:
             'last_updated': firestore.SERVER_TIMESTAMP
         })
         
-        print(f"✅ Garmin credentials saved for user: {user_id}")
+        print(f"[SUCCESS] Garmin credentials saved for user: {user_id}")
         return True
         
     except Exception as e:
@@ -786,7 +786,7 @@ def delete_garmin_credentials(user_id: str) -> bool:
     try:
         doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
         doc_ref.delete()
-        print(f"🗑️ Garmin credentials deleted for user: {user_id}")
+        print(f"[DELETED] Garmin credentials deleted for user: {user_id}")
         return True
         
     except Exception as e:

@@ -344,6 +344,15 @@ def main_process(user_id: str = None):
         
         logger.info(f"Model metrics saved to {output_metrics_path}")
 
+        # --- Persist to Firestore (Multi-User) ---
+        if user_id:
+            logger.info(f"Persisting model performance to Firestore for user {user_id}...")
+            if firestore_garmin_metrics.save_model_performance(user_id, metrics, feat_imp_dict):
+                logger.info("[SUCCESS] Model performance saved to Firestore")
+            else:
+                logger.error("[ERROR] Failed to save model performance to Firestore")
+
+
         # --- Plotting --- (kept for context)
         plt.figure(figsize=(10, 6))
         sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
@@ -373,7 +382,7 @@ def main_process(user_id: str = None):
         mlflow.log_artifact(perf_png_path, "plots")
 
         logger.info(f"Plots saved to {os.path.dirname(fi_png_path)}")
-        logger.info(f"✅ MLflow tracking complete. View experiments at: http://localhost:5000")
+        logger.info(f"[SUCCESS] MLflow tracking complete. View experiments at: http://localhost:5000")
         logger.info(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
 
 

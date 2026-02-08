@@ -1083,11 +1083,21 @@ async def get_model_metrics(user: dict = Depends(verify_token)):
 
         data = {"r2": 0, "mae": 0, "last_trained": "Never", "top_features": {}, "data_points": 0}
         
-        # 0. Get Data Volume
         # 0. Get Data Volume (Firestore)
-        data['data_points'] = firestore_garmin_metrics.get_user_metrics_count(user['uid'])
+        data['data_points'] = firestore_garmin_metrics.get_user_metrics_count(uid)
 
-        # 1. Load Metrics
+        # 1. Try Firestore First (Cloud Run Persistence Fix)
+        firestore_data = firestore_garmin_metrics.get_model_performance(uid)
+        
+        if firestore_data:
+             if 'metrics' in firestore_data:
+                 data.update(firestore_data['metrics'])
+             if 'feature_importance' in firestore_data:
+                 data['top_features'] = firestore_data['feature_importance']
+                 
+             return data
+
+        # 2. Fallback: Load Locally (Legacy / Local Dev)
         try:
             if os.path.exists(metrics_path):
                 with open(metrics_path, "r") as f:
@@ -1095,7 +1105,7 @@ async def get_model_metrics(user: dict = Depends(verify_token)):
         except Exception as e:
             print(f"Error loading metrics: {e}")
             
-        # 2. Load Feature Importance
+        # 3. Load Feature Importance (Legacy)
         try:
             if os.path.exists(fi_path):
                 with open(fi_path, "r") as f:
