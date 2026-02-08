@@ -327,9 +327,15 @@ def main_process(user_id: str = None):
         # CRITICAL: In Docker, backend is at /app. Locally it might be ./backend
         # Let's ensure we find the backend/data directory.
         if os.path.exists("/app/data"):
-            output_metrics_path = "/app/data/model_metrics.json"
+             base_data_dir = "/app/data"
         else:
-            output_metrics_path = os.path.join(backend_dir, "data", user_id if user_id else "", "model_metrics.json")
+             base_data_dir = os.path.join(backend_dir, "data")
+
+        # Construct path with user_id
+        if user_id:
+             output_metrics_path = os.path.join(base_data_dir, user_id, "model_metrics.json")
+        else:
+             output_metrics_path = os.path.join(base_data_dir, "model_metrics.json")
         
         os.makedirs(os.path.dirname(output_metrics_path), exist_ok=True)
         
