@@ -144,7 +144,7 @@ graph TD
 ### 4. Data Layer (Tietovarasto)
 *   **Firestore (Primary):** Pääasiallinen tietokanta kaikelle käyttäjädatalle:
     *   Goals, Workouts, Plans, User Profiles
-    *   **NEW: Garmin Metrics** (`garmin_metrics/{user_id}/daily_metrics/{date}`) - Per-user health data
+    *   **NEW: Garmin Metrics & AI Model Metrics** (`garmin_metrics/{user_id}/...`, `model_performance/{user_id}/...`)
     *   Daily summaries: Body Battery, sleep, stress, steps, training load
     *   Time-series: CTL/ATL/TSB calculations for training load management
 *   **CSV Cache (`backend/data/`):** Backward-compatible export for ML model training only
@@ -152,9 +152,7 @@ graph TD
     *   NOT used for production API endpoints (Firestore is source of truth)
 *   **Data Isolation:** Kaikki Firestore-kyselyt filtteröidään automaattisesti `user_id`:llä (Row-Level Security).
 *   **File System (local):**
-    *   **CSV Data:** `backend/data/{user_id}/` - User-specific Garmin data history
-    *   **Models:** `backend/models/{user_id}/xgb_model.pkl` - User-specific trained models
-    *   **Outputs:** `backend/outputs/{user_id}/` - User-specific plots/json metrics
+    *   **CSV Data:** `backend/data/{user_id}/` - Garmin data history cache (source of truth is now Firestore for metrics)
 *   **MLOps:** MLflow experiment tracking uses a shared database, but runs are tagged with `user_id`.
 
 

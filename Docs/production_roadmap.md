@@ -17,7 +17,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 - [x] **Data Isolation:** Implementoi Row-Level Security (Firestore Rules) ja `user_id` jokaiseen dokumenttiin. (Toteutettu backendiin: `firestore_manager` filtteröi aina user_id:llä) (#112)
 - [x] **Query Filtering:** Päivitä `firestore_manager.py` käyttämään `where('user_id', '==', uid)` -filtteriä kaikissa hauissa. (#113)
 - [x] **Legacy Migration (CRITICAL):** Siirrä Manual Workouts, Weekly Stats, ja Readiness -logiikka DuckDB:stä Firestoreen. (DuckDB ei tue user isolationia). (#114)
-- [x] **Complete Migration (Phase 7):** DuckDB poistettu. CSV käytössä vain Garmin-historialle. (#115)
+- [x] **Complete Migration (Phase 7):** DuckDB poistettu. CSV käytössä vain Garmin-historialle. (#115) ✅ COMPLETED (Phased out CSV for metrics)
 
 ## 3. Käyttäjähallinta & Tietoturva (Security)
 - [x] **Autentikaatio:** Ota käyttöön OAuth2 / OpenID Connect (Auth0, Firebase Auth). (#116)
@@ -157,7 +157,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Visualization: Color coded R2 score (Green/Yellow/Red). (#205)
 - [x] **Refactoring & Fixes**: (#206)
     - [x] **Firestore**: Fixed deprecated `where()` warnings using `FieldFilter`. (#207)
-    - [x] **Data Integrity**: Fixed `process_garmin_data.py` saving metrics to wrong path. (#208)
+    - [x] **Data Integrity**: Fixed `process_garmin_data.py` saving metrics to wrong path. Migrated to Firestore. (#208)
 
 ---
 
@@ -416,6 +416,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] OAuth redirect URIs configured in Google Cloud Console (#513)
   - [x] **Fix Google API Key issue** - "API key not valid" error (#514)
     - [x] Resolution: Rotated API Key, Updated Restrictions, Fixed Backend Config (#328)
+    - [x] **Fix 401 Unauthorized (Cross-Project Auth)** - Backend used wrong identity (#517)
+      - [x] Resolution: Injected `FIREBASE_SERVICE_ACCOUNT_JSON` as Env Var (Plan B) (#329)
   - [x] Test Google Sign In flow (#515)
   - [ ] Test Apple Sign In flow (#516)
 
@@ -543,4 +545,29 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 **Overall:** 🟢 **Multi-user ready** - Safe to deploy with current architecture.  
 **Recommendation:** Implement Priority 1 items before scaling to 100+ users.
+
+
+## Phase 12: Production Verification & Onboarding (Current) 🚀
+> **Status:** 🚧 IN PROGRESS
+
+- [ ] **Garmin Connection (Production):** (#600)
+    - [ ] Input credentials in `/settings` page.
+    - [ ] Verify `garmin_connect` login flow in backend logs.
+    - [ ] Verify token storage in Firestore (Encrypted).
+
+- [ ] **Data Verification:** (#601)
+    - [ ] Verify `fetch_garmin_data` job execution.
+    - [ ] Check Dashboard charts (Recovery, Load, Sleep) for real data.
+    - [ ] Verify AI Coach insights generation.
+
+- [ ] **Cleanup & Hardening:** (#602)
+    - [ ] Remove temporary debug logging from `auth_middleware.py` (Exception details).
+    - [ ] Verify no sensitive ENV vars are leaking in logs.
+
+### 12.1 UX Improvements (Planned)
+- [ ] **Garmin Connect Widget:** (#603)
+    - [ ] Show a "Connect Garmin" popup/banner on Dashboard if credentials are missing.
+    - [ ] Guide user to `/settings` directly.
+
+
 

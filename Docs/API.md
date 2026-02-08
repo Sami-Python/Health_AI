@@ -201,6 +201,28 @@ Get latest readiness/body battery score.
 
 ---
 
+#### `GET /ai/model-metrics`
+Get current AI model performance metrics.
+
+**Tags:** Analytics  
+**Rate Limit:** 20/min  
+**Response:**
+```json
+{
+  "mae": 3.42,
+  "r2": 0.85,
+  "last_trained": "2024-01-15",
+  "top_features": {
+    "totalSleep_minutes": 0.35,
+    "averageStressLevel": 0.25,
+    "totalSteps": 0.15
+  },
+  "data_points": 1450
+}
+```
+
+---
+
 ### User Profile
 
 #### `GET /user/profile`
