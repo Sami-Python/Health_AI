@@ -27,8 +27,7 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
             "Authentication Failed", 
             extra={
                 "event": "security_auth_failure",
-                "error": str(e),
-                "token_preview": token[:10] + "..." if token else "None"
+                "error": str(e)
             }
         )
         raise HTTPException(

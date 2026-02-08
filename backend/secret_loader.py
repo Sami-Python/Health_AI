@@ -11,7 +11,9 @@ try:
 except ImportError:
     SECRET_MANAGER_AVAILABLE = False
 
-load_dotenv()
+# Explicitly load .env from the backend directory
+basedir = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(basedir, ".env"))
 
 # Google Cloud Project ID (defaults to known project, can be overridden)
 PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT", "personal-ai-coach-92c39") 
