@@ -3,11 +3,19 @@ import { ResponsiveContainer, ComposedChart, Line, Bar, XAxis, YAxis, CartesianG
 export default function PerformanceChart({ data }: { data: any[] }) {
     if (!data || data.length === 0) return <div className="text-slate-500 text-sm">No data available</div>;
 
+    // Sanitize data: Ensure numbers are actually numbers, replace NaNs with 0 or null
+    const sanitizedData = data.map(d => ({
+        ...d,
+        ctl: (typeof d.ctl === 'number' && !isNaN(d.ctl)) ? d.ctl : 0,
+        atl: (typeof d.atl === 'number' && !isNaN(d.atl)) ? d.atl : 0,
+        tsb: (typeof d.tsb === 'number' && !isNaN(d.tsb)) ? d.tsb : 0,
+    }));
+
     return (
         <div className="w-full flex flex-col gap-4">
             <div className="h-80 w-full min-h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <ComposedChart data={sanitizedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
                         <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} tickFormatter={(str) => str.slice(5)} />
                         <YAxis stroke="#94a3b8" fontSize={12} />
