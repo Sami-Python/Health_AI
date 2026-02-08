@@ -565,9 +565,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [ ] Verify no sensitive ENV vars are leaking in logs.
 
 ### 12.1 UX Improvements (Planned)
-- [ ] **Garmin Connect Widget:** (#603)
-    - [ ] Show a "Connect Garmin" popup/banner on Dashboard if credentials are missing.
-    - [ ] Guide user to `/settings` directly.
+- [x] **Garmin Connect Widget:** (#603)
+    - [x] Show a "Connect Garmin" popup/banner on Dashboard if credentials are missing.
+    - [x] Guide user to `/settings` directly.
 
 
 
