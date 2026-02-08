@@ -1,45 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Lock, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
-
-interface GarminStatus {
-    connected: boolean;
-    username: string | null;
-}
+import { useGarminStatus } from "@/hooks/useGarminStatus";
 
 export default function GarminCredentialsForm() {
     const { user } = useAuth();
+    const { status, refreshStatus } = useGarminStatus();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [status, setStatus] = useState<GarminStatus | null>(null);
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        fetchStatus();
-    }, [user]);
-
-    const fetchStatus = async () => {
-        if (!user) return;
-
-        try {
-            const token = await user.getIdToken();
-            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/status`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setStatus(data);
-            }
-        } catch (e) {
-            console.error("Failed to fetch Garmin status", e);
-        }
-    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -63,7 +37,7 @@ export default function GarminCredentialsForm() {
             if (res.ok) {
                 toast.success("Garmin credentials saved securely!");
                 setPassword(""); // Clear password field
-                fetchStatus(); // Refresh status
+                refreshStatus(); // Refresh status
             } else {
                 toast.error(data.detail || "Failed to save credentials");
             }
@@ -91,7 +65,7 @@ export default function GarminCredentialsForm() {
                 toast.success("Garmin account disconnected");
                 setUsername("");
                 setPassword("");
-                fetchStatus();
+                refreshStatus();
             } else {
                 const data = await res.json();
                 toast.error(data.detail || "Failed to disconnect");
