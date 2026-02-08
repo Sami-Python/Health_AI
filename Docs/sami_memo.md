@@ -1776,3 +1776,36 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 - Päivitetty [`Docs/production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md).
 
 **Status:** 🟢 **AUTH WORKING** - Kirjautuminen ja datan haku toimii tuotannossa.
+
+### 4. 401 Unauthorized Fix (Cross-Project Credentials) 🔐✅
+- **Ongelma:** Backend (Project B) ei tunnistanut Frontendin (Project A) käyttäjiä.
+- **Syy:** Cloud Run käytti oletusidentiteettiä, jolla ei ollut pääsyä Project A:n Firebase Auth -tietoihin.
+- **Ratkaisu:** Syötettiin `FIREBASE_SERVICE_ACCOUNT_JSON` (Project A:n avain) ympäristömuuttujana Backendiin.
+- **Tulos:** Backend osaa nyt verifioida Project A:n tokenit oikein.
+
+
+---
+## 2026-02-08 – AI Model Health Widget & Firestore Migration 🐛✅
+
+**Goal:** Korjata tuotannossa tyhjänä näkyvä "AI Model Health" -widget ja siirtää mallin metriikat Firestoreen.
+
+**Actions:**
+1.  **Bug Fix (Frontend):**
+    - **Ongelma:** `MLMetricsModal` käytti suoraan `process.env.NEXT_PUBLIC_API_URL`, mikä saattoi olla määrittelemätön tai väärä.
+    - **Ratkaisu:** Vaihdettu käyttämään keskitettyä `API_BASE_URL` -helperiä (`src/lib/utils.ts`), kuten muutkin komponentit.
+
+2.  **Infrastructure (Backend):**
+    - **Ongelma:** Cloud Run (Cloud-native) ympäristössä paikalliset JSON-tiedostot (`backend/data/`) eivät säily uudelleenkäynnistysten yli.
+    - **Ratkaisu:** Siirretty AI-mallin metriikat (`r2`, `mae`, `feature_importance`) Firestoreen.
+        - **Uusi kokoelma:** `model_performance/{user_id}/history/{timestamp}`
+        - **Backend:** `process_garmin_data.py` tallentaa nyt Firestoreen.
+        - **API:** `main.py` endpoint `/ai/model-metrics` lukee nyt Firestoresta.
+
+3.  **Migration:**
+    - Luotu skripti `migrate_metrics_to_firestore.py`, joka siirtää olemassa olevat JSON-metriikat Firestoreen.
+    - Ajettu onnistuneesti käyttäjälle `wI0j4s1a9hZtGGaWtNnEn3yqSZC2`.
+
+4.  **Windows Support:**
+    - Korjattu `UnicodeEncodeError` Windowsin komborivillä poistamalla emoji-ikonit logeista (`firestore_manager.py`, `process_garmin_data.py`).
+
+**Status:** ✅ **FIXED** - Widget toimii ja data on turvassa pilvitietokannassa.
