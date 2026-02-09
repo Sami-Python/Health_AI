@@ -350,7 +350,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] SSL certificate active and verified (#297)
 
 ### 9.3 Future Enhancements
-- [ ] **Custom Domain** (#262)
+- [x] **Custom Domain** (#262)
   - [x] Register domain (personalaicoach.ai) (#298)
   - [x] Configure DNS in Cloudflare (#299)
   
@@ -364,15 +364,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] Test Auth flow (Mocked Google Auth) (#304)
   - [ ] Test Dashboard rendering (requires mocked data) (#305)
 
-- [ ] **SEO Optimization** (#265)
+- [x] **SEO Optimization** (#265)
   - [x] `robots.txt` for search engine crawlers (#306) ✅ COMPLETED (2026-02-01)
   - [x] `sitemap.xml` for indexing (#307) ✅ COMPLETED (2026-02-01)
   - [x] Open Graph meta tags for social sharing (#308) ✅ COMPLETED (2026-02-01)
 
-- [ ] **Performance** (#266)
+- [x] **Performance** (#266)
   - [x] Convert images to WebP format (#309) ✅ COMPLETED (2026-02-01)
   - [x] Implement lazy loading (#310) ✅ COMPLETED (2026-02-01)
-  - [ ] Minify CSS/HTML (#311)
+  - [x] Minify CSS/HTML (#311)
 
 - [x] **Waitlist Widget & Coming Soon Badges** (#267) ✅ COMPLETED (2026-02-05)
   - [x] Waitlist pop-up modal with glassmorphism design (#312)
@@ -410,7 +410,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Firebase lazy initialization for build compatibility (#510)
   - [x] Site deployed and accessible (#511)
 
-> **Status:** 🟢 COMPLETED (2026-02-07)
+> **Status:** 🟢 COMPLETED (2026-02-09)
 
 - [x] **Google/Apple Authentication** (#512)
   - [x] OAuth redirect URIs configured in Google Cloud Console (#513)
@@ -548,21 +548,21 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 
 ## Phase 12: Production Verification & Onboarding (Current) 🚀
-> **Status:** 🚧 IN PROGRESS
+> **Status:** ✅ COMPLETED (2026-02-09)
 
-- [ ] **Garmin Connection (Production):** (#600)
-    - [ ] Input credentials in `/settings` page.
-    - [ ] Verify `garmin_connect` login flow in backend logs.
-    - [ ] Verify token storage in Firestore (Encrypted).
+- [x] **Garmin Connection (Production):** (#600)
+    - [x] Input credentials in `/settings` page.
+    - [x] Verify `garmin_connect` login flow in backend logs.
+    - [x] Verify token storage in Firestore (Encrypted).
 
-- [ ] **Data Verification:** (#601)
-    - [ ] Verify `fetch_garmin_data` job execution.
-    - [ ] Check Dashboard charts (Recovery, Load, Sleep) for real data.
-    - [ ] Verify AI Coach insights generation.
+- [x] **Data Verification:** (#601)
+    - [x] Verify `fetch_garmin_data` job execution.
+    - [x] Check Dashboard charts (Recovery, Load, Sleep) for real data.
+    - [x] Verify AI Coach insights generation.
 
-- [ ] **Cleanup & Hardening:** (#602)
-    - [ ] Remove temporary debug logging from `auth_middleware.py` (Exception details).
-    - [ ] Verify no sensitive ENV vars are leaking in logs.
+- [x] **Cleanup & Hardening:** (#602)
+    - [x] Remove temporary debug logging from `auth_middleware.py` (Exception details).
+    - [x] Verify no sensitive ENV vars are leaking in logs.
 
 ### 12.1 UX Improvements (Planned)
 - [x] **Garmin Connect Widget:** (#603)

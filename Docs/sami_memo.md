@@ -65,6 +65,14 @@ python -m pytest tests/test_endpoints.py tests/test_admin.py tests/test_config.p
 ```
 *Katso: [Docs/testing.md](file:///c:/Users/samih/code/health_ai/Docs/testing.md)*
 
+### 7. E2E Testit (Frontend)
+Aja käyttöliittymän testit Playwrightilla (Frontend).
+```bash
+cd frontend
+npx playwright test
+```
+*Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
+
 ---
 
 ## 2026-02-06 – GDPR Compliance for Landing Page 🔒✅
