@@ -501,10 +501,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [ ] SMS or authenticator app integration (#308)
   - [ ] Firebase Auth 2FA support (#309)
 
-- [x] **Session Management** (#269)
+- [x] **Session Management** (#269) ✅ COMPLETED (2026-02-09)
   - [x] Force logout (Admin endpoint `POST /admin/revoke-tokens/{uid}`). (#310) ✅ COMPLETED (2026-02-01)
-  - [ ] "Remember Me" option for trusted devices (#311)
-  - [ ] Concurrent session limits (#312)
+  - [x] "Remember Me" option for trusted devices (#311)
+  - [x] Concurrent session limits (#312)
 
 - [x] **Audit Trail** (#270)
   - [x] Log all admin actions (viewing feedback, user management) (#313)
