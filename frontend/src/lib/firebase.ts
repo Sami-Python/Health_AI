@@ -2,6 +2,7 @@
 
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
+import { getFirestore, Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,6 +16,7 @@ const firebaseConfig = {
 // Lazy initialization - only initialize on client-side
 let app: FirebaseApp | null = null;
 let auth: Auth | null = null;
+let db: Firestore | null = null;
 
 function getFirebaseApp(): FirebaseApp {
     if (typeof window === "undefined") {
@@ -33,6 +35,13 @@ function getFirebaseAuth(): Auth {
     return auth;
 }
 
-export { getFirebaseApp, getFirebaseAuth };
+function getFirebaseDb(): Firestore {
+    if (!db) {
+        db = getFirestore(getFirebaseApp());
+    }
+    return db;
+}
+
+export { getFirebaseApp, getFirebaseAuth, getFirebaseDb };
 // Legacy exports for compatibility
-export { getFirebaseApp as app, getFirebaseAuth as auth };
+export { getFirebaseApp as app, getFirebaseAuth as auth, getFirebaseDb as db };

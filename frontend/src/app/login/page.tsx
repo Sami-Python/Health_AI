@@ -3,13 +3,14 @@
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Image from "next/image";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useState, useEffect } from "react";
 import { Apple } from "lucide-react";
 
 export default function LoginPage() {
     const { user, signInWithGoogle, signInWithApple, loading } = useAuth();
     const router = useRouter();
+    const [rememberMe, setRememberMe] = useState(true);
 
     useEffect(() => {
         if (user) {
@@ -27,8 +28,17 @@ export default function LoginPage() {
                 <h1 className="text-3xl font-bold tracking-tighter">Health AI Login</h1>
                 <p className="text-slate-400">Sign in to access your dashboard</p>
 
+                <div className="w-full">
+                    <Checkbox
+                        id="remember-me"
+                        label="Remember me on this device"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                </div>
+
                 <Button
-                    onClick={() => signInWithGoogle()}
+                    onClick={() => signInWithGoogle(rememberMe)}
                     size="lg"
                     className="w-full font-bold"
                 >
@@ -36,7 +46,7 @@ export default function LoginPage() {
                 </Button>
 
                 <Button
-                    onClick={() => signInWithApple()}
+                    onClick={() => signInWithApple(rememberMe)}
                     size="lg"
                     variant="outline"
                     className="w-full font-bold bg-black hover:bg-gray-900 text-white border-gray-700"
