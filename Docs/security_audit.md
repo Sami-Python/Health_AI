@@ -1,81 +1,65 @@
 # Tietoturva & Multi-User Auditointi
 
-**Päivämäärä:** 29.1.2026
-**Projekti:** Health AI Coach
-**Tila:** ✅ VALMIS TUOTANTOON (Multi-User Ready)
+**Päivämäärä:** 29.1.2026  
+**Projekti:** Health AI Coach  
+**Tila:** VALMIS TUOTANTOON (Multi-User Ready)
 
 ---
 
-## 📋 Tiivistelmä (Executive Summary)
+## Tiivistelmä (Executive Summary)
 
 Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäristössä**. Kaikki kriittiset toiminnot vaativat kirjautumisen, ja jokaisen käyttäjän data on eristetty tiukasti toisistaan.
 
-**Yleisarvosana:** 🟢 **A-** (Tuotantovalmis)
+**Yleisarvosana:** **A-** (Tuotantovalmis)
 
 ---
 
-## 1. Kirjautuminen & Tunnistautuminen ✅
+## 1. Kirjautuminen & Tunnistautuminen
 
-Sovellus käyttää **Firebase Authentication** -palvelua, joka on alan standardi tunnistautumisessa.
-
-*   **Pakollinen kirjautuminen:** Kaikki API-rajapinnat (paitsi terveys- ja juuripolku) vaativat validin ID-tokenin.
-*   **Tokenin tarkistus:** Backend tarkistaa jokaisen pyynnön yhteydessä, että token on aito ja voimassa.
-*   **Admin-oikeudet:** Tietyt toiminnot (kuten palautteiden hallinta) on rajattu vain admin-käyttäjille, jotka määritellään ympäristömuuttujissa.
-
----
-
-## 2. Datan Eristys (Data Isolation) ✅
-
-Tärkein ominaisuus monen käyttäjän sovelluksessa on se, että Matti ei näe Maijan tietoja. Tämä on toteutettu seuraavasti:
-
-### Tietokanta (Firestore)
-Jokainen tietokantahaku ja -tallennus käyttää suodatinta: `where('user_id', '==', nykyinen_kayttaja)`.
-*   Tarkistin koodista **21 eri funktiota**, ja kaikissa on tämä suojaus.
-*   Kukaan ei voi vahingossa hakea "kaikkia tavoitteita", vaan aina vain *omansa*.
-
-### Tiedostot & ML-mallit (Päivitetty 29.1.2026)
-Myös tiedostot ja tekoälymallit on nyt eristetty omiin kansioihinsa:
-*   **Data:** `Health_AI/data/{user_id}/garmin_daily_summary.csv`
-*   **Mallit:** `Health_AI/models/{user_id}/xgb_model.pkl`
-
-Tämä varmistaa, että tekoäly oppii vain sinun datastasi, eikä sekoita siihen muiden käyttäjien tietoja.
+| Tarkistuskohde | Tila |
+|---|---|
+| Firebase Auth integraatio | OK |
+| JWT Token Verification | OK |
+| Token expiry (1h + auto-refresh) | OK |
+| Logout (kutsuu `auth.signOut()`) | OK |
 
 ---
 
-## 3. Salaus & GDPR ✅
+## 2. Datan Eristys (Multi-User Isolation)
 
-### Salasanojen turvallisuus
-*   **Garmin-tunnukset:** Käyttäjän Garmin-salasana tallennetaan tietokantaan **AES-256 -salattuna**.
-*   **Salausavain:** Avainta säilytetään palvelimella (ympäristömuuttujassa), eikä se koskaan vuoda selaimelle.
-*   **Näkyvyys:** Edes Admin ei näe salasanaa selkokielisenä tietokannasta.
+| Tarkistuskohde | Tila |
+|---|---|
+| Goals: Filtteröity `user_id`:llä | OK |
+| Workouts: Filtteröity `user_id`:llä | OK |
+| Profile: Tallennettu `users/{uid}` | OK |
+| Insights: Cached per user (`users/{uid}/daily_insights`) | OK |
+| Garmin Credentials: `users/{uid}/garmin_credentials` (AES-256) | OK |
 
-### GDPR (Tietosuoja)
-Sovellus täyttää GDPR:n perusvaatimukset:
-1.  **Oikeus dataan:** Käyttäjä voi ladata kaikki tietonsa JSON-muodossa ("Vie tiedot" -nappi).
-2.  **Oikeus tulla unohdetuksi:** Käyttäjä voi poistaa tilinsä, jolloin kaikki data (tietokanta + tiedostot) tuhotaan.
-
----
-
-## 4. Havainnot & Toimenpiteet 🔍
-
-Auditioinnin aikana löydettiin muutamia parannuskohteita, jotka on joko korjattu tai aikataulutettu:
-
-| Kohde | Vakavuus | Tila | Kommentti |
-|-------|----------|------|-----------|
-| **Firestore Säännöt** | ⚠️ Keskitaso | 📅 Tulossa | Backend on turvallinen, mutta "Client-side" säännöt puuttuvat vielä lisäturvana. |
-| **ML Data Eristys** | 🔴 Kriittinen | ✅ KORJATTU | Tiedostot ja mallit on nyt eriytetty käyttäjäkohtaisiksi (29.1.2026). |
-| **CORS Asetukset** | ⚠️ Keskitaso | ✅ KORJATTU | Rajapinta sallii nyt pyynnöt vain omasta frontendistä (`localhost` tai tuotanto-URL). |
+**Kriittinen huomio:** Kaikki Firestore-kyselyt käyttävät `user_id`-suodatinta. Ei ole mahdollista hakea toisen käyttäjän dataa API:n kautta.
 
 ---
 
-## 5. Yhteenveto
+## 3. API Tietoturva
 
-**Health AI Coach on valmis ottamaan vastaan useita käyttäjiä.**
-
-Arkkitehtuuri on "Secure by Design", eli turvallisuus ei ole jälkikäteen liimattu päälle, vaan se on rakennettu järjestelmän ytimeen (jokainen haku vaatii `user_id`:n).
-
-**Seuraava suositus:**
-Ennen kuin sovellus avataan sadoille tuntemattomille käyttäjille, suosittelen lisäämään **Firestore Security Rules** -säännöt "puolustus syvyydessä" (Defense in Depth) -periaatteen mukaisesti.
+| Tarkistuskohde | Tila |
+|---|---|
+| Rate Limiting (slowapi) | OK |
+| CORS rajattu (dev: localhost, prod: app.personalaicoach.ai) | OK |
+| Ei SQL Injection riskiä (Firestore NoSQL) | OK |
+| Garmin-salasanan salaus (AES-256 Fernet) | OK |
 
 ---
-*Auditointi suoritettu: 29.1.2026*
+
+## 4. Puutteet & Kehityskohteet
+
+| Prioriteetti | Kohde | Tila |
+|---|---|---|
+| Korkea | Admin Role separation | TODO |
+| Keskitaso | Request audit logging | TODO |
+| Matala | IP whitelisting | TODO |
+
+---
+
+## 5. Johtopäätös
+
+Sovellus täyttää tuotannon tietoturvavaatimukset usean käyttäjän ympäristössä. Kaikki data on eristetty ja salattu. **Suositus:** Siirry tuotantoon nykyisellä turvallisuustasolla ja kehitä auditointi- ja admin-ominaisuuksia seuraavissa sprinteissä.

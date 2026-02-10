@@ -1,4 +1,4 @@
-# 📚 Health AI Coach API Documentation
+# Health AI Coach API Documentation
 
 **Base URL:** `http://localhost:8001` (development)  
 **API Docs:** `http://localhost:8001/docs` (Swagger UI)  
@@ -6,7 +6,7 @@
 
 ---
 
-## 🔐 Authentication
+## Authentication
 
 All endpoints require Firebase Authentication (except `/health`).
 
@@ -22,7 +22,7 @@ const token = await user.getIdToken();
 
 ---
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Goals Management
 
@@ -443,7 +443,7 @@ Health check endpoint (no auth required).
 
 ---
 
-## 📦 Response Models
+## Response Models
 
 ### Common Fields
 
@@ -454,7 +454,7 @@ All resources include:
 
 ---
 
-## ⚠️ Error Responses
+## Error Responses
 
 ### 400 Bad Request
 ```json
@@ -493,7 +493,7 @@ All resources include:
 
 ---
 
-## 🔢 Rate Limits
+## Rate Limits
 
 | Category | Limit |
 |----------|-------|
@@ -506,7 +506,7 @@ All resources include:
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Using Swagger UI
 
@@ -536,11 +536,11 @@ Import collection: `docs/postman_collection.json` (TODO)
 
 ---
 
-## 🔗 Related Documentation
+## Related Documentation
 
-- [Authentication](authentication.md) - Firebase Auth setup
-- [Garmin Setup](garmin_setup.md) - Garmin credentials encryption
-- [Architecture](arkkitehtuuri.md) - System architecture
+- [Authentication](authentication.md) – Firebase Auth setup
+- [Garmin Setup](garmin_setup.md) – Garmin credentials encryption
+- [Architecture](arkkitehtuuri.md) – System architecture
 
 ---
 

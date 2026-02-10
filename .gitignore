@@ -24,3 +24,4 @@ backend/data/mlflow.db-shm
 backend/data/mlflow.db-wal
 site/
 backend/mlflow.db
+venv/

@@ -1,4 +1,4 @@
-# 🚀 Quick Start
+#  Quick Start
 Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
 
 ### Muutokset main-haarasta ja yhdistä ne omiisi (rebase):
@@ -75,11 +75,11 @@ npx playwright test
 
 ---
 
-## 2026-02-06 – GDPR Compliance for Landing Page 🔒✅
+## 2026-02-06 – GDPR Compliance for Landing Page 
 
 Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri landing pagelle.
 
-### 1. Privacy Policy (`privacy.html`) ✅
+### 1. Privacy Policy (`privacy.html`) 
 
 **Sisältö:**
 - Data Controller tiedot
@@ -90,7 +90,7 @@ Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri
 - Datan säilytysajat
 - Yhteystiedot
 
-### 2. Terms of Service (`terms.html`) ✅
+### 2. Terms of Service (`terms.html`) 
 
 **Sisältö:**
 - Palvelun kuvaus
@@ -101,7 +101,7 @@ Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri
 - Immateriaalioikeudet
 - Ehtojen muutokset
 
-### 3. Cookie Consent Banner ✅
+### 3. Cookie Consent Banner 
 
 **Toiminta:**
 - Ilmestyy 1 sekunnin kuluttua sivulle saapumisesta
@@ -114,7 +114,7 @@ Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri
 - `window.initAnalytics()` ja `window.logAnalyticsEvent()` helper-funktiot
 - CSS-animaatiot (slide-up efekti)
 
-### 4. Päivitetyt dokumentaatiot ✅
+### 4. Päivitetyt dokumentaatiot 
 
 - [`Docs/landing_page.md`](file:///c:/Users/samih/code/health_ai/Docs/landing_page.md) - GDPR-osio lisätty
 - [`Docs/production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md) - #500-505 merkitty valmiiksi
@@ -130,11 +130,11 @@ Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri
 
 ---
 
-## 2026-02-06 – Web App Cloudflare Pages Deployment 🌐⏳
+## 2026-02-06 – Web App Cloudflare Pages Deployment ⏳
 
 Deployattiin Next.js frontend `app.personalaicoach.ai`:hin Cloudflare Pagesilla.
 
-### 1. Cloudflare Pages Setup ✅
+### 1. Cloudflare Pages Setup 
 
 **Ongelmat:**
 - OpenNext worker-approach ei toiminut (404)
@@ -148,7 +148,7 @@ Deployattiin Next.js frontend `app.personalaicoach.ai`:hin Cloudflare Pagesilla.
 **Deployment:**
 - Build output: `out/` folder
 - Domain: `app.personalaicoach.ai`
-- Sivu latautuu onnistuneesti ✅
+- Sivu latautuu onnistuneesti 
 
 ### 2. Google/Apple Auth - PENDING FIX ⏳
 
@@ -158,9 +158,9 @@ Deployattiin Next.js frontend `app.personalaicoach.ai`:hin Cloudflare Pagesilla.
 - API endpoint: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectConfig?key=AIza...` → 400 Bad Request
 
 **Tehty:**
-- ✅ Firebase Authorized Domains: `app.personalaicoach.ai` lisätty
-- ✅ Google Cloud OAuth redirect URIs: `https://app.personalaicoach.ai/__/auth/handler` lisätty
-- ✅ API Key restrictions tarkistettu (Application: None, API: Don't restrict)
+-  Firebase Authorized Domains: `app.personalaicoach.ai` lisätty
+-  Google Cloud OAuth redirect URIs: `https://app.personalaicoach.ai/__/auth/handler` lisätty
+-  API Key restrictions tarkistettu (Application: None, API: Don't restrict)
 - ⏳ **Seuraava:** Luo uusi API key tai odota propagaatiota
 
 **Tiedostot:**
@@ -173,16 +173,16 @@ frontend/
 ```
 
 **Roadmap:**
-- #506-511: Web App deployment ✅
+- #506-511: Web App deployment 
 - #512-516: Google/Apple Auth fix ⏳
 
 ---
 
-## 2026-02-04 – Landing Page Cloudflare Pages Deployment 🌐✅
+## 2026-02-04 – Landing Page Cloudflare Pages Deployment 
 
 Toteutettiin landing pagen siirto Cloudflare Pagesiin ja konfiguroitiin tuotantoympäristö.
 
-### 1. Cloudflare Pages Deployment ✅
+### 1. Cloudflare Pages Deployment 
 
 **Tavoite:** Siirtää landing page Firebase Hostingista Cloudflare Pagesiin ja konfiguroida custom domain.
 
@@ -194,11 +194,11 @@ Toteutettiin landing pagen siirto Cloudflare Pagesiin ja konfiguroitiin tuotanto
 - **Root directory:** `landing_page`
 
 **Live URLs:**
-- Production: `https://www.personalaicoach.ai` ✅
-- Apex: `https://personalaicoach.ai` ✅
-- Temporary: `https://personalaicoach-landing.pages.dev` ✅
+- Production: `https://www.personalaicoach.ai` 
+- Apex: `https://personalaicoach.ai` 
+- Temporary: `https://personalaicoach-landing.pages.dev` 
 
-### 2. Custom Domain Configuration ✅
+### 2. Custom Domain Configuration 
 
 **DNS Records (Auto-configured):**
 - CNAME: `www` → `personalaicoach-landing.pages.dev`
@@ -210,7 +210,7 @@ Toteutettiin landing pagen siirto Cloudflare Pagesiin ja konfiguroitiin tuotanto
 - Automatic HTTPS Rewrites: **Enabled**
 - SSL certificate: **Active**
 
-### 3. Email Routing ✅
+### 3. Email Routing 
 
 **Email forwarding:**
 - Address: `info@personalaicoach.ai`
@@ -259,13 +259,13 @@ git push origin main
 ### 7. Performance Benefits
 
 With Cloudflare Pages:
-- ✅ Global CDN (200+ locations)
-- ✅ Automatic SSL with auto-renewal
-- ✅ DDoS protection
-- ✅ HTTP/3 support
-- ✅ Brotli compression
-- ✅ Edge caching
-- ✅ Web Application Firewall
+-  Global CDN (200+ locations)
+-  Automatic SSL with auto-renewal
+-  DDoS protection
+-  HTTP/3 support
+-  Brotli compression
+-  Edge caching
+-  Web Application Firewall
 
 **Status:** 🟢 **PRODUCTION READY** - Landing page live and operational!
 
@@ -277,12 +277,12 @@ With Cloudflare Pages:
 
 ---
 
-## 2026-02-03 – Backend Integration Tests 🧪✅
+## 2026-02-03 – Backend Integration Tests 
 
 
 Toteutettiin kattavat backend integration testit tuotantoympäristön valmisteluun.
 
-### 1. Integration Tests (20+ testiä) ✅
+### 1. Integration Tests (20+ testiä) 
 
 **Tavoite:** Testata kriittiset backend-flowt oikeilla Firebase tokeneilla ja database-operaatioilla.
 
@@ -323,9 +323,9 @@ Toteutettiin kattavat backend integration testit tuotantoympäristön valmistelu
 - [`Docs/testing.md`](file:///c:/Users/samih/code/health_ai/Docs/testing.md) - Testauksen yhteenveto
 
 **Status:**
-- ✅ Testit toteutettu ja dokumentoitu
-- ⚠️ Vaatii Firebase Emulator (Java) tai oikean Firebase test-projektin
-- ✅ Unit testit (11 kpl) toimivat ilman riippuvuuksia
+-  Testit toteutettu ja dokumentoitu
+- ️ Vaatii Firebase Emulator (Java) tai oikean Firebase test-projektin
+-  Unit testit (11 kpl) toimivat ilman riippuvuuksia
 - 🟢 Valmis beta-julkaisuun (unit testit riittävät)
 
 **Tiedostot:**
@@ -338,11 +338,11 @@ Toteutettiin kattavat backend integration testit tuotantoympäristön valmistelu
 
 ---
 
-## 2026-02-03 – Admin User Overview & Monitoring Stack 🛡️📊
+## 2026-02-03 – Admin User Overview & Monitoring Stack ️
 
 Tänään saatiin valmiiksi kaksi tärkeää tuotantoympäristön ominaisuutta: käyttäjähallinta ja suorituskyvyn monitorointi.
 
-### 1. Admin User Overview (Phase 8) ✅
+### 1. Admin User Overview (Phase 8) 
 
 **Tavoite:** Antaa admineille mahdollisuus nähdä kaikki rekisteröityneet käyttäjät ja heidän tilansa.
 
@@ -366,7 +366,7 @@ Tänään saatiin valmiiksi kaksi tärkeää tuotantoympäristön ominaisuutta: 
 
 **Käyttö:** Admin Dashboard → Users-välilehti
 
-### 2. Prometheus & Grafana Monitoring (Phase 6) 📊
+### 2. Prometheus & Grafana Monitoring (Phase 6) 
 
 **Tavoite:** Reaaliaikainen suorituskyvyn seuranta ja metriikka.
 
@@ -399,20 +399,20 @@ Tänään saatiin valmiiksi kaksi tärkeää tuotantoympäristön ominaisuutta: 
 docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
 ```
 
-### 3. Alerting & Security Monitoring ✅
+### 3. Alerting & Security Monitoring 
 
 **Toteutettu aiemmin (Phase 10.2):**
-- ✅ Google Cloud Error Reporting (production crashes)
-- ✅ Rate limit events → Firestore `security_events`
-- ✅ Admin dashboard for security events
-- ✅ Audit trail for admin actions
+-  Google Cloud Error Reporting (production crashes)
+-  Rate limit events → Firestore `security_events`
+-  Admin dashboard for security events
+-  Audit trail for admin actions
 
 **Status:** 🟢 **PRODUCTION READY** - Täysi observability stack käytössä!
 
 ---
 
 
-## 2026-02-02 – AI Chat Coach Implementation 🤖💬
+## 2026-02-02 – AI Chat Coach Implementation 
 
 Tänään toteutettiin yksi projektin suurimmista ominaisuuksista: interaktiivinen AI-valmentaja, jonka kanssa käyttäjä voi keskustella suoraan Dashboardilta.
 
@@ -433,11 +433,11 @@ Tänään toteutettiin yksi projektin suurimmista ominaisuuksista: interaktiivin
 - **Token-hallinta:** Nostettu `max_output_tokens` 2000:een, jotta valmentaja voi antaa kattavia vastauksia keskeytymättä.
 - **Virheenkäsittely:** Lisätty selkeät ilmoitukset käyttäjälle, jos API-quota (429) täyttyy tai yhteys pätkii.
 
-**Status:** ✅ Täysin integroitu ja testattu dashboardissa.
+**Status:**  Täysin integroitu ja testattu dashboardissa.
 
 ---
 
-### AI Coach Recommendation Bug Fixed ✅
+### AI Coach Recommendation Bug Fixed 
 **Ongelma:** AI Coach antoi optimistisia neuvoja ("täynnä virtaa") vaikka Body Battery oli matala (53%) ja käyttäjä väsynyt.
 
 **Syy:** Promptissa ei ollut Body Battery -tulkintaohjeita. AI ei ymmärtänyt mitä 53/100 tarkoittaa.
@@ -445,13 +445,13 @@ Tänään toteutettiin yksi projektin suurimmista ominaisuuksista: interaktiivin
 **Korjaus:** Lisätty `ai_coach.py`:hen selkeät tulkintaohjeet:
 - **75-100:** Erinomainen palautuminen → Suosittele kovaa treeniä
 - **60-74:** Hyvä palautuminen → Kohtalainen treeni
-- **40-59:** Matala palautuminen → KEVYT/LEPO ✅
+- **40-59:** Matala palautuminen → KEVYT/LEPO 
 - **0-39:** Kriittinen väsymys → PAKOLLINEN lepo
 
 **Tiedostot:**
 - [`ai_coach.py`](file:///c:/Users/samih/code/health_ai/backend/ai_coach.py) - Prompt päivitetty
 
-**Status:** ✅ Deployed, testaus huomenna (cache vanhenee)
+**Status:**  Deployed, testaus huomenna (cache vanhenee)
 
 ---
 
@@ -500,7 +500,7 @@ Tänään toteutettiin yksi projektin suurimmista ominaisuuksista: interaktiivin
 
 **Status:** ⏸️ Code complete, deployment paused due to Docker issue
 
-**Migration ran:** ✅ 400+ days of data successfully uploaded to Firestore for user `wI0j4s1a9hZtGGaWtNnEn3yqSZC2`
+**Migration ran:**  400+ days of data successfully uploaded to Firestore for user `wI0j4s1a9hZtGGaWtNnEn3yqSZC2`
 
 **Dokumentaatio:**
 - Phase 10.3 merkitty valmiiksi [`production_roadmap.md`](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md)
@@ -563,7 +563,7 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
 - UI: Streamlit Web App.
 
 
-### Joulukuu 8. - "The Great Restoration & Upgrade" 🛠️
+### Joulukuu 8. - "The Great Restoration & Upgrade" ️
 *   **Kriisi:** Tärkeät tiedostot poistuivat vahingossa.
 *   **Ratkaisu:** Palautimme kaiken (`dashboard.py`, `process_garmin_data.py`, jne.) "muistista" ja välimuistista.
 *   **Päivitys (Model 2.0):**
@@ -572,7 +572,7 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
     *   Tulos: **R² 0.83** (MAE 3.80). Tämä on tieteellisesti validimpi kuin aiempi "haamu-0.91".
     *   **Feature Importance:** Tunnistettu tärkeimmät tekijät: `bodyBatteryHighestValue`, `bodyBatteryDuringSleep`.
 *   **Dashboard:**
-    *   Nimetty uudelleen: *"Sami's AI Coach"* 🏃
+    *   Nimetty uudelleen: *"Sami's AI Coach"* 
     *   Korjattu "loading state" -jumitus `st.empty()` ja `try-except` -logiikalla.
     *   Historiatrendit palautettu ja varmistettu.
 
@@ -596,7 +596,7 @@ Kuvista näemme:
 ![Model Performance](pics/model_performance.png)
 *(Ennuste vs Todellinen - mitä lähempänä punaista viivaa pisteet ovat, sen parempi)*
 
-## 2025-12-31 – UI Visuals & Calendar Uudistus 🖌️📅
+## 2025-12-31 – UI Visuals & Calendar Uudistus ️
 
 Tänään keskityttiin käyttöliittymän modernisointiin ja käytettävyyden parantamiseen.
 
@@ -613,9 +613,9 @@ Tänään keskityttiin käyttöliittymän modernisointiin ja käytettävyyden pa
     - Lisätty `structure-box` -elementti, joka korostaa treenin ytimen.
 - **Taustakuva:** Lisätty `web_tausta.png` haaleana ja tyylikkäänä taustana (`linear-gradient` overlay), joka tuo sovellukseen syvyyttä ilman että se häiritsee lukemista.
 
-Sovelus tuntuu nyt paljon enemmän modernilta web-sovellukselta kuin "pelkältä databoardilta". Seuraavaksi vuorossa tavoitteiden asettaminen! 🎯
+Sovelus tuntuu nyt paljon enemmän modernilta web-sovellukselta kuin "pelkältä databoardilta". Seuraavaksi vuorossa tavoitteiden asettaminen! 
 
-### Phase 2: Intelligence & Goals (Tavoitteet & Älykkyys) 🧠🎯
+### Phase 2: Intelligence & Goals (Tavoitteet & Älykkyys) 
 
 Illan aikana toteutettiin ja viimeisteltiin Phase 2, joka toi sovellukseen tavoitteellisuuden.
 
@@ -631,28 +631,28 @@ Illan aikana toteutettiin ja viimeisteltiin Phase 2, joka toi sovellukseen tavoi
 
 Valmis kokonaisuus tukee nyt sekä datalähtöistä palautumista että tavoitteellista treenaamista.
 
-### Phase 3: Data & Analytics (Data & Analytiikka) 📊
+### Phase 3: Data & Analytics (Data & Analytiikka) 
 Laajennettiin sovellusta manuaalisella datalla ja analytiikalla.
 - **Manuaalinen Kirjaus:** Lisätty mahdollisuus kirjata treenejä (esim. Hiihto, Kuntosali), jotka eivät olleet ohjelmassa.
 - **Viikon Kuormitus:** Uusi graafi näyttää "Suunniteltu vs Tehty" -kuormituksen (Load Units = Kesto * Teho).
 - **Tietokanta:** Päivitetty schema tukemaan tarkempaa seurantaa.
 
-### Phase 4: Optimization (Optimointi - Etusivu) 🏠
+### Phase 4: Optimization (Optimointi - Etusivu) 
 Dashboardin rakenne uusittiin täysin käyttäjäystävällisemmäksi.
 - **Uusi "Etusivu":** Kokoaa tärkeimmät tiedot (Body Battery, Uni, Seuraava treeni) yhteen näkymään.
 - **Next Workout Card:** Näyttää selkeästi seuraavan harjoituksen tiedot heti avatessa.
 - **Selkeys:** Välilehdet organisoitu loogisemmin (Etusivu, Ohjelma, Kalenteri, Kirjaa, Tavoitteet).
 
-### Phase 5: CI/CD & Quality 🛡️
+### Phase 5: CI/CD & Quality ️
 Projekti on nyt ammattimaisesti testattu ja automatisoitu.
 - **GitHub Actions:** CI-putki ajaa automaattisesti lintauksen (Ruff) ja testit (Pytest) jokaisen Pushin yhteydessä.
 - **Unit Tests (`tests/`):**
     - `test_backend.py`: Testaa tietokannan toiminnan (Tavoitteet, Treenien kirjaus).
     - `test_model.py`: "Smoke test" XGBoost-mallille (varmistaa että malli latautuu ja ennustaa).
     
-Projekti on nyt erittäin kattava ja vakaa kokonaisuus! 🚀
+Projekti on nyt erittäin kattava ja vakaa kokonaisuus! 
 
-### Phase 6: Production Readiness (Tuotantovalmius) 🏗️
+### Phase 6: Production Readiness (Tuotantovalmius) ️
 Aloitettiin sovelluksen modernisointi kohti skaalautuvaa arkkitehtuuria.
 - **Frontend/Backend jako:** Eriytettiin logiikka erilliseen `backend/` -sovellukseen (FastAPI).
 - **Docker:** Backend on kontitettu ja ajetaan `docker-compose`:n avulla.
@@ -660,13 +660,13 @@ Aloitettiin sovelluksen modernisointi kohti skaalautuvaa arkkitehtuuria.
 - **Dashboard:** Etusivun näkymät (Seuraava treeni, Viikkokuorma, Aktiiviset Tavoitteet) hakevat nyt datan **Firestoresta** API:n kautta.
 - **Security:** Lisätty Rate Limiting (`slowapi`) ja Service Account Key -hallinta.
 
-Projekti on nyt "Hybrid Cloud" -tilassa: Kriittinen uusi data (Tavoitteet) on pilvessä, vanha data (Treenihistoria) on lokaalisti. 🌩️🏠
+Projekti on nyt "Hybrid Cloud" -tilassa: Kriittinen uusi data (Tavoitteet) on pilvessä, vanha data (Treenihistoria) on lokaalisti. ️
 
 Tämä mahdollistaa tulevaisuudessa Frontendin vaihtamisen (esim. React/Mobiili) ilman, että logiikkaan tarvitsee koskea.
 
 
 
-## 2026-01-02 – Backend Security Hardening 🔒
+## 2026-01-02 – Backend Security Hardening 
 
 Tänään varmistettiin backendin tietoturva "Production Readiness" -hengessä. Koska siirrymme monen käyttäjän malliin, datan eristäminen on kriittistä.
 
@@ -683,9 +683,9 @@ Luotiin automaattiset testiskriptit (`backend/tests/`) ja ajettiin ne onnistunee
 - `verify_firestore_isolation.py`: Simuloi "tunkeilijaa" ja varmisti, että hänelle ei palauteta dataa.
 - `verify_api_auth.py`: Pommitti API:a ilman tokenia ja varmisti, että portit pysyvät kiinni.
 
-Tietoturva on nyt kunnossa backendin puolella. 🛡️
+Tietoturva on nyt kunnossa backendin puolella. ️
 
-## 2026-01-02 – Frontend: Next.js & Firebase Auth ⚛️🔥
+## 2026-01-02 – Frontend: Next.js & Firebase Auth ️
 
 Iltapäivällä siirryimme Frontendiin (`web`-kansio).
 
@@ -702,7 +702,7 @@ Iltapäivällä siirryimme Frontendiin (`web`-kansio).
 ### 3. Integraatio Backendin kanssa
 - Backend vaati CORS-asetukset (`localhost:3000` sallittu).
 - Dashboard kutsuu nyt backendiä (`/goals`) käyttäjän ID-tokenilla (`Authorization: Bearer <token>`).
-- **Tulos:** Frontti ja Backki juttelevat keskenään turvallisesti! 🎉
+- **Tulos:** Frontti ja Backki juttelevat keskenään turvallisesti! 
 
 ### Lopetustoimet & Seuraavat askeleet
 - **Tietoturvatarkistus:** Varmistettu, että `.gitignore` sulkee pois `.env`, `.env.local`, ja `service_account_key.json` -tiedostot. Secrets ovat turvassa eikä niitä mene GitHubiin.
@@ -711,7 +711,7 @@ Iltapäivällä siirryimme Frontendiin (`web`-kansio).
     2.  Parannetaan Dashboardin ulkoasua.
 
 
-## 2026-01-05 – Full Stack Feature: Add Goals & Start-up Fixes 🎯
+## 2026-01-05 – Full Stack Feature: Add Goals & Start-up Fixes 
 
 Tänään saimme ensimmäisen "Full Stack" -toiminnallisuuden valmiiksi, jossa data kulkee käyttöliittymästä tietokantaan asti.
 
@@ -743,7 +743,7 @@ Käyttäjä voi nyt luoda uusia tavoitteita suoraan Dashboardilta.
 - **Backend**: Uusi endpoint `/ai/insight`, joka laskee kontekstin ja kutsuu `ai_coach.py`. Lisätty Rate Limiting (`slowapi`) ja dynaaminen polunhaku kirjastolle.
 - **Frontend**: Näyttävä `AIInsightCard` komponentti, jossa on latausanimaatiot ja virheenkäsittely.
 
-## 2026-01-06 – SDK Migration, Goal Management & Calendar Polish 🛠️📅
+## 2026-01-06 – SDK Migration, Goal Management & Calendar Polish ️
 
 Tänään tehtiin merkittäviä parannuksia sovelluksen vakauteen ja käytettävyyteen.
 
@@ -769,7 +769,7 @@ Tänään tehtiin merkittäviä parannuksia sovelluksen vakauteen ja käytettäv
 - **Optimointi:** Tietokantahaku optimoitiin toimimaan ilman monimutkaisia indeksejä (Composite Index) tekemällä filtteröinti muistissa.
 
 
-## 2026-01-07 – Bugit, Mobiili & Workout Logging 📱🐛
+## 2026-01-07 – Bugit, Mobiili & Workout Logging 
 
 Tänään oli "huoltopäivä", joka päättyi uuteen ominaisuuteen.
 
@@ -788,22 +788,22 @@ Tänään oli "huoltopäivä", joka päättyi uuteen ominaisuuteen.
     - Auth: Lisätty kodin IP Whitelistiin Firebase-konsolissa.
 - Nyt sovellus toimii Wi-Fi -verkossa millä tahansa laitteella!
 
-### 3. Workout Logging (Dual Write) 🏋️‍♂️
+### 3. Workout Logging (Dual Write) ️‍️
 - Lisätty mahdollisuus kirjata manuaalisia treenejä Next.js Dashboardista.
 - **Dual Write Strategia:** Datan eheyden takaamiseksi (koska olemme migraatiovaiheessa), uudet treenit tallennetaan **kahteen paikkaan**:
     1.  **DuckDB (Legacy):** Jotta vanha `dashboard.py` (Streamlit) näkee ne ja trendit eivät katkea.
     2.  **Firestore (Modern):** Tulevaisuuden skaalautuvaa backendia varten.
 - **UI:** Lisätty tyylikäs tumma modaali-ikkuna (`ManualWorkoutForm`) kirjausta varten.
 
-### 4. User Menu (UI/UX) 🍔
+### 4. User Menu (UI/UX) 
 - Lisätty Dashboardin oikeaan yläkulmaan "Hampurilais-valikko".
 - Sisältää selkeät toiminnot: *Profile, Settings, Sign Out*.
 - Korvaa aiemman yksittäisen "Sign Out" -napin, säästäen tilaa ja parantaen yleisilmettä.
 
-Projekti on nyt taas raiteillaan ja valmiina seuraaviin ominaisuuksiin! 🚀
+Projekti on nyt taas raiteillaan ja valmiina seuraaviin ominaisuuksiin! 
 
 
-## 2026-01-08 – Calendar Drag & Drop & Regeneration 📅✨
+## 2026-01-08 – Calendar Drag & Drop & Regeneration 
 
 Tänään Training Calendarista tehtiin aidosti interaktiivinen työkalu.
 
@@ -813,11 +813,11 @@ Tänään Training Calendarista tehtiin aidosti interaktiivinen työkalu.
 - **Live Update:** Kun treenin pudottaa uudelle päivälle, Backend päivittää päivämäärän ja UI päivittyy välittömästi ilman sivun latausta.
 - **Visuals:** Raahattava kortti ("Overlay") näyttää nyt identtiseltä alkuperäisen kanssa, eikä ole vain "Moving..." tekstilaatikko.
 
-### 2. Trash Can (Roskakori) 🗑️
+### 2. Trash Can (Roskakori) ️
 - Kalenterin alareunaan ilmestyy roskakori, kun käyttäjä alkaa raahata treeniä.
 - **Drop to Delete:** Treenin voi pudottaa roskikseen, jolloin avautuu vahvistusikkuna.
 
-### 3. Smart Regeneration (Älykäs Korvaus) 🤖
+### 3. Smart Regeneration (Älykäs Korvaus) 
 - Kun treenin poistaa, käyttäjä voi valita: "Delete Only" tai **"Regenerate"**.
 - **Regenerate-logiikka:**
     1.  Vanha treeni poistetaan.
@@ -830,15 +830,15 @@ Tänään Training Calendarista tehtiin aidosti interaktiivinen työkalu.
 - `DELETE /workouts/{id}`: Yksittäisen treenin poistoon.
 - `POST /plans/generate`: Päivitetty hyväksymään `rejected_plan_details` kontekstiksi.
 
-Nyt kalenteri ei ole vain *näkymä*, vaan *työkalu* viikon suunnitteluun! 🚀
+Nyt kalenteri ei ole vain *näkymä*, vaan *työkalu* viikon suunnitteluun! 
 
-### 5. CI & Linting 🧹
+### 5. CI & Linting 
 - Korjattu "build"-stepin epäonnistumiset.
 - **Backend:** `ruff` huomasi syntaksivirheen (orphaned code block) ja tupla-exceptin – korjattu.
 - **Frontend:** `eslint` valitti `any`-tyypeistä – korjattu tiukka `Workout` interface.
-- Nyt koodipohja on puhdas ja CI vihreä. ✅
+- Nyt koodipohja on puhdas ja CI vihreä. 
 
-### 6. 2026-01-15 – Dashboard Migration, AI Caching & Fixes 🏥⚡
+### 6. 2026-01-15 – Dashboard Migration, AI Caching & Fixes 
 
 Tänään ratkaistiin suorituskyky- ja datanäkyvyysongelmat, jotka vaivasivat Dashboardia.
 
@@ -851,27 +851,27 @@ Tänään ratkaistiin suorituskyky- ja datanäkyvyysongelmat, jotka vaivasivat D
     - **Next Workout:** Hakee aidosti tulevia (`date >= today`) "PENDING"-treenejä.
     - **Indexes:** Luotiin tarvittavat Firestore Composite Indexit queries-optimointia varten.
 
-#### 2. Datan Synkronointi (Legacy Sync) 🔄
+#### 2. Datan Synkronointi (Legacy Sync) 
 - **Ongelma:** Vaikka koodi luki Firestorea, vanhat datat olivat yhä vain CSV-tiedostoissa (Garmin Fetch).
 - **Ratkaisu:** `main.py` -> `refresh_data` -endpointtiin lisättiin logiikka, joka automaattisesti työntää viimeiset 14 päivää CSV-datasta Firestoreen jokaisella päivityksellä. Tämä takaa, että Weekly Load saa dataa.
 
-#### 3. AI Quota & Caching (Optimointi) 🧠
+#### 3. AI Quota & Caching (Optimointi) 
 - **Ongelma:** Geminin ilmaisquota (20 request/day) täyttyi nopeasti sivua ladatessa, aiheuttaen 500-virheitä.
 - **Ratkaisu:**
     - **Caching:** Toteutettu `daily_insight` -välimuisti Firestoreen (`users/{uid}/daily_insights/{date}`). Tekoälyä kutsutaan nyt vain **kerran päivässä** per käyttäjä.
     - **Graceful Error Handling:** Jos quota täyttyy, backend palauttaa nyt selkeän 429-statuksen ("AI Quota Exceeded") sovelluksen kaatumisen sijaan.
 
-#### 4. ML Metrics (Transparency) 📊
+#### 4. ML Metrics (Transparency) 
 - Lisätty uusi "ML Accuracy" -näkymä User Menuun.
 - Näyttää ennustemallin tarkkuuden (R2 Score, MAE) visuaalisesti, lisäten luottamusta tekoälyn ennusteisiin.
 
 ---
 
-## 2026-01-17 – DuckDB Migration Complete & GDPR Compliance ✅🔒
+## 2026-01-17 – DuckDB Migration Complete & GDPR Compliance 
 
 Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → Firestore migraatio)** ja **Phase 7.2 (GDPR Compliance)**.
 
-### Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 🎯
+### Phase 7.1: DuckDB → Firestore Migraatio (VALMIS) 
 
 **Tavoite:** Poistaa DuckDB-riippuvuus kokonaan ja siirtyä täysin Firestore-arkkitehtuuriin.
 
@@ -881,14 +881,14 @@ Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → F
 - [firestore_manager.py](file:///c:/Users/samih/code/health_ai/backend/firestore_manager.py): Lisätty GDPR-funktiot
 
 **Dokumentaatio:**
-- [production_roadmap.md](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md): Phase 7.1 merkitty ✅ COMPLETED
+- [production_roadmap.md](file:///c:/Users/samih/code/health_ai/Docs/production_roadmap.md): Phase 7.1 merkitty  COMPLETED
 - [arkkitehtuuri.md](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md): DuckDB-viittaukset poistettu, Firestore-kaavio päivitetty
 
 **CSV:n rooli:** Garmin-historia säilyy CSV:ssä ML-mallin koulutusta varten (ei käyttäjädataa).
 
 ---
 
-### Phase 7.2: GDPR Compliance (VALMIS) 🔐
+### Phase 7.2: GDPR Compliance (VALMIS) 
 
 **1. Data Export** (`GET /user/export`)
 - Käyttäjät voivat ladata kaiken datansa JSON-muodossa
@@ -908,12 +908,12 @@ Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → F
 - Käyttö: Firebase Console tai API-kutsu tokenilla
 
 **Firestore Collections (päivitetty):**
-- ✨ **feedback** (uusi) - Käyttäjäpalautteet
+-  **feedback** (uusi) - Käyttäjäpalautteet
 - goals, workouts, plans, users (entiset)
 
 ---
 
-### Tekniset korjaukset 🔧
+### Tekniset korjaukset 
 
 **Portti-ongelma:**
 - Zombie-prosessi esti portin 8000 → vaihdettu porttiin 8001
@@ -927,26 +927,26 @@ Tänään suoritettiin kaksi suurta virstanpylvästä: **Phase 7.1 (DuckDB → F
 
 ---
 
-### Tulos 🎉
+### Tulos 
 
 **Arkkitehtuuri:**
-- ✅ DuckDB poistettu kokonaan
-- ✅ Firestore ainoa tietokanta käyttäjädatalle
-- ✅ Skaalautuu tuhansille käyttäjille (cloud-native)
+-  DuckDB poistettu kokonaan
+-  Firestore ainoa tietokanta käyttäjädatalle
+-  Skaalautuu tuhansille käyttäjille (cloud-native)
 
 **GDPR:**
-- ✅ Käyttäjät voivat ladata datansa
-- ✅ Palautekanava toimii
-- ✅ Admin-työkalu palautteille
+-  Käyttäjät voivat ladata datansa
+-  Palautekanava toimii
+-  Admin-työkalu palautteille
 
 **Kehitysympäristö:**
 - Backend: `http://localhost:8001` (Docker)
 - Frontend: `http://localhost:3000` (Next.js)
-- Mobile: `http://192.168.1.130:3000` ✅
+- Mobile: `http://192.168.1.130:3000` 
 
 ---
 
-## 2026-01-18 – Garmin Per-User Credentials 🔐
+## 2026-01-18 – Garmin Per-User Credentials 
 
 Toteutettu turvallinen, salattu per-user Garmin-tunnusten tallennus ja käyttö.
 
@@ -968,7 +968,7 @@ Mahdollistaa että jokainen käyttäjä voi yhdistää oman Garmin-tilinsä sove
 **Testattu:**
 ```bash
 python encryption_helper.py
-# ✅ SUCCESS: Encryption/Decryption working correctly!
+#  SUCCESS: Encryption/Decryption working correctly!
 ```
 
 ---
@@ -1037,7 +1037,7 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         password = os.getenv("GARMIN_PASSWORD")
 ```
 
-**Backward Compatibility:** ✅ Vanhat käyttäjät toimivat edelleen ilman muutoksia.
+**Backward Compatibility:**  Vanhat käyttäjät toimivat edelleen ilman muutoksia.
 
 ---
 
@@ -1048,7 +1048,7 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 **Ominaisuudet:**
 - Username/Email input (ei pakollista @-merkkiä)
 - Password input (masked)
-- Connection status badge (✅ Connected / ❌ Not Connected)
+- Connection status badge ( Connected /  Not Connected)
 - Save/Disconnect buttons
 - Error handling + success messages
 - Turvallisuusilmoitukset (AES-256 encryption)
@@ -1073,15 +1073,15 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 ### Turvallisuus
 
 **Implementoitu:**
-- ✅ AES-256 salaus (industry standard)
-- ✅ Salausavain `.env`-tiedostossa (ei GitHubissa)
-- ✅ Admin ei näe salasanoja ilman avainta
-- ✅ Rate limiting (5 req/hour save/delete)
-- ✅ Row-level security (user_id filtteröinti)
+-  AES-256 salaus (industry standard)
+-  Salausavain `.env`-tiedostossa (ei GitHubissa)
+-  Admin ei näe salasanoja ilman avainta
+-  Rate limiting (5 req/hour save/delete)
+-  Row-level security (user_id filtteröinti)
 
 **Verifioitu Firestoressa:**
 - Username: Plaintext (luettava)
-- Password: `"gAAAAABm..."` (salattu blob, **ei luettavissa**) ✅
+- Password: `"gAAAAABm..."` (salattu blob, **ei luettavissa**) 
 
 ---
 
@@ -1091,20 +1091,20 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 2. **Refresh Data:** Dashboard → "Refresh" käyttää nyt KÄYTTÄJÄN omia tunnuksia
 3. **Backend logs:**
    ```
-   ✅ User has Garmin credentials, fetching with per-user mode
-   ✅ Garmin login successful for: username
+    User has Garmin credentials, fetching with per-user mode
+    Garmin login successful for: username
    ```
 
 ---
 
 ### Tulos
 
-- ✅ Multi-user Garmin-integraatio valmis
-- ✅ Salaus toimii (verifioitu Firestoressa)
-- ✅ Backward compatibility säilytetty
-- ✅ Dokumentaatio kattava
+-  Multi-user Garmin-integraatio valmis
+-  Salaus toimii (verifioitu Firestoressa)
+-  Backward compatibility säilytetty
+-  Dokumentaatio kattava
 
-**Status:** 🟢 Production-ready! 🚀
+**Status:** 🟢 Production-ready! 
 
 ---
 
@@ -1113,7 +1113,7 @@ Phase 7.3 - Code Quality & Testing (toast notifications, testit, docstringit)
 
 ---
 
-## 2026-01-18 (Ilta) – Phase 7.3 Quick Wins 🍞📚
+## 2026-01-18 (Ilta) – Phase 7.3 Quick Wins 
 
 Toteutettu Phase 7.3:n "quick wins" -osuus: Toast notifications, API-dokumentaatio ja README-päivitykset.
 
@@ -1125,9 +1125,9 @@ npm install react-hot-toast
 ```
 
 **Implementoitu:**
-- ✅ Toaster lisätty root layoutiin (`layout.tsx`)
-- ✅ Dark theme styling (slate-950, green/red icons)
-- ✅ Duration: 4s, position: top-right
+-  Toaster lisätty root layoutiin (`layout.tsx`)
+-  Dark theme styling (slate-950, green/red icons)
+-  Duration: 4s, position: top-right
 
 **Toast locations:**
 - **Dashboard**: Data refresh (success/error), Goal delete (success/error)
@@ -1191,7 +1191,7 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
 
 ---
 
-## 2026-02-01 – Observability & Monitoring Implementation 🛡️📊
+## 2026-02-01 – Observability & Monitoring Implementation ️
 
 Tänään keskityttiin tuotantovalmiuuden parantamiseen lisäämällä kattava virheenseuranta ja admin-tason valvonta.
 
@@ -1213,7 +1213,7 @@ Administraattorille lisättiin "hätäpainike" epäilyttävän toiminnan varalle
 - **Vaatimus:** Firebase Authentication, `verify_admin` middleware.
 - **Vaikutus:** Mitätöi käyttäjän refresh tokenit. Käyttäjä lentää ulos sovelluksesta heti kun nykyinen ID-token vanhenee (max 1h).
 
-### 4. E2E Testing (Playwright) 🎭
+### 4. E2E Testing (Playwright) 
 Automatisoitu selaimen laajuinen testaus on nyt pystytetty (`frontend/e2e/`).
 - **Setup:** Asennettu Playwright ja konfiguroitu ajamaan testit `npm run start` -tuotantobuildia vasten (koska Turbopack aiheutti ongelmia testiajossa).
 - **Testit:**
@@ -1231,7 +1231,7 @@ Olemme nyt poistaneet "sokeat pisteet" backendistä. Tiedämme jos se kaatuu, ti
 
 **Added Sections:**
 
-**📸 Screenshots:**
+** Screenshots:**
 - Dashboard (recovery metrics, goals, calendar)
 - Goal Management (create, progress, edit/delete)
 - Training Calendar (month/week views, drag-drop)
@@ -1247,7 +1247,7 @@ Olemme nyt poistaneet "sokeat pisteet" backendistä. Tiedämme jos se kaatuu, ti
 - `image-6.png` - Profile & Settings
 - `image-7.png` - Model Accuracy (Feature Importance)
 
-**🔌 API Documentation:**
+** API Documentation:**
 ```markdown
 **Interactive API Docs (Swagger UI):**
 http://localhost:8001/docs
@@ -1264,18 +1264,18 @@ http://localhost:8001/docs
 ### 4. Production Roadmap Update
 
 **Phase 7.3 Status:**
-- ✅ Error Handling: Toast notifications complete
-- ✅ Documentation: API.md, FastAPI metadata, README
+-  Error Handling: Toast notifications complete
+-  Documentation: API.md, FastAPI metadata, README
 - [ ] Testing: Backend/Frontend tests (future)
 - [ ] Retry logic: API call retry (future)
 
 **Marked Complete:**
 ```markdown
 **Completed Today:**
-- ✅ Toast notifications (react-hot-toast)
-- ✅ API.md documentation
-- ✅ FastAPI Swagger enhancements
-- ✅ README.md update with screenshots
+-  Toast notifications (react-hot-toast)
+-  API.md documentation
+-  FastAPI Swagger enhancements
+-  README.md update with screenshots
 ```
 
 ---
@@ -1298,7 +1298,7 @@ http://localhost:8001/docs
 **Dependencies Added:**
 - `react-hot-toast` - Toast notifications library
 
-## 2026-01-23 – Testing & CI/CD Pipeline 🧪🚀
+## 2026-01-23 – Testing & CI/CD Pipeline 
 
 Tänään saavutettiin merkittävä virstanpylväs sovelluksen laadunvarmistuksessa ja automaatiossa.
 
@@ -1317,7 +1317,7 @@ Tänään saavutettiin merkittävä virstanpylväs sovelluksen laadunvarmistukse
 - **Parallel Jobs:** Testit ajetaan nyt rinnakkain (`backend-test` ja `frontend-test`) suorituskyvyn optimoimiseksi.
 - Pipeline ajaa automaattisesti lintauksen ja testit jokaisella pushilla `main`-haaraan.
 
-**Tulos:** Sovellus on nyt vakaampi, ja tulevat muutokset on turvallisempi tehdä automaattisten testien ansiosta. ✅
+**Tulos:** Sovellus on nyt vakaampi, ja tulevat muutokset on turvallisempi tehdä automaattisten testien ansiosta. 
 
 
 **Lines of Code Added:** ~650 lines
@@ -1333,11 +1333,11 @@ Tänään saavutettiin merkittävä virstanpylväs sovelluksen laadunvarmistukse
 - No screenshots in README
 
 **After:**
-- ✅ Visual toast notifications (success/error)
-- ✅ User-friendly error messages
-- ✅ Comprehensive API documentation
-- ✅ Professional README with screenshots
-- ✅ Enhanced Swagger UI
+-  Visual toast notifications (success/error)
+-  User-friendly error messages
+-  Comprehensive API documentation
+-  Professional README with screenshots
+-  Enhanced Swagger UI
 
 ---
 
@@ -1351,7 +1351,7 @@ Tänään saavutettiin merkittävä virstanpylväs sovelluksen laadunvarmistukse
 
 ---
 
-## 2026-01-20 – Model Training Reliability & Docker Path Fixes 🛠️🤖
+## 2026-01-20 – Model Training Reliability & Docker Path Fixes ️
 
 Tänään korjattiin kriittinen bugi, jossa "Model Training Day" ei päivittynyt datan lataamisen jälkeen.
 
@@ -1367,7 +1367,7 @@ Tänään korjattiin kriittinen bugi, jossa "Model Training Day" ei päivittynyt
 - Päivitetty `/ai/model-metrics` lukemaan metriikat oikeasta polusta.
 - Lisätty `/system/refresh` endpointtiin laajempi lokitus (traceback), jotta mahdolliset virheet skriptien ajossa näkyvät suoraan palvelimen lokeissa.
 
-**Tulos:** "Model Training Day" päivittyy nyt välittömästi onnistuneen synkronoinnin jälkeen. Kaikki polut on yhtenäistetty. ✅
+**Tulos:** "Model Training Day" päivittyy nyt välittömästi onnistuneen synkronoinnin jälkeen. Kaikki polut on yhtenäistetty. 
 
 ### 4. Python-päivitys (Version 3.12)
 - **Muutos:** Päivitetty `backend/Dockerfile` käyttämään `python:3.12-slim` -pohjaa (aiemmin 3.10).
@@ -1375,17 +1375,17 @@ Tänään korjattiin kriittinen bugi, jossa "Model Training Day" ei päivittynyt
 - **Verifiointi:** Docker-build suoritettu onnistuneesti, kaikki riippuvuudet asentuneet oikein.
 
 
-## 2026-01-23 – Dashboard Refresh Fix & Admin Dashboard 🛠️🛡️
+## 2026-01-23 – Dashboard Refresh Fix & Admin Dashboard ️️
 
 Tänään fiksattiin kriittinen dataongelma ja rakennettiin työkaluja järjestelmän hallintaan.
 
-### 1. Dashboard Refresh Fix 🔄
+### 1. Dashboard Refresh Fix 
 - **Ongelma:** "Refresh"-nappi ei päivittänyt kuluvan päivän tavoitteita tai AI-analyysiä, vaikka backend löysi datan.
 - **Syy:** `fetch_garmin_data.py` -scripti haki aktiviteetit onnistuneesti API:sta, mutta **unohti tallentaa ne CSV-tiedostoon** (`garmin_activities.csv`). Koska tavoitteet ja tekoäly lukevat dataa juuri tuosta CSV:stä (eivätkä Firebasesta), ne luulivat päivän olevan tyhjä.
 - **Korjaus:** Lisätty `update_csv()` -kutsu scriptiin heti datan haun jälkeen.
 - **Tulos:** Nyt "Refresh" päivittää "Active Goals" -palkit ja grafiikat heti, kun uutta dataa löytyy.
 
-### 2. Admin Dashboard 🛡️
+### 2. Admin Dashboard ️
 - **Tarve:** Kun käyttäjämäärä kasvaa, tarvitaan tapa nähdä palautteet (`/feedback`) ja hallita järjestelmää ilman tietokantakyselyitä.
 - **Toteutus:**
     - **UI:** Uusi sivu `/admin` (pääsy User Menusta).
@@ -1397,10 +1397,10 @@ Tänään fiksattiin kriittinen dataongelma ja rakennettiin työkaluja järjeste
         - Jos ei ole listalla, API palauttaa tylysti `403 Forbidden`.
     - **Konfiguraatio:** Admin-oikeudet annetaan lisäämällä sähköposti serverin `.env`-tiedostoon.
 
-Tämä tekee sovelluksesta huomattavasti hallittavamman "oikeassa elämässä". 🚀
+Tämä tekee sovelluksesta huomattavasti hallittavamman "oikeassa elämässä". 
 
 
-## 2026-01-24 – Landing Page & Firebase Hosting 🌐🔥
+## 2026-01-24 – Landing Page & Firebase Hosting 
 
 Tänään rakennettiin julkinen landing page sovellukselle ja julkaistiin se Firebase Hostingiin.
 
@@ -1450,12 +1450,12 @@ firebase deploy --only hosting
 - Public directory: `.` (landing_page folder itself)
 
 **Live URL:**
-🌐 **https://personal-ai-coach-92c39.web.app**
+ **https://personal-ai-coach-92c39.web.app**
 
 **Deployment Stats:**
 - Files deployed: 5 (HTML, CSS, 3 images)
 - Total size: ~1.76 MB
-- Status: ✅ Deploy complete
+- Status:  Deploy complete
 - Console: https://console.firebase.google.com/project/personal-ai-coach-92c39/overview
 
 ### 3. Content Updates
@@ -1483,27 +1483,27 @@ firebase deploy --only hosting
 
 ---
 
-### Tulos 🎉
+### Tulos 
 
 **Landing Page:**
-- ✅ Modern, responsive design with dark theme
-- ✅ AI-generated premium images
-- ✅ Full feature showcase
-- ✅ App download CTAs
+-  Modern, responsive design with dark theme
+-  AI-generated premium images
+-  Full feature showcase
+-  App download CTAs
 
 **Firebase Hosting:**
-- ✅ Deployed and live globally
-- ✅ Optimized caching for performance
-- ✅ Professional URL (personal-ai-coach-92c39.web.app)
+-  Deployed and live globally
+-  Optimized caching for performance
+-  Professional URL (personal-ai-coach-92c39.web.app)
 
 **Seuraavaksi:**
 - Custom domain setup (optional)
-- ~~Analytics integration (Google/Firebase Analytics)~~ ✅ Done!
+- ~~Analytics integration (Google/Firebase Analytics)~~  Done!
 - SEO optimization (robots.txt, sitemap.xml)
 
 ---
 
-## 2026-01-24 (Ilta) – Firebase Analytics 📊
+## 2026-01-24 (Ilta) – Firebase Analytics 
 
 Lisättiin kävijäseuranta landing pagelle Firebase Analyticsin avulla.
 
@@ -1515,10 +1515,10 @@ Lisättiin kävijäseuranta landing pagelle Firebase Analyticsin avulla.
 - Deployattu Firebase Hostingiin
 
 **Seurattavat tapahtumat:**
-- ✅ **Page views** - jokaiselta kävijältä automaattisesti
-- ✅ **CTA clicks** - "Get Started", "See Demo"
-- ✅ **Store clicks** - App Store, Google Play
-- ✅ **Login clicks** - kirjautumisnapin seuranta
+-  **Page views** - jokaiselta kävijältä automaattisesti
+-  **CTA clicks** - "Get Started", "See Demo"
+-  **Store clicks** - App Store, Google Play
+-  **Login clicks** - kirjautumisnapin seuranta
 
 **Dashboard:**
 - Realtime: https://console.firebase.google.com/project/personal-ai-coach-92c39/analytics/app/web/streamview/realtime
@@ -1531,18 +1531,18 @@ Lisättiin kävijäseuranta landing pagelle Firebase Analyticsin avulla.
 
 ---
 
-### Tulos 🎉
+### Tulos 
 
-- ✅ Firebase Analytics toimii (ilmainen)
-- ✅ Reaaliaikainen kävijäseuranta
-- ✅ Napin klikkausten seuranta
-- ✅ Maantieteellinen data (mistä kävijät tulevat)
+-  Firebase Analytics toimii (ilmainen)
+-  Reaaliaikainen kävijäseuranta
+-  Napin klikkausten seuranta
+-  Maantieteellinen data (mistä kävijät tulevat)
 
 **Status:** 🟢 Analytics LIVE!
 
 ---
 
-## 2026-01-25 – Security Hardening 🔒
+## 2026-01-25 – Security Hardening 
 
 Toteutettiin Priority 1 turvallisuusparannukset auditointiraportin perusteella.
 
@@ -1554,10 +1554,10 @@ Toteutettiin Priority 1 turvallisuusparannukset auditointiraportin perusteella.
 - Luotu `Docs/security_audit.md` (286 riviä)
 
 **Löydökset:**
-- ✅ **Backend Auth:** Firebase token validation kaikissa endpointeissa
-- ✅ **Data Isolation:** `user_id` filtteröinti KAIKISSA kyselyissä
-- ✅ **Encryption:** AES-256 Garmin-salasanoille
-- ⚠️ **Puutteet:** Firestore Rules, CORS `allow_origins=["*"]`, CSV shared
+-  **Backend Auth:** Firebase token validation kaikissa endpointeissa
+-  **Data Isolation:** `user_id` filtteröinti KAIKISSA kyselyissä
+-  **Encryption:** AES-256 Garmin-salasanoille
+- ️ **Puutteet:** Firestore Rules, CORS `allow_origins=["*"]`, CSV shared
 
 **Arvosana:** 🟢 **A-** (Production Ready)
 
@@ -1568,12 +1568,12 @@ Toteutettiin Priority 1 turvallisuusparannukset auditointiraportin perusteella.
 **Muutos:**
 ```python
 # Ennen:
-allow_origins=["*"]  # ⚠️ Kuka tahansa domain
+allow_origins=["*"]  # ️ Kuka tahansa domain
 
 # Jälkeen:
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 allowed_origins = ["http://localhost:3000", FRONTEND_URL]
-allow_origins=allowed_origins  # ✅ Vain sallitut domainit
+allow_origins=allowed_origins  #  Vain sallitut domainit
 ```
 
 **Impact:** Estää luvattomien domainien pyynnöt
@@ -1586,17 +1586,17 @@ allow_origins=allowed_origins  # ✅ Vain sallitut domainit
 - `firebase.json` - Firebase config
 
 **Suojatut kokoelmat:**
-- ✅ `goals` - Käyttäjät näkevät vain omat
-- ✅ `workouts` - User isolation
-- ✅ `plans` - User isolation
-- ✅ `users/{userId}` - Profiilit + subkokoelmat
-- ✅ `feedback` - User + admin access
+-  `goals` - Käyttäjät näkevät vain omat
+-  `workouts` - User isolation
+-  `plans` - User isolation
+-  `users/{userId}` - Profiilit + subkokoelmat
+-  `feedback` - User + admin access
 
 **Deployment:**
 ```bash
 firebase use personal-ai-coach-92c39
 firebase deploy --only firestore:rules
-# ✅ Deploy complete!
+#  Deploy complete!
 ```
 
 **Console:** https://console.firebase.google.com/project/personal-ai-coach-92c39/firestore/rules
@@ -1609,18 +1609,18 @@ firebase deploy --only firestore:rules
 - `FIRESTORE_RULES.md` - Deploy-ohje
 
 **Updated Roadmap:**
-- Phase 10.1: Priority 1 (Firestore Rules, CORS) ✅ VALMIS
+- Phase 10.1: Priority 1 (Firestore Rules, CORS)  VALMIS
 - Phase 10.2: Priority 2 (Error handling, Rate limiting) - Jäljellä
 - Phase 10.3: Priority 3 (2FA, Session mgmt) - Tulevaisuus
 
 ---
 
-### Tulos 🎉
+### Tulos 
 
 **Turvallisuus:**
-- ✅ Defense-in-Depth: Server + Client security
-- ✅ CORS restricted to localhost + production
-- ✅ Firestore Rules estää suorat tietokantayhteydet
+-  Defense-in-Depth: Server + Client security
+-  CORS restricted to localhost + production
+-  Firestore Rules estää suorat tietokantayhteydet
 
 **Arvosana:** 🟢 **A- → A** (98% confidence)
 
@@ -1632,7 +1632,7 @@ firebase deploy --only firestore:rules
 
 
 ---
-## 2026-01-28: Infrastructure & Documentation Upgrade 🏗️
+## 2026-01-28: Infrastructure & Documentation Upgrade ️
 
 **Goal:** Erottaa kehitys- ja tuotantoympäristöt, parantaa dokumentaatiota ja korjata CI/CD-putki.
 
@@ -1649,11 +1649,11 @@ firebase deploy --only firestore:rules
     *   Korjattu `pytest` ajuritestit GitHub Actionsissa (Import path issues).
     *   Päivitetty `config.py` Pydantic V2 -yhteensopivaksi.
 
-**Status:** ✅ Config system toimii, Dokumentaatio on livenä, CI Testit menevät läpi, Docker Build & Push konfiguroitu.
+**Status:**  Config system toimii, Dokumentaatio on livenä, CI Testit menevät läpi, Docker Build & Push konfiguroitu.
 **Next:** Deployment (VPS/Cloud Run).
 
 ---
-## 2026-01-29: MLOps Integration 🧪
+## 2026-01-29: MLOps Integration 
 
 **Goal:** Implementoi MLflow-pohjainen MLOps-infrastruktuuri mallin kehitys- ja seurantavaiheita varten.
 
@@ -1677,11 +1677,11 @@ firebase deploy --only firestore:rules
     *   Päivitetty `Docs/production_roadmap.md` (merkitty MLOps valmiiksi)
     *   Päivitetty `mkdocs.yml` (lisätty MLflow.md navigaatioon)
 
-**Status:** ✅ MLflow integroitu, dokumentaatio valmis, valmis testaukseen.
+**Status:**  MLflow integroitu, dokumentaatio valmis, valmis testaukseen.
 **Next:** Aja `python scripts/process_garmin_data.py` ja tarkista MLflow UI (`mlflow ui`).
 
 ---
-## 2026-01-30: Production Logging & Security Monitoring 🛡️📊
+## 2026-01-30: Production Logging & Security Monitoring ️
 
 **Goal:** Valmistella backend tuotantoon ottamalla käyttöön rakenteellinen lokitus (Google Cloud Logging) ja parantamalla tietoturvan seurantaa.
 
@@ -1702,10 +1702,10 @@ firebase deploy --only firestore:rules
     *   **Rate Limit Exceeded:** Lokitetaan `event: security_rate_limit` (Custom handler `main.py`:ssä).
     *   **Critical Actions:** Lokitetaan tilien poistot ja adminien tietokantahaut audit-jälkeä varten.
 
-**Status:** ✅ Backend tuottaa nyt ammattimaista, koneellisesti luettavaa lokia. Tietoturvatapahtumat on helppo erottaa massasta.
+**Status:**  Backend tuottaa nyt ammattimaista, koneellisesti luettavaa lokia. Tietoturvatapahtumat on helppo erottaa massasta.
 **Next:** Deployment Google Cloud Runiin ja logien tarkastelu Logs Explorerissa. (VALMIS)
 
-## 2026-01-31 – Backend Deployment ✅
+## 2026-01-31 – Backend Deployment 
 
 Tänään saavutettiin merkittävä virstanpylväs: Backendin onnistunut julkaisu tuotantoympäristöön (Cloud Run).
 
@@ -1744,16 +1744,16 @@ Tänään keskityin saamaan projektin testit ja automaation kuntoon, sekä paran
 - **Suorituskyky:** Landing pagen kuville (paitsi Herolle) lisättiin `loading="lazy"`.
 
 ### 3. Yhteenveto
-### 4. Illan Viimeistelyt (Final Polish) 🧹
+### 4. Illan Viimeistelyt (Final Polish) 
 - **Developer Experience:** Luotu `npm run fix` -komento, joka siivoaa frontendin välimuistit ja asentaa riippuvuudet uudelleen (`frontend/scripts/cleanup.js`).
 - **Performance:** Landing pagen kuvat konvertoitu automaattisesti WebP-muotoon (`convert_images.py`), mikä pienensi latauskokoja merkittävästi.
 - **Security:** Firestore Rules deployattu tuotantoon (`firebase deploy`), varmistaen datan eristyksen pilvessä.
 
-**Status:** Kaikki toimii, CI/CD vihreä, ja tietoturva on tiukka. Hyvä päivä! 🚀
+**Status:** Kaikki toimii, CI/CD vihreä, ja tietoturva on tiukka. Hyvä päivä! 
 
 ---
 
-## 2026-02-07 – Google Auth & API Key Fixes 🔐✅
+## 2026-02-07 – Google Auth & API Key Fixes 
 
 Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.personalaicoach.ai`).
 
@@ -1785,7 +1785,7 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 
 **Status:** 🟢 **AUTH WORKING** - Kirjautuminen ja datan haku toimii tuotannossa.
 
-### 4. 401 Unauthorized Fix (Cross-Project Credentials) 🔐✅
+### 4. 401 Unauthorized Fix (Cross-Project Credentials) 
 - **Ongelma:** Backend (Project B) ei tunnistanut Frontendin (Project A) käyttäjiä.
 - **Syy:** Cloud Run käytti oletusidentiteettiä, jolla ei ollut pääsyä Project A:n Firebase Auth -tietoihin.
 - **Ratkaisu:** Syötettiin `FIREBASE_SERVICE_ACCOUNT_JSON` (Project A:n avain) ympäristömuuttujana Backendiin.
@@ -1793,7 +1793,7 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 
 
 ---
-## 2026-02-08 – AI Model Health Widget & Firestore Migration 🐛✅
+## 2026-02-08 – AI Model Health Widget & Firestore Migration 
 
 **Goal:** Korjata tuotannossa tyhjänä näkyvä "AI Model Health" -widget ja siirtää mallin metriikat Firestoreen.
 
@@ -1816,10 +1816,10 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 4.  **Windows Support:**
     - Korjattu `UnicodeEncodeError` Windowsin komborivillä poistamalla emoji-ikonit logeista (`firestore_manager.py`, `process_garmin_data.py`).
 
-**Status:** ✅ **FIXED** - Widget toimii ja data on turvassa pilvitietokannassa.
+**Status:**  **FIXED** - Widget toimii ja data on turvassa pilvitietokannassa.
 
 ---
-## 2026-02-08 – Production Dashboard Fix (Stale DB Reference) 🚑
+## 2026-02-08 – Production Dashboard Fix (Stale DB Reference) 
 
 **Issue:** User reported dashboard widgets disappearing/emptying in production.
 **Cause:** 
@@ -1832,4 +1832,17 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 - Replaced all `db.` calls with `firestore_manager.get_db().`, which ensures the Firestore client is initialized on demand (lazy initialization).
 - Also added accessibility improvements (id/htmlFor) to `ManualWorkoutForm` and `AddGoalForm` based on linter feedback.
 
-**Result:** ✅ Dashboard confirmed working by user.
+**Result:**  Dashboard confirmed working by user.
+
+---
+## 2026-02-10 – Incremental Learning Implementation
+
+**Goal:** Nopeuttaa ML-mallin päivittäistä koulutusta ja reagointia uuteen dataan.
+
+**Implementation:**
+- Päivitetty `process_garmin_data.py` tukemaan kahta tilaa:
+    1.  **Incremental (Default):** Lataa olemassa olevan mallin (`xgb_model.pkl`), tunnistaa uuden datan (`last_trained` päivämäärän perusteella), ja päivittää mallia vain uudella datalla.
+    2.  **Full Retrain (`--mode full`):** Kouluttaa mallin nollasta (GridSearchCV).
+- **Testaus:** Varmistettu toiminta testidatalla – skripti osaa ohittaa koulutuksen jos uutta dataa ei ole.
+
+**Outcome:** Merkittävä suorituskykyparannus päivittäisessä ajossa. Järjestelmä on nyt valmis jatkuvaan oppimiseen.

@@ -1,4 +1,4 @@
-# Implementation Plan: AI Chat with Guardrails 💬🤖
+# Implementation Plan: AI Chat with Guardrails
 
 ## Goal
 Implement an interactive AI Chat interface using **Gemini 1.5 Flash**. The AI should act as a personal coach, aware of the user's health data, but strictly limited to health/fitness topics (Guardrails).
@@ -12,46 +12,37 @@ Implement an interactive AI Chat interface using **Gemini 1.5 Flash**. The AI sh
 
 ### Backend (`backend/`)
 
-#### [NEW] `backend/ai_chat_manager.py`
-- Class `AIChatManager` handles interacting with Google GenAI SDK.
-- **System Prompt:** "You are an elite endurance coach..."
-- **Guardrails:** Explicit instructions to refuse non-health topics.
-- **Context Injection:** Fetches recent health data (Sleep, Body Battery, Load) and injects it into the system prompt.
+#### [NEW] `chat_routes.py`
+- `POST /chat` endpoint with request body `{ message: string }`
+- Uses `verify_token` middleware for authentication
+- System prompt includes user's latest health data (readiness, goals)
+- Maintains session-based conversation history (in-memory, per user)
+- Guardrails: System prompt instructs model to decline non-health topics
+- Rate limiting: 30 messages/minute
 
-#### [MODIFY] `backend/main.py`
-- Add POST `/ai/chat` endpoint.
-- Rate limiting: 10 messages/minute.
-- Input: `{ "message": "...", "history": [...] }`
-- Output: `{ "reply": "..." }`
-- Uses `AIChatManager` to process the request.
+#### [MODIFY] `main.py`
+- Register chat router: `app.include_router(chat_router)`
 
-### Frontend (`frontend/`)
+### Frontend (`frontend/src/`)
 
-#### [NEW] `components/ChatInterface.tsx`
-- Floating Action Button (FAB) or dedicated tab.
-- Chat window with "User" and "Coach" bubbles.
-- Typing indicator.
-- Auto-scroll to bottom.
+#### [NEW] `app/chat/page.tsx`
+- Full-page chat interface (like ChatGPT/Gemini)
+- Message bubbles (user = right/blue, AI = left/gray)
+- Input field with send button
+- Auto-scroll to latest message
+- Loading indicator while AI responds
+- Mobile-responsive design
 
-#### [MODIFY] `app/dashboard/page.tsx`
-- Integrate `ChatInterface` into the layout.
-
-## System Prompt Strategy (The Guardrails)
-
-```text
-ROLE: You are Health AI, an elite personal endurance coach.
-CONTEXT:
-- User's recent stats: [Sleep Score: 85, Body Battery: 90, weekly Load: 450]
-- User's goals: [Marathon in 3 months]
-
-RULES:
-1. ONLY answer questions about training, recovery, sleep, nutrition, and physiology.
-2. IF the user asks about politics, coding, weather, or general knowledge -> REFUSE politiely: "I focus only on your training and health."
-3. DO NOT give medical diagnoses.
-4. Be concise and motivating.
-```
+#### [MODIFY] `components/Sidebar.tsx`
+- Add "AI Chat" navigation link with chat icon
 
 ## Verification Plan
-1. **Manual Test (Guardrails):** Ask "Who is the president?" -> Expect refusal.
-2. **Manual Test (Context):** Ask "Can I train hard today?" -> Expect answer based on Body Battery.
-3. **Manual Test (Latency):** Ensure response time is < 2 seconds.
+
+### Automated Tests
+- Backend: Unit test for chat endpoint (mocked Gemini response)
+- Frontend: E2E test for chat page load and message sending
+
+### Manual Verification
+- Test chat with health questions (should answer)
+- Test chat with non-health questions (should politely decline)
+- Test rate limiting (30+ messages in 1 minute)

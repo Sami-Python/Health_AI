@@ -1,4 +1,4 @@
-# Vaatimusmäärittely - Health AI Coach
+# Vaatimusmäärittely – Health AI Coach
 
 **Versio:** 1.0  
 **Status:** Production Ready  
@@ -6,7 +6,7 @@
 
 ---
 
-## 📋 Projektin Kuvaus
+## Projektin Kuvaus
 
 Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 - **Garmin-data** (Body Battery, uni, stressi, treenit)
@@ -22,213 +22,160 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 
 ---
 
-## 🎯 Keskeiset Ominaisuudet
+## 1. Käyttäjähallinta
 
-### 1. Authentication
-- Google OAuth (Firebase Auth)
-- Token-based API (Bearer JWT)
-- Multi-user data isolation (`user_id` filtering)
+### 1.1 Rekisteröityminen ja Kirjautuminen
 
-### 2. Dashboard
-- **Palautumismetriikat:** Body Battery, Sleep, Stress, HRV
-- **AI Daily Insight:** 24h cache, Gemini 2.5 Flash
-- **Kuvaajat:**
-  - Recovery Chart (BB + Sleep, 30 pv)
-  - Load Chart (Daily load, 14 pv)
-  - Performance Chart (CTL/ATL/TSB, 90 pv)
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-U1 | Google Sign-In (Firebase Auth) | Valmis |
+| REQ-U2 | Apple Sign-In | Valmis (konfiguraatio odottaa) |
+| REQ-U3 | Protected Routes (Suojatut sivut) | Valmis |
+| REQ-U4 | Token-pohjainen API-autentikointi | Valmis |
 
-### 3. Goals Management (CRUD)
-- **Tyypit:** Weekly / Monthly / Race
-- **Kentät:** Activity, Target Value, Unit, Period, Date (Race)
-- **Progress:** Auto-calculate from workouts
-- **Race Goals:** Countdown timer ("X weeks to go")
+### 1.2 Käyttäjäprofiili
 
-### 4. Training Calendar
-- Kuukausinäkymä (completed + planned workouts)
-- Drag & drop suunnitelmien siirtämiseen
-- Trash can → AI regenerates replacement workout
-
-### 5. AI Coach
-- **Daily Insight:** Body Battery interpretation + training advice
-- **Weekly Plan:** 7 workout schedule (type, duration, intensity)
-- **Rate Limits:** 10/min (insight), 5/hour (plan)
-
-### 6. Garmin Integration
-- **Encrypted Credentials:** AES-256 (Fernet)
-- **Storage:** `users/{uid}/garmin_credentials/default`
-- **Sync:** POST `/system/refresh` (2/hour limit)
-- **Data:** Dual-write (CSV cache + Firestore)
-
-### 7. User Profile & GDPR
-- Profile fields: Age, Weight, Height, Gender, HR zones
-- **Data Export:** JSON download (GET `/user/export`)
-- **Account Deletion:** Full wipe (DELETE `/user/account`)
-- **Feedback Form:** Internal support system
-
-### 8. Admin Dashboard
-- View user feedback (GET `/admin/feedback`)
-- Filter by status/category
-- Admin-only email check
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-P1 | Profiilin tallennus (ikä, paino, pituus) | Valmis |
+| REQ-P2 | Garmin-tunnusten syöttö UI:lla | Valmis |
+| REQ-P3 | Garmin-salasanan salaus (AES-256) | Valmis |
+| REQ-P4 | GDPR: Oman datan lataus | Valmis |
+| REQ-P5 | GDPR: Tilin ja datan poisto | Valmis |
 
 ---
 
-## ⚙️ Tekniset Vaatimukset
+## 2. Dashboard
 
-### Performance
-- API response: 95% < 500ms (AI: < 3s)
-- Frontend load: < 2s Dashboard
-- Concurrent users: 100+
-
-### Security
-- ✅ Firebase Auth on all endpoints (except `/health`)
-- ✅ AES-256 encryption (Garmin passwords)
-- ✅ HTTPS (production)
-- ✅ Rate limiting (SlowAPI)
-- ✅ Row-level security (Firestore `user_id` filters)
-
-### Scalability
-- Stateless backend (horizontal scaling ready)
-- Firestore: 10,000+ users support
-- Indexes: Optimized for `user_id` queries
-
-### Quality
-- **Testing:** pytest (backend), Jest (frontend)
-- **Linting:** Ruff (Python), ESLint (TS)
-- **CI/CD:** GitHub Actions (tests + docs deploy)
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-D1 | Päivittäinen AI-oivallus (Readiness Insight) | Valmis |
+| REQ-D2 | Metriikat: Body Battery, Uni, Stressi, HRV | Valmis |
+| REQ-D3 | Treenihistoria (viimeiset 30 päivää) | Valmis |
+| REQ-D4 | Aktiiviset tavoitteet edistymispalkeilla | Valmis |
+| REQ-D5 | Seuraava suositeltu treeni | Valmis |
 
 ---
 
-## 🔌 API Endpoints (Tärkeimmät)
+## 3. AI-valmennus
 
-| Endpoint | Method | Auth | Rate | Kuvaus |
-|----------|--------|------|------|--------|
-| `/health` | GET | ❌ | - | Health check |
-| `/goals` | GET/POST/PUT/DELETE | ✅ | 20/min | Goals CRUD |
-| `/workouts/log` | POST | ✅ | 20/min | Manual workout |
-| `/ai/insight` | GET | ✅ | 10/min | Daily AI insight (cached 24h) |
-| `/ai/generate-plan` | POST | ✅ | 5/hour | Weekly plan |
-| `/user/export` | GET | ✅ | 3/hour | GDPR data export |
-| `/user/account` | DELETE | ✅ | 1/hour | Delete account |
-| `/garmin/credentials` | POST/DELETE | ✅ | 5/hour | Save/remove Garmin login |
-| `/system/refresh` | POST | ✅ | 2/hour | Fetch Garmin data |
-| `/admin/feedback` | GET | ✅ (Admin) | 20/min | View feedback |
-
-**Swagger UI:** `http://localhost:8001/docs`
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-A1 | XGBoost-malli: Vireystilan ennustaminen | Valmis |
+| REQ-A2 | Gemini AI: Luonnollinen valmentajateksti | Valmis |
+| REQ-A3 | Oivalluksen välimuistitus (24h per käyttäjä) | Valmis |
+| REQ-A4 | AI Chat: Kontekstuaalinen keskustelu | Valmis |
+| REQ-A5 | Guardrails: Vain terveys/fitness aihealue | Valmis |
 
 ---
 
-## 🗄️ Firestore Schema
+## 4. Tavoitteiden hallinta
 
-```
-firestore/
-├── users/{uid}
-│   ├── profile (doc)
-│   ├── garmin_credentials/default (subcol)
-│   └── daily_insights/{date} (subcol)
-├── goals/ (col, indexed by user_id)
-├── workouts/ (col, indexed by user_id)
-├── plans/ (col, indexed by user_id)
-├── feedback/ (col)
-└── garmin_metrics/{user_id}/daily_metrics/{date}
-```
-
-**Security Rules:** `user_id == request.auth.uid` (row-level isolation)
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-G1 | Tavoitteen luominen (aktiviteetti, tavoite, jakso) | Valmis |
+| REQ-G2 | Tavoitteen muokkaus ja poisto | Valmis |
+| REQ-G3 | Automaattinen edistymislaskenta | Valmis |
+| REQ-G4 | Visuaalinen edistymispalkki | Valmis |
 
 ---
 
-## 🔐 Environment Variables
+## 5. Garmin-integraatio
 
-### Backend (`.env`)
-```bash
-APP_ENV=development|production
-GOOGLE_APPLICATION_CREDENTIALS=backend/service_account_key.json
-ENCRYPTION_KEY=<base64-fernet-key>
-FRONTEND_URL=http://localhost:3000
-GEMINI_API_KEY=<your-key>
-```
-
-### Frontend (`frontend/.env.local`)
-```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=<your-key>
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<project>.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=<project-id>
-NEXT_PUBLIC_API_URL=http://localhost:8001
-```
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-I1 | Garmin-datan haku (garminconnect-kirjasto) | Valmis |
+| REQ-I2 | Tietojen päivitys pyynnöstä (Refresh) | Valmis |
+| REQ-I3 | Dashboard-banneri jos Garmin ei yhdistetty | Valmis |
 
 ---
 
-## 🚀 Deployment
+## 6. Tietoturva
 
-### Local Dev
-```bash
-# Backend
-cd backend
-uvicorn main:app --reload --port 8001
-
-# Frontend
-cd frontend
-npm run dev
-```
-
-### Docker
-```bash
-docker-compose up backend
-```
-
-### Production
-- **Frontend Hosting:** Vercel / Firebase Hosting
-- **Backend:** Cloud Run / VPS (Docker)
-- **Database:** Firebase Firestore (managed)
-- **Secrets:** Google Secret Manager
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-S1 | Firebase Token Verification (kaikki endpointit) | Valmis |
+| REQ-S2 | Rate Limiting (slowapi) | Valmis |
+| REQ-S3 | CORS-rajaukset ympäristökohtaisesti | Valmis |
+| REQ-S4 | Garmin-salasanan AES-256 salaus | Valmis |
+| REQ-S5 | Admin-endpointit eristetty | Valmis |
+| REQ-S6 | Row-level Security (user_id-filtteröinti) | Valmis |
 
 ---
 
-## 🛡️ GDPR & Security
+## 7. Käyttöliittymä
 
-### Data Protection
-- ✅ Garmin passwords encrypted (AES-256)
-- ✅ User data isolation (Firestore rules + backend filters)
-- ✅ Data export endpoint (JSON)
-- ✅ Account deletion (full wipe)
-
-### Security Best Practices
-- HTTPS only (production)
-- No secrets in code (`.gitignore`)
-- Rate limiting on all endpoints
-- Error messages sanitized (production)
-- Token validation on every request
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-F1 | Responsiivinen (Mobile + Desktop) | Valmis |
+| REQ-F2 | Dark Mode -teema | Valmis |
+| REQ-F3 | Loading-tilat (Skeletonit) | Valmis |
+| REQ-F4 | Toast-ilmoitukset (virheet & onnistumiset) | Valmis |
+| REQ-F5 | Interaktiivinen AI Chat -sivu | Valmis |
 
 ---
 
-## ⚠️ Known Limitations
+## 8. DevOps & Infrastruktuuri
 
-1. **Garmin API:** Unofficial (`garth` library) - may break with updates
-2. **AI Costs:** Scales with users (~$0.01/user/month)
-3. **Offline Mode:** Not supported (requires internet)
-4. **Browser Support:** No IE11 (Next.js requires ES6+)
-5. **CSV Legacy:** Historical Garmin data still in CSV (95% migrated to Firestore)
-
----
-
-## 📊 MLOps (MLflow)
-
-- **Experiment:** `xgboost_readiness_prediction`
-- **Database:** `backend/data/mlflow.db` (SQLite)
-- **Logged:** Parameters, Metrics (R², MAE, RMSE), Feature importance
-- **UI:** `mlflow ui --backend-store-uri sqlite:///backend/data/mlflow.db`
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-X1 | Docker-konttien käyttö | Valmis |
+| REQ-X2 | GitHub Actions CI/CD (Cloud Run) | Valmis |
+| REQ-X3 | MLflow eksperimenttien seuranta | Valmis |
+| REQ-X4 | Prometheus + Grafana (monitorointi) | Valmis |
+| REQ-X5 | Google Cloud Error Reporting | Valmis |
+| REQ-X6 | MkDocs-dokumentaatiosivusto | Valmis |
 
 ---
 
-## 🔗 Related Docs
+## 9. Testaus
 
-- [API.md](API.md) - Full API reference
-- [arkkitehtuuri.md](arkkitehtuuri.md) - System architecture
-- [authentication.md](authentication.md) - Firebase Auth implementation
-- [production_roadmap.md](production_roadmap.md) - Scaling plan (0 → 10K users)
-- [garmin_setup.md](garmin_setup.md) - Garmin credentials setup
+| Vaatimus | Kuvaus | Tila |
+|----------|--------|------|
+| REQ-T1 | Backend Unit Tests (pytest, mockattu) | Valmis |
+| REQ-T2 | Backend Integration Tests (FirestoreManager) | Valmis |
+| REQ-T3 | Frontend E2E Tests (Playwright) | Valmis |
 
 ---
 
-**Live Landing Page:** https://personal-ai-coach-92c39.web.app  
-**Status:** ✅ Production Ready  
-**Last Updated:** 2026-01-29
+## API-endpointit (Yhteenveto)
+
+| Endpoint | Metodi | Kuvaus | Rate Limit |
+|----------|--------|--------|------------|
+| `/health` | GET | Terveystarkistus | – |
+| `/goals` | GET/POST/PUT/DELETE | Tavoitteet | 20/min |
+| `/workouts/next` | GET | Seuraava treeni | 20/min |
+| `/workouts/history` | GET | Treenihistoria | 20/min |
+| `/workouts/log` | POST | Manuaalinen kirjaus | 20/min |
+| `/ai/insight` | GET | AI-oivallus | 10/min |
+| `/ai/generate-plan` | POST | AI-treeniohjelma | 5/h |
+| `/user/profile` | GET/POST | Käyttäjäprofiili | 20/min |
+| `/user/export` | GET | GDPR: Data export | 3/h |
+| `/user/account` | DELETE | GDPR: Tilin poisto | 1/h |
+| `/garmin/credentials` | POST | Garmin-yhteys | 5/h |
+| `/garmin/status` | GET | Garmin-tila | 20/min |
+| `/system/refresh` | POST | Data refresh | 2/h |
+| `/feedback` | POST | Palaute | 10/h |
+| `/admin/feedback` | GET | Admin palautteet | 20/min |
+| `/admin/security-events` | GET | Admin tietoturva | 50/min |
+| `/admin/revoke-tokens/{uid}` | POST | Admin uloskirjaus | 5/min |
+
+---
+
+## Hyväksyntäkriteerit
+
+Projekti täyttää kaikki vaatimukset, kun:
+
+1. Käyttäjä voi kirjautua sisään Google-tilillä
+2. Dashboard näyttää Garmin-metriikat ja AI-oivalluksen
+3. Käyttäjä voi luoda, muokata ja poistaa tavoitteita
+4. AI Chat vastaa vain terveys/fitness-kysymyksiin
+5. Jokaisen käyttäjän data on eristetty (multi-user)
+6. API on suojattu (token + rate limiting)
+7. GDPR: Käyttäjä voi ladata datansa ja poistaa tilinsä
+8. Testit menevät läpi (unit + integration + E2E)
+9. Docker-ympäristö toimii yhdellä komennolla
+
+---
+
+**Viimeksi päivitetty:** 2026-02-09

@@ -23,12 +23,29 @@ from logger import logger
 
 import firestore_garmin_metrics
 
-def main_process(user_id: str = None):
+def main_process(user_id: str = None, mode: str = "incremental"):
     # --- Path Configuration ---
     # We need to find the data files regardless of whether we run from backend/ or root/
     # or inside Docker.
+    # or inside Docker.
     script_dir = os.path.dirname(os.path.abspath(__file__)) # .../backend/scripts
     backend_dir = os.path.dirname(script_dir)              # .../backend
+    
+    # Define metrics/model paths early for mode checking
+    # Determine base data dir
+    if os.path.exists("/app/data"):
+         base_data_dir = "/app/data"
+    else:
+         base_data_dir = os.path.join(backend_dir, "data")
+
+    # Construct paths
+    if user_id:
+         output_metrics_path = os.path.join(base_data_dir, user_id, "model_metrics.json")
+         model_path_rel = f"models/{user_id}/xgb_model.pkl"
+    else:
+         output_metrics_path = os.path.join(base_data_dir, "model_metrics.json")
+         model_path_rel = "models/xgb_model.pkl"
+
     project_root = os.path.dirname(backend_dir)            # .../
     
     # In Docker, project_root might be /app? No, usually it's /app and Health_AI is at /Health_AI
@@ -233,7 +250,91 @@ def main_process(user_id: str = None):
     X = X.select_dtypes(include=['number'])
     y = df_merged[target]
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
+    y = df_merged[target]
+
+    # --- Mode Selection: Incremental vs Full ---
+    model_path = get_path(model_path_rel) 
+    # (Note: get_path handles user_id subdir logic too, but valid check requires consistency)
+    # We essentially need the absolute path to check existence.
+    # get_path("models/xgb_model.pkl") -> .../models/UID/xgb_model.pkl if user_id passed
+    
+    # We need to construct the relative path for get_path correctly
+    # If user_id is passed, get_path handles the injection effectively if we pass just filename?
+    # No, get_path logic: if user_id, it injects it.
+    rel_model_name = "models/xgb_model.pkl"
+    model_path = get_path(rel_model_name)
+
+    # Check for Last Trained Date
+    last_trained_date = None
+    if os.path.exists(output_metrics_path):
+        try:
+            with open(output_metrics_path, 'r') as f:
+                m = json.load(f)
+                if 'last_trained' in m:
+                    last_trained_date = pd.to_datetime(m['last_trained']).date()
+        except Exception as e:
+            logger.warning(f"Could not read last_trained from metrics: {e}")
+
+    # FORCE FULL if model doesn't exist or no history
+    if mode == "incremental" and (not os.path.exists(model_path) or last_trained_date is None):
+        logger.info("Incremental mode requested but no existing model/metrics found. Switching to FULL training.")
+        mode = "full"
+        
+    best_model = None
+    mae, r2, rmse = 0, 0, 0
+    
+    if mode == "incremental":
+        logger.info(f"--- INCREMENTAL TRAINING (Last trained: {last_trained_date}) ---")
+        
+        # 1. Access New Data
+        # Filter rows where date > last_trained_date
+        # Ensure 'date' column is datetime
+        new_data = df_merged[df_merged['date'].dt.date > last_trained_date].copy()
+        
+        if new_data.empty:
+            logger.info("✅ No new data found since last training. Model is up to date.")
+            return # Exit, nothing to do
+            
+        logger.info(f"Found {len(new_data)} new data points to learn from.")
+        
+        # 2. Prepare X_new, y_new
+        X_new = new_data.drop(columns=[c for c in drop_cols if c in new_data.columns]).select_dtypes(include=['number'])
+        y_new = new_data[target]
+        
+        # 3. Load Existing Model
+        logger.info(f"Loading existing model from {model_path}...")
+        loaded_model = joblib.load(model_path)
+        
+        # 4. Evaluate (Test on unseen data BEFORE training)
+        logger.info("Evaluating model on new data (Pre-update)...")
+        preds = loaded_model.predict(X_new)
+        mae = mean_absolute_error(y_new, preds)
+        r2 = r2_score(y_new, preds)
+        rmse = np.sqrt(mean_squared_error(y_new, preds))
+        
+        logger.info(f"Performance on new batch - MAE: {mae:.2f}, R2: {r2:.2f}")
+        
+        # 5. Incremental Update
+        logger.info("Updating model with new data...")
+        # Create new instance with same params
+        best_model = XGBRegressor(**loaded_model.get_params())
+        # Fit with xgb_model=loaded_model (uses internal booster)
+        best_model.fit(X_new, y_new, xgb_model=loaded_model.get_booster())
+        
+        logger.info("Incremental update complete.")
+        
+        # We skip MLflow grid logging for incremental to save time/noise, 
+        # but we could log the run as "incremental".
+        with mlflow.start_run(run_name=f"incremental_{user_id if user_id else 'global'}"):
+             mlflow.log_metrics({"mae": mae, "r2": r2, "rmse": rmse, "new_samples": len(X_new)})
+             mlflow.sklearn.log_model(best_model, "xgboost_model")
+        
+    else:
+        # --- FULL TRAINING ---
+        logger.info("--- FULL TRAINING (GridSearch) ---")
+        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
+
 
     param_grid = {
         'n_estimators': [100, 200, 300],
@@ -247,11 +348,12 @@ def main_process(user_id: str = None):
     tscv = TimeSeriesSplit(n_splits=3)
     
     # ⚠️ Use n_jobs=1 for reliability on shared environments / Windows subprocess issues
+    # ⚠️ Use n_jobs=1 for reliability on shared environments / Windows subprocess issues
     grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
                                cv=tscv, n_jobs=1, scoring='r2', verbose=1)
     
     # Start MLflow run
-    with mlflow.start_run():
+    with mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}"):
         # Log hyperparameters from grid search
         mlflow.log_params({
             "n_estimators_grid": str(param_grid['n_estimators']),
@@ -292,17 +394,26 @@ def main_process(user_id: str = None):
             "total_features": X.shape[1]
         })
 
-        # Save Model (traditional way)
-        model_path = get_path("models/xgb_model.pkl")
-        os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        joblib.dump(best_model, model_path)
-        logger.info(f"Model saved to {model_path}")
+        # Save Model (traditional way) handled in common block now
+        # model_path = get_path("models/xgb_model.pkl") 
+        # os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        # joblib.dump(best_model, model_path)
+        # logger.info(f"Model saved to {model_path}")
         
         # Log model to MLflow
         mlflow.sklearn.log_model(best_model, "xgboost_model")
         logger.info("Model logged to MLflow")
     
-        # --- Feature Importance ---
+    # --- Common Save Logic (for both modes) ---
+    if best_model:
+        # Save Model
+        # Ensure params are updated for incremental too
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        joblib.dump(best_model, model_path)
+        logger.info(f"Model saved to {model_path}")
+
+        # Feature Importance (Only availability varies)
+        # For incremental, feature importance might shift.
         importance = best_model.feature_importances_
         feature_names = X.columns.tolist()
         feat_imp_dict = dict(zip(feature_names, [float(x) for x in importance]))
@@ -311,6 +422,7 @@ def main_process(user_id: str = None):
         fi_json_path = get_path("outputs/feature_importance.json")
         with open(fi_json_path, "w") as f:
             json.dump(feat_imp_dict, f, indent=4)
+
             
         logger.info(f"Feature importance saved to {fi_json_path}")
         
@@ -343,6 +455,20 @@ def main_process(user_id: str = None):
             json.dump(metrics, f)
         
         logger.info(f"Model metrics saved to {output_metrics_path}")
+
+    # Indentation fix for the persisted block:
+    # Everything below was inside the 'else' block implicitly in original code structure?
+    # No, it was main indentation.
+    # But wait, 'best_model' availability check is needed.
+    
+    # ... (Plots and Firestore persist) ...
+    # We need to make sure we don't crash if best_model is None (e.g. incremental no data)
+    # But we returned early if no data.
+    
+    # If mode was full, 'metrics', 'mae', 'r2' are defined in the block.
+    # If mode was incremental, 'mae' etc are defined.
+    # So we can unify.
+
 
         # --- Persist to Firestore (Multi-User) ---
         if user_id:
@@ -392,6 +518,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--user-id', help='Firebase UID for Firestore sync')
+    parser.add_argument('--mode', choices=['full', 'incremental'], default='incremental', help='Training mode')
     args = parser.parse_args()
     
-    main_process(user_id=args.user_id)
+    main_process(user_id=args.user_id, mode=args.mode)
