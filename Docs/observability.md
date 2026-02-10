@@ -1,4 +1,4 @@
-# 🛡️ Observability & Monitoring
+# Observability & Monitoring
 
 Tämä sivu kuvaa Health AI Coach -järjestelmän valvonta-, virheenseuranta- ja tietoturvaominaisuudet.
 
@@ -68,7 +68,8 @@ Kaikki merkittävät tietoturvatapahtumat, mukaan lukien adminien tekemät toime
 }
 ```
 
-## 6. Performance Monitoring (Prometheus & Grafana) 📊
+## 6. Performance Monitoring (Prometheus & Grafana)
+
 Kehitystä ja valvontaa varten järjestelmään on integroitu Prometheus-tilastot.
 
 ### Käynnistys
@@ -79,8 +80,8 @@ docker-compose -f docker-compose.yml -f docker-compose.monitor.yml up
 ```
 
 ### Palvelut:
-*   **Prometheus:** `http://localhost:9090` - Kerää datan.
-*   **Grafana:** `http://localhost:3001` - Dashboard.
+*   **Prometheus:** `http://localhost:9090` – Kerää datan.
+*   **Grafana:** `http://localhost:3001` – Dashboard.
     *   **User:** `admin`
     *   **Pass:** `admin`
     *   **Setup:** Lisää Data Source "Prometheus" osoitteella `http://prometheus:9090` (internal docker network).
@@ -93,7 +94,7 @@ Mitatut suureet:
 *   **http_request_duration_seconds:** Vasteajat.
 *   **process_cpu_seconds:** Backendin prosessorikuorma.
 
-## 7. Admin User Management 👥
+## 7. Admin User Management
 
 Admin Dashboard sisältää **Users**-välilehden, joka tarjoaa kokonaiskuvan kaikista rekisteröityneistä käyttäjistä.
 
@@ -116,7 +117,7 @@ Admin Dashboard sisältää **Users**-välilehden, joka tarjoaa kokonaiskuvan ka
 - **Features:**
   - Sortable table with user metadata
   - Status badges (Active/Disabled, Garmin Connected/Disconnected)
-  - **Force Logout** button - Revokes user's refresh tokens
+  - **Force Logout** button – Revokes user's refresh tokens
   - Refresh button to reload user list
   - Loading skeletons for better UX
 
@@ -125,4 +126,3 @@ Admin Dashboard sisältää **Users**-välilehden, joka tarjoaa kokonaiskuvan ka
 - **Security:** Monitor account activity and force logout suspicious sessions
 - **Analytics:** Track user growth and engagement (last login times)
 - **Debugging:** Verify user account status during troubleshooting
-

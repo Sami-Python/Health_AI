@@ -1,10 +1,10 @@
-# 🔐 Autentikaatio & Monen käyttäjän toteutus
+# Autentikaatio & Monen käyttäjän toteutus
 
 Tämä dokumentti kuvaa Health AI -sovelluksen käyttäjien tunnistautumisen toteutuksen Firebase Authenticationin avulla.
 
 ---
 
-## 📋 Sisällysluettelo
+## Sisällysluettelo
 
 1. [Arkkitehtuuri](#arkkitehtuuri)
 2. [Kirjautumisvirta (Token Flow)](#kirjautumisvirta-token-flow)
@@ -298,11 +298,11 @@ def get_active_goals(user_id: str):
 **Esimerkki vaarallisesta koodista:**
 
 ```python
-# ❌ VÄÄRIN - Palauttaa KAIKKIEN käyttäjien tavoitteet
+# VÄÄRIN - Palauttaa KAIKKIEN käyttäjien tavoitteet
 def get_all_goals():
     return db.collection('goals').stream()
 
-# ✅ OIKEIN - Palauttaa vain käyttäjän omat
+# OIKEIN - Palauttaa vain käyttäjän omat
 def get_active_goals(user_id: str):
     return db.collection('goals')\
              .where('user_id', '==', user_id)\
@@ -323,7 +323,7 @@ def delete_goal(user_id: str, goal_id: str):
     if not doc.exists:
         return False
     
-    # ✅ Tarkista että pyytäjä on omistaja
+    # Tarkista että pyytäjä on omistaja
     if doc.to_dict().get('user_id') != user_id:
         return False
     
@@ -411,10 +411,10 @@ def test_endpoint_with_valid_token(mock_firebase):
 **Ratkaisu:**
 
 ```typescript
-// ❌ Väärin
+// Väärin
 headers: { 'Authorization': token }
 
-// ✅ Oikein
+// Oikein
 headers: { 'Authorization': `Bearer ${token}` }
 ```
 
@@ -476,10 +476,10 @@ app.add_middleware(
 # backend/auth_middleware.py - Lisää loggaus
 try:
     decoded_token = auth.verify_id_token(token)
-    print(f"✅ Valid token for: {decoded_token.get('email')}")
+    print(f"Valid token for: {decoded_token.get('email')}")
     return decoded_token
 except Exception as e:
-    print(f"❌ Token error: {type(e).__name__} - {str(e)}")
+    print(f"Token error: {type(e).__name__} - {str(e)}")
     raise HTTPException(...)
 ```
 
@@ -505,7 +505,7 @@ Käy läpi tämä lista ongelmatilanteessa:
 
 ## Tietoturvan parhaat käytännöt
 
-### ✅ DO (Tee näin)
+### Tee näin
 
 1. **Käytä HTTPS tuotannossa** (pakollinen Firebase Authille)
 2. **Älä koskaan commitoi `.env` tai `service_account_key.json`** → `.gitignore`
@@ -513,13 +513,13 @@ Käy läpi tämä lista ongelmatilanteessa:
 4. **Validoi AINA user_id backendissä** → Älä luota frontend-dataan
 5. **Käytä Bearer Token formatia** → `Authorization: Bearer {token}`
 
-### ❌ DON'T (Vältä näitä)
+### Vältä näitä
 
-1. ❌ Älä tallenna tokenia localStorage:en (Firebase SDK hoitaa turvallisesti)
-2. ❌ Älä lähetä tokenia URL-parametrissa (`/api?token=abc`)
-3. ❌ Älä jätä test-käyttäjiä tuotantoon (Firebase Console → Users)
-4. ❌ Älä salli `allow_origins=["*"]` tuotannossa (tarkenna domainit)
-5. ❌ Älä ohita `verify_token` middleware missään endpointissa
+1. Älä tallenna tokenia localStorage:en (Firebase SDK hoitaa turvallisesti)
+2. Älä lähetä tokenia URL-parametrissa (`/api?token=abc`)
+3. Älä jätä test-käyttäjiä tuotantoon (Firebase Console → Users)
+4. Älä salli `allow_origins=["*"]` tuotannossa (tarkenna domainit)
+5. Älä ohita `verify_token` middleware missään endpointissa
 
 ---
 
@@ -527,11 +527,11 @@ Käy läpi tämä lista ongelmatilanteessa:
 
 ### Nykyinen Tilanne (MVP)
 
-- ✅ Firebase Auth integroitu (Google + Apple)
-- ✅ Token-validointi toimii
-- ✅ Multi-user data isolation (Firestore)
-- ⏳ **Apple Sign-In:** Koodi valmis, Firebase Console konfiguraatio odottaa
-- ⚠️ **Garmin-data:** Yhteinen CSV kaikille (ei skaalaudu)
+- Firebase Auth integroitu (Google + Apple)
+- Token-validointi toimii
+- Multi-user data isolation (Firestore)
+- **Apple Sign-In:** Koodi valmis, Firebase Console konfiguraatio odottaa
+- **Garmin-data:** Yhteinen CSV kaikille (ei skaalaudu)
 
 ### Tulevaisuus (Production Scaling)
 

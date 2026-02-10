@@ -9,49 +9,46 @@ Tämä dokumentti auttaa ratkaisemaan yleisimmät Google Sign-In -ongelmat Healt
 **Syy:** API-avain on väärä, poistettu tai sillä on vääriä rajoituksia.
 **Ratkaisu:**
 1.  Tarkista `frontend/.env.production` tiedoston `NEXT_PUBLIC_FIREBASE_API_KEY`.
-2.  Varmista Google Cloud Consolessa (Credentials), että avain on olemassa.
-3.  **Application Restrictions:** Pitää olla `Websites` ja sisältää `https://app.personalaicoach.ai`.
+2.  Mene Google Cloud Console → APIs & Services → Credentials.
+3.  Varmista, että käytössä oleva Browser key:
+    -   Ei ole poistettu.
+    -   Ei rajoita HTTP-refererejä väärällä domainilla. Sallittujen listalta tulee löytyä: `app.personalaicoach.ai/*`.
+4.  Jos avain on vaihdettu: Päivitä `.env.production`, aja `npm run build`, ja julkaise uudelleen.
 
-### Virhe: `auth/popup-closed-by-user` (Vaikka et sulkenut)
-**Oire:** Popup aukeaa, lataa hetken ja sulkeutuu.
-**Syy:** Google ei luota domainiin, josta kutsu tulee.
+### Virhe: `auth/unauthorized-domain`
+**Oire:** Google-kirjautumisikkuna ei aukea, tai se sulkeutuu heti virheilmoituksella.
+**Syy:** Tuotantodomain ei ole sallittujen listalla Firebase Authentication -asetuksissa.
 **Ratkaisu:**
-1.  **Firebase Console > Authentication > Settings > Authorized Domains:**
-    - Lisää `app.personalaicoach.ai`.
-2.  **Google Cloud Console > Credentials > OAuth 2.0 Client IDs > Web client:**
-    - **Authorized JavaScript origins:** Lisää `https://app.personalaicoach.ai` (ja `https://www.personalaicoach.ai`).
+1.  Mene Firebase Console → Authentication → Settings → Authorized domains.
+2.  Lisää: `app.personalaicoach.ai`.
+3.  Lisää myös (jos haluat staging-testauksen): `staging-url.cloudflare.pages.dev`.
 
-### Virhe: `403 Forbidden` (getProjectConfig)
-**Oire:** Verkkovirhe (Network tab) `identitytoolkit` tai `getProjectConfig` -kutsussa.
-**Syy:** API-avaimen *API Restrictions* estää käytön.
+### Virhe: `auth/popup-blocked`
+**Oire:** Selain estää kirjautumisikkunan avautumisen.
+**Syy:** Selaimen popup-estäjä on aktiivinen.
 **Ratkaisu:**
-1.  Google Cloud Console > Credentials > API Key.
-2.  Aseta **API restrictions** tilaan **Don't restrict key** (helpoin korjaus).
-3.  TAI salli erikseen: `Identity Toolkit API` ja `Token Service API`.
+-   Ohjeista käyttäjää sallimaan popupit sivustolla `app.personalaicoach.ai`.
+-   **Vaihtoehto**: Vaihda `signInWithRedirect` -metodiin (ei vaadi popupia). Tämä vaatii koodimuutoksen `AuthContext.tsx`:ssä.
 
-### Virhe: `401 Unauthorized` (Backend)
-**Oire:** Kirjautuminen onnistuu frontendissa, mutta data ei lataudu (Dashboard tyhjä).
-**Syy:** Token on vanhentunut tai backendin Firebase-projekti on eri kuin frontendin.
-**Ratkaisu:**
-1.  Kirjaudu ulos ja takaisin sisään (päivittää tokenin).
-2.  Varmista, että `backend/config.py` `FIREBASE_PROJECT_ID` vastaa frontendin asetusta.
+## 2. Debug-työkalut
 
-## 2. Oikeat Asetukset (Referenssi)
+### Selaimen kehittäjätyökalut (F12):
+-   **Console-välilehti**: Näyttää Firebase-virhekoodit.
+-   **Network-välilehti**: Suodata `identitytoolkit` nähdäksesi Googlen auth-pyynnöt ja niiden vastaukset.
+-   **Application → IndexedDB → firebaseLocalStorage**: Näet tallennetun käyttäjätiedon ja tokenin.
 
-### Frontend (`.env.production`)
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy... (Uusi, toimiva avain)
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=personal-ai-coach-92c39.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=personal-ai-coach-92c39
+### Hyödylliset konsoli-komennot (Tuotantoselaimessa):
+```javascript
+// Tarkista onko käyttäjä kirjautunut:
+firebase.auth().currentUser
+
+// Hae nykyinen token:
+await firebase.auth().currentUser?.getIdToken(true)
 ```
 
-### Google Cloud Console
-- **Project:** `personal-ai-coach-92c39`
-- **Credentials > API Key:**
-  - Application restrictions: `https://app.personalaicoach.ai`, `http://localhost:3000`
-  - API restrictions: `Don't restrict` (tai Identity Toolkit + Token Service)
-- **Credentials > OAuth 2.0 Client ID:**
-  - Authorized JavaScript origins: `https://app.personalaicoach.ai`
+## 3. Eskalointiprosessi
 
-### Firebase Console
-- **Authentication > Authorized domains:** `app.personalaicoach.ai`
+Jos yllä olevat eivät ratkaise ongelmaa:
+1.  Tarkista Firebasen status: [status.firebase.google.com](https://status.firebase.google.com)
+2.  Katso Firebasen tunnettuja ongelmia: [Firebase Release Notes](https://firebase.google.com/support/releases)
+3.  Mikäli ongelma vaikuttaa palvelinpuolelta: Tarkista `backend/` lokit Cloud Runissa (Google Cloud Console → Cloud Run → Logs).

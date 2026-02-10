@@ -1,4 +1,4 @@
-# 🌐 Aloitussivu (Landing Page) - Personal AI Coach
+# Aloitussivu (Landing Page) – Personal AI Coach
 
 ## Yleiskatsaus
 
@@ -8,39 +8,39 @@ Aloitussivu on Personal AI Coach -palvelun julkinen verkkosivusto, jota isännö
 
 ---
 
-## 📋 Ominaisuudet
+## Ominaisuudet
 
-### 1. **Hero-osio**
-- Selkeä arvolupaus: "Your Personal AI Fitness Coach" (Henkilökohtainen tekoälyvalmentajasi)
+### 1. Hero-osio
+- Selkeä arvolupaus: "Your Personal AI Fitness Coach"
 - Kaksi toimintokutsua (CTA): "Get Started" ja "See Demo"
 - Moderni tumma teema liukuväri-efekteillä
 
-### 2. **Ominaisuuksien Esittely**
+### 2. Ominaisuuksien esittely
 Kuusi korttia, jotka korostavat ydinominaisuuksia:
-- 📊 **Älykäs Dashboard** - Reaaliaikaiset terveysmittarit
-- 📅 **Harjoituskalenteri** - Tekoälyn suunnittelemat treenit
-- 🤖 **AI Valmentaja** - Henkilökohtaiset suositukset
-- 🎯 **Tavoitteiden Seuranta** - Edistymisen monitorointi
-- 📈 **Edistynyt Analytiikka** - Suorituskyvyn oivallukset
-- ⌚ **Garmin Integraatio** - Automaattinen tietojen synkronointi
+- **Älykäs Dashboard** – Reaaliaikaiset terveysmittarit
+- **Harjoituskalenteri** – Tekoälyn suunnittelemat treenit
+- **AI Valmentaja** – Henkilökohtaiset suositukset
+- **Tavoitteiden seuranta** – Edistymisen monitorointi
+- **Edistynyt analytiikka** – Suorituskyvyn oivallukset
+- **Garmin-integraatio** – Automaattinen tietojen synkronointi
 
-### 3. **Visuaaliset Demonstraatiot**
+### 3. Visuaaliset demonstraatiot
 - EKG-sykkeen visualisointi
 - AI-analytiikan aivovisualisointi
 - Puhelin-mockup sovelluksen esikatselulla
 
-### 4. **Miten Se Toimii**
+### 4. Miten se toimii
 Kolmivaiheinen prosessi:
 1. Yhdistä Garmin-laite
 2. Saa tekoälyn tuottamia oivalluksia
 3. Saavuta kuntotavoitteet
 
-### 5. **Latausosio**
+### 5. Latausosio
 - App Store -merkki (Tulossa pian)
 - Google Play -merkki (Tulossa pian)
 - Mobiili edellä -suunnittelu
 
-### 6. **Odotuslista-widget (Waitlist)** ✨ UUSI
+### 6. Odotuslista-widget (Waitlist)
 - Ilmestyy automaattisesti 2 sekunnin kuluttua sivun latauksesta
 - Sähköpostien keräys Firebase Firestore -integraatiolla
 - Moderni glassmorphism-design tummalla teemalla
@@ -49,38 +49,38 @@ Kolmivaiheinen prosessi:
 - Analytiikan seuranta (`waitlist_popup_view`, `waitlist_signup`)
 - Useita sulkemistapoja (X-painike, taustan klikkaus, automaattinen sulkeutuminen)
 
-### 7. **GDPR-Yhteensopivuus** ✨ UUSI (2026-02-06)
-- **Tietosuojaseloste** (`privacy.html`) - Täysin GDPR-yhteensopiva tietosuojakäytäntö
-- **Käyttöehdot** (`terms.html`) - Oikeudelliset ehdot
-- **Evästebanneri (Cookie Consent)** - Hyväksy/Hylkää -painikkeet LocalStorage-tallennuksella
-- **Ehdollinen Analytiikka** - Firebase Analytics latautuu vain suostumuksen jälkeen
-- Footer-linkit päivitetty osoittamaan lakisivulle
+### 7. GDPR-yhteensopivuus (2026-02-06)
+- **Tietosuojaseloste** (`privacy.html`) – Täysin GDPR-yhteensopiva tietosuojakäytäntö
+- **Käyttöehdot** (`terms.html`) – Oikeudelliset ehdot
+- **Evästebanneri (Cookie Consent)** – Hyväksy/Hylkää -painikkeet LocalStorage-tallennuksella
+- **Ehdollinen analytiikka** – Firebase Analytics latautuu vain suostumuksen jälkeen
+- Footer-linkit päivitetty osoittamaan lakisivuille
 
 ---
 
-## 🏗️ Tekninen Stack
+## Tekninen Stack
 
 ### Isännöinti (Hosting)
 - **Alusta:** Cloudflare Pages
 - **CDN:** Globaali reunaverkko (200+ sijaintia)
 - **SSL/TLS:** Full (strict) -tila automaattisella HTTPS:llä
-- **Oma Verkkotunnus:** `www.personalaicoach.ai` + apex domain
+- **Oma verkkotunnus:** `www.personalaicoach.ai` + apex domain
 
 ### Frontend
-- **HTML5** - Semanttinen merkkaus
-- **CSS3** - Moderni tyylittely glassmorphism-efekteillä
-- **JavaScript** - Vanilla JS interaktioita varten
+- **HTML5** – Semanttinen merkkaus
+- **CSS3** – Moderni tyylittely glassmorphism-efekteillä
+- **JavaScript** – Vanilla JS interaktioita varten
 - **Kuvat:** WebP-formaatti lazy loading -ominaisuudella
 
 ### Analytiikka
-- **Firebase Analytics** - Sivun katselut, käyttäjäkäyttäytyminen (GDPR-yhteensopiva suostumuksella)
+- **Firebase Analytics** – Sivun katselut, käyttäjäkäyttäytyminen (GDPR-yhteensopiva suostumuksella)
 - **Tapahtumaseuranta:** CTA-klikkaukset, navigaatio
-- **Firebase Firestore** - Odotuslistan sähköpostien keräys (`waitlist` kokoelma)
+- **Firebase Firestore** – Odotuslistan sähköpostien keräys (`waitlist` kokoelma)
 - **Evästehallinta:** Analytiikka latautuu vain jos evästeet hyväksytään
 
 ---
 
-## 📂 Tiedostorakenne
+## Tiedostorakenne
 
 ```
 landing_page/
@@ -100,7 +100,7 @@ landing_page/
 
 ---
 
-## 🚀 Julkaisu (Deployment)
+## Julkaisu (Deployment)
 
 ### Cloudflare Pages Konfiguraatio
 
@@ -112,7 +112,7 @@ landing_page/
 - **Build-hakemisto:** `.`
 - **Juurihakemisto:** `landing_page`
 
-### Automaattiset Julkaisut
+### Automaattiset julkaisut
 
 Jokainen push `main`-haaraan käynnistää uuden julkaisun:
 
@@ -127,7 +127,7 @@ Cloudflare Pages:
 2. Rakentaa ja julkaisee (1-2 minuuttia)
 3. Päivittää live-sivuston automaattisesti
 
-### Manuaalinen Julkaisu
+### Manuaalinen julkaisu
 
 Cloudflare Dashboardin kautta:
 1. Mene Workers & Pages -osioon
@@ -137,7 +137,7 @@ Cloudflare Dashboardin kautta:
 
 ---
 
-## 🔧 Konfiguraatio
+## Konfiguraatio
 
 ### DNS-tietueet (Automaattisesti konfiguroitu)
 
@@ -160,7 +160,7 @@ Proxy: Yes
 - **Automatic HTTPS Rewrites:** Päällä
 - **SSL-sertifikaatti:** Aktiivinen ja automaattisesti uusiutuva
 
-### Sähköpostin Reititys
+### Sähköpostin reititys
 
 - **Sähköpostiosoite:** `info@personalaicoach.ai`
 - **Uudelleenohjaus:** Konfiguroitu Cloudflare Email Routingin kautta
@@ -168,26 +168,26 @@ Proxy: Yes
 
 ---
 
-## 📊 Analytiikka & Seuranta
+## Analytiikka & Seuranta
 
 ### Firebase Analytics Tapahtumat
 
 Seuratut tapahtumat:
-- `page_view` - Sivun lataukset
-- `cta_click` - "Get Started" -painikkeen klikkaukset
-- `demo_click` - "See Demo" -painikkeen klikkaukset
-- `nav_click` - Navigaation interaktiot
-- `waitlist_popup_view` - Odotuslista-popup näytetty
-- `waitlist_signup` - Käyttäjä liittyi odotuslistalle (sisältää sähköpostin)
+- `page_view` – Sivun lataukset
+- `cta_click` – "Get Started" -painikkeen klikkaukset
+- `demo_click` – "See Demo" -painikkeen klikkaukset
+- `nav_click` – Navigaation interaktiot
+- `waitlist_popup_view` – Odotuslista-popup näytetty
+- `waitlist_signup` – Käyttäjä liittyi odotuslistalle (sisältää sähköpostin)
 
 ### Firestore Kokoelmat
 
 **Odotuslista (Waitlist):**
 - Kokoelma: `waitlist`
 - Dokumentin kentät:
-  - `email` (string) - Käyttäjän sähköposti
-  - `timestamp` (timestamp) - Liittymisaika
-  - `source` (string) - Aina "landing_page"
+  - `email` (string) – Käyttäjän sähköposti
+  - `timestamp` (timestamp) – Liittymisaika
+  - `source` (string) – Aina "landing_page"
 - Tietoturva: Julkinen kirjoitus (vain luonti), admin lukuoikeus
 
 ### Suorituskykymittarit
@@ -199,7 +199,7 @@ Seuratut tapahtumat:
 
 ---
 
-## 🎨 Design-ohjeistus
+## Design-ohjeistus
 
 ### Väripaletti
 
@@ -226,7 +226,7 @@ Seuratut tapahtumat:
 
 ---
 
-## 🔗 Integraatio Pääsovellukseen
+## Integraatio pääsovellukseen
 
 ### Linkit Frontend-sovellukseen
 
@@ -244,9 +244,9 @@ https://health-ai-backend-35976089058.europe-north1.run.app/docs
 
 ---
 
-## 📝 Sisällön Päivitys
+## Sisällön päivitys
 
-### Tekstin Päivitys
+### Tekstin päivitys
 
 Muokkaa tiedostoa `landing_page/index.html`:
 
@@ -255,7 +255,7 @@ Muokkaa tiedostoa `landing_page/index.html`:
 <p>Transform your training with AI-powered insights...</p>
 ```
 
-### Kuvien Päivitys
+### Kuvien päivitys
 
 1. Lisää uusi kuva hakemistoon `landing_page/images/`
 2. Muunna WebP-muotoon (suositeltavaa)
@@ -277,7 +277,7 @@ Päivitä `<head>` -osio tiedostossa `index.html`:
 
 ---
 
-## 🐛 Vianmääritys
+## Vianmääritys
 
 ### Julkaisuongelmat
 
@@ -303,17 +303,17 @@ Päivitä `<head>` -osio tiedostossa `index.html`:
 
 ---
 
-## 📚 Liittyvä Dokumentaatio
+## Liittyvä dokumentaatio
 
-- [CLOUDFLARE_DEPLOYMENT.md](file:///c:/Users/samih/code/health_ai/landing_page/CLOUDFLARE_DEPLOYMENT.md) - Yksityiskohtainen julkaisuopas
-- [README.md](file:///c:/Users/samih/code/health_ai/landing_page/README.md) - Aloitussivun yleiskatsaus
-- [arkkitehtuuri.md](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md) - Järjestelmäarkkitehtuuri
+- [CLOUDFLARE_DEPLOYMENT.md](file:///c:/Users/samih/code/health_ai/landing_page/CLOUDFLARE_DEPLOYMENT.md) – Yksityiskohtainen julkaisuopas
+- [README.md](file:///c:/Users/samih/code/health_ai/landing_page/README.md) – Aloitussivun yleiskatsaus
+- [arkkitehtuuri.md](file:///c:/Users/samih/code/health_ai/Docs/arkkitehtuuri.md) – Järjestelmäarkkitehtuuri
 
 ---
 
-## 🎯 Tulevat Parannukset
+## Tulevat parannukset
 
-### Suunnitellut Ominaisuudet
+### Suunnitellut ominaisuudet
 - [ ] Blogi-osio treenivinkeille
 - [ ] Asiakaskertomusten karuselli (Testimonials)
 - [ ] Sovelluksen ominaisuuksien videodemo
@@ -321,13 +321,13 @@ Päivitä `<head>` -osio tiedostossa `index.html`:
 - [ ] FAQ-osio (Usein kysytyt kysymykset)
 - [x] ~~Uutiskirjeen tilaus~~ → **Odotuslista-widget toteutettu** (2026-02-05)
 
-### Suorituskyvyn Optimointi
+### Suorituskyvyn optimointi
 - [ ] HTML/CSS:n minifikointi
 - [ ] Service Worker offline-tukea varten
 - [ ] Preload-vihjeet kriittisille resursseille
 - [ ] Kuvakokojen lisäoptimointi
 
-### SEO Parannukset
+### SEO-parannukset
 - [ ] Strukturoitu data (JSON-LD)
 - [ ] Sitemap.xml luonti
 - [ ] Murupolku-navigaatio (Breadcrumbs)
@@ -335,7 +335,7 @@ Päivitä `<head>` -osio tiedostossa `index.html`:
 
 ---
 
-## 📞 Tuki
+## Tuki
 
 Aloitussivun ongelmatilanteissa:
 - **Cloudflare Tuki:** https://cfl.re/3WgEyrH
@@ -345,6 +345,6 @@ Aloitussivun ongelmatilanteissa:
 ---
 
 **Päivitetty:** 2026-02-06  
-**Tila:** ✅ Tuotannossa  
+**Tila:** Tuotannossa  
 **Julkaisualusta:** Cloudflare Pages  
 **URL:** https://www.personalaicoach.ai

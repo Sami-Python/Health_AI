@@ -1,10 +1,10 @@
-# 🔐 Garmin Credentials Setup Guide
+# Garmin Credentials Setup Guide
 
 This guide explains how to configure encrypted per-user Garmin credentials.
 
 ---
 
-## 🚀 Quick Setup (Local Development)
+## Quick Setup (Local Development)
 
 ### Step 1: Generate Encryption Key
 
@@ -47,7 +47,7 @@ uvicorn main:app --reload
 
 ---
 
-## ✅ Verify Setup
+## Verify Setup
 
 ### Test Encryption Helper
 
@@ -58,13 +58,13 @@ cd backend
 
 **Expected output:**
 ```
-🔐 Encryption Helper Self-Test
+Encryption Helper Self-Test
 
 Original:  test_garmin_password_123
 Encrypted: gAAAAABm...
 Decrypted: test_garmin_password_123
 
-✅ Encryption/Decryption working correctly!
+Encryption/Decryption working correctly!
 ```
 
 ### Test API Endpoint
@@ -77,13 +77,13 @@ Decrypted: test_garmin_password_123
 
 **Expected result:**
   - `password_encrypted`: Should be unreadable blob (e.g., `gAAAAABm...`)
-- ✅ Dashboard Banner: The "Connect Garmin" banner on the dashboard should disappear.
+  - Dashboard Banner: The "Connect Garmin" banner on the dashboard should disappear.
 
 ---
 
-## 🔒 Security Best Practices
+## Security Best Practices
 
-### DO ✅
+### Do
 
 1. **Generate unique key per environment:**
    - Development: One key
@@ -97,15 +97,15 @@ Decrypted: test_garmin_password_123
    - Without the key, encrypted data is **permanently unrecoverable**
    - Store key backup in secure password manager (1Password, Bitwarden)
 
-### DON'T ❌
+### Don't
 
-1. ❌ Never commit `ENCRYPTION_KEY` to Git
-2. ❌ Never share the key via email/Slack
-3. ❌ Never change the key once data is encrypted (old data becomes unreadable)
+1. Never commit `ENCRYPTION_KEY` to Git
+2. Never share the key via email/Slack
+3. Never change the key once data is encrypted (old data becomes unreadable)
 
 ---
 
-## 🏭 Production Deployment
+## Production Deployment
 
 ### Google Cloud Secret Manager (Recommended)
 
@@ -129,7 +129,7 @@ Decrypted: test_garmin_password_123
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Unit Test (Future TODO)
 
@@ -166,7 +166,7 @@ def test_encryption_roundtrip():
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Error: "ENCRYPTION_KEY not found"
 
@@ -204,7 +204,7 @@ services:
 
 ---
 
-## 📊 Firestore Schema
+## Firestore Schema
 
 ```
 users/
@@ -219,9 +219,9 @@ users/
 
 ---
 
-## 🔗 Related Documentation
+## Related Documentation
 
-- [authentication.md](authentication.md) - Firebase Auth implementation
+- [authentication.md](authentication.md) – Firebase Auth implementation
 - [Backend Encryption Helper](https://github.com/Samih/health_ai/blob/main/backend/encryption_helper.py)
 - [Firestore Manager](https://github.com/Samih/health_ai/blob/main/backend/firestore_manager.py)
 

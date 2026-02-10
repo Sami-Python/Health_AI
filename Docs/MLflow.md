@@ -1,17 +1,17 @@
-# 🧪 MLflow for MLOps
+# MLflow for MLOps
 
-**MLOps** (Machine Learning Operations) on käytäntöjä, jotka tekevät ML-malleista tuotannoksi valmaat. **MLflow** on avoimen lähdekoodin työkalu, joka auttaa sinua seuraamaan malli-eksperimenttejä, versioida malleja ja yhtenäistää deployment-prosessia.
+**MLOps** (Machine Learning Operations) on käytäntöjä, jotka tekevät ML-malleista tuotantovalmiita. **MLflow** on avoimen lähdekoodin työkalu, joka auttaa seuraamaan malli-eksperimenttejä, versioimaan malleja ja yhtenäistämään deployment-prosessia.
 
 ---
 
-## 📋 Sisällysluettelo
+## Sisällysluettelo
 
 1. [Mikä on MLflow?](#mika-on-mlflow)
 2. [Miksi käytämme MLflow:ta?](#miksi-kaytamme-mlflowta)
 3. [Asennus](#asennus)
-4. [Käyttö: Mallin Treenaaminen](#kaytto-mallin-treenaaminen)
+4. [Käyttö: Mallin treenaaminen](#kaytto-mallin-treenaaminen)
 5. [MLflow UI](#mlflow-ui)
-6. [Eksperimenttien Vertailu](#eksperimenttien-vertailu)
+6. [Eksperimenttien vertailu](#eksperimenttien-vertailu)
 7. [Model Registry](#model-registry)
 8. [Tuotantokäyttö](#tuotantokaytto)
 9. [Troubleshooting](#troubleshooting)
@@ -33,19 +33,19 @@
 
 ## Miksi käytämme MLflow:ta?
 
-### Ongelma Ilman MLOps:ia
+### Ongelma ilman MLOps:ia
 
 Ilman MLflow:ta et tiedä:
-- ❓ Mikä mallin versio on tuotannossa?
-- ❓ Mitkä hyperparametrit tuottivat parhaan tuloksen?
-- ❓ Onko mallin suorituskyky heikentynyt ajan myötä?
+- Mikä mallin versio on tuotannossa?
+- Mitkä hyperparametrit tuottivat parhaan tuloksen?
+- Onko mallin suorituskyky heikentynyt ajan myötä?
 
 ### Ratkaisu MLflow:n kanssa
 
-- ✅ **Versiointi**: Näet kaikki treenit ja niiden parametrit
-- ✅ **Metriikat**: Vertaile R², MAE, RMSE -arvoja graafisesti
-- ✅ **Artifacts**: Tallenna feature importance, plotit, mallit
-- ✅ **Reproducibility**: Toista mikä tahansa treenaus täsmälleen
+- **Versiointi**: Näet kaikki treenit ja niiden parametrit
+- **Metriikat**: Vertaile R², MAE, RMSE -arvoja graafisesti
+- **Artifacts**: Tallenna feature importance, plotit, mallit
+- **Reproducibility**: Toista mikä tahansa treenaus täsmälleen
 
 ---
 
@@ -66,7 +66,7 @@ mlflow --version
 
 ---
 
-## Käyttö: Mallin Treenaaminen
+## Käyttö: Mallin treenaaminen
 
 ### Scriptissä: `process_garmin_data.py`
 
@@ -141,22 +141,22 @@ http://localhost:5000
 
 ### UI:n Toiminnot
 
-#### 1. **Experiments-näkymä**
+#### 1. Experiments-näkymä
 - Listaa kaikki treenit (`xgboost_readiness_prediction`)
 - Näyttää jokaisen runin:
   - **Run ID**: Uniikki tunniste
   - **Metrics**: R², MAE, RMSE
   - **Parameters**: Hyperparametrit
-  - **Duration**: Treenaus kesti
+  - **Duration**: Treenauksen kesto
 
-#### 2. **Run Details**
-Klikkaa mitä tahansa руниa nähdäksesi:
+#### 2. Run Details
+Klikkaa mitä tahansa runia nähdäksesi:
 - **Parameters**: Kaikki hyperparametrit
 - **Metrics**: Numeerinen ja graafinen näkymä
 - **Artifacts**: Lataa feature importance, plotit, mallit
 
-#### 3. **Compare Runs**
-- Valitse 2+ run:ia
+#### 3. Compare Runs
+- Valitse 2+ runia
 - Klikkaa "Compare"
 - Näet:
   - Parallel Coordinates Plot (parametrit vs metriikat)
@@ -165,7 +165,7 @@ Klikkaa mitä tahansa руниa nähdäksesi:
 
 ---
 
-## Eksperimenttien Vertailu
+## Eksperimenttien vertailu
 
 ### Esimerkkiskenaario
 
@@ -182,12 +182,12 @@ Klikkaa mitä tahansa руниa nähdäksesi:
 
 2. **MLflow UI:ssa:**
    - Avaa `xgboost_readiness_prediction` experiment
-   - Näet 3 run:ia
-   - Klikkaa "R2" -sarake että järjestät parhaimmasta huonoimpaan
+   - Näet 3 runia
+   - Klikkaa "R2" -sarake järjestääksesi parhaimmasta huonoimpaan
    - **Tulos:** Esim. `learning_rate=0.03` → R²=0.87 (paras)
 
 3. **Lataa paras malli:**
-   - Klikkaa parasta run:ia
+   - Klikkaa parasta runia
    - Artifacts → `xgboost_model` → Lataa mallin tai deployaa
 
 ---
@@ -197,10 +197,10 @@ Klikkaa mitä tahansa руниa nähdäksesi:
 ### Mikä on Model Registry?
 
 MLflow **Model Registry** on keskitetty paikka, jossa:
-- Versionkoitu mallit ovat (v1, v2, v3...)
+- Versioidut mallit ovat (v1, v2, v3...)
 - Malleille annetaan **stage** (Staging, Production, Archived)
 
-### Mallin Rekisteröinti
+### Mallin rekisteröinti
 
 **Option 1: UI:ssa**
 1. Avaa run jonka haluat rekisteröidä
@@ -237,12 +237,12 @@ Staging → Production → Archived
 
 ### Skenaariot
 
-#### 1. **Loka ali Development (Nykyinen)**
+#### 1. Lokaali Development (Nykyinen)
 - MLflow UI ajaa lokaalisti (`localhost:5000`)
 - SQLite database `backend/data/mlflow.db`
 - **Käyttö:** Debugging, eksperimentit
 
-#### 2. **Cloud Deployment (Tulevaisuus)**
+#### 2. Cloud Deployment (Tulevaisuus)
 
 **Option A: MLflow Tracking Server (Cloud Run):**
 ```yaml
@@ -258,7 +258,7 @@ mlflow-server:
 - Integroi MLflow → Vertex AI Experiments
 - Automaattinen scaling, managed cloud storage
 
-#### 3. **Model Serving (API)**
+#### 3. Model Serving (API)
 
 Lataa tuotantomalli MLflow:sta:
 ```python
@@ -289,7 +289,7 @@ pip install -r requirements.txt
 
 ---
 
-### Ongelma: UI ei näytä run:eja
+### Ongelma: UI ei näytä runeja
 
 **Syy:** Väärä tracking URI
 
@@ -339,14 +339,14 @@ ls Health_AI/outputs/feature_importance.png
 
 ---
 
-## 🎯 Best Practices
+## Best Practices
 
-### 1. **Nimeä Experimentit Selkeästi**
+### 1. Nimeä Experimentit selkeästi
 ```python
 mlflow.set_experiment("xgboost_readiness_v2_tuning")
 ```
 
-### 2. **Tagaa Run:it**
+### 2. Tagaa runit
 ```python
 mlflow.set_tags({
     "model_type": "xgboost",
@@ -355,33 +355,33 @@ mlflow.set_tags({
 })
 ```
 
-### 3. **Logita Kaikki Relevantit Parametrit**
+### 3. Logita kaikki relevantit parametrit
 - Älä rajoitu vain hyperparametreihin
 - Logita myös: `data_version`, `feature_count`, `user_id` (jos multi-user)
 
-### 4. **Säännöllinen Cleanup**
-- Vanhoja run:eja voi poistaa UI:sta ("Delete Run")
+### 4. Säännöllinen cleanup
+- Vanhoja runeja voi poistaa UI:sta ("Delete Run")
 - Säilytä vain parhaat ja production-mallit
 
-### 5. **Käytä Model Registry Tuotannossa**
+### 5. Käytä Model Registryä tuotannossa
 - Älä viittaa run ID:hen (`runs:/abc123/model`)
 - Käytä nimiä ja stageja (`models:/my_model/Production`)
 
 ---
 
-## 🔗 Aiheeseen Liittyvät Dokumentit
+## Aiheeseen liittyvät dokumentit
 
-- [arkkitehtuuri.md](arkkitehtuuri.md) - ML Core -arkkitehtuuri
-- [Backend Scripts](file:///c:/Users/samih/code/health_ai/backend/scripts/process_garmin_data.py) - Treenausskripti
+- [arkkitehtuuri.md](arkkitehtuuri.md) – ML Core -arkkitehtuuri
+- [Backend Scripts](file:///c:/Users/samih/code/health_ai/backend/scripts/process_garmin_data.py) – Treenausskripti
 - [MLflow Official Docs](https://www.mlflow.org/docs/latest/index.html)
 
 ---
 
-## 📊 Yhteenveto
+## Yhteenveto
 
 | Toiminto | Komento/URL |
 |----------|-------------|
-| **Treenaa Malli** | `python scripts/process_garmin_data.py --user-id UID` |
+| **Treenaa malli** | `python scripts/process_garmin_data.py --user-id UID` |
 | **Käynnistä UI** | `mlflow ui --backend-store-uri sqlite:///data/mlflow.db` |
 | **Avaa UI** | http://localhost:5000 |
 | **Database** | `backend/data/mlflow.db` |
@@ -392,6 +392,3 @@ mlflow.set_tags({
 **Viimeksi päivitetty:** 2026-01-29  
 **Dokumentaation kattavuus:** Experiment Tracking, Model Registry, Local Deployment  
 **TODO:** Cloud Deployment (Cloud Run, Vertex AI), A/B Testing, Drift Detection
-
-
-![alt text](image.png)

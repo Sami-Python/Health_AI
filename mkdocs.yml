@@ -30,29 +30,31 @@ docs_dir: Docs
 
 nav:
   - Etusivu: index.md
+  
   - Käytön aloitus:
     - Yleiskatsaus: index.md
     - Ympäristö & Julkaisu: deployment.md
     - Autentikaatio: authentication.md
     - Landing Page: landing_page.md
-  
+
   - Arkkitehtuuri & Suunnittelu:
     - Arkkitehtuurin yleiskuvaus: arkkitehtuuri.md
     - Vaatimusmäärittely: vaatimusmaarittely.md
     - Tietoturvaraportti: security_audit.md
-  
+    - AI Chat Feature Plan: chat_feature_plan.md
+
   - Kehitysoppaat:
     - Garmin-integraatio: garmin_setup.md
     - API-viitteet: API.md
-  
+
   - Laadunvarmistus & Testaus:
-    - E2E Testaus (Playwright): testing.md
+    - Testaus (Unit, Integration, E2E): testing.md
+    - Vianmääritys (Auth): troubleshooting_auth.md
 
   - Operointi:
     - MLOps (MLflow): MLflow.md
     - Observability & Monitoring: observability.md
     - Tuotannon Roadmap: production_roadmap.md
-  
+
   - Viitteet:
     - Sisäiset muistiot: sami_memo.md
-

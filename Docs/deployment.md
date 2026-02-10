@@ -1,4 +1,4 @@
-# Julkaisuopas (Deployment Guide) 🚀
+# Julkaisuopas (Deployment Guide)
 
 > **Huom:** Täydellisen, haettavan dokumentaation löydät [Dokumentaatiosivustoltamme](https://Samih.github.io/health_ai/).
 
@@ -50,7 +50,7 @@ Hierarkiaa käsittelee Pydantic: `Settings` -> `DevelopmentSettings` / `Producti
 - Varmista, että `.env` tiedostoa **EI KOSKAAN** tallenneta Gitiin.
 - Tuotannossa aseta `FRONTEND_URL` vastaamaan oikeaa domainia (esim. `https://healthai.app`).
 
-## 4. Pilvijulkaisu (Cloud Run) ☁️
+## 4. Pilvijulkaisu (Cloud Run)
 
 Tämä osio neuvoo, kuinka `health_ai` backend julkaistaan Google Cloud Runiin.
 
@@ -85,4 +85,3 @@ GitHub Action `deploy-cloud-run.yml`:
 1.  Rakentaa Docker-imagen.
 2.  Työntää sen Artifact Registryyn.
 3.  Deployaa Cloud Runiin ja kytkee salaisuudet.
-
