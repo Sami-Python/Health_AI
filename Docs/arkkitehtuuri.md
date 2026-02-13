@@ -61,6 +61,7 @@ graph TD
     FastAPI -->|Lue Historia/Metriikat| Firestore
     FastAPI -->|Lue/Kirjoita| Firestore
     FastAPI -->|Trigger| Fetcher
+    FastAPI -->|Upload Workout| Garmin
     FastAPI -->|Generoi| CoachLogic
     FastAPI -->|Keskustele| ChatManager
     
@@ -113,7 +114,7 @@ graph TD
     *   Orkestroi liikenteen ja validoi liikenteen (`firebase-admin`).
     *   **Huomio:** Käyttää sisäisesti `firestore_manager.py`:tä tietokantatoimintoihin.
 *   **Backend Scripts (`backend/scripts/`):**
-    *   `fetch_garmin_data.py`: Hakee datan Garminilta -> Tallentaa CSV (välimuisti) JA Synkronoi aktiviteetit Firestoreen.
+    *   `fetch_garmin_data.py`: Hakee datan Garminilta (Optimized: Batch & Parallel) -> Tallentaa CSV (välimuisti) JA Synkronoi aktiviteetit Firestoreen.
     *   `process_garmin_data.py`: Lukee CSV-historian -> Kouluttaa XGBoost-mallin (Inkrementaalinen päivitys / Full retrain) -> Laskee metriikat (CTL/ATL/TSB) -> Tallentaa tulokset Firestoreen.
 *   **AI Coach:** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin.
 
