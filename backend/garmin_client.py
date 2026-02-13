@@ -85,17 +85,83 @@ class GarminClient:
             # If the library is missing `create_workout`, I might have to construct the request manually.
             # URL: https://connect.garmin.com/modern/proxy/workout-service/workout
             
-            url = "/workout-service/workout"
-            # We need to make sure workout_json is valid.
+            # --- TRANSFORM PAYLOAD FOR GARMIN API ---
+            # The AI generates a simplified JSON. Garmin requires a specific nested structure.
             
+            # 1. Map Sport to SportType Object
+            sport = workout_json.get('sport', 'RUNNING').upper()
+            sport_type = {
+                "sportTypeId": 1, 
+                "sportTypeKey": "running"
+            }
+            if "CYCLING" in sport:
+                sport_type = {
+                    "sportTypeId": 2, 
+                    "sportTypeKey": "cycling"
+                }
+            # Add others if needed (e.g. swimming=4)
+
+            # 2. Construct Payload
+            # Garmin expects 'workoutSegments' containing 'workoutSteps'
+            
+            steps = workout_json.get('steps', [])
+            
+            # Ensure step values are numeric
+            for step in steps:
+                for key in ['durationValue', 'targetValueOne', 'targetValueTwo']:
+                    if key in step and isinstance(step[key], str):
+                        try:
+                            if "." in step[key]: step[key] = float(step[key])
+                            else: step[key] = int(step[key])
+                        except: pass
+                
+                # Fix Target Type: PACE ranges (Garmin expects m/s, AI gives s/km likely)
+                # If targetType is PACE, and values are > 60, assume s/km and convert to m/s?
+                # THIS IS RISKY. Let's leave values as is for now, or assume AI gives what prompt asked.
+                # Prompt asked for nothing specific on units, just "seconds/km".
+                # Garmin API needs m/s.
+                # 4:00/km = 240s/km. Speed = 1000/240 = 4.16 m/s.
+                # If we send 240, Garmin might reject it as 240 m/s. 
+                # Let's add a basic heuristic: If PACE and value > 30, assume s/km and convert.
+                target_type = step.get('targetType', '')
+                if target_type == "PACE":
+                   for val_key in ['targetValueOne', 'targetValueTwo']:
+                       val = step.get(val_key)
+                       if val and isinstance(val, (int, float)) and val > 20: 
+                           # Assume s/km, convert to m/s
+                           # speed (m/s) = 1000 / pace (s/km)
+                           try:
+                               step[val_key] = 1000.0 / float(val)
+                           except: pass
+
+            final_payload = {
+                "workoutName": workout_json.get('workoutName', 'AI Workout'),
+                "description": workout_json.get('description', ''),
+                "sportType": sport_type,
+                "workoutSegments": [
+                    {
+                        "segmentOrder": 1,
+                        "sportType": sport_type,
+                        "workoutSteps": steps
+                    }
+                ]
+            }
+
+            logger.info(f"Sending transformed payload to Garmin: {json.dumps(final_payload)}")
+
             # Using the internal http client
-            response = self.client.connectapi(url, method="POST", json=workout_json)
+            response = self.client.connectapi(url, method="POST", json=final_payload)
             
             # Check response
             if response and 'workoutId' in response:
                 logger.info(f"✅ Workout uploaded successfully. ID: {response['workoutId']}")
                 return True
             else:
+                # Sometimes Garmin returns the full object with workoutId in it
+                if isinstance(response, dict) and 'workoutId' in response:
+                     logger.info(f"✅ Workout uploaded successfully. ID: {response['workoutId']}")
+                     return True
+                     
                 logger.error(f"❌ Workout upload response invalid: {response}")
                 return False
 

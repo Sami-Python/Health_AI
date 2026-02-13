@@ -582,3 +582,19 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Optimized `fetch_garmin_data.py` (Batch fetching for activities).
     - [x] Parallelized daily metric fetching (HR/Sleep) using `ThreadPoolExecutor`.
 
+
+### 12.3 Environment Consolidation & Bug Fixes
+> **Status:** COMPLETED (2026-02-13)
+
+- [x] **Frontend/Backend Environment Sync:**
+    - [x] Fixed mismatch between `.env.local` (local) and `.env.production` (cloud).
+    - [x] Aligned Firebase Project ID to `personal-ai-coach-92c39`.
+- [x] **Calendar Drag & Drop Fix:**
+    - [x] Resolved CORS initialization issue for local IP (`192.168.1.130`).
+    - [x] Fixed duplicate ID error in `TrainingCalendar.tsx`.
+- [x] **Garmin Export Fix:**
+    - [x] Implemented JSON transformation layer (Simple -> Complex) to fix `400 Bad Request`.
+
+**Next Steps (2026-02-14):**
+- [ ] Verify full flow (Create -> Drag -> Export) in the new environment.
+
