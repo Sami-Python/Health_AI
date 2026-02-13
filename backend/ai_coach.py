@@ -54,11 +54,9 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     
     TÄRKEÄÄ: Jos 'AKTIIVISET TAVOITTEET' mainitsee tietyn lajin (esim. Juoksu, Pyöräily), painota ohjelmassa kyseistä lajia.
 
-    Format (JSON):
-    [
         {{
             "day": 1,
-            "activity": "Laji (esim. Juoksu, Lepo)",
+            "activity": "Laji (esim. Juoksu, Pyöräily)",
             "description": "Treenin tavoite",
             "duration_min": 45,
             "load_estimate": 60,
@@ -68,9 +66,43 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
                 "Työosuus: 40min ...",
                 "Loppuverryttely: 5min ..."
             ],
+            "garmin_workout": {{
+                "workoutName": "AI Coach - [Date]",
+                "sport": "RUNNING (or CYCLING)",
+                "steps": [
+                    {{
+                        "type": "WorkoutStep",
+                        "stepOrder": 1,
+                        "intensity": "WARMUP",
+                        "description": "Warm up",
+                        "durationType": "TIME",
+                        "durationValue": 600,
+                        "targetType": "HEART_RATE",
+                        "targetValueOne": 120,
+                        "targetValueTwo": 140
+                    }},
+                    {{
+                        "type": "WorkoutStep",
+                        "stepOrder": 2,
+                        "intensity": "INTERVAL",
+                        "description": "Run Hard",
+                        "durationType": "DISTANCE",
+                        "durationValue": 1000,
+                        "targetType": "PACE",
+                        "targetValueOne": 240, 
+                        "targetValueTwo": 260
+                    }}
+                ]
+            }},
             "tips": "Vinkki"
         }}
     ]
+
+    * garmin_workout:
+        - durationType: TIME (seconds), DISTANCE (meters)
+        - targetType: HEART_RATE (bpm), PACE (seconds/km), POWER (watts), CADENCE (rpm), NO_TARGET
+        - intensity: WARMUP, COOLDOWN, INTERVAL, RECOVERY, REST
+
 
     * load_estimate: Arvioitu kuormitus 0-100 (TSS-tyyppinen).
     

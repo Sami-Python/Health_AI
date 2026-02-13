@@ -11,7 +11,9 @@ from fastapi import Depends
 from auth_middleware import verify_token, verify_admin
 import json
 import ai_coach
+import ai_coach
 import firestore_garmin_metrics
+from garmin_client import GarminClient # Handles file uploads
 try:
     from google.cloud import error_reporting
 except ImportError:
@@ -903,6 +905,38 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
         print(f"Error logging manual workout: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+class WorkoutUploadRequest(BaseModel):
+    workout: dict # The Garmin-compatible JSON structure
+
+@app.post("/workouts/upload", tags=["Workouts"])
+@limiter.limit("5/minute")
+def upload_workout_endpoint(
+    req: WorkoutUploadRequest, 
+    request: Request, 
+    user: dict = Depends(verify_token)
+):
+    """
+    Upload a structured workout to Garmin Connect.
+    
+    **Request Body:**
+    - `workout`: JSON object matching Garmin's workout structure.
+    """
+    try:
+        client = GarminClient(user['uid'])
+        # Use synchronous method in threadpool
+        success = client.upload_workout(req.workout)
+        if success:
+            return {"status": "success", "message": "Workout uploaded to Garmin Connect"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to upload workout")
+
+    except ValueError as ve:
+         raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Workout Upload Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/system/refresh")
 async def refresh_data(user: dict = Depends(verify_token)):
     """
@@ -1195,7 +1229,8 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
                     "details": p.get('detailed_steps', []),
                     "tips": p.get('tips', ''),
                     "status": "PENDING",
-                    "source": "AI_GENERATED"
+                    "source": "AI_GENERATED",
+                    "garmin_workout": p.get('garmin_workout') # Save for export
                 }
                 
                 db_manager.save_workout(user['uid'], workout_doc)
