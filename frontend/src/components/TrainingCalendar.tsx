@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths } from "date-fns";
-import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Calendar as CalendarIcon, Trash2, RefreshCw, AlertTriangle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Calendar as CalendarIcon, Trash2, RefreshCw, AlertTriangle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -176,6 +176,39 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
     const [deleteCandidate, setDeleteCandidate] = useState<Workout | null>(null);
     const [isRegenerating, setIsRegenerating] = useState(false);
     const [modalError, setModalError] = useState<string | null>(null);
+
+    // Upload State
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadStatus, setUploadStatus] = useState<{ success: boolean, message: string } | null>(null);
+
+    const handleUploadToGarmin = async () => {
+        if (!user || !selectedWorkout?.garmin_workout) return;
+        setIsUploading(true);
+        setUploadStatus(null);
+
+        try {
+            const token = await user.getIdToken();
+            const res = await fetchWithRetry(`${API_BASE_URL}/workouts/upload`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ workout: selectedWorkout.garmin_workout })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.detail || "Upload failed");
+            }
+
+            setUploadStatus({ success: true, message: "Workout sent to Garmin Connect!" });
+        } catch (e: any) {
+            setUploadStatus({ success: false, message: e.message || "Failed to send to Garmin" });
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     // Use PointerSensor for better compatibility (replaces Mouse/Touch)
     const sensors = useSensors(
@@ -469,6 +502,37 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                                         <div className="font-semibold">{selectedWorkout.load_estimate || selectedWorkout.load || 0}</div>
                                     </div>
                                 </div>
+
+                                {/* Garmin Upload Section */}
+                                {selectedWorkout.garmin_workout && (
+                                    <div className="mt-6 pt-4 border-t border-slate-800">
+                                        <Button
+                                            onClick={handleUploadToGarmin}
+                                            disabled={isUploading || (uploadStatus?.success === true)}
+                                            className={`w-full ${uploadStatus?.success ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                                        >
+                                            {isUploading ? (
+                                                <>
+                                                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                                                    Sending...
+                                                </>
+                                            ) : uploadStatus?.success ? (
+                                                <>
+                                                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                                                    Sent to Garmin
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="mr-2 h-4 w-4" />
+                                                    Send to Garmin Device
+                                                </>
+                                            )}
+                                        </Button>
+                                        {uploadStatus && !uploadStatus.success && (
+                                            <p className="text-red-400 text-xs mt-2 text-center">{uploadStatus.message}</p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

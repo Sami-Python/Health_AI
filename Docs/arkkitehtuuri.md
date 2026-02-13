@@ -82,7 +82,7 @@ graph TD
     %% CSV is cache layer
     style CSV fill:#ffffcc,stroke:#ffaa00,stroke-dasharray: 2 2
 ```
-
+![alt text](image12.png)
 
 
 ## Komponentit
