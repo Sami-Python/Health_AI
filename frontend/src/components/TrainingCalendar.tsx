@@ -34,15 +34,16 @@ interface TrainingCalendarProps {
     onUpdate?: () => void; // Callback to refresh data
 }
 
-// --- Draggable Workout Item ---
-function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: Workout, isOverlay?: boolean, onSelect?: (workout: Workout) => void }) {
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-        id: workout.id,
-        data: workout,
-        disabled: workout.type === 'history'
-    });
-
-    // Styles matching the original logic
+// --- Workout Card (Visual Only) ---
+function WorkoutCard({ workout, isOverlay = false, onClick, style, attributes, listeners, setRef }: {
+    workout: Workout,
+    isOverlay?: boolean,
+    onClick?: (e: React.MouseEvent) => void,
+    style?: React.CSSProperties,
+    attributes?: any,
+    listeners?: any,
+    setRef?: (element: HTMLElement | null) => void
+}) {
     let statusColor = "bg-blue-500/10 border-blue-500/30 text-blue-400";
     let Icon = null;
 
@@ -56,18 +57,11 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: W
         }
     }
 
-    const style = {
-        transform: CSS.Translate.toString(transform),
-        zIndex: isDragging ? 100 : 50,
-        opacity: isDragging ? 0 : 1,
-        touchAction: 'none' as React.CSSProperties['touchAction']
-    };
-
-    // History Item (Not Draggable or Locked)
+    // History Item (Not Draggable)
     if (workout.type === 'history') {
         return (
             <div
-                onClick={(e) => { e.stopPropagation(); onSelect?.(workout); }}
+                onClick={onClick}
                 className={`text-xs p-1.5 rounded border ${statusColor} mb-1 cursor-pointer hover:brightness-110 active:scale-95 transition-all`}
             >
                 <div className="flex items-center gap-1 font-semibold truncate">
@@ -83,15 +77,11 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: W
 
     return (
         <div
-            ref={setNodeRef}
+            ref={setRef}
             {...listeners}
             {...attributes}
             style={style}
-            onClick={() => {
-                if (!isDragging) {
-                    onSelect?.(workout);
-                }
-            }}
+            onClick={onClick}
             className={`
                 text-xs p-1.5 rounded border mb-1 transition-all cursor-grab active:cursor-grabbing
                 ${isOverlay ? 'shadow-2xl scale-105 bg-slate-800 z-50 w-full' : ''}
@@ -106,6 +96,38 @@ function DraggableWorkout({ workout, isOverlay = false, onSelect }: { workout: W
                 {workout.structure_summary || (workout.load_estimate ? `Load: ${workout.load_estimate}` : '--')}
             </div>
         </div>
+    );
+}
+
+// --- Draggable Workout Item (Logic) ---
+function DraggableWorkout({ workout, onSelect }: { workout: Workout, onSelect?: (workout: Workout) => void }) {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+        id: workout.id,
+        data: workout,
+        disabled: workout.type === 'history'
+    });
+
+    const style = {
+        transform: CSS.Translate.toString(transform),
+        zIndex: isDragging ? 100 : 50,
+        opacity: isDragging ? 0 : 1,
+        touchAction: 'none' as React.CSSProperties['touchAction']
+    };
+
+    return (
+        <WorkoutCard
+            workout={workout}
+            setRef={setNodeRef}
+            style={style}
+            attributes={attributes}
+            listeners={listeners}
+            onClick={(e) => {
+                e.stopPropagation();
+                if (!isDragging) {
+                    onSelect?.(workout);
+                }
+            }}
+        />
     );
 }
 
@@ -376,7 +398,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                 <DragOverlay>
                     {activeWorkout ? (
                         <div className="opacity-90 min-w-[120px]">
-                            <DraggableWorkout workout={activeWorkout} isOverlay />
+                            <WorkoutCard workout={activeWorkout} isOverlay />
                         </div>
                     ) : null}
                 </DragOverlay>
