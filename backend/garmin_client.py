@@ -149,6 +149,7 @@ class GarminClient:
 
             logger.info(f"Sending transformed payload to Garmin: {json.dumps(final_payload)}")
 
+            url = "/workout-service/workout"
             # Using the internal http client
             response = self.client.connectapi(url, method="POST", json=final_payload)
             
