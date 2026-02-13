@@ -229,3 +229,22 @@ users/
 
 **Last Updated:** 2026-01-18  
 **Security Level:** AES-256 Encryption (Fernet)
+
+---
+
+## Exporting Workouts to Garmin
+
+You can export AI-generated training plans directly to your Garmin Connect calendar.
+
+### Prerequisites
+1.  **Grant Permissions:** Ensure your Garmin account is connected in the **Profile/Settings** page.
+2.  **Generate Plan:** Use the **AI Coach** to generate a training plan. Only AI-generated workouts contain the structured data needed for export.
+
+### How to Export
+1.  Navigate to the **Training Calendar**.
+2.  Click on a **Planned Workout** (Blue card).
+3.  In the workout details modal, click the **"Send to Garmin Device"** button.
+4.  Wait for the success message ("Sent to Garmin").
+
+### Syncing to Device
+Once uploaded, open your **Garmin Connect App** on your phone or sync your watch via Wi-Fi/Bluetooth. The workout will appear in your device's training calendar for that day.

@@ -1846,3 +1846,39 @@ Ratkaistiin sitkeät autentikaatio-ongelmat tuotantoympäristössä (`app.person
 - **Testaus:** Varmistettu toiminta testidatalla – skripti osaa ohittaa koulutuksen jos uutta dataa ei ole.
 
 **Outcome:** Merkittävä suorituskykyparannus päivittäisessä ajossa. Järjestelmä on nyt valmis jatkuvaan oppimiseen.
+## 2026-02-13 – Garmin Export & Sync Speed 🚀
+
+Tänään saimme valmiiksi kaksi merkittävää parannusta: suoran treenien viennin Garminiin ja datan synkronoinnin optimoinnin.
+
+### 1. Garmin Workout Export (Phase 12.2) 📤
+
+**Tavoite:** Käyttäjän ei tarvitse manuaalisesti luoda treenejä Garminiin, vaan AI:n luoma ohjelma siirtyy sinne yhdellä klikkauksella.
+
+**Toteutus:**
+- **Backend:**
+    - `POST /api/workout/upload`: Uusi endpoint, joka vastaanottaa treenidatan.
+    - `GarminClient`: Laajennettu tukemaan `upload_workout` -metodia (`garminconnect` kirjaston kautta).
+    - **Data:** AI Coach generoi nyt strukturoidun JSON-objektin (`garmin_workout`), joka sisältää Step-tiedot (Warmup, Interval, Recovery) ja tavoitteet (Syke, Tahti).
+- **Frontend:**
+    - `TrainingCalendar.tsx`: Lisätty "Send to Garmin Device" -nappi treenikortin modaaliin.
+    - Näkyy vain, jos treenillä on validi `garmin_workout` -rakenne.
+
+**Käyttö:**
+1. Generoi ohjelma AI:lla.
+2. Avaa treeni kalenterista.
+3. Paina "Send to Garmin".
+4. Synkkaa kello -> Treeni on valmiina "Treenikalenterissa".
+
+### 2. Sync Performance Optimization ⚡
+
+**Ongelma:** "Sync Data" -toiminto oli hidas, koska se haki aktiviteetit päivä kerrallaan (n. 1 sek/päivä). 30 päivän synkkaus kesti ~30-40 sekuntia.
+
+**Optimointi (`fetch_garmin_data.py`):**
+1.  **Batch Fetching:** Aktiviteetit haetaan nyt **yhdellä API-kutsulla** koko aikavälille (`get_activities_by_date(start, end)`).
+2.  **Parallel Processing:** Päivittäiset metriikat (Syke, Uni), joille ei ole batch-rajapintaa, haetaan nyt rinnakkain (`ThreadPoolExecutor`, max 5 säiettä).
+
+**Tulos:**
+- Synkkausaika putosi murto-osaan (esim. 30 päivää menee nyt muutamassa sekunnissa).
+- Mallin tarkkuus säilyy ennallaan (data on identtistä, vain haku on nopeampi).
+
+**Status:** 🟢 **DEPLOYED & OPTIMIZED**

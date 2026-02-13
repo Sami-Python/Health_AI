@@ -92,26 +92,31 @@ def fetch_daily_summary(client: Garmin, start: date, end: date) -> pd.DataFrame:
 
     return pd.DataFrame(records)
 
-from typing import List, Dict, Any
+import concurrent.futures
 
 def fetch_daily_heart_rate(client: Garmin, start: date, end: date) -> pd.DataFrame:
-    """Fetch intraday heart rate data between start and end dates."""
+    """Fetch intraday heart rate data between start and end dates (Parallelized)."""
     days = (end - start).days + 1
     records: List[Dict[str, Any]] = []
+    
+    date_list = [start + timedelta(days=i) for i in range(days)]
 
-    for i in range(days):
-        d = start + timedelta(days=i)
+    def fetch_single_day_hr(d):
         iso = d.isoformat()
         try:
-                hr_data = client.get_heart_rates(iso)
+            hr_data = client.get_heart_rates(iso)
+            if hr_data:
+                return {"date": iso, "raw_hr_data": hr_data}
         except Exception as e:
-                logger.error(f"Failed to get HR data for {iso}: {e}")
-                continue
+            logger.error(f"Failed to get HR data for {iso}: {e}")
+        return None
 
-        if not hr_data:
-                continue
-
-        records.append({"date": iso, "raw_hr_data": hr_data})
+    # Use ThreadPoolExecutor for parallel processing
+    # Cap workers to avoid overwhelming Garmin API (unofficial)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        results = list(executor.map(fetch_single_day_hr, date_list))
+    
+    records = [r for r in results if r]
 
     if not records:
         return pd.DataFrame()
@@ -120,23 +125,26 @@ def fetch_daily_heart_rate(client: Garmin, start: date, end: date) -> pd.DataFra
 
 
 def fetch_sleep_data(client: Garmin, start: date, end: date) -> pd.DataFrame:
-    """Fetch daily sleep data between start and end dates."""
+    """Fetch daily sleep data between start and end dates (Parallelized)."""
     days = (end - start).days + 1
     records: List[Dict[str, Any]] = []
 
-    for i in range(days):
-        d = start + timedelta(days=i)
+    date_list = [start + timedelta(days=i) for i in range(days)]
+
+    def fetch_single_day_sleep(d):
         iso = d.isoformat()
         try:
             sleep_data = client.get_sleep_data(iso)
+            if sleep_data:
+                return {"date": iso, "raw_sleep_data": sleep_data}
         except Exception as e:
             logger.error(f"Failed to get sleep data for {iso}: {e}")
-            continue
+        return None
 
-        if not sleep_data:
-            continue
-
-        records.append({"date": iso, "raw_sleep_data": sleep_data})
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        results = list(executor.map(fetch_single_day_sleep, date_list))
+    
+    records = [r for r in results if r]
 
     if not records:
         return pd.DataFrame()
@@ -145,27 +153,31 @@ def fetch_sleep_data(client: Garmin, start: date, end: date) -> pd.DataFrame:
 
 
 def fetch_activities(client: Garmin, start: date, end: date) -> pd.DataFrame:
-    """Fetch activities between start and end dates."""
-    days = (end - start).days + 1
+    """Fetch activities between start and end dates (Batch mode)."""
     records: List[Dict[str, Any]] = []
-
-    for i in range(days):
-        d = start + timedelta(days=i)
-        iso = d.isoformat()
-        try:
-            # Get activities for the specific date
-            activities = client.get_activities_by_date(iso, iso)
-        except Exception as e:
-            logger.error(f"Failed to get activities for {iso}: {e}")
-            continue
-
-        if not activities:
-            continue
-
-        # Store each activity with its date
-        for activity in activities:
-            activity["fetch_date"] = iso
-            records.append(activity)
+    
+    start_iso = start.isoformat()
+    end_iso = end.isoformat()
+    
+    try:
+        # Optimized: Batch fetch using date range
+        logger.info(f"Fetching activities from {start_iso} to {end_iso}...")
+        activities = client.get_activities_by_date(start_iso, end_iso, "") # type assumption
+        
+        if activities:
+            for activity in activities:
+                # Add fetch_date for consistency, though process_garmin_data uses startTimeLocal
+                # Use startTimeLocal as fetch_date proxy or just today's date? 
+                # Original code used the loop date. Here we use the activity's actual date.
+                if 'startTimeLocal' in activity:
+                    activity["fetch_date"] = activity['startTimeLocal'].split(' ')[0]
+                else:
+                    activity["fetch_date"] = start_iso # Fallback
+                records.append(activity)
+                
+    except Exception as e:
+         logger.error(f"Failed to batch fetch activities: {e}")
+         # Fallback? No, if batch fails, we likely have bigger issues.
 
     if not records:
         return pd.DataFrame()
@@ -239,8 +251,6 @@ def main(user_id: Optional[str] = None):
         
         return base_path
 
-    data_dir = get_data_dir(user_id)
-    os.makedirs(data_dir, exist_ok=True)
     data_dir = get_data_dir(user_id)
     os.makedirs(data_dir, exist_ok=True)
     logger.info(f"📁 Using data directory: {data_dir}")

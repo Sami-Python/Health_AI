@@ -139,6 +139,34 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
                 "Työosuus: ...",
                 "Loppuverryttely: ..."
             ],
+            "garmin_workout": {{
+                "workoutName": "AI Coach - [Date]",
+                "sport": "RUNNING (or CYCLING)",
+                "steps": [
+                    {{
+                        "type": "WorkoutStep",
+                        "stepOrder": 1,
+                        "intensity": "WARMUP",
+                        "description": "Warm up",
+                        "durationType": "TIME",
+                        "durationValue": 600,
+                        "targetType": "HEART_RATE",
+                        "targetValueOne": 120,
+                        "targetValueTwo": 140
+                    }},
+                     {{
+                        "type": "WorkoutStep",
+                        "stepOrder": 2,
+                        "intensity": "INTERVAL",
+                        "description": "Run Hard",
+                        "durationType": "DISTANCE",
+                        "durationValue": 1000,
+                        "targetType": "PACE",
+                        "targetValueOne": 240, 
+                        "targetValueTwo": 260
+                    }}
+                ]
+            }},
             "tips": "Vinkki"
         }},
         {{

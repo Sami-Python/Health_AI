@@ -565,7 +565,20 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Remove temporary debug logging from `auth_middleware.py`.
     - [x] Verify no sensitive ENV vars are leaking in logs.
 
-### 12.1 UX Improvements (Planned)
-- [x] **Garmin Connect Widget:** (#603)
     - [x] Show a "Connect Garmin" popup/banner on Dashboard if credentials are missing.
     - [x] Guide user to `/settings` directly.
+
+### 12.2 Garmin Workout Export (New)
+> **Status:** COMPLETED (2026-02-13)
+
+- [x] **Backend Implementation:**
+    - [x] `POST /api/workout/upload` endpoint.
+    - [x] `GarminClient` class with upload logic.
+    - [x] Structured JSON generation in `ai_coach.py`.
+- [x] **Frontend Implementation:**
+    - [x] "Send to Garmin Device" button in `TrainingCalendar`.
+    - [x] Upload status feedback (Success/Error).
+- [x] **Performance Optimization:**
+    - [x] Optimized `fetch_garmin_data.py` (Batch fetching for activities).
+    - [x] Parallelized daily metric fetching (HR/Sleep) using `ThreadPoolExecutor`.
+

@@ -21,5 +21,6 @@ Tutustu [julkaisuoppaaseen](deployment.md) aloittaaksesi kehitys- tai tuotantoym
 
 - **Mukautuva harjoittelu:** Ohjelmat joustavat päivittäisen palautumisesi mukaan (Body Battery, TSB).
 - **AI-valmennus:** Päivittäiset oivallukset ja treenimuokkaukset LLM:n avulla.
+- **Garmin Export:** Vie tekoälyn luomat harjoitukset suoraan Garmin-kellon kalenteriin.
 - **Kisavalmistautuminen:** Kohdistettu tavoiteseuranta kisoja varten.
 - **Tietosuoja:** GDPR-yhteensopivuus ja salatut tunnukset.
