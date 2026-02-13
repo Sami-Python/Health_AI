@@ -1882,3 +1882,52 @@ Tänään saimme valmiiksi kaksi merkittävää parannusta: suoran treenien vien
 - Mallin tarkkuus säilyy ennallaan (data on identtistä, vain haku on nopeampi).
 
 **Status:** 🟢 **DEPLOYED & OPTIMIZED**
+
+---
+
+## 2026-02-13 – Bug Fixes & Garmin Integration 🛠️
+
+Tänään korjattiin useita kriittisiä bugeja ja varmistettiin Garmin-integraation toimivuus uudessa ympäristössä.
+
+### 1. Calendar Drag & Drop Fix 🧩
+- **Ongelma:** Drag & Drop ei toiminut (405 Method Not Allowed / CORS error).
+- **Syy:**
+    - Frontend käytti paikallista IP:tä (`192.168.1.130`), jota Backend ei sallinut (CORS).
+    - `TrainingCalendar.tsx`:ssä oli duplikaatti `DraggableWorkout` ID:t.
+- **Korjaus:**
+    - Backend: Lisätty `http://192.168.1.130:3000` sallittuihin CORS-lähteisiin (`config.py`).
+    - Frontend: Refaktoroitu korttien raahauslogiikka.
+
+### 2. Garmin Export Fix (400 Bad Request) 📡
+- **Ongelma:** "Send to Garmin" epäonnistui (400 Bad Request).
+- **Syy:** Backend lähetti Garminille liian yksinkertaista JSON:ia (`sport: "RUNNING"`), kun API vaatii monimutkaisen rakenteen (`sportType: { sportTypeId: 1 ... }`, `workoutSegments`).
+- **Korjaus:**
+    - Backend (`garmin_client.py`): Implementoitu JSON-muunnoskerros, joka kääntää AI:n yksinkertaisen suunnitelman Garminin vaatimaan formaattiin lennossa.
+
+### 3. Environment Mismatch Solved 🌍
+- **Tilanne:**
+    - Local Dev käytti vanhaa projektia (`health-ai-80e99`).
+    - Production käytti uutta (`Personal AI Coach`).
+    - API-avaimet ja tietokannat olivat sekaisin.
+- **Ratkaisu:**
+    - Päivitetty `.env.local` käyttämään `Personal AI Coach` -projektin tietoja.
+    - Pidetty `NEXT_PUBLIC_API_URL` osoittamassa lokaaliin backendiin (`192.168.1.130`).
+
+### 🛠️ HUOMENNA (Testing Plan) 🧪
+**Tavoite:** Varmistaa, että kaikki korjaukset toimivat *uudessa* ympäristössä ja tyhjällä tietokannalla.
+
+1.  **Environment Check:**
+    - [ ] Käynnistä Backend (`docker-compose up`).
+    - [ ] Käynnistä Frontend (`npm run dev`).
+    - [ ] Varmista, että selaimen konsolissa ei ole punaisia auth-virheitä.
+
+2.  **Garmin Connection:**
+    - [ ] Mene `/settings`.
+    - [ ] Yhdistä Garmin-tili (uudestaan, koska uusi tietokanta).
+    - [ ] Tarkista Backendin logeista: `✅ Garmin login successful`.
+
+3.  **Feature Verification:**
+    - [ ] **Create Plan:** Luo joku treeni kalenteriin.
+    - [ ] **Drag & Drop:** Siirrä treeni toiselle päivälle. (Pitäisi toimia ilman virheitä).
+    - [ ] **Garmin Export:** Klikkaa "Send to Garmin". (Pitäisi tulla vihreä "Success").
+    - [ ] **Garmin App:** Tarkista puhelimesta (Connect), näkyykö treeni siellä.
