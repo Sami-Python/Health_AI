@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Calendar as CalendarIcon, Trash2, RefreshCw, AlertTriangle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
@@ -101,9 +101,12 @@ function WorkoutCard({ workout, isOverlay = false, onClick, style, attributes, l
 
 // --- Draggable Workout Item (Logic) ---
 function DraggableWorkout({ workout, onSelect }: { workout: Workout, onSelect?: (workout: Workout) => void }) {
+    // FIX: Unique ID for dnd-kit (ID + Date) to prevent duplicates if same workout ID exists on multiple days
+    const uniqueId = `${workout.id}_${workout.date}`;
+
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-        id: workout.id,
-        data: workout,
+        id: uniqueId,
+        data: { ...workout, originalId: workout.id }, // Pass original ID in data
         disabled: workout.type === 'history'
     });
 
@@ -194,6 +197,14 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
     const [activeId, setActiveId] = useState<string | null>(null);
     const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
 
+    // Optimistic State
+    const [optimisticPlanned, setOptimisticPlanned] = useState<Workout[]>(planned);
+
+    // Sync optimistic state when props change
+    useEffect(() => {
+        setOptimisticPlanned(planned);
+    }, [planned]);
+
     // Modal State
     const [deleteCandidate, setDeleteCandidate] = useState<Workout | null>(null);
     const [isRegenerating, setIsRegenerating] = useState(false);
@@ -216,15 +227,23 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ workout: selectedWorkout.garmin_workout })
+                body: JSON.stringify({
+                    workout: selectedWorkout.garmin_workout,
+                    date: selectedWorkout.date
+                })
             });
 
+            const data = await res.json();
+
             if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.detail || "Upload failed");
+                throw new Error(data.detail || "Upload failed");
             }
 
-            setUploadStatus({ success: true, message: "Workout sent to Garmin Connect!" });
+            const successMsg = data.scheduled
+                ? "Workout sent & scheduled on Garmin Calendar!"
+                : "Workout sent to Garmin (Scheduling skipped)";
+
+            setUploadStatus({ success: true, message: successMsg });
         } catch (e: any) {
             setUploadStatus({ success: false, message: e.message || "Failed to send to Garmin" });
         } finally {
@@ -232,9 +251,11 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
         }
     };
 
-    // Use PointerSensor for better compatibility (replaces Mouse/Touch)
+    // Use Mouse and Touch sensors separately to handle "DevTools open vs closed" issues
+    // (Sometimes PointerSensor behaves differently if DevTools toggles touch emulation)
     const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+        useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
     );
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -250,7 +271,8 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
     const getWorkoutForDay = (day: Date) => {
         const dayStr = format(day, 'yyyy-MM-dd');
         const hist = history.find(h => h.date === dayStr);
-        const plan = planned.find(p => p.date === dayStr);
+        // Use optimistic state for instant updates
+        const plan = optimisticPlanned.find(p => p.date === dayStr);
         if (hist && (hist.load || 0) > 0) return { ...hist, type: 'history' } as Workout;
         if (plan) return { ...plan, type: 'planned' } as Workout;
         if (hist) return { ...hist, type: 'history' } as Workout;
@@ -267,22 +289,42 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
 
         if (!over || !user) return;
 
-        const workoutId = active.id as string;
-        const targetId = over.id as string;
+        // active.id is "id_date"
+        const uniqueId = active.id as string;
+        const [rawId, rawDate] = uniqueId.split('_');
+        const workoutId = active.data.current?.originalId || rawId;
+        const sourceDate = active.data.current?.date || rawDate;
 
-        // Find the workout object
-        const workout = planned.find(p => p.id === workoutId);
-        if (!workout) return;
+        const targetId = over.id as string; // yyyy-MM-dd
+
+        // 1. Precise Lookup (ID + Date) to handle duplicates
+        const workoutIndex = optimisticPlanned.findIndex(p => p.id === workoutId && p.date === sourceDate);
+        const workout = optimisticPlanned[workoutIndex];
+
+        if (!workout) {
+            console.log("DragEnd: Workout not found in optimistic state", { workoutId, sourceDate });
+            return;
+        }
 
         if (targetId === 'trash') {
             setDeleteCandidate(workout);
             return;
         }
 
-        // If dropped on a day (targetId is date string)
+        // If dropped on a DIFFERENT day
         if (targetId !== workout.date) {
+            // 2. OPTIMISTIC UPDATE
+            const updatedWorkout = { ...workout, date: targetId };
+            const newPlanned = [...optimisticPlanned];
+            newPlanned[workoutIndex] = updatedWorkout;
+
+            // Immediate UI update
+            setOptimisticPlanned(newPlanned);
+
             try {
                 const token = await user.getIdToken();
+                console.log(`Moving workout ${workoutId} to ${targetId}`);
+
                 const res = await fetchWithRetry(`${API_BASE_URL}/workouts/${workoutId}`, {
                     method: 'PATCH',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -290,12 +332,15 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                 });
 
                 if (res.ok) {
-                    onUpdate?.();
+                    onUpdate?.(); // Trigger real refresh to confirm
                 } else {
-                    console.error("Failed to move workout");
+                    console.error("Failed to move workout (API)");
+                    // Rollback on failure
+                    setOptimisticPlanned(planned);
                 }
             } catch (e) {
                 console.error("Drag Error", e);
+                setOptimisticPlanned(planned);
             }
         }
     };
@@ -348,7 +393,7 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
         }
     };
 
-    const activeWorkout = activeId ? planned.find(p => p.id === activeId) : null;
+    const activeWorkout = activeId ? optimisticPlanned.find(p => `${p.id}_${p.date}` === activeId) : null;
 
     return (
         <DndContext

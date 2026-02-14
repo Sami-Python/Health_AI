@@ -908,6 +908,7 @@ async def log_manual_workout(workout: ManualWorkout, user: dict = Depends(verify
 
 class WorkoutUploadRequest(BaseModel):
     workout: dict # The Garmin-compatible JSON structure
+    date: Optional[str] = None # YYYY-MM-DD for scheduling (Optional)
 
 @app.post("/workouts/upload", tags=["Workouts"])
 @limiter.limit("5/minute")
@@ -918,16 +919,36 @@ def upload_workout_endpoint(
 ):
     """
     Upload a structured workout to Garmin Connect.
+    Optionally schedules it if 'date' is provided.
     
     **Request Body:**
     - `workout`: JSON object matching Garmin's workout structure.
+    - `date`: (Optional) "YYYY-MM-DD" to schedule the workout.
     """
     try:
         client = GarminClient(user['uid'])
-        # Use synchronous method in threadpool
-        success = client.upload_workout(req.workout)
-        if success:
-            return {"status": "success", "message": "Workout uploaded to Garmin Connect"}
+        
+        # 1. Upload Workout
+        workout_id = client.upload_workout(req.workout)
+        
+        if workout_id:
+            message = "Workout uploaded to Garmin Connect"
+            scheduled = False
+            
+            # 2. Schedule (if date provided)
+            if req.date:
+                scheduled = client.schedule_workout(workout_id, req.date)
+                if scheduled:
+                    message += " and scheduled for " + req.date
+                else:
+                    message += " (but scheduling failed)"
+            
+            return {
+                "status": "success", 
+                "message": message,
+                "workoutId": workout_id,
+                "scheduled": scheduled
+            }
         else:
             raise HTTPException(status_code=500, detail="Failed to upload workout")
 

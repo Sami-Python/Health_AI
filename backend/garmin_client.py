@@ -35,137 +35,210 @@ class GarminClient:
             logger.error(f"❌ Garmin auth failed: {e}")
             raise ValueError(f"Garmin authentication failed: {str(e)}")
 
-    def upload_workout(self, workout_json: Dict[str, Any]) -> bool:
+    def upload_workout(self, workout_json: Dict[str, Any]) -> Optional[str]:
         """
-        Uploads a workout to Garmin Connect.
-        
-        Args:
-            workout_json: The workout definition in Garmin's expected JSON format.
+        Uploads a workout to Garmin Connect. Returns workout_id if successful.
         """
         if not self.client:
             self.connect()
 
         try:
-            # The garminconnect library has specific methods for different workout types
-            # or a generic one? The dir() showed 'upload_workout' but that might be file based.
-            # Let's check 'create_workout' or similar if available. 
-            # Wait, dir() showed 'create_manual_activity_from_json', 'upload_cycling_workout', etc.
-            # It also showed 'upload_workout'. 
-            # Looking at source code of similar libs, 'add_workout' might be the one for JSON.
-            # But 'garminconnect' 0.2.x might differ. 
-            # dir() from previous step: 
-            # 'upload_workout': likely uploads a .fit/.tcx file.
-            # 'save_workout': Not present. 
-            # 'add_workout': NOT present in the dir() list I got!
-            
-            # Start of dir list: 'ActivityDownloadFormat', ... 'add_body_composition', ...
-            # 'create_manual_activity_from_json' exists.
-            
-            # This is tricky. The popular 'garminconnect' library usually has `add_workout` in newer versions?
-            # Or maybe I have an older version?
-            # 
-            # Let's assume we might need to rely on `upload_workout` with a .fit file if creation via JSON isn't directly supported 
-            # OR we try to find the hidden method.
-            
-            # However, `garmin-connect-export` is for exporting FROM Garmin.
-            # The `garminconnect` library (cyberjunky) definitely has workout creation support in recent versions.
-            # Let's check the installed version or just try to implement logic that assumes we can find a way or uses a raw request if needed.
-            
-            # Actually, `garminconnect` exposes `connectapi` which is the internal http client.
-            # We can use that to POST to the workout endpoint if a high level method is missing.
-            # Endpoint: /workout-service/workout
-            
             logger.info(f"Uploading workout for user {self.user_id}...")
             
-            # Trying to use internal API if specific method is missing from my view of dir()
-            # But wait, let me look at the dir() output again carefully.
-            # ... 'upload_cycling_workout', 'upload_hiking_workout', 'upload_running_workout', ... 'upload_workout'
-            # These sound like they upload activity FILES, not create structured workouts.
-            
-            # If the library is missing `create_workout`, I might have to construct the request manually.
-            # URL: https://connect.garmin.com/modern/proxy/workout-service/workout
-            
             # --- TRANSFORM PAYLOAD FOR GARMIN API ---
-            # The AI generates a simplified JSON. Garmin requires a specific nested structure.
+            # Based on Valid JSON from Debug Output (Step 1164)
             
-            # 1. Map Sport to SportType Object
-            sport = workout_json.get('sport', 'RUNNING').upper()
-            sport_type = {
-                "sportTypeId": 1, 
-                "sportTypeKey": "running"
+            # Mappings
+            STEP_TYPES = {
+                "warmup": { "stepTypeId": 1, "stepTypeKey": "warmup", "displayOrder": 1 },
+                "cooldown": { "stepTypeId": 2, "stepTypeKey": "cooldown", "displayOrder": 2 },
+                "interval": { "stepTypeId": 3, "stepTypeKey": "interval", "displayOrder": 3 },
+                "recovery": { "stepTypeId": 4, "stepTypeKey": "recovery", "displayOrder": 4 },
+                "rest": { "stepTypeId": 4, "stepTypeKey": "recovery", "displayOrder": 4 },
+                "run": { "stepTypeId": 3, "stepTypeKey": "interval", "displayOrder": 3 },
+                "other": { "stepTypeId": 7, "stepTypeKey": "other", "displayOrder": 7 }
             }
-            if "CYCLING" in sport:
-                sport_type = {
-                    "sportTypeId": 2, 
-                    "sportTypeKey": "cycling"
-                }
-            # Add others if needed (e.g. swimming=4)
-
-            # 2. Construct Payload
-            # Garmin expects 'workoutSegments' containing 'workoutSteps'
             
+            CONDITION_TYPES = {
+                "lap.button": { "conditionTypeId": 1, "conditionTypeKey": "lap.button", "displayOrder": 1, "displayable": True },
+                "time": { "conditionTypeId": 2, "conditionTypeKey": "time", "displayOrder": 2, "displayable": True },
+                "distance": { "conditionTypeId": 3, "conditionTypeKey": "distance", "displayOrder": 3, "displayable": True }
+            }
+            
+            TARGET_TYPES = {
+                "no.target": { "workoutTargetTypeId": 1, "workoutTargetTypeKey": "no.target", "displayOrder": 1 },
+                "power.zone": { "workoutTargetTypeId": 2, "workoutTargetTypeKey": "power.zone", "displayOrder": 2 },
+                "cadence.zone": { "workoutTargetTypeId": 3, "workoutTargetTypeKey": "cadence.zone", "displayOrder": 3 },
+                "heart.rate.zone": { "workoutTargetTypeId": 4, "workoutTargetTypeKey": "heart.rate.zone", "displayOrder": 4 },
+                "pace.zone": { "workoutTargetTypeId": 6, "workoutTargetTypeKey": "pace.zone", "displayOrder": 6 } 
+            }
+
+            # 1. Sport Type
+            sport = workout_json.get('sport', 'RUNNING').upper()
+            sport_type_id = 1 
+            sport_type_key = "running"
+            if "CYCLING" in sport:
+                sport_type_id = 2
+                sport_type_key = "cycling"
+
+            # 2. Build Steps
+            garmin_steps = []
             steps = workout_json.get('steps', [])
             
-            # Ensure step values are numeric
-            for step in steps:
-                for key in ['durationValue', 'targetValueOne', 'targetValueTwo']:
-                    if key in step and isinstance(step[key], str):
-                        try:
-                            if "." in step[key]: step[key] = float(step[key])
-                            else: step[key] = int(step[key])
-                        except: pass
+            for i, step in enumerate(steps):
+                # Type
+                s_type_raw = step.get('intensity', step.get('type', 'interval')).lower()
+                if "workoutstep" in s_type_raw: s_type_raw = "interval"
+                step_type_obj = STEP_TYPES.get(s_type_raw, STEP_TYPES['interval'])
                 
-                # Fix Target Type: PACE ranges (Garmin expects m/s, AI gives s/km likely)
-                # If targetType is PACE, and values are > 60, assume s/km and convert to m/s?
-                # THIS IS RISKY. Let's leave values as is for now, or assume AI gives what prompt asked.
-                # Prompt asked for nothing specific on units, just "seconds/km".
-                # Garmin API needs m/s.
-                # 4:00/km = 240s/km. Speed = 1000/240 = 4.16 m/s.
-                # If we send 240, Garmin might reject it as 240 m/s. 
-                # Let's add a basic heuristic: If PACE and value > 30, assume s/km and convert.
-                target_type = step.get('targetType', '')
-                if target_type == "PACE":
-                   for val_key in ['targetValueOne', 'targetValueTwo']:
-                       val = step.get(val_key)
-                       if val and isinstance(val, (int, float)) and val > 20: 
-                           # Assume s/km, convert to m/s
-                           # speed (m/s) = 1000 / pace (s/km)
-                           try:
-                               step[val_key] = 1000.0 / float(val)
-                           except: pass
+                # End Condition
+                cond_raw = step.get('durationType', step.get('endCondition', 'lap.button')).lower()
+                if "time" in cond_raw: cond_obj = CONDITION_TYPES['time']
+                elif "dist" in cond_raw: cond_obj = CONDITION_TYPES['distance']
+                else: cond_obj = CONDITION_TYPES['lap.button']
+                
+                end_val = None
+                if cond_obj['conditionTypeKey'] == 'time':
+                    try: end_val = float(step.get('durationValue', 0))
+                    except: end_val = 0.0
+                elif cond_obj['conditionTypeKey'] == 'distance':
+                    val = step.get('distanceValue', step.get('durationValue', 0))
+                    try: end_val = float(val)
+                    except: end_val = 0.0
 
+                # Target Logic
+                target = step.get('targetType', 'no.target').lower()
+                
+                # Defaults (Matches "No Target" Debug JSON)
+                target_obj = TARGET_TYPES['no.target']
+                target_val_one = None
+                target_val_two = None
+                zone_number = None
+
+                # Heart Rate Handling
+                if "heart" in target or "hr" in target:
+                    try: 
+                        val1 = float(step.get('targetValueOne', 0))
+                    except: 
+                        val1 = 0
+                        
+                    if val1 > 0 and val1 < 10:
+                        # ZONE TARGET (Correct usage based on Debug JSON)
+                        target_obj = TARGET_TYPES['heart.rate.zone']
+                        zone_number = int(val1) # Zone goes here!
+                        target_val_one = None # Must be null for Zone
+                        target_val_two = None
+                        
+                    elif val1 >= 10:
+                        # BPM TARGET
+                        # We don't have a confirmed "BPM" structure from debug (User didn't provide).
+                        # Using ID 1 "no.target" is SAFE.
+                        # We append info to description.
+                        target_obj = TARGET_TYPES['no.target']
+                        zone_number = None
+                        step['description'] = f"{step.get('description','')} (Target HR: {int(val1)})"
+
+                elif "pace" in target:
+                    target_obj = TARGET_TYPES['pace.zone']
+                    # Placeholder if we implement Pace Zones later
+
+                # Construct Step DTO (Exact Field Matching Debug JSON)
+                garmin_step = {
+                    "type": "ExecutableStepDTO",
+                    "stepOrder": i + 1,
+                    "stepType": step_type_obj,
+                    "childStepId": None,
+                    "description": step.get('description', ''),
+                    "endCondition": cond_obj,
+                    "endConditionValue": end_val,
+                    "preferredEndConditionUnit": None, # NEW
+                    "endConditionCompare": None, # NEW
+                    "targetType": target_obj,
+                    "targetValueOne": target_val_one,
+                    "targetValueTwo": target_val_two,
+                    "targetValueUnit": None, # NEW
+                    "zoneNumber": zone_number, 
+                    "secondaryTargetType": None,
+                    "secondaryTargetValueOne": None,
+                    "secondaryTargetValueTwo": None,
+                    "secondaryTargetValueUnit": None, # NEW
+                    "secondaryZoneNumber": None,
+                    "endConditionZone": None, # NEW
+                    "strokeType": { "strokeTypeId": 0, "strokeTypeKey": None, "displayOrder": 0 }, # NEW
+                    "equipmentType": { "equipmentTypeId": 0, "equipmentTypeKey": None, "displayOrder": 0 }, # NEW
+                    "category": None, # NEW
+                    "exerciseName": None, # NEW
+                    "workoutProvider": None, # NEW
+                    "providerExerciseSourceId": None, # NEW
+                    "weightValue": None, # NEW
+                    "weightUnit": None # NEW
+                }
+                garmin_steps.append(garmin_step)
+
+            # Construct Sport Type Object
+            sport_type_obj = {
+                "sportTypeId": sport_type_id,
+                "sportTypeKey": sport_type_key,
+                "displayOrder": 1
+            }
+
+            # 3. Final Payload
             final_payload = {
                 "workoutName": workout_json.get('workoutName', 'AI Workout'),
-                "description": workout_json.get('description', ''),
-                "sportType": sport_type,
+                "description": workout_json.get('description', 'Generated by Health AI'),
+                "sportType": sport_type_obj, # NESTED OBJECT
                 "workoutSegments": [
                     {
                         "segmentOrder": 1,
-                        "sportType": sport_type,
-                        "workoutSteps": steps
+                        "sportType": sport_type_obj, # NESTED OBJECT
+                        "workoutSteps": garmin_steps
                     }
                 ]
             }
 
+            # NOTE: We do NOT remove None values anymore. 
+            # The Debug JSON showed explicit nulls for targetValueOne/Two/zoneNumber are expected.
+
             logger.info(f"Sending transformed payload to Garmin: {json.dumps(final_payload)}")
 
             url = "/workout-service/workout"
-            # Using the internal http client
             response = self.client.connectapi(url, method="POST", json=final_payload)
             
-            # Check response
-            if response and 'workoutId' in response:
-                logger.info(f"✅ Workout uploaded successfully. ID: {response['workoutId']}")
-                return True
+            if response and ('workoutId' in response or (isinstance(response, dict) and 'workoutId' in response)):
+                w_id = response['workoutId']
+                logger.info(f"✅ Workout uploaded successfully. ID: {w_id}")
+                return str(w_id) # Return ID instead of True
             else:
-                # Sometimes Garmin returns the full object with workoutId in it
-                if isinstance(response, dict) and 'workoutId' in response:
-                     logger.info(f"✅ Workout uploaded successfully. ID: {response['workoutId']}")
-                     return True
-                     
                 logger.error(f"❌ Workout upload response invalid: {response}")
-                return False
+                return None
 
         except Exception as e:
             logger.error(f"❌ Failed to upload workout: {e}")
             raise e
+
+    def schedule_workout(self, workout_id: str, date_str: str) -> bool:
+        """
+        Schedules a workout on the Garmin Calendar.
+        """
+        if not self.client:
+            self.connect()
+
+        try:
+            logger.info(f"Scheduling workout {workout_id} for {date_str}...")
+            
+            url = f"/workout-service/schedule/{workout_id}"
+            payload = {"date": date_str}
+            
+            # response is usually the scheduled item with 'scheduleId'
+            response = self.client.connectapi(url, method="POST", json=payload)
+            
+            if response and ('scheduleId' in response or (isinstance(response, dict) and 'scheduleId' in response)):
+                logger.info(f"✅ Workout scheduled successfully.")
+                return True
+            else:
+                logger.warning(f"⚠️ Schedule response unexpected: {response}")
+                return False # Might still have worked? But treat as potentially failed.
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to schedule workout: {e}")
+            return False
