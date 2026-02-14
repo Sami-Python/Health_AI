@@ -68,7 +68,8 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
             ],
             "garmin_workout": {{
                 "workoutName": "AI Coach - [Date]",
-                "sport": "RUNNING (or CYCLING)",
+                "workoutName": "AI Coach - [Date]",
+                "sport": "RUNNING",
                 "steps": [
                     {{
                         "type": "WorkoutStep",
@@ -141,7 +142,7 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
             ],
             "garmin_workout": {{
                 "workoutName": "AI Coach - [Date]",
-                "sport": "RUNNING (or CYCLING)",
+                "sport": "RUNNING",
                 "steps": [
                     {{
                         "type": "WorkoutStep",

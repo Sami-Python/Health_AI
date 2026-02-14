@@ -596,5 +596,34 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
     - [x] Implemented JSON transformation layer (Simple -> Complex) to fix `400 Bad Request`.
 
 **Next Steps (2026-02-14):**
-- [ ] Verify full flow (Create -> Drag -> Export) in the new environment.
+- [x] Verify full flow (Create -> Drag -> Export) in the new environment. (`Completed`)
+
+
+## 2026-02-14 – Garmin Export & Calendar Scheduling Fix 🗓️✅
+
+Tänään ratkaistiin pitkään vaivannut `400 Bad Request` -virhe Garmin-viennissä ja lisättiin automaattinen aikataulutus.
+
+### 1. Garmin Export Fix (`400 Bad Request`)
+**Ongelma:** Garminin API hylkäsi treenit, koska JSON-rakenne ei vastannut täsmälleen odotettua.
+**Ratkaisu:**
+- **Reverse Engineering:** Käytimme `debug_garmin_structure.py` -skriptiä hakemaan *oikean* validin treenin Garminilta.
+- **Löydökset:**
+    - `targetType: null` ei kelpaa, usein pitää olla `targetType: { workoutTargetTypeId: 1 ... }` tai kokonaan pois.
+    - **Kriittinen:** `sportType` pitää olla *myös* jokaisen segmentin sisällä nested-objektina, ei vain ylätasolla.
+    - `steps`-taulukon sisällä `targetValueOne/Two` pitää olla eksplisiittisesti `null` jos ei käytössä.
+- **Korjaus:** Kirjoitettiin `GarminClient.upload_workout` uudelleen noudattamaan *merkki merkiltä* validia rakennetta.
+
+### 2. Calendar Scheduling
+**Ongelma:** Treeni meni Garminin "Workouts"-kirjastoon, mutta ei ilmestynyt kalenteriin.
+**Ratkaisu:**
+- Lisättiin `GarminClient.schedule_workout(workout_id, date)` -metodi.
+- Päivitettiin `/workouts/upload` endpoint kutsumaan tätä heti onnistuneen latauksen jälkeen.
+- Frontend lähettää nyt treenin päivämäärän (`date`) upload-pyynnössä.
+
+**Tulos:**
+- Treeni luodaan Garmin Connectiin.
+- Se ilmestyy oikealle päivälle Garminin kalenteriin.
+- Käyttäjälle näkyy kuittaus: *"Workout sent & scheduled on Garmin Calendar!"*
+
+**Status:** 🟢 **VERIFIED & WORKING**
 
