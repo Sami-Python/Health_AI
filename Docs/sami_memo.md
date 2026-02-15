@@ -1931,3 +1931,55 @@ Tänään korjattiin useita kriittisiä bugeja ja varmistettiin Garmin-integraat
     - [ ] **Drag & Drop:** Siirrä treeni toiselle päivälle. (Pitäisi toimia ilman virheitä).
     - [ ] **Garmin Export:** Klikkaa "Send to Garmin". (Pitäisi tulla vihreä "Success").
     - [ ] **Garmin App:** Tarkista puhelimesta (Connect), näkyykö treeni siellä.
+
+## 2026-02-15 – Production Verification & Mobile App Init 📱
+
+Tänään varmistettiin tuotantoympäristön tila ja aloitettiin mobiilisovelluksen kehitys.
+
+### 1. Tuotannon Verifiointi
+*   **Backend:** Tarkistettu Cloud Run / Docker logit. Palvelu käynnistyy puhtaasti ja vastaa pyyntöihin (`200 OK`).
+*   **Garmin Export:** Lokihistoriasta varmistettu, että 14.2. tehty korjaus toimii tuotannossa. Treenit siirtyvät onnistuneesti Garminiin.
+*   **Monitorointi:** Grafana ja Prometheus stack (`docker-compose.monitor.yml`) käynnistetty ja verifioitu toimivaksi.
+
+### 2. Mobiilisovellus (Flutter)
+*   **Alustus:** Luotu uusi Flutter-projekti kansioon `mobile/`.
+*   **Organisaatio:** `com.personalaicoach`
+*   **Status:** Projekti on alustettu ja kääntyy. Seuraavaksi vuorossa UI:n rakennus.
+
+**Seuraavat askeleet:**
+*   Mobiilisovelluksen perusnäkymät (Login, Dashboard).
+*   Push-notifikaatioiden suunnittelu.
+
+
+## 2026-02-15 – Mobile App Dashboard Integration (Flutter) 📱✅
+
+Saatiin mobiilisovellus (`mobile` workspace) yhdistettyä backendiin ja näyttämään dataa!
+
+### 1. Authentication & API Key Fix
+**Ongelma:** Google Sign-In antoi "Developer Error 10" ja kirjautuminen epäonnistui.
+**Syy:** Firebase-konsolista puuttuu sovelluksen SHA-1 sormenjälki, jota Google Sign-In vaatii Androidilla.
+**Ratkaisu (Väliaikainen):**
+- Luotiin testikäyttäjä `sami@personalaicoach.ai` / `password123` Firebase Auth -konsolissa.
+- Käytetään sähköpostikirjautumista kehitysvaiheessa.
+- Lisäksi päivitettiin `firebase_options.dart` käyttämään uutta, rajoittamatonta API-avainta (vanha oli HTTP Referrer -rajoitettu).
+
+### 2. Dashboard Data Connection
+**Ongelma:** Dashboard aukesi, mutta näytti nollia (0% tavoite, 0h unta).
+**Debuggaus & Korjaukset:**
+1. **Model Mismatch:** Backend (`main.py`) odottaa Garminin alkuperäisiä kenttiä (esim. `bodyBatteryHighestValue`), mutta testidatageneraattori käytti omia nimiä (`readiness`).
+    - *Korjaus:* Päivitettiin `backend/generate_test_data.py` käyttämään oikeita kentän nimiä.
+2. **Case Sensitivity Bug:** Backendin `calculate_goal_progress` vertasi `period_type`:a ("WEEKLY" vs "weekly") ja epäonnistui, jolloin päivämääräväli jäi vajaaksi.
+    - *Korjaus:* Lisättiin `.lower()` muunnos vertailuun.
+3. **UI Display:** "Sleep Score" näytti tunteja ("7h").
+    - *Korjaus:* Muutettiin labeliksi "Sleep Duration".
+
+### 3. Testaustyökalut
+Luotiin hyödyllisiä skriptejä `backend/` -kansioon:
+- `generate_test_data.py`: Luo uskottavaa historiadataa (Body Battery, Sleep) ja aktiivisen tavoitteen.
+- `verify_data.py`: Tarkistaa nopeasti mitä tietokannassa on (debuggausta varten).
+
+**Status:**
+- Login: ✅ (Email/Pass)
+- Dashboard Metrics: ✅ (Hakee `/metrics/history`)
+- Active Goals: ✅ (Hakee `/goals` ja laskee progressin oikein)
+- Seuraavaksi: Kaaviot (Sparklines) ja Google Loginin korjaus.

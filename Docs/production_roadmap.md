@@ -627,3 +627,33 @@ Tänään ratkaistiin pitkään vaivannut `400 Bad Request` -virhe Garmin-vienni
 
 **Status:** 🟢 **VERIFIED & WORKING**
 
+
+## Phase 13: Production Verification & Mobile App (2026-02-15) - CURRENT
+
+### 13.1 Production Verification & Monitoring
+> **Status:** COMPLETED (2026-02-15)
+- [x] **Verify Garmin Export:** Confirm implementation in production.
+- [x] **Log Analysis:** Check Backend/Cloud Run logs for hidden errors.
+- [x] **Monitor Metrics:** Check Grafana/Prometheus for performance anomalies.
+
+### 13.2 Mobile App Development (Flutter)
+> **Status:** COMPLETED (2026-02-15)
+- [x] **Initialize Project:** Create `mobile` directory with Flutter.
+- [x] **Basic Setup:** Configure main scaffold and navigation.
+- [x] **UI Implementation:** Login & Dashboard screens.
+- [x] **Backend Integration:**
+    - [x] Authentication (Email/Password & Google Sign-In wiring).
+    - [x] ApiService for HTTP requests (Interceptor for Auth Token).
+    - [x] Dashboard Data (Daily Metrics & Active Goals).
+    - [x] Fix: Backend case-sensitivity for Goal Period Type.
+    - [x] Fix: Test Data Generator for Metrics.
+
+### 13.3 Mobile App Refinement (Next Steps)
+> **Status:** IN PROGRESS
+- [ ] **Data Visualization:** Implement Sparklines/Charts for history trends.
+- [ ] **Google Sign-In Fix:** Configure SHA-1 fingerprint in Firebase Console (Production).
+- [ ] **Dynamic Workout Plan:** Replace static "Suggestion" card with real data from backend.
+
+### Deprioritized (On Hold)
+- [ ] Push Notifications (Phase 5)
+- [ ] Two-Factor Authentication (Phase 10.3)

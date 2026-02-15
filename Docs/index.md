@@ -17,10 +17,10 @@ Health AI Coach yhdistää Garmin-laitteiden datan, fysiologiset mittarit (sykev
 
 Tutustu [julkaisuoppaaseen](deployment.md) aloittaaksesi kehitys- tai tuotantoympäristössä.
 
-## Ominaisuudet
-
+- [x] Ominaisuudet
 - **Mukautuva harjoittelu:** Ohjelmat joustavat päivittäisen palautumisesi mukaan (Body Battery, TSB).
 - **AI-valmennus:** Päivittäiset oivallukset ja treenimuokkaukset LLM:n avulla.
 - **Garmin Export:** Vie tekoälyn luomat harjoitukset suoraan Garmin-kellon kalenteriin.
 - **Kisavalmistautuminen:** Kohdistettu tavoiteseuranta kisoja varten.
+- **Mobiilisovellus (Tulossa):** Natiivi iOS/Android -sovellus Flutterilla.
 - **Tietosuoja:** GDPR-yhteensopivuus ja salatut tunnukset.
