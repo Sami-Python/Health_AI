@@ -340,7 +340,7 @@ def calculate_goal_progress(user_id: str, goal: dict):
     try:
         target_val = float(goal.get('target_value', 0))
         activity_type = goal.get('activity_type', '').lower()
-        period = goal.get('period_type', 'weekly')
+        period = goal.get('period_type', 'weekly').lower()
         
         # 1. Determine Date Range
         today = date.today()

@@ -136,3 +136,9 @@ graph TD
 ### 7. Observability
 *   **Structured Logging:** JSON-muotoinen lokitus.
 *   **Security Events:** Rate limit ja auth -virheiden auditointi.
+
+### 8. Mobiilisovellus (Flutter)
+*   **Mobile App (`mobile/`):** Natiivi iOS ja Android -sovellus.
+    *   **Teknologia:** Flutter (Dart).
+    *   **Tila:** Kehityksessä (Alustettu 2026-02-15).
+    *   **Integraatio:** Käyttää samoja Backend API -rajapintoja kuin Web UI.
