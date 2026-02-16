@@ -1983,3 +1983,22 @@ Luotiin hyödyllisiä skriptejä `backend/` -kansioon:
 - Dashboard Metrics: ✅ (Hakee `/metrics/history`)
 - Active Goals: ✅ (Hakee `/goals` ja laskee progressin oikein)
 - Seuraavaksi: Kaaviot (Sparklines) ja Google Loginin korjaus.
+
+## 2026-02-16 – Mobile UI Alignment & Beta Release 📱✨
+
+Tänään saimme mobiilisovelluksen (Flutter) visuaalisen ilmeen vastaamaan web-sovellusta.
+
+### 1. UI Parity (Web <-> Mobile)
+- **Teema:** Sovellus käyttää nyt samaa "Slate 950" tummaa teemaa kuin web-versio.
+- **Glassmorphism:** Kortit ja elementit käyttävät läpikuultavia taustoja ja pehmeitä reunuksia.
+- **Dashboard:**
+    - **AI Insight Card:** Tuotu tekoälyvalmentajan kortti mobiiliin (gradient-tausta).
+    - **Stats Grid:** 2x2 ruudukko tärkeimmille luvuille (Readiness, Load, Next Workout, Goals).
+    - **Bottom Navigation:** Päivitetty ikonit ja värit.
+
+### 2. Tekniset korjaukset
+- **UTF-8 Koodaus:** Korjattu bugi, jossa skandit (ä, ö) näkyivät väärin API-vastauksissa (`utf8.decode(response.bodyBytes)`).
+- **Build Errors:** Korjattu puuttuvat importit (`firebase_auth`) ja virheelliset värit (`emeraldAccent` -> `greenAccent`).
+- **Google Sign-In:** Konfiguroitu Debug SHA-1 sormenjälki Firebase-konsoliin, jotta kirjautuminen toimii Android-emulaattorissa.
+
+**Status:** 🟢 **MOBILE BETA READY** - Sovellus näyttää ja tuntuu nyt yhtenäiseltä web-version kanssa.

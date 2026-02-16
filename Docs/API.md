@@ -131,6 +131,24 @@ Get workout history (last 30 days).
 
 ---
 
+#### `GET /workouts/weekly-status`
+Get weekly training status summary.
+
+**Tags:** Workouts, Analytics  
+**Rate Limit:** 20/min  
+**Response:**
+```json
+{
+  "current_load": 540,
+  "planned_load": 600,
+  "load_percentage": 90,
+  "workouts_completed": 4,
+  "workouts_planned": 5
+}
+```
+
+---
+
 ### AI & Insights
 
 #### `GET /ai/insight`
