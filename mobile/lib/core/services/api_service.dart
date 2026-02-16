@@ -29,7 +29,7 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/metrics/history'), headers: headers);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Metric.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load metrics: ${response.statusCode}');
@@ -41,10 +41,51 @@ class ApiService {
     final response = await http.get(Uri.parse('$baseUrl/goals'), headers: headers);
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+      final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Goal.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load goals: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchNextWorkout() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/workouts/next'), headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      if (data is Map<String, dynamic> && data.isNotEmpty) {
+        return data;
+      }
+      return null;
+    } else {
+      // Allow 404 or empty returns as null
+      print('Fetch next workout failed: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchAIInsight() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
+
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    } else {
+      print('Fetch AI insight failed: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> fetchWeeklyStats() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/workouts/weekly-status'), headers: headers);
+
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    } else {
+      print('Fetch weekly stats failed: ${response.statusCode}');
+      return null;
     }
   }
 }

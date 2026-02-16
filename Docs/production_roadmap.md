@@ -649,10 +649,15 @@ Tänään ratkaistiin pitkään vaivannut `400 Bad Request` -virhe Garmin-vienni
     - [x] Fix: Test Data Generator for Metrics.
 
 ### 13.3 Mobile App Refinement (Next Steps)
-> **Status:** IN PROGRESS
+> **Status:** COMPLETED (2026-02-16)
 - [ ] **Data Visualization:** Implement Sparklines/Charts for history trends.
-- [ ] **Google Sign-In Fix:** Configure SHA-1 fingerprint in Firebase Console (Production).
+- [x] **Google Sign-In Fix:** Configure SHA-1 fingerprint in Firebase Console (Production).
 - [ ] **Dynamic Workout Plan:** Replace static "Suggestion" card with real data from backend.
+- [ ] **UI Alignment (Web Parity):**
+    - [x] **Theme:** "Slate 950" Dark Theme.
+    - [x] **AI Insight:** Personal Coach card on Dashboard.
+    - [x] **Stats Grid:** 2x2 Grid (Readiness, Weekly Load, Next Workout, Goals).
+    - [x] **Glassmorphism:** Modern UI components.
 
 ### Deprioritized (On Hold)
 - [ ] Push Notifications (Phase 5)
