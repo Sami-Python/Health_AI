@@ -1,16 +1,28 @@
-# mobile
+# Health AI Mobile 📱
 
-A new Flutter project.
+Mobiilisovellus Health AI -palvelulle. Rakennettu Flutterilla.
 
-## Getting Started
+## Ominaisuudet
+- **Dashboard:** Päivän tärkeimmät metriikat (Readiness, Sleep, Stress).
+- **Authentication:** Kirjautuminen (Email/Password, Google Sign-In).
+- **Charts:** Visuaaliset kuvaajat palautumiselle ja unelle (Glassmorphism & Gradients).
+- **Goals:** Tavoitteiden seuranta.
 
-This project is a starting point for a Flutter application.
+## Teknologiat
+- **Flutter & Dart**
+- **State Management:** `setState` & `FutureBuilder` (MVP)
+- **Backend:** Python FastAPI (sama kuin webissä)
+- **Auth:** Firebase Authentication
+- **Http:** `http` package with Auth Interceptor
 
-A few resources to get you started if this is your first Flutter project:
+## Käynnistys
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Varmista, että backend on käynnissä (`docker-compose up`).
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+# Asenna riippuvuudet
+flutter pub get
+
+# Käynnistä (valitse laite)
+flutter run
+```

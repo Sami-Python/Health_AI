@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../data/models/metric_model.dart';
+import '../../../data/models/metric_model.dart';
 import 'package:intl/intl.dart';
 
 class SleepChart extends StatelessWidget {
@@ -23,24 +23,53 @@ class SleepChart extends StatelessWidget {
     final recentMetrics = metrics.length > 7 ? metrics.sublist(metrics.length - 7) : metrics;
 
     return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      height: 280,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+             const Color(0xFF1E293B).withOpacity(0.6), // Slate 800
+             const Color(0xFF0F172A).withOpacity(0.6), // Slate 900
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+         boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sleep Duration (Hours)',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+               Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.indigoAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.nightlight_round, color: Colors.indigoAccent, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Sleep Duration (Hours)',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Expanded(
             child: BarChart(
               BarChartData(
@@ -49,8 +78,9 @@ class SleepChart extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                      return FlLine(
-                      color: Colors.white10,
+                      color: Colors.white.withOpacity(0.05),
                       strokeWidth: 1,
+                      dashArray: [5, 5],
                     );
                   },
                 ),
@@ -61,7 +91,7 @@ class SleepChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 32,
                       getTitlesWidget: (value, meta) {
                         int index = value.toInt();
                         if (index >= 0 && index < recentMetrics.length) {
@@ -71,9 +101,10 @@ class SleepChart extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
                                 DateFormat('E').format(date).substring(0, 1), // M, T, W
-                                style: const TextStyle(
-                                  color: Colors.white54,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
                                   fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             );
@@ -88,14 +119,14 @@ class SleepChart extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 35,
                       interval: 2, // Show every 2 hours
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 11,
                           ),
                         );
                       },
@@ -111,16 +142,41 @@ class SleepChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: hours,
-                        color: Colors.blueAccent,
-                        width: 16,
+                        gradient: const LinearGradient(
+                           colors: [Colors.indigoAccent, Colors.purpleAccent],
+                           begin: Alignment.bottomCenter,
+                           end: Alignment.topCenter,
+                        ),
+                        width: 12,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(4),
-                          topRight: Radius.circular(4),
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(6),
+                        ),
+                        backDrawRodData: BackgroundBarChartRodData(
+                          show: true,
+                          toY: 10, // Max scale roughly
+                          color: Colors.white.withOpacity(0.05),
                         ),
                       ),
                     ],
                   );
                 }).toList(),
+                 barTouchData: BarTouchData(
+                   touchTooltipData: BarTouchTooltipData(
+                     tooltipPadding: const EdgeInsets.all(8),
+                     tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.1)),
+                     getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                       return BarTooltipItem(
+                         '${rod.toY.toStringAsFixed(1)} h',
+                         const TextStyle(
+                           color: Colors.indigoAccent,
+                           fontWeight: FontWeight.bold,
+                           fontSize: 14,
+                         ),
+                       );
+                     },
+                   ),
+                 ),
               ),
             ),
           ),
