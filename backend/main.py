@@ -1305,6 +1305,19 @@ async def update_workout_date(workout_id: str, request: Request, user: dict = De
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/workouts/next")
+@limiter.limit("20/minute")
+async def get_next_workout_endpoint(request: Request, user: dict = Depends(verify_token)):
+    """
+    Fetches the next pending workout for the user (today or future).
+    Used for the "Suggestion" card in the mobile dashboard.
+    """
+    try:
+        workout = db_manager.get_next_workout(user['uid'])
+        return workout if workout else {} # Return empty dict if no workout, handled by frontend
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.delete("/workouts/{workout_id}")
 @limiter.limit("10/minute")
 async def delete_workout_endpoint(workout_id: str, request: Request, user: dict = Depends(verify_token)):
