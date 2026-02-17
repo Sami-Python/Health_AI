@@ -2002,3 +2002,29 @@ Tänään saimme mobiilisovelluksen (Flutter) visuaalisen ilmeen vastaamaan web-
 - **Google Sign-In:** Konfiguroitu Debug SHA-1 sormenjälki Firebase-konsoliin, jotta kirjautuminen toimii Android-emulaattorissa.
 
 **Status:** 🟢 **MOBILE BETA READY** - Sovellus näyttää ja tuntuu nyt yhtenäiseltä web-version kanssa.
+
+---
+
+## 2026-02-17 – Mobile App UI Polish ✨
+
+Viimeisteltiin mobiilisovelluksen ulkoasu vastaamaan web-sovelluksen korkeaa tasoa.
+
+### 1. Graafien visuaalinen päivitys
+- **Readiness & Sleep Charts:**
+    - Lisätty liukuvärjätyt viivat (Gradient Lines) ja palkit.
+    - Taustalle lisätty "Glassmorphism" -efekti (läpinäkyvyys + blur).
+    - Viivojen alle lisätty häivytetty täyttöväri (Below Bar Data).
+    - Akselien tekstejä selkeytetty (Opacity 0.6) ja skaalaus korjattu (0-100).
+
+### 2. Dashboard -tervehdys
+- Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui.
+- **Logiikka:**
+    1. Yritä `displayName` (esim. "Sami").
+    2. Jos puuttuu, ota nimen osa sähköpostista (esim. `sami.virtanen@...` -> "Sami").
+    3. Fallback: "User".
+- **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella.
+
+### 3. Tekninen viimeistely
+- Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
+- Korjattu syntax error (ylimääräinen aaltosulku).
+- Varmistettu käännöksen läpimeno `flutter analyze`:lla.

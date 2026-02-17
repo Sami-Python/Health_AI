@@ -649,11 +649,11 @@ Tänään ratkaistiin pitkään vaivannut `400 Bad Request` -virhe Garmin-vienni
     - [x] Fix: Test Data Generator for Metrics.
 
 ### 13.3 Mobile App Refinement (Next Steps)
-> **Status:** COMPLETED (2026-02-16)
-- [ ] **Data Visualization:** Implement Sparklines/Charts for history trends.
+> **Status:** COMPLETED (2026-02-17)
+- [x] **Data Visualization:** Implement Sparklines/Charts for history trends.
 - [x] **Google Sign-In Fix:** Configure SHA-1 fingerprint in Firebase Console (Production).
-- [ ] **Dynamic Workout Plan:** Replace static "Suggestion" card with real data from backend.
-- [ ] **UI Alignment (Web Parity):**
+- [x] **Dynamic Workout Plan:** Replace static "Suggestion" card with real data from backend.
+- [x] **UI Alignment (Web Parity):**
     - [x] **Theme:** "Slate 950" Dark Theme.
     - [x] **AI Insight:** Personal Coach card on Dashboard.
     - [x] **Stats Grid:** 2x2 Grid (Readiness, Weekly Load, Next Workout, Goals).
@@ -662,3 +662,29 @@ Tänään ratkaistiin pitkään vaivannut `400 Bad Request` -virhe Garmin-vienni
 ### Deprioritized (On Hold)
 - [ ] Push Notifications (Phase 5)
 - [ ] Two-Factor Authentication (Phase 10.3)
+
+
+## 2026-02-17 – Mobile App UI Polish ✨
+
+Viimeisteltiin mobiilisovelluksen ulkoasu vastaamaan web-sovelluksen korkeaa tasoa.
+
+### 1. Graafien visuaalinen päivitys (Glassmorphism & Gradients)
+- **Readiness & Sleep Charts:**
+    - Lisätty liukuvärjätyt viivat (Gradient Lines) ja palkit.
+    - Taustalle lisätty "Glassmorphism" -efekti (läpinäkyvyys + blur).
+    - Viivojen alle lisätty häivytetty täyttöväri (Below Bar Data).
+    - Akselien tekstejä selkeytetty (Opacity 0.6) ja skaalaus korjattu (0-100).
+    - **Tulos:** Graafit näyttävät nyt modernilta ja johdonmukaiselta muun UI:n kanssa.
+
+### 2. Dashboard -tervehdys
+- Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui.
+- **Logiikka:**
+    1. Yritä `displayName` (esim. "Sami").
+    2. Jos puuttuu, ota nimen osa sähköpostista (esim. `sami.virtanen@...` -> "Sami").
+    3. Fallback: "User".
+- **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella.
+
+### 3. Tekninen viimeistely
+- Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
+- Korjattu syntax error (ylimääräinen aaltosulku).
+- Varmistettu käännöksen läpimeno `flutter analyze`:lla.

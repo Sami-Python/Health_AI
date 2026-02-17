@@ -124,7 +124,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             // Greeting Header
             Text(
-              'Hello, ${FirebaseAuth.instance.currentUser?.displayName ?? "User"}',
+              'Hello, ${_getDisplayName()}',
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -198,37 +198,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 12),
             if (_history.isNotEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A).withOpacity(0.5), // Slate 900/50
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: Column(
-                  children: [
-                    const Align(alignment: Alignment.centerLeft, child: Text("Readiness Trend", style: TextStyle(color: Colors.white70, fontSize: 14))),
-                    const SizedBox(height: 16),
-                    ReadinessChart(metrics: _history),
-                  ],
-                ),
-              ),
+              ReadinessChart(metrics: _history),
               const SizedBox(height: 16),
-              Container(
-                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0F172A).withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: Column(
-                  children: [
-                    const Align(alignment: Alignment.centerLeft, child: Text("Sleep Duration", style: TextStyle(color: Colors.white70, fontSize: 14))),
-                    const SizedBox(height: 16),
-                    SleepChart(metrics: _history),
-                  ],
-                ),
-              ),
+              SleepChart(metrics: _history),
               const SizedBox(height: 24),
             ],
 
@@ -477,6 +449,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String _getDisplayName() {
+    final user = FirebaseAuth.instance.currentUser;
+    String name = "User";
 
+    if (user?.displayName != null && user!.displayName!.isNotEmpty) {
+      name = user.displayName!;
+    } else if (user?.email != null && user!.email!.isNotEmpty) {
+      name = user.email!.split('@')[0];
+    }
 
+    if (name.isNotEmpty) {
+      return name[0].toUpperCase() + name.substring(1);
+    }
+    return name;
+  }
 }

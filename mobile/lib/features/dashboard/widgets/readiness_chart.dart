@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../../../data/models/metric_model.dart';
+import '../../../data/models/metric_model.dart';
 import 'package:intl/intl.dart';
 
 class ReadinessChart extends StatelessWidget {
@@ -23,24 +23,53 @@ class ReadinessChart extends StatelessWidget {
     final recentMetrics = metrics.length > 7 ? metrics.sublist(metrics.length - 7) : metrics;
     
     return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      height: 280, // Slightly taller for better spacing
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF1E293B).withOpacity(0.6), // Slate 800
+            const Color(0xFF0F172A).withOpacity(0.6), // Slate 900
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Body Battery Trend',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.greenAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.flash_on_rounded, color: Colors.greenAccent, size: 18),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Body Battery Trend',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
           Expanded(
             child: LineChart(
               LineChartData(
@@ -49,8 +78,9 @@ class ReadinessChart extends StatelessWidget {
                   drawVerticalLine: false,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white10,
+                      color: Colors.white.withOpacity(0.05),
                       strokeWidth: 1,
+                      dashArray: [5, 5], // Dashed lines
                     );
                   },
                 ),
@@ -61,23 +91,21 @@ class ReadinessChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 32,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         int index = value.toInt();
                         if (index >= 0 && index < recentMetrics.length) {
-                          // Format date: "2023-10-25" -> "25" (Day)
-                          // Or use DateFormat.E() for day name.
-                          // Let's try to parse date.
                           try {
                             final date = DateTime.parse(recentMetrics[index].date);
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
-                                DateFormat('d').format(date),
-                                style: const TextStyle(
-                                  color: Colors.white54,
+                                DateFormat('E').format(date).substring(0, 1), // M, T, W
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.5),
                                   fontSize: 12,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             );
@@ -92,14 +120,14 @@ class ReadinessChart extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 40,
+                      reservedSize: 35,
                       interval: 20,
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 11,
                           ),
                         );
                       },
@@ -110,23 +138,60 @@ class ReadinessChart extends StatelessWidget {
                 minX: 0,
                 maxX: (recentMetrics.length - 1).toDouble(),
                 minY: 0,
-                maxY: 100,
+                maxY: 100, // Range 0-100
                 lineBarsData: [
                   LineChartBarData(
                     spots: recentMetrics.asMap().entries.map((e) {
                       return FlSpot(e.key.toDouble(), e.value.readiness.toDouble());
                     }).toList(),
                     isCurved: true,
-                    color: Colors.greenAccent,
+                    gradient: const LinearGradient(
+                      colors: [Colors.greenAccent, Colors.tealAccent],
+                    ),
                     barWidth: 3,
                     isStrokeCapRound: true,
-                    dotData: FlDotData(show: true),
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: const Color(0xFF0F172A),
+                          strokeWidth: 2,
+                          strokeColor: Colors.greenAccent,
+                        );
+                      },
+                    ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.greenAccent.withOpacity(0.1),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.greenAccent.withOpacity(0.25),
+                          Colors.greenAccent.withOpacity(0.0),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ],
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    tooltipPadding: const EdgeInsets.all(8),
+                    tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    getTooltipItems: (touchedSpots) {
+                      return touchedSpots.map((spot) {
+                        return LineTooltipItem(
+                          '${spot.y.toInt()}',
+                          const TextStyle(
+                            color: Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
               ),
             ),
           ),
