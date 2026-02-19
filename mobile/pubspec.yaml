@@ -40,6 +40,7 @@ dependencies:
   google_sign_in: ^6.2.1
   http: ^0.13.6
   fl_chart: ^0.66.0
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:

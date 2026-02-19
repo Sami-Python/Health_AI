@@ -1,0 +1,39 @@
+{
+    "project_info": {
+        "project_number": "561128557040",
+        "project_id": "personal-ai-coach-92c39",
+        "storage_bucket": "personal-ai-coach-92c39.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:561128557040:android:340656a8195c72ca10b535",
+                "android_client_info": {
+                    "package_name": "com.personalaicoach.mobile"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "561128557040-4ns...googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "561128557040-4ns...googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

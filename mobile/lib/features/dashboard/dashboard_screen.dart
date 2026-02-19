@@ -5,6 +5,9 @@ import '../../data/models/goal_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'widgets/readiness_chart.dart';
 import 'widgets/sleep_chart.dart';
+import '../calendar/calendar_screen.dart';
+import '../analysis/analysis_screen.dart';
+import '../profile/profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -71,6 +74,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // ... (build method remains mostly same until _buildWorkoutCard call)
 
+  int _selectedIndex = 0;
+  
+  // No longer static list, handled in build method via switch or if/else
+  // int _selectedIndex = 0; // Already defined above
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -112,12 +126,60 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white70),
             onPressed: () {
-              // Navigate to Settings
+               setState(() {
+                 _selectedIndex = 3; // Switch to Profile tab
+               });
             },
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _buildBody(),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.white54,
+        backgroundColor: const Color(0xFF0F172A), // Slate 900
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month_rounded),
+            label: 'Calendar',
+          ),
+           BottomNavigationBarItem(
+            icon: Icon(Icons.insights_rounded),
+            label: 'Analysis',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildDashboardContent();
+      case 1:
+        return const CalendarScreen();
+      case 2:
+        return const AnalysisScreen();
+      case 3:
+        return const ProfileScreen();
+      default:
+        return _buildDashboardContent();
+    }
+  }
+
+  Widget _buildDashboardContent() {
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,33 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.white54,
-        backgroundColor: const Color(0xFF0F172A), // Slate 900
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_rounded),
-            label: 'Calendar',
-          ),
-           BottomNavigationBarItem(
-            icon: Icon(Icons.insights_rounded),
-            label: 'Analysis',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
+      );
   }
 
   // ... (Keep _buildMetricCard and _buildGoalCard as is, assume they are there or see context)
@@ -465,3 +501,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return name;
   }
 }
+
+// DashboardContent class removed as it was a temporary stub.
+// The logic is now in _buildDashboardContent method within _DashboardScreenState.
+// To keep _widgetOptions happy, we need a widget that wraps _buildDashboardContent.
+// However, _buildDashboardContent is an instance method, so we can't use it in a static list easily.
+// Let's refactor: _widgetOptions should be a getter or build method switch.
+

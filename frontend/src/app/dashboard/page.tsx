@@ -168,7 +168,17 @@ export default function DashboardPage() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800 pb-6">
                         <div className="text-center md:text-left">
                             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">Dashboard</h1>
-                            <p className="text-slate-400 mt-1">Welcome back, {user.displayName}</p>
+                            <p className="text-slate-400 mt-1">
+                                Welcome back, {(() => {
+                                    if (!user) return 'User';
+                                    let name = user.displayName;
+                                    if (!name && user.email) {
+                                        name = user.email.split('@')[0];
+                                    }
+                                    if (!name) return 'User';
+                                    return name.charAt(0).toUpperCase() + name.slice(1);
+                                })()}
+                            </p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="hidden md:block text-right text-xs text-slate-500 mr-2">

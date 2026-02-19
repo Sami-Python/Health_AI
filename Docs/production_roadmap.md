@@ -95,7 +95,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Frontend Features:** Training Calendar, Goals, Dashboard. (#156)
 - [x] **Mobiilisovellus:** Web App toimii nyt mobiilissa (Responsive Design + Network Config). (#157)
 - [ ] **Natiivi Mobiili (Optionaalinen):** Harkitse React Nativea tai Flutteria myöhemmin. (#158)
-- [ ] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`. (#159)
+- [x] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`. (#159)
 - [ ] **Notifikaatiot:** Lisää Push-ilmoitukset (treenimuistutukset). (#160)
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin. (#161)
 
@@ -677,14 +677,41 @@ Viimeisteltiin mobiilisovelluksen ulkoasu vastaamaan web-sovelluksen korkeaa tas
     - **Tulos:** Graafit näyttävät nyt modernilta ja johdonmukaiselta muun UI:n kanssa.
 
 ### 2. Dashboard -tervehdys
-- Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui.
-- **Logiikka:**
-    1. Yritä `displayName` (esim. "Sami").
-    2. Jos puuttuu, ota nimen osa sähköpostista (esim. `sami.virtanen@...` -> "Sami").
-    3. Fallback: "User".
-- **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella.
+- [x] **Dashboard -tervehdys:**
+    - [x] Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui.
+    - [x] **Logiikka:** fallbacks (`displayName` -> `email` -> "User").
+    - [x] **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella.
 
 ### 3. Tekninen viimeistely
-- Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
-- Korjattu syntax error (ylimääräinen aaltosulku).
-- Varmistettu käännöksen läpimeno `flutter analyze`:lla.
+- [x] Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
+- [x] Korjattu syntax error (ylimääräinen aaltosulku).
+- [x] Varmistettu käännöksen läpimeno `flutter analyze`:lla.
+
+
+## 2026-02-19 – Mobile App Feature Complete (Calendar & Analysis) 📱📅
+
+Tänään saatiin mobiilisovellus feature-paritytasolle web-sovelluksen kanssa.
+
+### 1. Navigaatio & Rakenne
+- [x] **Bottom Navigation:** Korjattu toimimaton navigaatio.
+    - [x] Nyt neljä välilehteä: **Home**, **Calendar**, **Analysis**, **Profile**.
+    - [x] Tilanhallinta (`_selectedIndex`) toimii ja vaihtaa näkymiä oikein.
+
+### 2. Uudet Näkymät
+- [x] **Calendar Screen:**
+    - [x] **TableCalendar:** Visuaalinen kuukausikalenteri treenien selailuun.
+    - [x] **Workout List:** Tulevat treenit listattuna kalenterin alla.
+- [x] **Analysis Screen:**
+    - [x] **Performance Chart:** Uusi graafi (CTL/ATL/TSB) mobiiliin, vastaamaan web-näkymää.
+    - [x] **Load Chart:** Pylväsdiagrammi viikon kuormituksesta.
+    - [x] **Readiness & Sleep:** Yhdistetty graafi palautumisen seurantaan.
+- [x] **Profile Screen:**
+    - [x] Käyttäjän tiedot (Nimi, Email).
+    - [x] Sign Out -painike.
+
+### 3. Visual Parity (Web <-> Mobile)
+- [x] **Chart Styling:**
+    - [x] Web App: Palautettu "Premium" gradiantit ja lasiefektit (`RecoveryChart`, `LoadChart`).
+    - [x] Mobile App: `PerformanceChart` toteutettu samoilla väreillä (Blue/Pink/Green) ja tyylillä kuin webissä.
+
+**Status:** 🟢 **MOBILE MVP READY** - Sovellus on valmis laajempaan testaukseen. Seuraavaksi: Oikean datan haku kalenteriin (nyt placeholder).
