@@ -677,15 +677,15 @@ Viimeisteltiin mobiilisovelluksen ulkoasu vastaamaan web-sovelluksen korkeaa tas
     - **Tulos:** Graafit näyttävät nyt modernilta ja johdonmukaiselta muun UI:n kanssa.
 
 ### 2. Dashboard -tervehdys
-- [x] **Dashboard -tervehdys:**
-    - [x] Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui.
-    - [x] **Logiikka:** fallbacks (`displayName` -> `email` -> "User").
-    - [x] **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella.
+- [x] **Dashboard -tervehdys:** (#329)
+    - [x] Korjattu bugi, jossa tervehdys näytti "Hello, null" tai "Hello, User" jos display name puuttui. (#330)
+    - [x] **Logiikka:** fallbacks (`displayName` -> `email` -> "User"). (#331)
+    - [x] **Capitalization:** Varmistetaan, että nimi alkaa aina isolla alkukirjaimella. (#332)
 
 ### 3. Tekninen viimeistely
-- [x] Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
-- [x] Korjattu syntax error (ylimääräinen aaltosulku).
-- [x] Varmistettu käännöksen läpimeno `flutter analyze`:lla.
+- [x] Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`). (#333)
+- [x] Korjattu syntax error (ylimääräinen aaltosulku). (#334)
+- [x] Varmistettu käännöksen läpimeno `flutter analyze`:lla. (#335)
 
 
 ## 2026-02-19 – Mobile App Feature Complete (Calendar & Analysis) 📱📅
