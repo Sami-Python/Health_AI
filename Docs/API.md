@@ -446,6 +446,69 @@ Force logout a user by revoking their refresh tokens.
 }
 ```
 
+---
+
+#### `GET /admin/users`
+List all registered users (Firebase Auth).
+
+**Tags:** System, Admin  
+**Rate Limit:** 20/min  
+**Security:** Requires Admin email.
+
+**Response:**
+```json
+{
+  "users": [
+    {
+      "uid": "user123",
+      "email": "user@example.com",
+      "display_name": "John Doe",
+      "disabled": false,
+      "metadata": {
+        "last_sign_in": 1700000000000,
+        "creation_time": 1690000000000
+      }
+    }
+  ],
+  "total": 50
+}
+```
+
+---
+
+### AI Chat
+
+#### `POST /ai/chat`
+Interactive chat with the AI Health Coach.
+
+**Tags:** AI  
+**Rate Limit:** 10/min  
+**Request Body:**
+```json
+{
+  "message": "How was my sleep last night?",
+  "history": [
+    {"role": "user", "content": "Hello"},
+    {"role": "model", "content": "Hi! How can I help?"}
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "Your sleep was excellent! You got 8 hours...",
+  "history": [
+    {"role": "user", "content": "Hello"},
+    {"role": "model", "content": "Hi! How can I help?"},
+    {"role": "user", "content": "How was my sleep last night?"},
+    {"role": "model", "content": "Your sleep was excellent!..."}
+  ]
+}
+```
+
+
+
 
 #### `GET /health`
 Health check endpoint (no auth required).

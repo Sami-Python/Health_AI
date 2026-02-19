@@ -1,0 +1,181 @@
+import 'package:flutter/material.dart';
+import '../../data/models/metric_model.dart';
+import '../../core/services/api_service.dart';
+import '../dashboard/widgets/readiness_chart.dart';
+import '../dashboard/widgets/sleep_chart.dart';
+import '../dashboard/widgets/load_chart.dart';
+import '../dashboard/widgets/performance_chart.dart';
+
+class AnalysisScreen extends StatefulWidget {
+  const AnalysisScreen({super.key});
+
+  @override
+  State<AnalysisScreen> createState() => _AnalysisScreenState();
+}
+
+class _AnalysisScreenState extends State<AnalysisScreen> {
+  final ApiService _apiService = ApiService();
+  bool _isLoading = true;
+  String? _error;
+  List<Metric> _history = [];
+  Map<String, dynamic>? _weeklyStats;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final metrics = await _apiService.fetchMetricsHistory();
+      final weeklyStats = await _apiService.fetchWeeklyStats();
+      
+      if (mounted) {
+        setState(() {
+          _history = metrics;
+          _weeklyStats = weeklyStats;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: $_error', style: const TextStyle(color: Colors.red)),
+            ElevatedButton(onPressed: _fetchData, child: const Text('Retry')),
+          ],
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF020617), // Slate 950
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Analysis',
+               style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+             const Text(
+              'Deep dive into your recovery and training trends.',
+               style: TextStyle(
+                fontSize: 14,
+                color: Colors.white54,
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Weekly Stats Summary
+            if (_weeklyStats != null) ...[
+               Container(
+                 padding: const EdgeInsets.all(16),
+                 decoration: BoxDecoration(
+                   color: const Color(0xFF0F172A),
+                   borderRadius: BorderRadius.circular(16),
+                   border: Border.all(color: Colors.white10),
+                 ),
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                   children: [
+                     _buildStatItem("Load", "${_weeklyStats!['current_load']?.toInt() ?? 0}", Colors.orangeAccent),
+                     _buildStatItem("Duration", "${((_weeklyStats!['duration_minutes'] ?? 0) / 60).toStringAsFixed(1)}h", Colors.blueAccent),
+                     _buildStatItem("Planned", "${_weeklyStats!['planned_load']?.toInt() ?? 0}", Colors.greenAccent),
+                   ],
+                 ),
+               ),
+               const SizedBox(height: 24),
+            ],
+
+            const Text(
+              'Readiness & Recovery',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ReadinessChart(metrics: _history),
+            const SizedBox(height: 24),
+
+            const Text(
+              'Sleep Quality',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            SleepChart(metrics: _history),
+            const SizedBox(height: 24),
+
+            const Text(
+              'Performance (CTL/ATL/TSB)',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            PerformanceChart(metrics: _history),
+            const SizedBox(height: 24),
+
+            const Text(
+              'Training Load',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            LoadChart(metrics: _history),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, Color color) {
+    return Column(
+      children: [
+        Text(value, style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+      ],
+    );
+  }
+}

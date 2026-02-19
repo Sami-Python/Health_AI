@@ -7,8 +7,16 @@ git pull origin main --rebase
 ```
 
 ### Backend (API)
+**Option A: Docker (Production-like)**
 ```bash
 docker-compose up
+```
+
+**Option B: Manual (Faster for Dev)**
+```bash
+cd backend
+.venv\Scripts\activate  # Windows
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Frontend (Next.js)
@@ -16,6 +24,15 @@ docker-compose up
 cd frontend
 npm run dev
 ```
+
+### Mobile App (Flutter)
+1. Käynnistä Android Emulator (`flutter emulators --launch Medium_Phone_API_36.1`)
+2. Aja sovellus:
+```bash
+cd mobile
+flutter run
+```
+*Tai VS Codessa: Avaa `mobile/lib/main.dart` ja paina F5.*
 
 
 ### 1. Datan päivitys (Inkrementaalinen)
@@ -1622,11 +1639,42 @@ firebase deploy --only firestore:rules
 -  CORS restricted to localhost + production
 -  Firestore Rules estää suorat tietokantayhteydet
 
-**Arvosana:** 🟢 **A- → A** (98% confidence)
+**Status:** 🟢 **A- → A** (98% confidence)
 
 **Status:** 🟢 **PRODUCTION READY** - Turvallinen monikäyttäjäympäristö
 
 **Lines of Code:** ~200 lines (rules + config + docs)
+
+---
+
+## 2026-02-19 – Mobile App Feature Complete 📱
+
+Mobiilisovellus (`mobile`) on nyt feature-tasolla valmis ja vastaa web-sovelluksen toiminnallisuuksia.
+
+### 1. Navigaatio & Näkymät
+Sovelluksessa on nyt täysi navigaatio (`BottomNavigationBar`):
+- **Home (Dashboard):** Yhteenveto, AI Coach, Seuraava treeni.
+- **Calendar:** Uusi `TableCalendar` -näkymä ja lista tulevista treeneistä.
+- **Analysis:** Kattavat graafit:
+    - **Performance:** Fitness (CTL), Fatigue (ATL), Form (TSB).
+    - **Readiness:** Body Battery vs Sleep.
+    - **Load:** Viikon kuormitus.
+- **Profile:** Käyttäjän tiedot ja uloskirjautuminen.
+
+### 2. Yhdenmukaisuus (Web vs Mobile)
+- **Visuaalinen ilme:** Web-sovelluksen "Premium" -tyyli (gradientit, lasiefektit) on palautettu ja tuotu myös mobiiliin.
+- **Data:** `PerformanceChart` lisätty mobiiliin, jotta käyttäjä näkee samat edistyneet metriikat (CTL/ATL) kuin selaimessa.
+
+### 3. Käyttöönotto (Mobile)
+1. Käynnistä Android Emulator (`flutter emulators --launch Medium_Phone_API_36.1`).
+2. Aja sovellus:
+```bash
+cd mobile
+flutter run
+```
+*(Huom: Kalenteri käyttää vielä placeholder-dataa visualisoinnin varmistamiseksi, kunnes API-rajapinta kalenteritapahtumille on kytketty).*
+
+**Status:** 🟢 **MVP COMPLETE**
 
 ---
 
