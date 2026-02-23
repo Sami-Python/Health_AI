@@ -455,14 +455,25 @@ def calculate_goal_progress(user_id: str, goal: dict):
                       # fallback: estimate? or 0.
                       pass
 
+        # Calculate days_left (Mon–Sun week for weekly, calendar month for monthly, target date for others)
+        days_left = 0
+        if period == 'weekly':
+            days_left = (end_date - today).days  # days until Sunday (inclusive = 0 on Sunday)
+        elif period == 'monthly':
+            days_left = (end_date - today).days
+        elif period in ('target_date', 'race'):
+            days_left = max(0, (end_date - today).days)
+
         return {
             "current_value": round(total_value, 1),
-            "progress_percentage": min(100, int((total_value / target_val) * 100)) if target_val > 0 else 0
+            "progress_percentage": min(100, int((total_value / target_val) * 100)) if target_val > 0 else 0,
+            "days_left": days_left,
         }
 
     except Exception as e:
         print(f"Goal Calc Error: {e}")
-        return {"current_value": 0, "progress_percentage": 0}
+        return {"current_value": 0, "progress_percentage": 0, "days_left": 0}
+
 
 class GoalCreate(BaseModel):
     activity_type: str
@@ -854,6 +865,23 @@ def get_upcoming_workouts(request: Request, user: dict = Depends(verify_token)):
     """
     try:
         return db_manager.get_upcoming_workouts(user['uid'])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/workouts/history", tags=["Workouts"])
+@limiter.limit("20/minute")
+async def get_workout_history(request: Request, user: dict = Depends(verify_token), limit: int = 50):
+    """
+    Get past completed workouts for the authenticated user.
+    
+    Used by the mobile Training Calendar to display historical sessions.
+    Returns workouts with status DONE, ordered by date descending.
+    """
+    try:
+        workouts = db_manager.get_all_workouts(user['uid'], limit=limit)
+        done = [w for w in workouts if w.get('status') == 'DONE']
+        done.sort(key=lambda w: w.get('date', ''), reverse=True)
+        return done
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

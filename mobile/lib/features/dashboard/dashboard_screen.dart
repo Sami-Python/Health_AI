@@ -8,6 +8,7 @@ import 'widgets/sleep_chart.dart';
 import '../calendar/calendar_screen.dart';
 import '../analysis/analysis_screen.dart';
 import '../profile/profile_screen.dart';
+import '../goals/goal_form_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,6 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   String? _error;
+  bool _garminConnected = true; // Optimistic default to avoid flash
   
   // Data
   Metric? _latestMetric;
@@ -33,6 +35,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _fetchData();
+    _fetchGarminStatus();
+  }
+
+  Future<void> _fetchGarminStatus() async {
+    try {
+      final status = await _apiService.getGarminStatus();
+      if (mounted) setState(() => _garminConnected = status?['connected'] == true);
+    } catch (_) {}
   }
 
   Future<void> _fetchData() async {
@@ -202,6 +212,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 24),
 
+            // Garmin connection banner
+            if (!_garminConnected)
+              GestureDetector(
+                onTap: () => setState(() => _selectedIndex = 3),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.orangeAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.4)),
+                  ),
+                  child: Row(children: [
+                    const Icon(Icons.watch_outlined, color: Colors.orangeAccent, size: 20),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Connect your Garmin to sync workouts',
+                        style: TextStyle(color: Colors.orangeAccent, fontSize: 13),
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent, size: 14),
+                  ]),
+                ),
+              ),
+
             // AI Insight Card
             if (_aiInsight != null) ...[
               _buildAIInsightCard(),
@@ -267,13 +303,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
 
             // Goals Section
-            const Text(
-              'Your Active Goals',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Your Active Goals',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => _openGoalForm(),
+                  icon: const Icon(Icons.add, color: Colors.blueAccent, size: 18),
+                  label: const Text('Add', style: TextStyle(color: Colors.blueAccent)),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             if (_goals.isEmpty)
@@ -284,7 +330,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.white10, style: BorderStyle.solid)
                 ),
-                child: const Center(child: Text('No active goals', style: TextStyle(color: Colors.white54))),
+                child: Column(
+                  children: [
+                    const Icon(Icons.flag_outlined, color: Colors.white24, size: 36),
+                    const SizedBox(height: 8),
+                    const Text('No active goals', style: TextStyle(color: Colors.white54)),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => _openGoalForm(),
+                      child: const Text('+ Create your first goal', style: TextStyle(color: Colors.blueAccent)),
+                    )
+                  ],
+                ),
               )
             else
               ..._goals.map((goal) => _buildGoalCard(goal)),
@@ -420,14 +477,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _openGoalForm({Goal? existingGoal}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => GoalFormSheet(
+        existingGoal: existingGoal,
+        onSuccess: _fetchData,
+      ),
+    );
+  }
+
+  Future<void> _deleteGoal(Goal goal) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        title: const Text('Delete Goal', style: TextStyle(color: Colors.white)),
+        content: Text(
+          'Delete "${goal.activityType}" goal? This cannot be undone.',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      try {
+        await _apiService.deleteGoal(goal.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Goal deleted'), backgroundColor: Colors.green),
+          );
+          _fetchData();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
   Widget _buildGoalCard(Goal goal) {
-     return Container(
+    final isRace = goal.periodType == 'race';
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF0F172A).withOpacity(0.5), // Slate 900
+        color: const Color(0xFF0F172A).withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        border: Border.all(color: isRace ? Colors.purple.withOpacity(0.3) : Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,49 +548,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Row(
                 children: [
-                   Icon(goal.targetUnit == 'km' ? Icons.directions_run : Icons.flag, size: 16, color: Colors.blueAccent),
-                   const SizedBox(width: 8),
-                   Text(
-                    '${goal.activityType}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  Icon(
+                    isRace ? Icons.flag : (goal.targetUnit == 'km' ? Icons.directions_run : Icons.fitness_center),
+                    size: 16,
+                    color: isRace ? Colors.purpleAccent : Colors.blueAccent,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    goal.activityType,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  if (isRace) ...[const SizedBox(width: 6), Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.purple.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                    child: const Text('RACE', style: TextStyle(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold)),
+                  )],
+                ],
+              ),
+              // Edit / Delete icons
+              Row(
+                children: [
+                  if (!isRace)
+                    Text('${goal.progressPercentage}%',
+                        style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _openGoalForm(existingGoal: goal),
+                    child: const Icon(Icons.edit_outlined, size: 18, color: Colors.white38),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _deleteGoal(goal),
+                    child: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
                   ),
                 ],
               ),
-              Text(
-                '${goal.progressPercentage}%',
-                style: const TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 12),
-          LinearProgressIndicator(
-            value: goal.progressPercentage / 100,
-            backgroundColor: Colors.white10,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
-            borderRadius: BorderRadius.circular(4),
-            minHeight: 6,
-          ),
+          if (isRace && goal.daysRemaining != null) ...[
+            const SizedBox(height: 8),
+            Center(
+              child: RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                    text: '${(goal.daysRemaining! / 7).floor()}',
+                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(text: ' w  ', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                  TextSpan(
+                    text: '${goal.daysRemaining! % 7}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const TextSpan(text: ' d to start line', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                ]),
+              ),
+            ),
+          ] else ...[
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: goal.progressPercentage / 100,
+              backgroundColor: Colors.white10,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                goal.progressPercentage >= 100 ? Colors.greenAccent : Colors.blueAccent,
+              ),
+              borderRadius: BorderRadius.circular(4),
+              minHeight: 6,
+            ),
+          ],
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               Text(
-                '${goal.currentValue} / ${goal.targetValue} ${goal.targetUnit}',
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
-              ),
-              Text(
-                 '${goal.daysLeft} days left',
-                 style: const TextStyle(color: Colors.white54, fontSize: 12),
-              )
-            ],
-          )
+          if (isRace)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Race distance: ${goal.targetValue} ${goal.targetUnit}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                Text(
+                  goal.targetDate ?? '',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${goal.currentValue} / ${goal.targetValue} ${goal.targetUnit}',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                Text(
+                  '${goal.daysLeft} days left',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+              ],
+            ),
         ],
       ),
     );

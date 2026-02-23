@@ -1,8 +1,10 @@
 # Health AI Coach API Documentation
 
-**Base URL:** `http://localhost:8001` (development)  
-**API Docs:** `http://localhost:8001/docs` (Swagger UI)  
-**Version:** 1.0.0
+**Base URL:** `http://localhost:8000` (development)  
+**Production:** `https://api.personalaicoach.ai`  
+**API Docs:** `http://localhost:8000/docs` (Swagger UI)  
+**Version:** 1.1.0
+
 
 ---
 
@@ -124,12 +126,83 @@ Log a manual workout.
 ---
 
 #### `GET /workouts/history`
-Get workout history (last 30 days).
+Get past completed workouts (status=DONE), ordered by date descending.
+
+**Tags:** Workouts  
+**Rate Limit:** 20/min  
+**Parameters:**
+- `limit` (optional): Max items (default 50)
+
+**Response:**
+```json
+[
+  {
+    "date": "2024-01-15",
+    "activity": "Running",
+    "duration_min": 45,
+    "status": "DONE",
+    "source": "GARMIN"
+  }
+]
+```
+
+---
+
+#### `GET /workouts/upcoming`
+Get all future planned (PENDING) workouts.
 
 **Tags:** Workouts  
 **Rate Limit:** 20/min
 
 ---
+
+#### `POST /workouts/manual`
+Log a manual workout.
+
+**Tags:** Workouts  
+**Request Body:**
+```json
+{
+  "date": "2024-01-15",
+  "activity": "Running",
+  "duration_min": 60,
+  "rpe": 7,
+  "notes": "Easy run"
+}
+```
+
+---
+
+#### `POST /workouts/upload`
+Upload a structured workout to Garmin Connect.
+
+**Tags:** Workouts  
+**Rate Limit:** 5/min  
+**Request Body:**
+```json
+{
+  "workout": { "...Garmin workout JSON..." },
+  "date": "2024-01-20"
+}
+```
+
+---
+
+#### `PATCH /workouts/{workout_id}`
+Change a workout's date (reschedule).
+
+**Tags:** Workouts  
+**Rate Limit:** 10/min
+
+---
+
+#### `DELETE /workouts/{workout_id}`
+Delete a workout.
+
+**Tags:** Workouts  
+**Rate Limit:** 10/min  
+**Response:** `200 OK`
+
 
 #### `GET /workouts/weekly-status`
 Get weekly training status summary.
@@ -168,19 +241,31 @@ Get daily AI-powered training insight.
 
 ---
 
-#### `POST /ai/generate-plan`
-Generate a weekly training plan with AI.
+#### `POST /plans/generate`
+Generate a training plan with AI (N days ahead).
 
 **Tags:** AI  
-**Rate Limit:** 5/hour  
+**Rate Limit:** 5/min  
+**Daily Limit:** 5 generations  
 **Request Body:**
 ```json
 {
-  "user_context": "Marathon training, Week 8"
+  "days": 7,
+  "rejected_plan_details": null
 }
 ```
 
 ---
+
+#### `GET /plans/history`
+Get recent AI-generated training plans.
+
+**Tags:** AI  
+**Parameters:**
+- `limit` (optional): Max items (default 5)
+
+---
+
 
 ### Analytics
 
@@ -204,7 +289,7 @@ Get historical recovery metrics (last 90 days).
 
 ---
 
-#### `GET /readiness/latest`
+#### `GET /readiness`
 Get latest readiness/body battery score.
 
 **Tags:** Analytics  
@@ -243,7 +328,7 @@ Get current AI model performance metrics.
 
 ### User Profile
 
-#### `GET /user/profile`
+#### `GET /profile`
 Get user profile data.
 
 **Tags:** User  
@@ -252,7 +337,7 @@ Get user profile data.
 ```json
 {
   "age": 35,
-  "weight": 75,
+  "weight": 75.0,
   "height": 180,
   "gender": "male"
 }
@@ -260,7 +345,7 @@ Get user profile data.
 
 ---
 
-#### `POST /user/profile`
+#### `PUT /profile`
 Update user profile.
 
 **Tags:** User  
@@ -269,8 +354,9 @@ Update user profile.
 ```json
 {
   "age": 35,
-  "weight": 75,
-  "height": 180
+  "weight": 75.0,
+  "height": 180,
+  "gender": "male"
 }
 ```
 
@@ -281,16 +367,19 @@ Export all user data (GDPR compliance).
 
 **Tags:** User, GDPR  
 **Rate Limit:** 3/hour  
-**Response:** JSON file with all user data
+**Response:** JSON with all user data (goals, workouts, profile, metrics)
 
 ---
 
-#### `DELETE /user/account`
-Delete user account and all data (GDPR).
+#### `DELETE /account`
+Delete user account and all associated data (GDPR Right to Erasure).
 
 **Tags:** User, GDPR  
 **Rate Limit:** 1/hour  
-**Response:** `204 No Content`
+**Response:** `200 OK`
+
+> ⚠️ **Irreversible.** Deletes: Firestore data, Firebase Auth user, Garmin credentials, metrics.
+
 
 ---
 
@@ -622,8 +711,9 @@ Import collection: `docs/postman_collection.json` (TODO)
 - [Authentication](authentication.md) – Firebase Auth setup
 - [Garmin Setup](garmin_setup.md) – Garmin credentials encryption
 - [Architecture](arkkitehtuuri.md) – System architecture
+- [Mobile App](../mobile/README.md) – Flutter mobile app
 
 ---
 
-**Last Updated:** 2026-01-18  
+**Last Updated:** 2026-02-23  
 **Maintained by:** Health AI Team
