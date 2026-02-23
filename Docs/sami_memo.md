@@ -92,7 +92,78 @@ npx playwright test
 
 ---
 
+## 2026-02-23 – Mobile Bug Fixes & Phase 14 Completion 📱🔧
+
+Phase 14 (Mobile Feature Parity) saatu valmiiksi. Tänään korjattiin kriittiset bugit ja päivitettiin dokumentaatio.
+
+### 1. RangeError – Juurisyy löydetty ja korjattu
+
+**Bugi:** `RangeError (index): Invalid value: Valid value range is empty: 0`
+
+**Syy:** `profile_screen.dart` – `_user?.displayName` palautti tyhjän stringin `""` (ei `null`), jolloin `displayName[0]` kaatui.
+
+**Korjaus** (`profile_screen.dart`):
+```dart
+// ENNEN
+final displayName = _user?.displayName ?? _user?.email?.split('@').first ?? 'User';
+
+// JÄLKEEN
+final displayName = (_user?.displayName?.isNotEmpty == true
+    ? _user!.displayName!
+    : _user?.email?.split('@').first)?.trim() ?? 'User';
+
+// CircleAvatar myös suojattu:
+displayName.isNotEmpty ? displayName[0].toUpperCase() : '?'
+```
+
+**GoalFormSheet suojattu** – Dropdown kaatui jos backend palautti arvon joka ei ollut listassa:
+```dart
+_activityType = _activities.contains(g.activityType) ? g.activityType : _activities.first;
+_targetUnit = _units.contains(g.targetUnit) ? g.targetUnit : _units.first;
+```
+
+### 2. Race Goal -näyttö korjattu
+
+**Bugi:** Race goal näytti `89.0 / 55.0 km` – mutta 89 oli päivien lukumäärä, ei kilometrit.
+
+**Korjaus** (`dashboard_screen.dart`): Race-moodissa näytetään `Race distance: 55.0 km` + päivämäärä eikä nykyarvo/tavoite -palkkia.
+
+### 3. Backend: Puuttuva `days_left`
+
+`calculate_goal_progress`-funktio ei palauttanut `days_left`-kenttää, joten Flutter näytti aina `0 days left`. Lisätty korjaus:
+- **Weekly:** Päivät sunnuntaihin (viikko ma–su) ✅
+- **Monthly:** Päivät kuun loppuun ✅
+- **Race/Target:** Päivät tavoitepäivään ✅
+
+### 4. Backend URL-korjaukset (aiemmin tässä sessiossa)
+
+Flutter `ApiService` käytti vääriä URL-polkuja:
+| Vanha | Uusi |
+|---|---|
+| `POST /user/profile` | `PUT /profile` |
+| `GET /user/profile` | `GET /profile` |
+| `DELETE /user/account` | `DELETE /account` |
+
+Lisätty puuttuva endpoint: `GET /workouts/history` (palauttaa DONE-treenit).
+
+### 5. Dokumentaatio päivitetty
+
+- **`Docs/API.md`** – URL:t korjattu, portit (8001→8000), lisätty puuttuvat endpointit
+- **`Docs/production_roadmap.md`** – Phase 14 merkitty valmiiksi, lisätty Bug Fixes -osio (14.6)
+
+**Tiedostot muutettu:**
+- `backend/main.py` – `days_left` + `GET /workouts/history`
+- `mobile/lib/core/services/api_service.dart` – URL-korjaukset
+- `mobile/lib/features/profile/profile_screen.dart` – RangeError fix
+- `mobile/lib/features/goals/goal_form_sheet.dart` – Dropdown guard
+- `mobile/lib/features/dashboard/dashboard_screen.dart` – Race goal display
+- `Docs/API.md` – Päivitetty kattamaan nykytila
+- `Docs/production_roadmap.md` – Phase 14 COMPLETED
+
+---
+
 ## 2026-02-06 – GDPR Compliance for Landing Page 
+
 
 Toteutettiin EU GDPR:n vaatimat lakisääteiset sivut ja cookie consent -banneri landing pagelle.
 

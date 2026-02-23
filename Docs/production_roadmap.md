@@ -94,8 +94,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Next.js Setup:** Alusta uusi Next.js -projekti (TypeScript, TailwindCSS) kansioon `frontend`. (#155)
 - [x] **Frontend Features:** Training Calendar, Goals, Dashboard. (#156)
 - [x] **Mobiilisovellus:** Web App toimii nyt mobiilissa (Responsive Design + Network Config). (#157)
-- [ ] **Natiivi Mobiili (Optionaalinen):** Harkitse React Nativea tai Flutteria myöhemmin. (#158)
+- [x] **Natiivi Mobiili:** Flutter-mobiilisovellus toteutettu (Phase 14 complete). (#158)
 - [x] **Flutter Setup:** Alusta uusi Flutter-projekti kansioon `mobile`. (#159)
+
 - [ ] **Notifikaatiot:** Lisää Push-ilmoitukset (treenimuistutukset). (#160)
 - [ ] **Integraatiot:** Kytke Apple Health / Google Fit -rajapintoihin. (#161)
 
@@ -139,8 +140,9 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] Implementoi "Add Goal" -toiminnallisuus (Create). (#186)
     - [x] Refined UI: Date Picker, Unit Dropdown, Frequency Logic. (#187)
 - [ ] Tuo Dashboardin ulkoasu (CSS/Tailwind) samalle tasolle kuin Streamlit-versiossa. (#188)
-- [ ] Alusta Flutter-projekti (mobile). (#189)
+- [x] Alusta Flutter-projekti (mobile). (#189)
     - [x] Streamlit Migration: Feat Parity (History, Manual Logs, Refresh). (#190)
+
 - [x] **Dashboard Visualizations (Phase 5)**: (#191)
     - [x] Backend: Historical Metrics Endpoint (Pandas/CSV). (#192)
     - [x] Implement Recovery Chart (Body Battery vs Sleep). (#193)
@@ -715,3 +717,65 @@ Tänään saatiin mobiilisovellus feature-paritytasolle web-sovelluksen kanssa.
     - [x] Mobile App: `PerformanceChart` toteutettu samoilla väreillä (Blue/Pink/Green) ja tyylillä kuin webissä.
 
 **Status:** 🟢 **MOBILE MVP READY** - Sovellus on valmis laajempaan testaukseen. Seuraavaksi: Oikean datan haku kalenteriin (nyt placeholder).
+
+---
+
+## Phase 14: Mobile Feature Parity (2026-02) ✅
+
+> **Tavoite:** Mobiilisovelluksen ominaisuuksien saattaminen samalle tasolle web-sovelluksen kanssa.  
+> **Analyysi:** Mobile vs Web -vertailu tehty 2026-02-23. Mobiili ~40% web-ominaisuuksista.  
+> **Status:** COMPLETED (2026-02-23)
+
+### 14.1 Tavoitteiden hallinta ✅
+> **Prioriteetti:** Korkea
+
+- [x] **Lisää tavoite** – Lomake uuden tavoitteen luomiseen (`GoalFormSheet` Flutter) (#700)
+- [x] **Muokkaa tavoite** – Edit-toiminto olemassa olevalle tavoitteelle (#701)
+- [x] **Poista tavoite** – Delete-toiminto vahvistusdialogin kera (#702)
+- [x] **Race Goal** – Erityinen kisatavoite countdown-ajastimella + "Race distance: X km" -näyttö (#703)
+
+### 14.2 Profiilisivu – täydennys ✅
+> **Prioriteetti:** Tärkeä
+
+- [x] **Fysiologiset tiedot** – Ikä, paino, pituus, sukupuoli (Profile Form + `GET /profile`, `PUT /profile`) (#710)
+- [x] **Garmin-tunnusten hallinta** – Syötä/vaihda/poista Garmin-yhteys (#711)
+- [x] **Garmin-yhteysbanneri** – Näytetään dashboardilla jos Garmin ei yhdistetty (#712)
+
+### 14.3 Settings-sivu ✅
+> **Prioriteetti:** Tärkeä
+
+- [x] **Settings Screen** – Uusi näkymä, navigoitavissa Profiilisivulta (#720)
+- [x] **Data Export (GDPR)** – Lataa oma data JSON-muodossa (`GET /user/export`) (#721)
+- [x] **Tilin poisto (GDPR)** – Poista tili ja kaikki data vahvistusdialogin kera (`DELETE /account`) (#722)
+- [x] **Palaute-lomake** – Lähetä palautetta sovelluksesta (`POST /feedback`) (#723)
+
+### 14.4 Kalenteri + "Send to Garmin" ✅
+> **Prioriteetti:** Tärkeä
+
+- [x] **Kalenteri – oikea API-data** – `GET /workouts/history` + `GET /workouts/next` (#730)
+- [x] **"Send to Garmin" -nappi** – Vie treeni Garmin-kalenteriin (`POST /workouts/upload`) (#731)
+- [x] **Upload-palaute** – Näytä käyttäjälle onnistuminen/virhe (SnackBar) (#732)
+
+### 14.5 Depriorisoitu ⏸️
+
+- [ ] **AI Chat Coach** – Interaktiivinen chat-valmentaja mobiilissa (Phase 11 vain webissä) (#740)
+- [ ] **Manuaalinen treenikirjaus** – Treenien manuaalinen lisäys mobiilista (#741)
+- [ ] **Push-ilmoitukset** – Treenimuistutukset (#160)
+- [ ] **Apple Health / Google Fit** – Integraatio (#161)
+
+### 14.6 Bug Fixes & Backend Corrections (2026-02-23) 🔧
+
+- [x] **Backend URL-korjaukset** – Flutter ApiService käytti vääriä URL-polkuja (#750)
+  - [x] `GET /user/profile` → `GET /profile` (#751)
+  - [x] `POST /user/profile` → `PUT /profile` (#752)
+  - [x] `DELETE /user/account` → `DELETE /account` (#753)
+  - [x] `workouts/upload` body-rakenne korjattu `{workout: {...}, date: ...}` (#754)
+- [x] **Backend: Lisätty `GET /workouts/history`** – Puuttuva endpoint kalenterille (#755)
+- [x] **Backend: `days_left` laskettu** – Viikoittaisen tavoitteen loppupäivä (ma–su) (#756)
+- [x] **RangeError korjattu** – `profile_screen.dart` kaatui tyhjällä displayName-stringillä (#757)
+  - [x] `displayName[0]` → `displayName.isNotEmpty ? displayName[0] : '?'` (#758)
+- [x] **GoalFormSheet suojattu** – Dropdown RangeError jos backend-arvo ei listalla (#759)
+- [x] **Race goal -näyttö korjattu** – `89.0 / 55.0 km` → `Race distance: 55.0 km` (#760)
+
+---
+
