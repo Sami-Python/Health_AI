@@ -129,6 +129,29 @@ class ApiService {
     return null;
   }
 
+  Future<String> sendChatMessage(
+    String message,
+    List<Map<String, String>> history,
+  ) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/ai/chat'),
+      headers: headers,
+      body: json.encode({
+        'message': message,
+        'history': history.take(10).toList(), // Limit context size
+      }),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return data['reply'] as String? ?? 'No response';
+    }
+    if (response.statusCode == 429) {
+      throw Exception('Rate limit reached. Please wait a moment.');
+    }
+    throw Exception('Chat failed: ${response.statusCode}');
+  }
+
   // ─── User Profile ────────────────────────────────────────────
   Future<Map<String, dynamic>?> getUserProfile() async {
     final headers = await _getHeaders();
