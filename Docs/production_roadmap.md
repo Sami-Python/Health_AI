@@ -426,6 +426,40 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ---
 
+## Phase 15: Mobile AI Chat Testing & Deployment (2026-02-25) 🔧
+
+> **Status:** ⏳ IN PROGRESS – Koodi valmis, testaus kesken
+
+### 15.1 AI Chat Coach – Mobiiliintegraatio ✅ (koodi valmis)
+
+- [x] **`ApiService.sendChatMessage()`** – `POST /ai/chat` kutsu Flutterissä (#800)
+- [x] **`ChatScreen`** – Täysimittainen chat-näkymä glassmorphism-designilla (#801)
+  - [x] Käyttäjäviestit oikealla (sininen gradient) (#802)
+  - [x] AI-vastaukset vasemmalla (indigo/purple glassmorphism) (#803)
+  - [x] Animoitu typing indicator (3 pistettä) (#804)
+  - [x] Welcome message heti avattaessa (#805)
+  - [x] Historia pysyy session aikana, lähetetään backendille (max 10 viestiä) (#806)
+  - [x] Virheenkäsittely – näyttää virheilmoituksen jos API ei vastaa (#807)
+- [x] **Bottom Navigation Bar** – Lisätty 5. "Chat" -välilehti (#808)
+  - [x] Home | Calendar | Analysis | **Chat** | Profile (#809)
+  - [x] Chat-ikoni: `Icons.chat_bubble_rounded` (indigo accent) (#810)
+- [x] **Flutter päivitetty** – 3.16.0 → 3.41.2 (#811)
+
+### 15.2 Testaus – TEHDÄÄN HUOMENNA 📋
+
+> **TODO 2026-02-25:** Testaa app fyysisellä Android-puhelimella tai korjaa emulaattorin ADB-ongelma.
+
+- [ ] **Fyysinen laite** – Kytke Android-puhelin USB:llä, ota USB debugging käyttöön (#815)
+  - Asetukset → Kehittäjäasetukset → USB-virheenkorjaus ON
+  - `flutter run` tunnistaa automaattisesti
+- [ ] **TAI: Korjaa emulaattori** – Ota Windows Hypervisor Platform käyttöön (#816)
+  - Windows Features → ✅ Windows Hypervisor Platform → Restart
+  - `Medium Phone API 36.1` toimii sen jälkeen
+- [ ] **Testaa Chat-flow** – Kirjaudu sisään → Chat-välilehti → lähetä viesti → AI vastaa (#817)
+- [ ] **Testaa error handling** – Sammuta backend → lähetä viesti → virheilmoitus näkyy (#818)
+- [ ] **Merkitse Phase 14.5 AI Chat valmiiksi** kun testaus onnistuu (#819)
+
+---
 
 ## Phase 10: Security Hardening
 
@@ -758,7 +792,6 @@ Tänään saatiin mobiilisovellus feature-paritytasolle web-sovelluksen kanssa.
 
 ### 14.5 Depriorisoitu ⏸️
 
-- [ ] **AI Chat Coach** – Interaktiivinen chat-valmentaja mobiilissa (Phase 11 vain webissä) (#740)
 - [ ] **Manuaalinen treenikirjaus** – Treenien manuaalinen lisäys mobiilista (#741)
 - [ ] **Push-ilmoitukset** – Treenimuistutukset (#160)
 - [ ] **Apple Health / Google Fit** – Integraatio (#161)

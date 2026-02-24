@@ -92,6 +92,50 @@ npx playwright test
 
 ---
 
+## 2026-02-24 – Mobile AI Chat Coach Implementation 💬
+
+Toteutettiin AI Chat Coach -ominaisuus Flutter-mobiilisovellukseen. Backend `/ai/chat` oli jo olemassa (Phase 11, web), nyt integroitu mobiiliin.
+
+### 1. Toteutettu
+
+**`mobile/lib/core/services/api_service.dart`:**
+- Lisätty `sendChatMessage(message, history)` → `POST /ai/chat` → palauttaa `String`
+- Rate limit 429 käsitellään omana poikkeuksena
+
+**`mobile/lib/features/chat/chat_screen.dart`** *(uusi)*:
+- Käyttäjäviestit oikealla (sininen gradient), AI-vastaukset vasemmalla (indigo/purple glassmorphism)
+- Animoitu typing indicator (3 pistettä) kun AI vastaa
+- Welcome message heti avattaessa
+- Historia pysyy session aikana, lähetetään backendille (max 10 viestiä kontekstiksi)
+
+**`mobile/lib/features/dashboard/dashboard_screen.dart`:**
+- Bottom nav: **5 välilehteä**: Home | Calendar | Analysis | **Chat** | Profile
+- Chat-ikoni: `Icons.chat_bubble_rounded` (indigo accent)
+
+**Flutter päivitetty:** 3.16.0 → 3.41.2 (API 36.1 emulaattoriyhteensopivuus)
+
+### 2. Kesken – TESTAUS HUOMENNA 📋
+
+Emulaattori (`Medium Phone API 36.1`) jäi ADB offline -tilaan (Windows Hyper-V -ongelma). Koodi on oikein, testaus pitää tehdä huomenna.
+
+**Vaihtoehto A – Fyysinen puhelin (suositeltu):**
+```
+Android-puhelin → USB-virheenkorjaus ON → flutter run
+```
+
+**Vaihtoehto B – Korjaa emulaattori:**
+```
+Windows Features → ✅ Windows Hypervisor Platform → Restart
+```
+
+**Tiedostot muutettu:**
+- `mobile/lib/core/services/api_service.dart` – `sendChatMessage()` lisätty
+- `mobile/lib/features/chat/chat_screen.dart` – **UUSI**
+- `mobile/lib/features/dashboard/dashboard_screen.dart` – 5. Chat-välilehti
+- `Docs/production_roadmap.md` – Phase 15 lisätty
+
+---
+
 ## 2026-02-23 – Mobile Bug Fixes & Phase 14 Completion 📱🔧
 
 Phase 14 (Mobile Feature Parity) saatu valmiiksi. Tänään korjattiin kriittiset bugit ja päivitettiin dokumentaatio.

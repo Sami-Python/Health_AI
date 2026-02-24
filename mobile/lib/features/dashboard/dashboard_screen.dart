@@ -7,6 +7,7 @@ import 'widgets/readiness_chart.dart';
 import 'widgets/sleep_chart.dart';
 import '../calendar/calendar_screen.dart';
 import '../analysis/analysis_screen.dart';
+import '../chat/chat_screen.dart';
 import '../profile/profile_screen.dart';
 import '../goals/goal_form_sheet.dart';
 
@@ -137,7 +138,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.person, color: Colors.white70),
             onPressed: () {
                setState(() {
-                 _selectedIndex = 3; // Switch to Profile tab
+                 _selectedIndex = 4; // Switch to Profile tab
                });
             },
           ),
@@ -147,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        selectedItemColor: Colors.blueAccent,
+        selectedItemColor: Colors.indigoAccent,
         unselectedItemColor: Colors.white54,
         backgroundColor: const Color(0xFF0F172A), // Slate 900
         type: BottomNavigationBarType.fixed,
@@ -160,9 +161,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(Icons.calendar_month_rounded),
             label: 'Calendar',
           ),
-           BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.insights_rounded),
             label: 'Analysis',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_rounded),
+            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded),
@@ -182,6 +187,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 2:
         return const AnalysisScreen();
       case 3:
+        return const ChatScreen();
+      case 4:
         return const ProfileScreen();
       default:
         return _buildDashboardContent();
