@@ -98,6 +98,18 @@ class ApiService {
     return [];
   }
 
+  Future<void> logManualWorkout(Map<String, dynamic> workoutData) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/workouts/manual'),
+      headers: headers,
+      body: json.encode(workoutData),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to log workout: ${response.statusCode}');
+    }
+  }
+
   Future<void> uploadWorkoutToGarmin(Map<String, dynamic> workout, String date) async {
     final headers = await _getHeaders();
     final response = await http.post(

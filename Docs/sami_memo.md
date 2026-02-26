@@ -136,6 +136,25 @@ Android-puhelin -> USB-virheenkorjaus ON -> ApiService (192.168.1.130) -> flutte
 
 ---
 
+## 2026-02-26 – Mobile UI Parity: Manual Workouts 📱📝
+
+Lisätty manuaalisen treenikirjauksen tuki mobiilisovellukseen, jotta se vastaa web-version toiminnallisuutta (Roadmap Phase 16).
+
+**Toteutus:**
+- **Endpoint:** `POST /workouts/manual` (Backend oli jo valmiina)
+- **`api_service.dart`**: `logManualWorkout` integroitu
+- **Uusi UI:** `ManualWorkoutFormSheet` (BottomSheet), johon voi syöttää:
+  - Date, Activity, Duration, Distance (opt) ja Notes.
+- **Integraatio:** Kelluva toimintopainike (FAB) lisätty sekä Home- että Calendar-välilehdille DashboardScreeniin. Treenin tallennus päivittää näkymät livenä (`onSuccess` -> `_fetchData()`).
+
+**Tiedostot muutettu:**
+- `mobile/lib/core/services/api_service.dart` – Uusi metodi
+- `mobile/lib/features/workouts/manual_workout_form_sheet.dart` – **UUSI**
+- `mobile/lib/features/dashboard/dashboard_screen.dart` – `floatingActionButton` lisätty ja linkattu uuteen BottomSheet-lomakkeeseen.
+- `Docs/production_roadmap.md` – Phase 16 aloitus.
+
+---
+
 ## 2026-02-23 – Mobile Bug Fixes & Phase 14 Completion 📱🔧
 
 Phase 14 (Mobile Feature Parity) saatu valmiiksi. Tänään korjattiin kriittiset bugit ja päivitettiin dokumentaatio.

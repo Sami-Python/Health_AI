@@ -455,6 +455,19 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] **Testaa error handling** – Virheenkäsittely valmiina (#818)
 - [x] **Merkitse Phase 15 valmiiksi** kun testaus onnistuu (#819)
 
+## Phase 16: Mobile UI Parity Features (2026-02-26) ✅
+
+> **Status:** COMPLETED (2026-02-26)
+
+### 16.1 Manuaalinen Treenikirjaus (Mobile) ✅
+– Tavoite: Mahdollistaa treenien kirjaaminen suoraan mobiilista ilman Garminiin tallennettua dataa (#820).
+
+- [x] Ota käyttöön backendin olemassa oleva `POST /workouts/manual` reitti.
+- [x] Lisää `logManualWorkout` metodi `ApiService` -luokkaan.
+- [x] Tee alhaalta nouseva BottomSheet `ManualWorkoutFormSheet`.
+- [x] Laita koti- ja kalenterivälilehdille kelluva `+` -painike (FAB) tallennuksen avaamiseksi.
+- [x] Testattu oikealla Android-laitteella, tallennus päivittää näkymät livenä.
+
 ---
 
 ## Phase 10: Security Hardening
