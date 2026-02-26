@@ -19,6 +19,7 @@ class _ManualWorkoutFormSheetState extends State<ManualWorkoutFormSheet> {
   String _activityType = 'Running';
   String _durationMin = '';
   String _distanceKm = '';
+  int _rpe = 5; // Default RPE
   String _notes = '';
 
   final List<String> _activities = [
@@ -69,6 +70,7 @@ class _ManualWorkoutFormSheetState extends State<ManualWorkoutFormSheet> {
         'date': _selectedDate.toIso8601String().split('T')[0],
         'activity': _activityType,
         'duration_min': int.parse(_durationMin),
+        'rpe': _rpe,
         'notes': _notes,
       };
 
@@ -219,6 +221,32 @@ class _ManualWorkoutFormSheetState extends State<ManualWorkoutFormSheet> {
                       },
                       onSaved: (value) => _distanceKm = value ?? '',
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('RPE (Perceived Exertion)', style: TextStyle(color: Colors.white54)),
+                      Text('$_rpe / 10', style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  Slider(
+                    value: _rpe.toDouble(),
+                    min: 1,
+                    max: 10,
+                    divisions: 9,
+                    activeColor: Colors.blueAccent,
+                    inactiveColor: Colors.white24,
+                    onChanged: (double value) {
+                      setState(() {
+                        _rpe = value.toInt();
+                      });
+                    },
                   ),
                 ],
               ),
