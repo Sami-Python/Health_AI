@@ -114,25 +114,25 @@ Toteutettiin AI Chat Coach -ominaisuus Flutter-mobiilisovellukseen. Backend `/ai
 
 **Flutter päivitetty:** 3.16.0 → 3.41.2 (API 36.1 emulaattoriyhteensopivuus)
 
-### 2. Kesken – TESTAUS HUOMENNA 📋
+### 2. Testaus Suoritettu 2026-02-26 📱✅
 
-Emulaattori (`Medium Phone API 36.1`) jäi ADB offline -tilaan (Windows Hyper-V -ongelma). Koodi on oikein, testaus pitää tehdä huomenna.
+Testaus tehtiin eilen esitetyn suunnitelman mukaisesti fyysisellä Android-laitteella, koska emulaattorin Hyper-V aiheutti haasteita.
 
-**Vaihtoehto A – Fyysinen puhelin (suositeltu):**
+**Toteutus (Fyysinen puhelin):**
 ```
-Android-puhelin → USB-virheenkorjaus ON → flutter run
+Android-puhelin -> USB-virheenkorjaus ON -> ApiService (192.168.1.130) -> flutter run
 ```
 
-**Vaihtoehto B – Korjaa emulaattori:**
-```
-Windows Features → ✅ Windows Hypervisor Platform → Restart
-```
+**Testatut osiot:**
+1. Kirjaudu sisään -> Chat-välilehti -> lähetä viesti -> AI vastaa 🟢 **TOIMII**
+2. Sammuta backend -> lähetä viesti -> virheilmoitus näkyy 🟢 **TOIMII (Virheenkäsittely rullaa)**
+3. Phase 15 merkitty tuotantovalmiiksi.
 
 **Tiedostot muutettu:**
-- `mobile/lib/core/services/api_service.dart` – `sendChatMessage()` lisätty
+- `mobile/lib/core/services/api_service.dart` – `sendChatMessage()` lisätty + Local IP asetettu testiä varten
 - `mobile/lib/features/chat/chat_screen.dart` – **UUSI**
 - `mobile/lib/features/dashboard/dashboard_screen.dart` – 5. Chat-välilehti
-- `Docs/production_roadmap.md` – Phase 15 lisätty
+- `Docs/production_roadmap.md` – Phase 15.2 merkitty COMPLETED
 
 ---
 
