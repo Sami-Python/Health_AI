@@ -5,8 +5,8 @@ import '../../data/models/metric_model.dart';
 import '../../data/models/goal_model.dart';
 
 class ApiService {
-  // Use 10.0.2.2 for Android Emulator to access localhost
-  static const String baseUrl = 'http://10.0.2.2:8000';
+  // Use physical device PC IP over WiFi
+  static const String baseUrl = 'http://192.168.1.130:8000';
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

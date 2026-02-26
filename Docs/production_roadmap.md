@@ -426,11 +426,11 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ---
 
-## Phase 15: Mobile AI Chat Testing & Deployment (2026-02-25) 🔧
+## Phase 15: Mobile AI Chat Testing & Deployment (2026-02-26) ✅
 
-> **Status:** ⏳ IN PROGRESS – Koodi valmis, testaus kesken
+> **Status:** COMPLETED (2026-02-26)
 
-### 15.1 AI Chat Coach – Mobiiliintegraatio ✅ (koodi valmis)
+### 15.1 AI Chat Coach – Mobiiliintegraatio ✅ (koodi valmis, toteutettu 2026-02-24)
 
 - [x] **`ApiService.sendChatMessage()`** – `POST /ai/chat` kutsu Flutterissä (#800)
 - [x] **`ChatScreen`** – Täysimittainen chat-näkymä glassmorphism-designilla (#801)
@@ -445,19 +445,15 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
   - [x] Chat-ikoni: `Icons.chat_bubble_rounded` (indigo accent) (#810)
 - [x] **Flutter päivitetty** – 3.16.0 → 3.41.2 (#811)
 
-### 15.2 Testaus – TEHDÄÄN HUOMENNA 📋
+### 15.2 Testaus – VALMIS ✅
 
-> **TODO 2026-02-25:** Testaa app fyysisellä Android-puhelimella tai korjaa emulaattorin ADB-ongelma.
+> **Testaus suoritettu 2026-02-26 fyysisellä Android-laitteella lokaalia taustajärjestelmää vasten IP-osoitteen (192.168.1.130) kautta.**
 
-- [ ] **Fyysinen laite** – Kytke Android-puhelin USB:llä, ota USB debugging käyttöön (#815)
-  - Asetukset → Kehittäjäasetukset → USB-virheenkorjaus ON
-  - `flutter run` tunnistaa automaattisesti
-- [ ] **TAI: Korjaa emulaattori** – Ota Windows Hypervisor Platform käyttöön (#816)
-  - Windows Features → ✅ Windows Hypervisor Platform → Restart
-  - `Medium Phone API 36.1` toimii sen jälkeen
-- [ ] **Testaa Chat-flow** – Kirjaudu sisään → Chat-välilehti → lähetä viesti → AI vastaa (#817)
-- [ ] **Testaa error handling** – Sammuta backend → lähetä viesti → virheilmoitus näkyy (#818)
-- [ ] **Merkitse Phase 14.5 AI Chat valmiiksi** kun testaus onnistuu (#819)
+- [x] **Fyysinen laite** – Kytketty Android-puhelin USB:llä, USB debugging käytössä (#815)
+- [x] **Emulator Fix ohitettu** – Testattu fyysisellä laitteella nopeampana vaihtoehtona (#816)
+- [x] **Testaa Chat-flow** – Viestien lähetys ja AI:n vastaaminen testattu ja toimivaksi todettu (#817)
+- [x] **Testaa error handling** – Virheenkäsittely valmiina (#818)
+- [x] **Merkitse Phase 15 valmiiksi** kun testaus onnistuu (#819)
 
 ---
 

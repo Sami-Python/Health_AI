@@ -139,6 +139,8 @@ graph TD
 
 ### 8. Mobiilisovellus (Flutter)
 *   **Mobile App (`mobile/`):** Natiivi iOS ja Android -sovellus.
-    *   **Teknologia:** Flutter (Dart).
-    *   **Tila:** Kehityksessä (Alustettu 2026-02-15).
-    *   **Integraatio:** Käyttää samoja Backend API -rajapintoja kuin Web UI.
+    *   **Teknologia:** Flutter 3.41.2 (Dart).
+    *   **Tila:** Tuotantovalmis (Phase 14 COMPLETED 2026-02-23). AI Chat (Phase 15) koodi valmis, testaus kesken.
+    *   **Näkymät:** Home (Dashboard), Calendar, Analysis, Chat (⚠️ testaus kesken), Profile + Settings.
+    *   **Ominaisuudet:** Goals CRUD, Garmin-tunnusten hallinta, GDPR (data export & account delete), Send to Garmin, AI Chat Coach.
+    *   **Integraatio:** Käyttää samoja Backend API -rajapintoja kuin Web UI (Bearer Token auth).
