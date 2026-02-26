@@ -26,8 +26,8 @@
 | Lisää tavoite | ✅ | ✅ | `GoalFormSheet` Flutter |
 | Muokkaa/poista tavoite | ✅ | ✅ | Vahvistusdialogin kera |
 | Race Goal countdown | ✅ | ✅ | Erityisnäyttö (Race distance + countdown) |
-| **Manuaalinen treenikirjaus** | ✅ | ❌ | Depriorisoitu (#741) |
-| **AI Chat Coach** | ✅ | ⚠️ | Koodi valmis (#800–810), **testaus kesken** (Phase 15) |
+| **Manuaalinen treenikirjaus** | ✅ | ✅ | Phase 16.1 ✅ |
+| **AI Chat Coach** | ✅ | ✅ | Phase 15.2 ✅ |
 | **Profiili-sivu** | ✅ | ✅ | Phase 14.2 ✅ |
 | Fysiologiset tiedot (ikä, paino, pituus) | ✅ | ✅ | `GET/PUT /profile` |
 | Garmin-tunnusten hallinta | ✅ | ✅ | Syötä/vaihda/poista |
@@ -44,8 +44,8 @@
 
 | Tehtävä | Prioriteetti | Status |
 |---|---|---|
-| **AI Chat testaus** – fyysinen puhelin tai emulaattori | 🔴 Korkea | ⏳ KESKEN |
-| Manuaalinen treenikirjaus | 🟡 Tärkeä | ⏸️ Depriorisoitu (#741) |
+| **AI Chat testaus** – fyysinen puhelin tai emulaattori | 🔴 Korkea | ✅ VALMIS |
+| Manuaalinen treenikirjaus | 🟡 Tärkeä | ✅ VALMIS |
 | Push-ilmoitukset | 🟢 Matala | ⏸️ Depriorisoitu (#160) |
 | Apple Health / Google Fit | 🟢 Matala | ⏸️ Depriorisoitu (#161) |
 
@@ -60,7 +60,7 @@
 | API-kutsut | Täysi kattavuus | Kattava (kalenteri, goals, profile, settings, chat) |
 | CRUD-toiminnot | Kaikki | Goals ✅, Profile ✅, Settings ✅, Workouts (read+send) ✅ |
 
-**Mobiili on tällä hetkellä ~85% web-sovelluksen ominaisuuksista.**
-Phase 14 (2026-02-23) saatettiin valmiiksi. AI Chat (Phase 15) koodi valmis, testaus kesken.
+**Mobiili on tällä hetkellä ~95% web-sovelluksen ominaisuuksista.**
+Phase 14 (Feature Parity), Phase 15 (AI Chat), ja Phase 16.1 (Manuaalinen Treenikirjaus) ovat kaikki tuotantovalmiita ja testattu.
 
-Deprioritisoidut: Drag & Drop kalenteri, ML Accuracy Modal, Manuaalinen kirjaus, Push-ilmoitukset.
+Deprioritisoidut: Drag & Drop kalenteri, ML Accuracy Modal, Push-ilmoitukset, Apple Health / Google Fit.
