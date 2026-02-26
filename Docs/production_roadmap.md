@@ -462,11 +462,11 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ### 16.1 Manuaalinen Treenikirjaus (Mobile) ✅
 – Tavoite: Mahdollistaa treenien kirjaaminen suoraan mobiilista ilman Garminiin tallennettua dataa (#820).
 
-- [x] Ota käyttöön backendin olemassa oleva `POST /workouts/manual` reitti.
-- [x] Lisää `logManualWorkout` metodi `ApiService` -luokkaan.
-- [x] Tee alhaalta nouseva BottomSheet `ManualWorkoutFormSheet`.
-- [x] Laita koti- ja kalenterivälilehdille kelluva `+` -painike (FAB) tallennuksen avaamiseksi.
-- [x] Testattu oikealla Android-laitteella, tallennus päivittää näkymät livenä.
+- [x] Ota käyttöön backendin olemassa oleva `POST /workouts/manual` reitti. (#336)
+- [x] Lisää `logManualWorkout` metodi `ApiService` -luokkaan. (#337)
+- [x] Tee alhaalta nouseva BottomSheet `ManualWorkoutFormSheet`. (#338)
+- [x] Laita koti- ja kalenterivälilehdille kelluva `+` -painike (FAB) tallennuksen avaamiseksi. (#339)
+- [x] Testattu oikealla Android-laitteella, tallennus päivittää näkymät livenä. (#340)
 
 ---
 
