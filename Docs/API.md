@@ -402,6 +402,23 @@ Save encrypted Garmin credentials.
 
 ---
 
+#### `POST /garmin/test`
+Test Garmin credentials without saving them.
+
+**Tags:** Garmin  
+**Rate Limit:** 5/hour  
+**Request Body:**
+```json
+{
+  "username": "your_username",
+  "password": "your_password"
+}
+```
+
+**Response:** `200 OK` (if credentials are correct)
+
+---
+
 #### `GET /garmin/status`
 Check Garmin connection status.
 
@@ -428,16 +445,32 @@ Disconnect Garmin account.
 ### System
 
 #### `POST /system/refresh`
-Trigger Garmin data fetch and model retraining.
+Triggers Garmin data fetch and model retraining asynchronously via BackgroundTasks.
 
 **Tags:** System  
 **Rate Limit:** 2/hour  
-**Processing Time:** 30-60 seconds  
 **Response:**
 ```json
 {
   "status": "success",
-  "message": "Data refreshed and model retrained."
+  "message": "Refresh task started in background."
+}
+```
+
+---
+
+#### `GET /system/refresh/status`
+Returns the current status of the background refresh task.
+
+**Tags:** System  
+**Rate Limit:** No limit  
+**Response:**
+```json
+{
+  "status": "in_progress",
+  "progress": 30,
+  "message": "Fetching Garmin Data...",
+  "error": null
 }
 ```
 
@@ -715,5 +748,5 @@ Import collection: `docs/postman_collection.json` (TODO)
 
 ---
 
-**Last Updated:** 2026-02-23  
+**Last Updated:** 2026-02-28  
 **Maintained by:** Health AI Team
