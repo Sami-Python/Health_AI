@@ -339,6 +339,14 @@ ls Health_AI/outputs/feature_importance.png
 
 ---
 
+### Ongelma: `SQLite IntegrityError / is_nan` kaatumiset
+
+**Syy:** Jos `process_garmin_data.py` saa liian pienen datasetin (esim. 1 päivän Incremental-päivitys Cloud Runissa), R2, MAE tai RMSE saattaa evaluoitua `NaN` -arvoksi (Not a Number) ohjelmassa. MLflow ja sen taustalla oleva SQLite-tietokanta menee lukkoon, mikäli se yrittää tallentaa `NaN` tyyppejä tietokantatauluun `log_metric` tai `log_metrics` käskyillä.
+
+**Ratkaisu:** Varmista aina koulutusskripteissä pandas-kirjaston `pd.isna(metric)` suojapiirit ennen MLflown kutsua. (Toteutettu ohjelmaan 28.2.2026: NaN-arvot korvataan float-nollilla (`0.0`), jolloin asennus ei kaadu).
+
+---
+
 ## Best Practices
 
 ### 1. Nimeä Experimentit selkeästi
@@ -389,6 +397,6 @@ mlflow.set_tags({
 
 ---
 
-**Viimeksi päivitetty:** 2026-01-29  
+**Viimeksi päivitetty:** 2026-02-28  
 **Dokumentaation kattavuus:** Experiment Tracking, Model Registry, Local Deployment  
 **TODO:** Cloud Deployment (Cloud Run, Vertex AI), A/B Testing, Drift Detection

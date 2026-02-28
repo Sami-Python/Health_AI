@@ -448,6 +448,9 @@ Disconnect Garmin account.
 Triggers Garmin data fetch and model retraining asynchronously via BackgroundTasks.
 
 **Tags:** System  
+**Query Parameters:**
+- `mode` (string, optional): Training mode. Accepts `incremental` (Quick Sync, 1-day API overlap, no grid search) or `full` (Full Retrain, 360-day fallback or 5-day overlap, full grid search). Defaults to `incremental`.
+
 **Rate Limit:** 2/hour  
 **Response:**
 ```json

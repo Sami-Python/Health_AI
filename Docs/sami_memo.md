@@ -2232,5 +2232,10 @@ Tänään ratkottiin Dashboardin käytettävyyteen ja suorituskykyyn liittyviä 
 ### 3. XGBoost Model Speedup
 - **Ongelma:** XGBoost-koulutusvaihe `process_garmin_data.py`:ssä kesti erittäin kauan (useita minuutteja) `GridSearchCV`-laskennan laajan `param_grid`-hakusession takia (kymmeniä fit-iteraatioita).
 - **Toteutus:**
-    - Pienennetty parametriverkkoa yksinkertaisiin mutta vakaisiin vakioarvoihin: `n_estimators: 100`, `learning_rate: 0.05`, `max_depth: 4`.
-    - Tämä pudotti mallin koulutusajan kokeiluissa minuuteista muutamaan sekuntiin! Laatu säilyy tarpeeksi hyvänä arkikäyttöön samalla kun UX pelastettiin.
+    - Näin mallin laatu säilyy riittävänä, mutta valmius taataan sekunneissa.
+
+### 4. Cloud Run "Stateless" Fallback & NaN Integrity Fixes (MLflow)
+- **Ongelma:** Google Cloud Runin "tila-agnostinen" rakenne nollaa `data/` kansion (kuten Garminin CSV-tiedostot ja XGBoostin pkl-mallin) jokaisella käynnistyksellä, mikä johti siihen, että "Quick Sync" lankesi vaatimaan 360-päivän tiedot (koska se luuli olevansa uusi käyttäjä) ja pakotti mallin "Full Retrain" -tilaan. Minuutin datakatkos johti SQLite `UNIQUE constraint failed / is_nan=1` -kaatumisiin, koska MLflow ei selvinnyt näin pienestä datapisteestä irtoavista `NaN` r2-pistemääristä.
+- **Toteutus:**
+    - Lisätty suojaukset `fetch_garmin_data.py`: Jos `last_sync` puuttuu, mutta tila on `incremental`, fallback päivien määrä rajataan 7 päivään (aiemman 360 päivän sijaan), säästäen valtavasti muistia.
+    - Päivitetty `process_garmin_data.py`: Lisätty `pd.isna(metric) ? 0.0 : metric` suojat (`mae`, `r2`, `rmse`, ja `best_cv_r2`) ennen niiden syöttämistä MLflow `log_metric` tai JSON outputtiin. Nämä varmistavat, että SQLite ei koskaan saa viallista float-taulukkoa ja kaadu loppumetreillä.

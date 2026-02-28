@@ -85,3 +85,10 @@ GitHub Action `deploy-cloud-run.yml`:
 1.  Rakentaa Docker-imagen.
 2.  Työntää sen Artifact Registryyn.
 3.  Deployaa Cloud Runiin ja kytkee salaisuudet.
+
+### 4.4 Huomioitavaa pilviarkkitehtuurissa (Stateless)
+
+Google Cloud Run on rakenteeltaan "Stateless" (tilaton). Tämä tarkoittaa sitä, että aina kun palvelin nukahtaa (esim. 5 minuuttia ilman liikennettä) ja skaalautuu nollaan, tai käynnistää uusia rinnakkaisia instansseja ruuhkassa, **kaikki väliaikaiset tiedostot pyyhkiytyvät pois**.
+
+* **`backend/data/` -kansio:** Älä oleta, että CSV-tiedostot (kuten `garmin_hr_timeseries.csv`) tai ML-mallit (`xgb_model.pkl`) säilyvät pyyntöjen välillä. 
+* **Korjaus ja ratkaisut:** Ohjelma on koodattu siten, että jos se ei löydä tiedostoja nollaantumisen jälkeen, se käynnistää laajemman historian "fallback" haun (esimerkiksi vain 7 päivää "Quick Sync" -moodissa muistin säästämiseksi verrattuna 360-päivän "Full Trainiin"). Tulevaisuudessa, mikäli haluat täysin persistentin datan, sinun tulee hyödyntää tietokantaa (kuten Firestore tai BigQuery) CSV-tiedostojen sijaan.
