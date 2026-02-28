@@ -2210,3 +2210,27 @@ Viimeisteltiin mobiilisovelluksen ulkoasu vastaamaan web-sovelluksen korkeaa tas
 - Poistettu turhat containerit graafien ympäriltä (`dashboard_screen.dart`).
 - Korjattu syntax error (ylimääräinen aaltosulku).
 - Varmistettu käännöksen läpimeno `flutter analyze`:lla.
+
+## 2026-02-28 – Web App Fixes & Optimization 🚀
+
+Tänään ratkottiin Dashboardin käytettävyyteen ja suorituskykyyn liittyviä ongelmia.
+
+### 1. Garmin Connection Test
+- **Ongelma:** Käyttäjät eivät pystyneet todentamaan, toimivatko syötetyt Garmin-tunnukset, ennen kuin dataa alettiin oikeasti hakemaan.
+- **Toteutus:**
+    - `POST /garmin/test`: Uusi endpoint `main.py`:ssä, joka hyödyntää `garminconnect`-kirjastoa testatakseen sisäänkirjautumista hetkellisesti ilman, että tunnuksia tallennetaan tietokantaan.
+    - `GarminCredentialsForm.tsx` päivitetty: Lisätty testipainike, joka antaa selkeän Toast-ilmoituksen (Success/Error).
+
+### 2. Async Data Refresh & Progress Polling
+- **Ongelma:** `POST /system/refresh` epäonnistui usein 504 Deadline Exceeded / Network Timeout -virheeseen (`Failed to Load Chart` jne), koska datan haku ja XGBoostin koulutus veivät kauan ja estivät selaimen verkkopyynnön palaamisen.
+- **Toteutus:**
+    - Siirretty virhealtis looppi FastAPI:n `BackgroundTasks`:iin (`execute_refresh_task`).
+    - API palauttaa vastauksen heti, sallien taustatyön jatkua palvelimella.
+    - Uusi `/system/refresh/status` -rajapinta näyttää tehtävän tilan (Initialising, Fetching Data, Training, Completed) ja progressin (10-100%).
+    - Frontend (`dashboard/page.tsx`): Kun Refresh-painiketta painetaan, alkaa automaattinen tilapolling (1.5 sekunnin välein) lukien päivityksiä nätistä uutisesta Progress Bar -käyttöliittymäkomponentista nappulan alla.
+
+### 3. XGBoost Model Speedup
+- **Ongelma:** XGBoost-koulutusvaihe `process_garmin_data.py`:ssä kesti erittäin kauan (useita minuutteja) `GridSearchCV`-laskennan laajan `param_grid`-hakusession takia (kymmeniä fit-iteraatioita).
+- **Toteutus:**
+    - Pienennetty parametriverkkoa yksinkertaisiin mutta vakaisiin vakioarvoihin: `n_estimators: 100`, `learning_rate: 0.05`, `max_depth: 4`.
+    - Tämä pudotti mallin koulutusajan kokeiluissa minuuteista muutamaan sekuntiin! Laatu säilyy tarpeeksi hyvänä arkikäyttöön samalla kun UX pelastettiin.
