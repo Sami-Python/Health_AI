@@ -377,23 +377,31 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         logger.info(f"Best Parameters: {grid_search.best_params_}")
         logger.info(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
         
+        # SQLite safety checks for `best_cv_r2`
+        best_cv_r2_log = float(0.0) if pd.isna(grid_search.best_score_) else float(grid_search.best_score_)
+        
         # Log best parameters
         mlflow.log_params(grid_search.best_params_)
-        mlflow.log_metric("best_cv_r2", grid_search.best_score_)
+        mlflow.log_metric("best_cv_r2", best_cv_r2_log)
 
         preds = best_model.predict(X_test)
         mae = mean_absolute_error(y_test, preds)
         r2 = r2_score(y_test, preds)
         rmse = np.sqrt(mean_squared_error(y_test, preds))
         
+        # SQLite safety checks for test predictions
+        mae_log = float(0.0) if pd.isna(mae) else float(mae)
+        r2_log = float(0.0) if pd.isna(r2) else float(r2)
+        rmse_log = float(0.0) if pd.isna(rmse) else float(rmse)
+        
         print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
-        logger.info(f"Final Test Model Performance", extra={"mae": mae, "r2": r2, "rmse": rmse})
+        logger.info(f"Final Test Model Performance", extra={"mae": mae_log, "r2": r2_log, "rmse": rmse_log})
         
         # Log metrics
         mlflow.log_metrics({
-            "mae": mae,
-            "r2_score": r2,
-            "rmse": rmse,
+            "mae": mae_log,
+            "r2_score": r2_log,
+            "rmse": rmse_log,
             "train_samples": len(X_train),
             "test_samples": len(X_test),
             "total_features": X.shape[1]
