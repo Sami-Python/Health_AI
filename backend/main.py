@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Query
 from firebase_admin import auth
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
