@@ -314,6 +314,11 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         
         logger.info(f"Performance on new batch - MAE: {mae:.2f}, R2: {r2:.2f}")
         
+        # SQLite safety check: MLflow crashes on NaN metrics
+        mae_log = float(0.0) if pd.isna(mae) else float(mae)
+        r2_log = float(0.0) if pd.isna(r2) else float(r2)
+        rmse_log = float(0.0) if pd.isna(rmse) else float(rmse)
+        
         # 5. Incremental Update
         logger.info("Updating model with new data...")
         # Create new instance with same params
@@ -326,7 +331,7 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         # We skip MLflow grid logging for incremental to save time/noise, 
         # but we could log the run as "incremental".
         with mlflow.start_run(run_name=f"incremental_{user_id if user_id else 'global'}"):
-             mlflow.log_metrics({"mae": mae, "r2": r2, "rmse": rmse, "new_samples": len(X_new)})
+             mlflow.log_metrics({"mae": mae_log, "r2": r2_log, "rmse": rmse_log, "new_samples": len(X_new)})
              mlflow.sklearn.log_model(best_model, "xgboost_model")
         
     else:
@@ -431,8 +436,8 @@ def main_process(user_id: str = None, mode: str = "incremental"):
     
         # Save Metrics to backend/data where API expects it
         metrics = {
-            "mae": float(mae),
-            "r2": float(r2),
+            "mae": float(0.0) if pd.isna(mae) else float(mae),
+            "r2": float(0.0) if pd.isna(r2) else float(r2),
             "last_trained": str(pd.Timestamp.now().date())
         }
         
