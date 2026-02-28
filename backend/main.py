@@ -988,7 +988,7 @@ def upload_workout_endpoint(
 
 refresh_statuses = {}
 
-def execute_refresh_task(uid: str):
+def execute_refresh_task(uid: str, mode: str = "incremental"):
     """Background task to fetch data and train model with progress updates."""
     try:
         refresh_statuses[uid] = {"status": "in_progress", "progress": 10, "message": "Initializing...", "error": None}
@@ -1023,9 +1023,9 @@ def execute_refresh_task(uid: str):
             fetch_garmin_data.main(user_id=None)
             
         refresh_statuses[uid]["progress"] = 70
-        refresh_statuses[uid]["message"] = "Training XGBoost Model..."
+        refresh_statuses[uid]["message"] = f"Training XGBoost Model ({mode})..."
         
-        process_garmin_data.main_process(user_id=uid)
+        process_garmin_data.main_process(user_id=uid, mode=mode)
         
         refresh_statuses[uid]["progress"] = 100
         refresh_statuses[uid]["status"] = "completed"
@@ -1041,18 +1041,22 @@ def execute_refresh_task(uid: str):
         refresh_statuses[uid]["error"] = f"Refresh failed: {str(e)}"
 
 @app.post("/system/refresh")
-async def refresh_data(background_tasks: BackgroundTasks, user: dict = Depends(verify_token)):
+async def refresh_data(
+    background_tasks: BackgroundTasks, 
+    mode: str = Query("incremental", description="Training mode: 'incremental' or 'full'"),
+    user: dict = Depends(verify_token)
+):
     """
-    Triggers Garmin data fetch and model retraining for the authenticated user.
-    
-    NEW: Now uses per-user Garmin credentials from Firestore.
-    Falls back to legacy mode if user has no credentials saved.
+    Triggers Garmin data fetch and model retraining for the authenticated user asynchronously.
     """
-    uid = user['uid']
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=401, detail="User ID missing from token")
+
     if refresh_statuses.get(uid, {}).get("status") == "in_progress":
         return {"status": "success", "message": "Refresh already in progress."}
         
-    background_tasks.add_task(execute_refresh_task, uid)
+    background_tasks.add_task(execute_refresh_task, uid, mode)
     
     # Initialize status
     refresh_statuses[uid] = {"status": "starting", "progress": 0, "message": "Initializing refresh task...", "error": None}
