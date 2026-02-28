@@ -219,9 +219,10 @@ def update_csv(new_df, filename, key_col='date'):
         new_df.to_csv(filename, index=False)
         logger.info(f"Created {filename} with {len(new_df)} rows")
 
-def main(user_id: Optional[str] = None):
+def main(user_id: Optional[str] = None, mode: str = "incremental"):
     """
     Fetches Garmin data for a specific user or uses legacy mode.
+    Mode 'incremental' overlaps 1 day, 'full' overlaps 5 days.
     """
     client = get_garmin_client(user_id)
 
@@ -258,8 +259,9 @@ def main(user_id: Optional[str] = None):
     last_sync = get_latest_date(f"{data_dir}/garmin_daily_summary.csv")
     
     if last_sync:
-        start = last_sync - timedelta(days=5)
-        logger.info(f"Found existing data up to {last_sync}. Fetching from {start} (5-day overlap)...")
+        overlap_days = 1 if mode == "incremental" else 5
+        start = last_sync - timedelta(days=overlap_days)
+        logger.info(f"Found existing data up to {last_sync}. Fetching from {start} ({overlap_days}-day overlap) [{mode}]...")
     else:
         start = today - timedelta(days=360)
         logger.info(f"No existing data. Fetching full history from {start}...")

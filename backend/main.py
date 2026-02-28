@@ -1018,9 +1018,9 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         has_credentials = db_manager.check_garmin_credentials_exist(uid)
         
         if has_credentials:
-            fetch_garmin_data.main(user_id=uid)
+            fetch_garmin_data.main(user_id=uid, mode=mode)
         else:
-            fetch_garmin_data.main(user_id=None)
+            fetch_garmin_data.main(user_id=None, mode=mode)
             
         refresh_statuses[uid]["progress"] = 70
         refresh_statuses[uid]["message"] = f"Training XGBoost Model ({mode})..."
