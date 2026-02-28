@@ -40,6 +40,7 @@ export default function DashboardPage() {
     const [showManualForm, setShowManualForm] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [refreshProgress, setRefreshProgress] = useState<{ progress: number; message: string; } | null>(null);
 
     // Edit Goal State
     const [editingGoal, setEditingGoal] = useState<any | null>(null);
@@ -116,7 +117,11 @@ export default function DashboardPage() {
 
     const handleRefresh = async () => {
         if (!user) return;
+        if (refreshing) return;
+
         setRefreshing(true);
+        setRefreshProgress({ progress: 0, message: "Initiating refresh..." });
+
         try {
             const token = await user.getIdToken();
             const res = await fetchWithRetry(`${API_BASE_URL}/system/refresh`, {
@@ -124,18 +129,49 @@ export default function DashboardPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            if (res.ok) {
-                await fetchData();
-                toast.success('Data refreshed successfully!');
-            } else {
+            if (!res.ok) {
                 const error = await res.json();
-                toast.error(error.detail || 'Failed to refresh data');
+                toast.error(error.detail || 'Failed to start refresh');
+                setRefreshing(false);
+                setRefreshProgress(null);
+                return;
             }
+
+            // Poll for status
+            const pollInterval = setInterval(async () => {
+                try {
+                    const statusRes = await fetchWithRetry(`${API_BASE_URL}/system/refresh/status`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+
+                    if (statusRes.ok) {
+                        const statusData = await statusRes.json();
+                        setRefreshProgress({ progress: statusData.progress, message: statusData.message });
+
+                        if (statusData.status === "completed") {
+                            clearInterval(pollInterval);
+                            await fetchData(); // refresh stats
+                            toast.success('Data refreshed successfully!');
+                            setRefreshing(false);
+                            setTimeout(() => setRefreshProgress(null), 3000);
+                        } else if (statusData.status === "failed") {
+                            clearInterval(pollInterval);
+                            toast.error(statusData.error || 'Refresh failed');
+                            setRefreshing(false);
+                            setRefreshProgress(null);
+                        }
+                    }
+                } catch (e: any) {
+                    // Ignore transient network errors during polling
+                    console.error("Polling error", e);
+                }
+            }, 1500);
+
         } catch (e: any) {
             console.error("Refresh failed", e);
             toast.error(e.message || 'An error occurred while refreshing data');
-        } finally {
             setRefreshing(false);
+            setRefreshProgress(null);
         }
     };
 
@@ -209,16 +245,32 @@ export default function DashboardPage() {
                                 <Plus className="mr-2 h-4 w-4" /> Log Workout
                             </Button>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                            className="text-slate-400 hover:text-white hover:bg-slate-800"
-                        >
-                            <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                            {refreshing ? 'Syncing...' : 'Refresh'}
-                        </Button>
+                        <div className="flex flex-col items-end gap-1 shrink-0 w-full sm:w-auto mt-4 sm:mt-0">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                className="text-slate-400 hover:text-white hover:bg-slate-800 w-full sm:w-auto"
+                            >
+                                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                                {refreshing ? 'Syncing...' : 'Refresh'}
+                            </Button>
+
+                            {refreshProgress && (
+                                <div className="w-full sm:w-40 mt-1">
+                                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                        <div
+                                            className="bg-blue-500 h-1.5 rounded-full transition-all duration-500 ease-out"
+                                            style={{ width: `${Math.max(5, refreshProgress.progress)}%` }}
+                                        ></div>
+                                    </div>
+                                    <div className="text-[10px] text-slate-500 text-right pr-1 mt-1 truncate">
+                                        {refreshProgress.message}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </AnimateEntry>
 

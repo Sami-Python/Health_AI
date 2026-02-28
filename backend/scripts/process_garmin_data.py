@@ -337,9 +337,9 @@ def main_process(user_id: str = None, mode: str = "incremental"):
 
 
     param_grid = {
-        'n_estimators': [100, 200, 300],
-        'learning_rate': [0.01, 0.03, 0.05],
-        'max_depth': [3, 4, 5],
+        'n_estimators': [100],
+        'learning_rate': [0.05],
+        'max_depth': [4],
         'subsample': [0.8],
         'colsample_bytree': [0.8]
     }

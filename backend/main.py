@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from firebase_admin import auth
 from pydantic import BaseModel
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -986,81 +986,87 @@ def upload_workout_endpoint(
         logger.error(f"Workout Upload Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+refresh_statuses = {}
+
+def execute_refresh_task(uid: str):
+    """Background task to fetch data and train model with progress updates."""
+    try:
+        refresh_statuses[uid] = {"status": "in_progress", "progress": 10, "message": "Initializing...", "error": None}
+        
+        import sys
+        import os
+        import importlib
+        
+        script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+        if not os.path.exists(os.path.join(script_dir, "fetch_garmin_data.py")):
+             refresh_statuses[uid]["status"] = "failed"
+             refresh_statuses[uid]["error"] = f"Could not locate fetch_garmin_data.py in {script_dir}"
+             return
+
+        if script_dir not in sys.path:
+            sys.path.append(script_dir)
+            
+        import fetch_garmin_data
+        import process_garmin_data
+        
+        importlib.reload(fetch_garmin_data)
+        importlib.reload(process_garmin_data)
+        
+        refresh_statuses[uid]["progress"] = 30
+        refresh_statuses[uid]["message"] = "Fetching Garmin Data..."
+        
+        has_credentials = db_manager.check_garmin_credentials_exist(uid)
+        
+        if has_credentials:
+            fetch_garmin_data.main(user_id=uid)
+        else:
+            fetch_garmin_data.main(user_id=None)
+            
+        refresh_statuses[uid]["progress"] = 70
+        refresh_statuses[uid]["message"] = "Training XGBoost Model..."
+        
+        process_garmin_data.main_process(user_id=uid)
+        
+        refresh_statuses[uid]["progress"] = 100
+        refresh_statuses[uid]["status"] = "completed"
+        refresh_statuses[uid]["message"] = "Data refreshed and model retrained."
+            
+    except ValueError as ve:
+        refresh_statuses[uid]["status"] = "failed"
+        refresh_statuses[uid]["error"] = str(ve) + " Please connect your Garmin account in Profile settings."
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        refresh_statuses[uid]["status"] = "failed"
+        refresh_statuses[uid]["error"] = f"Refresh failed: {str(e)}"
+
 @app.post("/system/refresh")
-async def refresh_data(user: dict = Depends(verify_token)):
+async def refresh_data(background_tasks: BackgroundTasks, user: dict = Depends(verify_token)):
     """
     Triggers Garmin data fetch and model retraining for the authenticated user.
     
     NEW: Now uses per-user Garmin credentials from Firestore.
     Falls back to legacy mode if user has no credentials saved.
     """
-    try:
-        import sys
-        import os
-        import importlib
+    uid = user['uid']
+    if refresh_statuses.get(uid, {}).get("status") == "in_progress":
+        return {"status": "success", "message": "Refresh already in progress."}
         
-
-        # Determine path to scripts (supporting Docker /app vs Local /backend)
-        # Using fixed structure now: backend/scripts
-        
-        # We are in backend/main.py. scripts are in ./scripts
-        script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
-        
-        if not os.path.exists(os.path.join(script_dir, "fetch_garmin_data.py")):
-             raise FileNotFoundError(f"Could not locate fetch_garmin_data.py in {script_dir}")
-
-        # Add scripts to path so we can import them
-        if script_dir not in sys.path:
-            sys.path.append(script_dir)
-            
-        try:
-            import fetch_garmin_data
-            import process_garmin_data
-            
-            # Force reload to ensure fresh execution (in case module state persists)
-            importlib.reload(fetch_garmin_data)
-            importlib.reload(process_garmin_data)
-            
-            # Run Fetch with user_id (NEW: Per-user credentials)
-            uid = user['uid']
-            print(f"Starting Data Fetch for user: {uid}...")
-            
-            # Check if user has Garmin credentials
-            has_credentials = db_manager.check_garmin_credentials_exist(uid)
-            
-            if has_credentials:
-                print(f"✅ User has Garmin credentials, fetching with per-user mode")
-                fetch_garmin_data.main(user_id=uid)
-            else:
-                print(f"⚠️  User has no Garmin credentials, attempting legacy mode")
-                # Try legacy mode (falls back to GARMIN_EMAIL/PASSWORD from .env)
-                fetch_garmin_data.main(user_id=None)
-            
-            # Run Process
-            print("Starting Model Training...")
-            process_garmin_data.main_process(user_id=uid)
-            print("✅ Model Training completed successfully.")
-            
-        except Exception as script_error:
-            print(f"❌ Error during script execution: {script_error}")
-            import traceback
-            traceback.print_exc()
-            raise script_error
-        
-        return {"status": "success", "message": "Data refreshed and model retrained."}
-        
-    except ValueError as ve:
-        # Credentials error
-        print(f"Credentials error: {ve}")
-        raise HTTPException(
-            status_code=400, 
-            detail=str(ve) + " Please connect your Garmin account in Profile settings."
-        )
-    except Exception as e:
-        print(f"Refresh error: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+    background_tasks.add_task(execute_refresh_task, uid)
+    
+    # Initialize status
+    refresh_statuses[uid] = {"status": "starting", "progress": 0, "message": "Initializing refresh task...", "error": None}
+    
+    return {"status": "success", "message": "Refresh task started in background."}
+    
+@app.get("/system/refresh/status")
+async def get_refresh_status(user: dict = Depends(verify_token)):
+    """
+    Returns the current status of the background refresh task.
+    """
+    uid = user['uid']
+    status_info = refresh_statuses.get(uid, {"status": "none", "progress": 0, "message": "", "error": None})
+    return status_info
 
 
 @app.get("/ai/insight", tags=["AI"])
@@ -1429,6 +1435,25 @@ async def save_garmin_credentials_endpoint(
         print(f"Save Garmin Credentials Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/garmin/test")
+@limiter.limit("10/hour")
+async def test_garmin_credentials_endpoint(
+    request: Request,
+    credentials: GarminCredentials,
+    user: dict = Depends(verify_token)
+):
+    """
+    Tests Garmin credentials without saving them.
+    Useful for validating before committing to DB.
+    """
+    try:
+        from garminconnect import Garmin
+        client = Garmin(credentials.username, credentials.password)
+        client.login()
+        return {"status": "success", "message": "Credentials verified successfully"}
+    except Exception as e:
+        logger.warning(f"Garmin Test Failed for {user['uid']}: {e}")
+        raise HTTPException(status_code=401, detail=f"Authentication failed. Please check your username and password.")
 
 @app.get("/garmin/status")
 @limiter.limit("20/minute")

@@ -14,6 +14,33 @@ export default function GarminCredentialsForm() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [testing, setTesting] = useState(false);
+
+    const handleTest = async () => {
+        if (!user || !username || !password) return;
+        setTesting(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/test`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                toast.success("Connection successful! Credentials are valid.");
+            } else {
+                toast.error(data.detail || "Connection failed. Please check credentials.");
+            }
+        } catch (e: any) {
+            toast.error(e.message || "Network error during test");
+        } finally {
+            setTesting(false);
+        }
+    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -145,8 +172,25 @@ export default function GarminCredentialsForm() {
 
                 <div className="flex gap-3">
                     <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleTest}
+                        disabled={testing || loading || !username || !password}
+                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700"
+                    >
+                        {testing ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Testing...
+                            </>
+                        ) : (
+                            "Test Connection"
+                        )}
+                    </Button>
+
+                    <Button
                         type="submit"
-                        disabled={loading || !username || !password}
+                        disabled={loading || testing || !username || !password}
                         className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white"
                     >
                         {loading ? (
@@ -157,7 +201,7 @@ export default function GarminCredentialsForm() {
                         ) : (
                             <>
                                 <Lock className="mr-2 h-4 w-4" />
-                                {status?.connected ? "Update Credentials" : "Connect Garmin"}
+                                {status?.connected ? "Update" : "Connect"}
                             </>
                         )}
                     </Button>
