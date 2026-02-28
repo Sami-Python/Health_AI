@@ -263,8 +263,9 @@ def main(user_id: Optional[str] = None, mode: str = "incremental"):
         start = last_sync - timedelta(days=overlap_days)
         logger.info(f"Found existing data up to {last_sync}. Fetching from {start} ({overlap_days}-day overlap) [{mode}]...")
     else:
-        start = today - timedelta(days=360)
-        logger.info(f"No existing data. Fetching full history from {start}...")
+        fallback_days = 7 if mode == "incremental" else 360
+        start = today - timedelta(days=fallback_days)
+        logger.info(f"No existing data. Fetching from {start} (fallback: {fallback_days} days) [{mode}]...")
 
     if start > today:
         logger.info("Data is already up to date!")
