@@ -14,7 +14,13 @@ import UserMenu from "@/components/UserMenu";
 import ChartsSection from "@/components/ChartsSection";
 import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
-import { Activity, Battery, Calendar, TrendingUp, Plus, RefreshCw, History, Brain, XCircle } from "lucide-react";
+import { Activity, Battery, Calendar, Brain, RefreshCw, LogOut, ChevronDown, Plus, TrendingUp, History, XCircle } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import AnimateEntry from "@/components/ui/AnimateEntry";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import Skeleton from "@/components/ui/Skeleton";
@@ -115,16 +121,16 @@ export default function DashboardPage() {
         }
     }, [user]);
 
-    const handleRefresh = async () => {
+    const handleRefresh = async (mode: 'incremental' | 'full' = 'incremental') => {
         if (!user) return;
         if (refreshing) return;
 
         setRefreshing(true);
-        setRefreshProgress({ progress: 0, message: "Initiating refresh..." });
+        setRefreshProgress({ progress: 0, message: `Initiating ${mode} refresh...` });
 
         try {
             const token = await user.getIdToken();
-            const res = await fetchWithRetry(`${API_BASE_URL}/system/refresh`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/system/refresh?mode=${mode}`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -246,16 +252,30 @@ export default function DashboardPage() {
                             </Button>
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0 w-full sm:w-auto mt-4 sm:mt-0">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleRefresh}
-                                disabled={refreshing}
-                                className="text-slate-400 hover:text-white hover:bg-slate-800 w-full sm:w-auto"
-                            >
-                                <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
-                                {refreshing ? 'Syncing...' : 'Refresh'}
-                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={refreshing}
+                                        className="text-slate-400 hover:text-white hover:bg-slate-800 w-full sm:w-auto focus:ring-0"
+                                    >
+                                        <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                                        {refreshing ? 'Syncing...' : 'Sync Data'}
+                                        <ChevronDown className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
+                                    <DropdownMenuItem className="focus:bg-slate-800 focus:text-white cursor-pointer" onClick={() => handleRefresh("incremental")}>
+                                        <span className="font-medium mr-2">Quick Sync</span>
+                                        <span className="text-xs text-slate-500">(Fast, skips model grid search)</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="focus:bg-slate-800 focus:text-white cursor-pointer" onClick={() => handleRefresh("full")}>
+                                        <span className="font-medium mr-2">Full Retrain</span>
+                                        <span className="text-xs text-slate-500">(Slow, trains new XGBoost baseline)</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
 
                             {refreshProgress && (
                                 <div className="w-full sm:w-40 mt-1">
