@@ -95,6 +95,121 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
+  void _showWorkoutDetails(Map<String, dynamic> workout) {
+    if (workout['source'] != 'next' && workout['source'] != 'history') return;
+    final isPending = workout['raw']['status'] == 'PENDING';
+    final workoutId = workout['raw']['id'] ?? workout['raw']['_id']; // Depending on how backend returns it
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF0F172A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                workout['name'] as String,
+                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              if (workout['raw']['description'] != null)
+                Text(
+                  workout['raw']['description'].toString(),
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              const SizedBox(height: 20),
+              
+              if (workoutId != null) ...[
+                // Siirto = Päivämäärän vaihto
+                ListTile(
+                  leading: const Icon(Icons.calendar_month, color: Colors.blueAccent),
+                  title: const Text('Reschedule Workout', style: TextStyle(color: Colors.white)),
+                  onTap: () async {
+                    Navigator.pop(context); // Sulje bottom sheet
+                    final newDate = await showDatePicker(
+                      context: context,
+                      initialDate: workout['date'] as DateTime,
+                      firstDate: DateTime.now().subtract(const Duration(days: 7)),
+                      lastDate: DateTime.now().add(const Duration(days: 90)),
+                      builder: (context, child) {
+                        return Theme(
+                          data: ThemeData.dark().copyWith(
+                            colorScheme: const ColorScheme.dark(
+                              primary: Colors.blueAccent,
+                              onPrimary: Colors.white,
+                              surface: Color(0xFF0F172A),
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    
+                    if (newDate != null) {
+                      final dateStr = '${newDate.year}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}';
+                      try {
+                        await _apiService.updateWorkoutDate(workoutId.toString(), dateStr);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout rescheduled'), backgroundColor: Colors.green));
+                          _fetchWorkouts();
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                        }
+                      }
+                    }
+                  },
+                ),
+                // Poisto
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                  title: const Text('Delete Workout', style: TextStyle(color: Colors.redAccent)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: const Color(0xFF0F172A),
+                        title: const Text('Delete Workout', style: TextStyle(color: Colors.white)),
+                        content: const Text('Are you sure you want to delete this workout?', style: TextStyle(color: Colors.white70)),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+                          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete', style: TextStyle(color: Colors.redAccent))),
+                        ],
+                      ),
+                    );
+                    
+                    if (confirm == true) {
+                      try {
+                        await _apiService.deleteWorkout(workoutId.toString());
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout deleted'), backgroundColor: Colors.green));
+                          _fetchWorkouts();
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                        }
+                      }
+                    }
+                  },
+                ),
+              ],
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedWorkouts = _selectedDay != null ? _getEventsForDay(_selectedDay!) : <Map<String, dynamic>>[];
@@ -105,6 +220,48 @@ class _CalendarScreenState extends State<CalendarScreen> {
         backgroundColor: const Color(0xFF020617),
         title: const Text('Training Calendar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome, color: Colors.blueAccent),
+            tooltip: 'Generate AI Plan',
+            onPressed: () async {
+              final days = await showDialog<int>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  backgroundColor: const Color(0xFF0F172A),
+                  title: const Row(
+                    children: [
+                      Icon(Icons.auto_awesome, color: Colors.blueAccent),
+                      SizedBox(width: 8),
+                      Text('Generate AI Plan', style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                  content: const Text('How many days of training should the AI generate? (1-7)', style: TextStyle(color: Colors.white70)),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(ctx, 3), child: const Text('3 Days', style: TextStyle(color: Colors.blueAccent))),
+                    TextButton(onPressed: () => Navigator.pop(ctx, 5), child: const Text('5 Days', style: TextStyle(color: Colors.blueAccent))),
+                    TextButton(onPressed: () => Navigator.pop(ctx, 7), child: const Text('7 Days', style: TextStyle(color: Colors.blueAccent))),
+                  ],
+                ),
+              );
+              
+              if (days != null) {
+                setState(() => _loading = true);
+                try {
+                  await _apiService.generateAiPlan(days);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('AI Plan Generated!'), backgroundColor: Colors.green));
+                    _fetchWorkouts(); // Load new generated workouts
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                  }
+                } finally {
+                  if (mounted) setState(() => _loading = false);
+                }
+              }
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white54),
             onPressed: _fetchWorkouts,
@@ -186,73 +343,76 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         itemBuilder: (context, index) {
                           final w = selectedWorkouts[index];
                           final isNext = w['source'] == 'next';
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: isNext ? Colors.blueAccent.withOpacity(0.4) : Colors.white10,
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          _workoutIcon(w['type'] as String),
-                                          color: isNext ? Colors.blueAccent : Colors.white54,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          w['name'] as String,
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                                        ),
-                                        if (isNext) ...[
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blueAccent.withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(4),
-                                            ),
-                                            child: const Text('NEXT', style: TextStyle(color: Colors.blueAccent, fontSize: 9, fontWeight: FontWeight.bold)),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                    if (w['duration'] != null && (w['duration'] as num) > 0)
-                                      Text(
-                                        '${w['duration']} min',
-                                        style: const TextStyle(color: Colors.white54, fontSize: 12),
-                                      ),
-                                  ],
+                          return GestureDetector(
+                            onTap: () => _showWorkoutDetails(w),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: isNext ? Colors.blueAccent.withOpacity(0.4) : Colors.white10,
                                 ),
-                                const SizedBox(height: 12),
-                                // Send to Garmin button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: OutlinedButton.icon(
-                                    onPressed: () => _sendToGarmin(w),
-                                    icon: const Icon(Icons.watch, size: 16, color: Colors.tealAccent),
-                                    label: const Text(
-                                      'Send to Garmin',
-                                      style: TextStyle(color: Colors.tealAccent, fontSize: 13),
-                                    ),
-                                    style: OutlinedButton.styleFrom(
-                                      side: BorderSide(color: Colors.tealAccent.withOpacity(0.4)),
-                                      padding: const EdgeInsets.symmetric(vertical: 10),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            _workoutIcon(w['type'] as String),
+                                            color: isNext ? Colors.blueAccent : Colors.white54,
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            w['name'] as String,
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                                          ),
+                                          if (isNext) ...[
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blueAccent.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: const Text('NEXT', style: TextStyle(color: Colors.blueAccent, fontSize: 9, fontWeight: FontWeight.bold)),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                      if (w['duration'] != null && (w['duration'] as num) > 0)
+                                        Text(
+                                          '${w['duration']} min',
+                                          style: const TextStyle(color: Colors.white54, fontSize: 12),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  // Send to Garmin button
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => _sendToGarmin(w),
+                                      icon: const Icon(Icons.watch, size: 16, color: Colors.tealAccent),
+                                      label: const Text(
+                                        'Send to Garmin',
+                                        style: TextStyle(color: Colors.tealAccent, fontSize: 13),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: BorderSide(color: Colors.tealAccent.withOpacity(0.4)),
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           );
                         },

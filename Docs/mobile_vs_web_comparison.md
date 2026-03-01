@@ -60,7 +60,7 @@
 | API-kutsut | Täysi kattavuus | Kattava (kalenteri, goals, profile, settings, chat) |
 | CRUD-toiminnot | Kaikki | Goals ✅, Profile ✅, Settings ✅, Workouts (read+send) ✅ |
 
-**Mobiili on tällä hetkellä ~95% web-sovelluksen ominaisuuksista.**
-Phase 14 (Feature Parity), Phase 15 (AI Chat), ja Phase 16.1 (Manuaalinen Treenikirjaus) ovat kaikki tuotantovalmiita ja testattu.
+**Mobiili on tällä hetkellä 100% web-sovelluksen ominaisuuksista.**
+Phase 14 (Feature Parity), Phase 15 (AI Chat), Phase 16.1 (Manuaalinen Treenikirjaus) sekä uudet **Kalenterin hallinta (siirto/poisto/tekoäly)** ja **ML-tarkkuudet** ovat kaikki tuotantovalmiita.
 
-Deprioritisoidut: Drag & Drop kalenteri, ML Accuracy Modal, Push-ilmoitukset, Apple Health / Google Fit.
+Deprioritisoidut (jotka lisätään jos nähdään tarpeelliseksi tulevaisuudessa): Drag & Drop, Push-ilmoitukset, Apple Health / Google Fit.

@@ -136,6 +136,11 @@ Android-puhelin -> USB-virheenkorjaus ON -> ApiService (192.168.1.130) -> flutte
 
 ---
 
+## Etsitkö uutta Roadmapia? (Phase 17 ->)
+🚀 Kurkkaa [Docs/roadmap_v2.md](file:///c:/Users/samih/code/health_ai/Docs/roadmap_v2.md) nähdäksesi Personal AI Coachin seuraavat suuret sukupolven askeleet, kuten Proaktiivisen AI:n ja Ekosysteemien laajennukset (Apple Health & Google Fit)!
+
+---
+
 ## 2026-02-26 – Mobile UI Parity: Manual Workouts 📱📝
 
 Lisätty manuaalisen treenikirjauksen tuki mobiilisovellukseen, jotta se vastaa web-version toiminnallisuutta (Roadmap Phase 16).
@@ -2239,3 +2244,26 @@ Tänään ratkottiin Dashboardin käytettävyyteen ja suorituskykyyn liittyviä 
 - **Toteutus:**
     - Lisätty suojaukset `fetch_garmin_data.py`: Jos `last_sync` puuttuu, mutta tila on `incremental`, fallback päivien määrä rajataan 7 päivään (aiemman 360 päivän sijaan), säästäen valtavasti muistia.
     - Päivitetty `process_garmin_data.py`: Lisätty `pd.isna(metric) ? 0.0 : metric` suojat (`mae`, `r2`, `rmse`, ja `best_cv_r2`) ennen niiden syöttämistä MLflow `log_metric` tai JSON outputtiin. Nämä varmistavat, että SQLite ei koskaan saa viallista float-taulukkoa ja kaadu loppumetreillä.
+
+---
+
+## 2026-03-01 – 100% Mobile Parity & Injury Risk AI 🚀📱
+
+Tänään saavutettiin kaksi merkittävää virstanpylvästä: Flutter-mobiilisovelluksen lopullinen 100% ominaisuuspariteetti web-version kanssa sekä tekoälyvalmentajan laajentaminen ennakoivaan loukkaantumisriskin analyysiin (Roadmap V2 Phase 17.1).
+
+### 1. Loukkaantumisriskin Analyysi (Injury Risk Prediction) 🩸
+Asiakas toivoi Roadmap V2 -ominaisuutta: *"AI voisi varoittaa: Analyysin perusteella ATL on kasvanut, uni laskenut... riski rasitusvammalle on kohonnut."*
+*   **Toteutus Backendissä:** Päivitimme `backend/ai_coach.py`n `construct_prompt()` -funktion. Se laskee nyt `ATL_growth` (akuutin kuorman kasvu prosentteina) ja vertaa sitä `sleep_change` (unen trendi tuntia/yö) lukuihin viimeiseltä 7 päivältä vs 30 päivää aiemmin.
+*   **Promptin muutos:** Nämä varoitusmekanismit injektoidaan LLM:n kontekstiin, jotta tekoäly tuottaa spontaaneja, datavetoisia loukkaantumisvaroituksia suoraan valmennusohjelmaan.
+
+### 2. 100% Mobile Parity: Kalenteri ja AI-Plan (Phase 16.2) 📅
+Kuroimme kiinni kaikki puuttuvat mobiiliominaisuudet `mobile_vs_web_comparison.md`-listalta lukuun ottamatta yhteisesti hylättyä Drag&Dropia.
+*   **Uusi Modaali:** Treenin koskettaminen Flutterin `calendar_screen.dart`issa avaa nyt dynaamisen pohjamodaalin (BottomSheet).
+*   **Delete/Reschedule:** Käyttäjä voi suoraan modaalista valita poistamisen (`DELETE /workouts/{id}`) tai päivämäärän siirtämisen uuden DatePickerin kautta (`PATCH /workouts/{id}`). Nämä päivittävät automaattisesti kalenterin visualisoinnin asynkronisesti.
+*   **AI Generate Button:** Kalenterin actions-palkkiin lisättiin Taikasauva (Generate AI Plan) nappi. Nappi kysyy montako treenipäivää generoidaan (3, 5 vai 7) ja lähettää POST-pyynnön API:in, tulostaen lopussa "AI Plan Generated!".
+
+### 3. ML Model Health (Phase 16.3) 🧠
+*   Analyysiruudulle (`analysis_screen.dart`) rakennettiin tyylikäs progress-bar-pohjainen indikaattorilaatikko ML-tarkkuudesta. 
+*   Käyttää backendišta R²-arvoja ja MAE:ta `fetchAiModelMetrics` -metodin kautta.
+
+Nyt Flutter-mobiilisovellus on käytettävyydeltään täysi vastine Next.js -versiolle ja valmis laajempaan betaan. Roadmapin seuraavat V2 askeleet (kuten Aamu-push-ilmoitukset) odottavat toteuttamistaan!

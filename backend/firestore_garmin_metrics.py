@@ -251,6 +251,49 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
         return False
 
 
+def get_user_trend_data(user_id: str) -> dict:
+    """
+    Get 14-day trend data for injury risk prediction.
+    Calculates change in Acute Training Load (ATL) and Sleep duration
+    comparing the last 7 days vs the previous 7 days.
+    """
+    try:
+        # Hae data viimeiseltä 14 päivältä
+        metrics = get_user_daily_metrics(user_id, days=14)
+        
+        if len(metrics) < 7:
+            # Ei tarpeeksi dataa trendien laskemiseen luotettavasti
+            return {"atl_change_pct": 0, "sleep_change_hours": 0}
+
+        # Jaa kahteen ajanjaksoon
+        mid_point = len(metrics) // 2
+        
+        week1 = metrics[:mid_point]
+        week2 = metrics[mid_point:]
+        
+        # Keskiarvo ATL
+        atl_w1 = sum([m.get('ATL', 0) for m in week1]) / max(len(week1), 1)
+        atl_w2 = sum([m.get('ATL', 0) for m in week2]) / max(len(week2), 1)
+        
+        # Keskiarvo uni tunteina
+        sleep_w1 = sum([m.get('totalSleep_minutes', 0) for m in week1]) / max(len(week1), 1) / 60
+        sleep_w2 = sum([m.get('totalSleep_minutes', 0) for m in week2]) / max(len(week2), 1) / 60
+        
+        # Muutokset
+        atl_change_pct = ((atl_w2 - atl_w1) / atl_w1 * 100) if atl_w1 > 0 else 0
+        sleep_change_hours = sleep_w2 - sleep_w1
+        
+        return {
+            "atl_change_pct": round(atl_change_pct, 1),
+            "sleep_change_hours": round(sleep_change_hours, 1)
+        }
+        
+    except Exception as e:
+        print(f"Firestore Error (get_user_trend_data): {e}")
+        return {"atl_change_pct": 0, "sleep_change_hours": 0}
+
+
+
 def save_model_performance(user_id: str, metrics: dict, feature_importance: dict) -> bool:
     """
     Save AI model performance metrics and feature importance.

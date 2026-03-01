@@ -28,6 +28,25 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     else:
         bb_interpretation = "🔴 KRIITTINEN - Erittäin huono palautuminen, suosittele LEPO"
 
+    # Evaluate Injury Risk
+    atl_change = ctx.get('atl_change_pct', 0)
+    sleep_change = ctx.get('sleep_change_hours', 0)
+    
+    injury_risk_text = ""
+    if atl_change > 30 and sleep_change < -0.5:
+        injury_risk_text = f"""
+    ⚠️ LOUKKAANTUMISRISKIVAROITUS (CRITICAL):
+    Urheilijan akuutti rasitus (ATL) on noussut vaarallisen nopeasti (+{atl_change}%) verrattuna viime viikkoon, ja samanaikaisesti unen määrä on vähentynyt ({sleep_change} h/yö).
+    → SINUN ON PAKKO antaa eksplisiittinen varoitus kohonneesta rasitusvamman riskistä treenin 'description'- tai 'tips'-kentässä.
+    → Suosittele ehdottomasti vain LEPOA tai erittäin kevyttä huoltavaa harjoittelua (mobility, walking). Älä anna tehotreenejä.
+        """
+    elif atl_change > 40:
+        injury_risk_text = f"""
+    ⚠️ VAROITUS:
+    Urheilijan akuutti rasitus (ATL) on noussut erittäin nopeasti (+{atl_change}%) verrattuna viime viikkoon.
+    → Harkitse tarkkaan ohjelmoinnin keventämistä välttääksesi rasitusvammat.
+        """
+
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
     
@@ -38,7 +57,9 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     - Viime aikojen toteutus: {compliance_history}
     - Palautteet: {preference_feedback}
     - AKTIIVISET TAVOITTEET: {active_goals}
+    - TRENDI: Akuutti rasitus (ATL) on muuttunut {atl_change}% ja uni {sleep_change}h viimeisen viikon aikana.
 
+    {injury_risk_text}
     {rejection_text}
     
     ⚠️ KRIITTINEN OHJE - Body Battery Tulkinta:
@@ -54,6 +75,7 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     
     TÄRKEÄÄ: Jos 'AKTIIVISET TAVOITTEET' mainitsee tietyn lajin (esim. Juoksu, Pyöräily), painota ohjelmassa kyseistä lajia.
 
+    [
         {{
             "day": 1,
             "activity": "Laji (esim. Juoksu, Pyöräily)",
@@ -67,7 +89,6 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
                 "Loppuverryttely: 5min ..."
             ],
             "garmin_workout": {{
-                "workoutName": "AI Coach - [Date]",
                 "workoutName": "AI Coach - [Date]",
                 "sport": "RUNNING",
                 "steps": [
