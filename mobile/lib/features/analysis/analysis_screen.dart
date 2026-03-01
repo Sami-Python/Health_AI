@@ -19,6 +19,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   String? _error;
   List<Metric> _history = [];
   Map<String, dynamic>? _weeklyStats;
+  Map<String, dynamic>? _mlMetrics;
 
   @override
   void initState() {
@@ -35,11 +36,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     try {
       final metrics = await _apiService.fetchMetricsHistory();
       final weeklyStats = await _apiService.fetchWeeklyStats();
+      final mlMetrics = await _apiService.fetchAiModelMetrics();
       
       if (mounted) {
         setState(() {
           _history = metrics;
           _weeklyStats = weeklyStats;
+          _mlMetrics = mlMetrics;
           _isLoading = false;
         });
       }
@@ -152,6 +155,84 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const SizedBox(height: 12),
             PerformanceChart(metrics: _history),
             const SizedBox(height: 24),
+
+            // ML Metrics Summary
+            if (_mlMetrics != null) ...[
+              const Text(
+                'ML Model Health',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                 padding: const EdgeInsets.all(16),
+                 decoration: BoxDecoration(
+                   color: const Color(0xFF0F172A),
+                   borderRadius: BorderRadius.circular(16),
+                   border: Border.all(color: Colors.indigoAccent.withOpacity(0.5)),
+                 ),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                       children: [
+                         const Text('Accuracy (R² Score)', style: TextStyle(color: Colors.white70)),
+                         Container(
+                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                           decoration: BoxDecoration(
+                             color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent.withOpacity(0.2) : Colors.yellowAccent.withOpacity(0.2),
+                             borderRadius: BorderRadius.circular(8),
+                             border: Border.all(color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent),
+                           ),
+                           child: Text(
+                             '${((_mlMetrics!['r2'] ?? 0) * 100).toStringAsFixed(0)}%',
+                             style: TextStyle(
+                               fontWeight: FontWeight.bold,
+                               color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
+                             ),
+                           ),
+                         ),
+                       ],
+                     ),
+                     const SizedBox(height: 12),
+                     ClipRRect(
+                       borderRadius: BorderRadius.circular(8),
+                       child: LinearProgressIndicator(
+                         value: (_mlMetrics!['r2'] ?? 0) as double,
+                         backgroundColor: Colors.white10,
+                         color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
+                         minHeight: 8,
+                       ),
+                     ),
+                     const SizedBox(height: 16),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                       children: [
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             const Text('MAE Error', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                             Text('${((_mlMetrics!['mae'] ?? 0.0) as num).toStringAsFixed(2)} pts', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                           ],
+                         ),
+                         Column(
+                           crossAxisAlignment: CrossAxisAlignment.end,
+                           children: [
+                             const Text('Last Trained', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                             Text('${_mlMetrics!['last_trained'] ?? 'Unknown'}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                           ],
+                         ),
+                       ],
+                     ),
+                   ],
+                 ),
+               ),
+               const SizedBox(height: 24),
+            ],
 
             const Text(
               'Training Load',

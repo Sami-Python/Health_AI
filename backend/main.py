@@ -1242,6 +1242,11 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
             "tsb": latest.get('tsb', 0)
         }
 
+        # Hae trendidata loukkaantumisriskin arvioimiseksi
+        trend_data = firestore_garmin_metrics.get_user_trend_data(user['uid'])
+        ctx.update(trend_data)
+
+
         # 2. Call AI Coach
         response_json = ai_coach.generate_coach_advice(
             user_id=user['uid'],

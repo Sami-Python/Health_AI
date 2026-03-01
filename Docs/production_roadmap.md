@@ -466,9 +466,37 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] Lisää `logManualWorkout` metodi `ApiService` -luokkaan. (#337)
 - [x] Tee alhaalta nouseva BottomSheet `ManualWorkoutFormSheet`. (#338)
 - [x] Laita koti- ja kalenterivälilehdille kelluva `+` -painike (FAB) tallennuksen avaamiseksi. (#339)
-- [x] Testattu oikealla Android-laitteella, tallennus päivittää näkymät livenä. (#340)
+### 16.2 Kalenterin hallinnan viimeistely (Mobile) ✅
+– Tavoite: Treenin siirto, poisto ja AI:n generointi (`mobile_vs_web_comparison.md` mukaisesti).
+
+- [x] UI: `_showWorkoutDetails` Modal / BottomSheet kalenteriin treeniä klikattaessa. (#821)
+- [x] Ominaisuus: Treenin siirto (Reschedule) kutsuen `PATCH /workouts/{id}`. (#822)
+- [x] Ominaisuus: Treenin poisto (Delete) kutsuen `DELETE /workouts/{id}`. (#823)
+- [x] Ominaisuus: AI Plan Generointi. Ikonipainike kalenterissa (`POST /plans/generate`). (#824)
+
+### 16.3 ML Model Health Näkymä (Mobile) ✅
+– Tavoite: Näyttää käyttäjälle koneoppimismallin R² Score.
+
+- [x] Tyylikäs ML Metrics -indikaattori `AnalysisScreen`iin. (#825)
+- [x] Backend-kutsu API-palveluun `fetchAiModelMetrics` (`GET /ai/model-metrics`). (#826)
+- **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
 ---
+
+## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (2026-03) 🚀
+
+> **Status:** IN PROGRESS (Aloitettu 2026-03-01)  
+> **Source:** `roadmap_v2.md`
+
+### 17.1 Loukkaantumisriskin Ennustaminen (Injury Risk Prediction) ✅
+
+Tavoite: Varoittaa käyttäjää, jos ATL nousee äkillisesti yhdessä heikentyvän unenlaadun kanssa.
+
+- [x] Backend `ai_coach.py` analysoi ATL/CTL suhdetta (Acute to Chronic Workload Ratio) ja viimeisimmän viikon unen trendejä (`sleep_minutes_roll_7d`).
+- [x] Generoi hälytyksiä tyyliin: "Analyysin perusteella ATL on kasvanut 40% viikossa..."
+- [x] Sisällytetty LLM System promptiin kontekstina.
+- [ ] Etusivun visuaalinen varoitus-badge (UI).
+
 
 ## Phase 10: Security Hardening
 

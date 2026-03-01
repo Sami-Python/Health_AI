@@ -110,6 +110,29 @@ class ApiService {
     }
   }
 
+  Future<void> deleteWorkout(String workoutId) async {
+    final headers = await _getHeaders();
+    final response = await http.delete(
+      Uri.parse('$baseUrl/workouts/$workoutId'),
+      headers: headers,
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete workout: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateWorkoutDate(String workoutId, String newDate) async {
+    final headers = await _getHeaders();
+    final response = await http.patch(
+      Uri.parse('$baseUrl/workouts/$workoutId'),
+      headers: headers,
+      body: json.encode({'date': newDate}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update workout date: ${response.statusCode}');
+    }
+  }
+
   Future<void> uploadWorkoutToGarmin(Map<String, dynamic> workout, String date) async {
     final headers = await _getHeaders();
     final response = await http.post(
@@ -139,6 +162,31 @@ class ApiService {
       return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     }
     return null;
+  }
+
+  Future<Map<String, dynamic>?> fetchAiModelMetrics() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/ai/model-metrics'), headers: headers);
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>> generateAiPlan(int days) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/plans/generate'),
+      headers: headers,
+      body: json.encode({'days': days}),
+    );
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    }
+    if (response.statusCode == 429) {
+      throw Exception('Daily AI generation limit reached.');
+    }
+    throw Exception('Failed to generate AI plan: ${response.statusCode}');
   }
 
   Future<String> sendChatMessage(
