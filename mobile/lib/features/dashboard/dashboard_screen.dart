@@ -22,9 +22,12 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
+  bool _isSyncing = false;
+  double _syncProgress = 0.0;
+  String _syncMessage = '';
   String? _error;
   bool _garminConnected = true; // Optimistic default to avoid flash
-  
+
   // Data
   Metric? _latestMetric;
   List<Metric> _history = [];
@@ -43,7 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _fetchGarminStatus() async {
     try {
       final status = await _apiService.getGarminStatus();
-      if (mounted) setState(() => _garminConnected = status?['connected'] == true);
+      if (mounted)
+        setState(() => _garminConnected = status?['connected'] == true);
     } catch (_) {}
   }
 
@@ -54,18 +58,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
+      print('Fetching metrics...');
       final metrics = await _apiService.fetchMetricsHistory();
+      print('Fetching goals...');
       final goals = await _apiService.fetchGoals();
+      print('Fetching next workout...');
       final nextWorkout = await _apiService.fetchNextWorkout();
+      print('Fetching AI insight...');
       final aiInsight = await _apiService.fetchAIInsight();
+      print('Fetching weekly stats...');
       final weeklyStats = await _apiService.fetchWeeklyStats();
+      print('All fetchcomplete');
 
       if (mounted) {
         setState(() {
           // Get the most recent metric
           if (metrics.isNotEmpty) {
-             _latestMetric = metrics.last; 
-             _history = metrics;
+            _latestMetric = metrics.last;
+            _history = metrics;
           }
           _goals = goals;
           _nextWorkout = nextWorkout;
@@ -84,10 +94,72 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _syncData() async {
+    if (_isSyncing) return;
+
+    setState(() {
+      _isSyncing = true;
+      _syncProgress = 0.0;
+      _syncMessage = 'Initiating sync...';
+      _error = null;
+    });
+
+    try {
+      await _apiService.refreshData();
+      
+      bool isPolling = true;
+      while (isPolling && mounted) {
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (!mounted) break;
+        
+        try {
+          final status = await _apiService.getRefreshStatus();
+          if (mounted) {
+            setState(() {
+              _syncProgress = (status['progress'] ?? 0).toDouble() / 100.0;
+              _syncMessage = status['message'] ?? 'Syncing...';
+            });
+            
+            if (status['status'] == 'completed') {
+              isPolling = false;
+              await _fetchData(); // Fetch the new data after successful sync
+            } else if (status['status'] == 'failed') {
+              isPolling = false;
+              setState(() {
+                _error = status['error'] ?? 'Sync failed';
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(_error!), backgroundColor: Colors.red),
+              );
+            }
+          }
+        } catch (pollError) {
+          // Ignore transient errors during polling
+        }
+      }
+
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Sync request failed: ${e.toString()}';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_error!), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+        });
+      }
+    }
+  }
+
   // ... (build method remains mostly same until _buildWorkoutCard call)
 
   int _selectedIndex = 0;
-  
+
   // No longer static list, handled in build method via switch or if/else
   // int _selectedIndex = 0; // Already defined above
 
@@ -129,18 +201,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Dashboard'),
         backgroundColor: const Color(0xFF020617),
         elevation: 0,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.blueAccent),
-            onPressed: _fetchData,
-          ),
+          if (_isSyncing)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        value: _syncProgress > 0 ? _syncProgress : null,
+                        strokeWidth: 2, 
+                        color: Colors.blueAccent
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${(_syncProgress * 100).toInt()}%',
+                      style: const TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.sync, color: Colors.blueAccent),
+              onPressed: _syncData,
+              tooltip: 'Sync Garmin Data',
+            ),
           IconButton(
             icon: const Icon(Icons.person, color: Colors.white70),
             onPressed: () {
-               setState(() {
-                 _selectedIndex = 4; // Switch to Profile tab
-               });
+              setState(() {
+                _selectedIndex = 4; // Switch to Profile tab
+              });
             },
           ),
         ],
@@ -205,166 +303,176 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildDashboardContent() {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Greeting Header
-            Text(
-              'Hello, ${_getDisplayName()}',
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Greeting Header
+          Text(
+            'Hello, ${_getDisplayName()}',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            const Text(
-              'Welcome back',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white54,
-              ),
+          ),
+          const Text(
+            'Welcome back',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white54,
             ),
-            const SizedBox(height: 24),
+          ),
+          const SizedBox(height: 24),
 
-            // Garmin connection banner
-            if (!_garminConnected)
-              GestureDetector(
-                onTap: () => setState(() => _selectedIndex = 3),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.orangeAccent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orangeAccent.withOpacity(0.4)),
-                  ),
-                  child: Row(children: [
-                    const Icon(Icons.watch_outlined, color: Colors.orangeAccent, size: 20),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Connect your Garmin to sync workouts',
-                        style: TextStyle(color: Colors.orangeAccent, fontSize: 13),
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent, size: 14),
-                  ]),
-                ),
-              ),
-
-            // AI Insight Card
-            if (_aiInsight != null) ...[
-              _buildAIInsightCard(),
-              const SizedBox(height: 24),
-            ],
-
-            // Stats Grid (2x2)
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.3,
-              children: [
-                _buildStatCard(
-                  title: 'Readiness',
-                  value: '${_latestMetric?.readiness ?? '--'}%',
-                  subtitle: 'Body Battery',
-                  icon: Icons.battery_charging_full,
-                  color: Colors.greenAccent,
-                ),
-                _buildStatCard(
-                  title: 'Weekly Load',
-                  value: '${_weeklyStats?['current_load']?.round() ?? '--'}',
-                  subtitle: 'Planned: ${_weeklyStats?['planned_load']?.round() ?? '--'}',
-                  icon: Icons.local_fire_department,
-                  color: Colors.blueAccent,
-                ),
-                _buildStatCard(
-                  title: 'Next Workout',
-                  value: _nextWorkout?['content']?['activity'] ?? 'Rest',
-                  subtitle: _nextWorkout?['date'] ?? 'No plan',
-                  icon: Icons.calendar_today,
-                  color: Colors.purpleAccent,
-                ),
-                _buildStatCard(
-                  title: 'Active Goals',
-                  value: '${_goals.length}',
-                  subtitle: 'Targets',
-                  icon: Icons.flag,
-                  color: Colors.orangeAccent,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Performance Analytics Section (Charts)
-            const Text(
-              'Performance Analytics',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (_history.isNotEmpty) ...[
-              ReadinessChart(metrics: _history),
-              const SizedBox(height: 16),
-              SleepChart(metrics: _history),
-              const SizedBox(height: 24),
-            ],
-
-            // Goals Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Your Active Goals',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _openGoalForm(),
-                  icon: const Icon(Icons.add, color: Colors.blueAccent, size: 18),
-                  label: const Text('Add', style: TextStyle(color: Colors.blueAccent)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (_goals.isEmpty)
-              Container(
-                padding: const EdgeInsets.all(24),
+          // Garmin connection banner
+          if (!_garminConnected)
+            GestureDetector(
+              onTap: () => setState(() => _selectedIndex = 3),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white10, style: BorderStyle.solid)
+                  color: Colors.orangeAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      Border.all(color: Colors.orangeAccent.withOpacity(0.4)),
                 ),
-                child: Column(
-                  children: [
-                    const Icon(Icons.flag_outlined, color: Colors.white24, size: 36),
-                    const SizedBox(height: 8),
-                    const Text('No active goals', style: TextStyle(color: Colors.white54)),
-                    const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: () => _openGoalForm(),
-                      child: const Text('+ Create your first goal', style: TextStyle(color: Colors.blueAccent)),
-                    )
-                  ],
-                ),
-              )
-            else
-              ..._goals.map((goal) => _buildGoalCard(goal)),
+                child: Row(children: [
+                  const Icon(Icons.watch_outlined,
+                      color: Colors.orangeAccent, size: 20),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Connect your Garmin to sync workouts',
+                      style:
+                          TextStyle(color: Colors.orangeAccent, fontSize: 13),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios,
+                      color: Colors.orangeAccent, size: 14),
+                ]),
+              ),
+            ),
 
+          // AI Insight Card
+          if (_aiInsight != null) ...[
+            _buildAIInsightCard(),
             const SizedBox(height: 24),
           ],
-        ),
-      );
+
+          // Stats Grid (2x2)
+          GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            childAspectRatio: 1.3,
+            children: [
+              _buildStatCard(
+                title: 'Readiness',
+                value: '${_latestMetric?.readiness ?? '--'}%',
+                subtitle: 'Body Battery',
+                icon: Icons.battery_charging_full,
+                color: Colors.greenAccent,
+              ),
+              _buildStatCard(
+                title: 'Weekly Load',
+                value: '${_weeklyStats?['current_load']?.round() ?? '--'}',
+                subtitle:
+                    'Planned: ${_weeklyStats?['planned_load']?.round() ?? '--'}',
+                icon: Icons.local_fire_department,
+                color: Colors.blueAccent,
+              ),
+              _buildStatCard(
+                title: 'Next Workout',
+                value: _nextWorkout?['content']?['activity'] ?? 'Rest',
+                subtitle: _nextWorkout?['date'] ?? 'No plan',
+                icon: Icons.calendar_today,
+                color: Colors.purpleAccent,
+              ),
+              _buildStatCard(
+                title: 'Active Goals',
+                value: '${_goals.length}',
+                subtitle: 'Targets',
+                icon: Icons.flag,
+                color: Colors.orangeAccent,
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // Performance Analytics Section (Charts)
+          const Text(
+            'Performance Analytics',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (_history.isNotEmpty) ...[
+            ReadinessChart(metrics: _history),
+            const SizedBox(height: 16),
+            SleepChart(metrics: _history),
+            const SizedBox(height: 24),
+          ],
+
+          // Goals Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Your Active Goals',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () => _openGoalForm(),
+                icon: const Icon(Icons.add, color: Colors.blueAccent, size: 18),
+                label: const Text('Add',
+                    style: TextStyle(color: Colors.blueAccent)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (_goals.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A).withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                      color: Colors.white10, style: BorderStyle.solid)),
+              child: Column(
+                children: [
+                  const Icon(Icons.flag_outlined,
+                      color: Colors.white24, size: 36),
+                  const SizedBox(height: 8),
+                  const Text('No active goals',
+                      style: TextStyle(color: Colors.white54)),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => _openGoalForm(),
+                    child: const Text('+ Create your first goal',
+                        style: TextStyle(color: Colors.blueAccent)),
+                  )
+                ],
+              ),
+            )
+          else
+            ..._goals.map((goal) => _buildGoalCard(goal)),
+
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
   }
 
   // ... (Keep _buildMetricCard and _buildGoalCard as is, assume they are there or see context)
@@ -402,28 +510,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.white38,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white38,
                 ),
-             ],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           )
         ],
       ),
@@ -434,59 +542,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.indigo.shade900, Colors.purple.shade900],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.indigo.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.indigo.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ]
-      ),
+          gradient: LinearGradient(
+            colors: [Colors.indigo.shade900, Colors.purple.shade900],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.indigo.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.indigo.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            )
+          ]),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-           Container(
-             padding: const EdgeInsets.all(8),
-             decoration: BoxDecoration(
-               color: Colors.white.withOpacity(0.1),
-               borderRadius: BorderRadius.circular(12),
-             ),
-             child: const Icon(Icons.auto_awesome, color: Colors.amberAccent, size: 24),
-           ),
-           const SizedBox(width: 16),
-           Expanded(
-             child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 const Text(
-                   "AI COACH INSIGHT",
-                   style: TextStyle(
-                     color: Colors.indigoAccent,
-                     fontSize: 10,
-                     fontWeight: FontWeight.bold,
-                     letterSpacing: 1.2,
-                   ),
-                 ),
-                 const SizedBox(height: 4),
-                 Text(
-                   _aiInsight?['insight'] ?? "Analyzing your data...",
-                   style: const TextStyle(
-                     color: Colors.white,
-                     fontSize: 14,
-                     height: 1.4,
-                     fontStyle: FontStyle.italic,
-                   ),
-                 )
-               ],
-             ),
-           )
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.auto_awesome,
+                color: Colors.amberAccent, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "AI COACH INSIGHT",
+                  style: TextStyle(
+                    color: Colors.indigoAccent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _aiInsight?['insight'] ?? "Analyzing your data...",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.4,
+                    fontStyle: FontStyle.italic,
+                  ),
+                )
+              ],
+            ),
+          )
         ],
       ),
     );
@@ -528,11 +636,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child:
+                const Text('Cancel', style: TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child:
+                const Text('Delete', style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
@@ -542,7 +652,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         await _apiService.deleteGoal(goal.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Goal deleted'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Goal deleted'), backgroundColor: Colors.green),
           );
           _fetchData();
         }
@@ -564,7 +675,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A).withOpacity(0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isRace ? Colors.purple.withOpacity(0.3) : Colors.white.withOpacity(0.05)),
+        border: Border.all(
+            color: isRace
+                ? Colors.purple.withOpacity(0.3)
+                : Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,20 +689,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 children: [
                   Icon(
-                    isRace ? Icons.flag : (goal.targetUnit == 'km' ? Icons.directions_run : Icons.fitness_center),
+                    isRace
+                        ? Icons.flag
+                        : (goal.targetUnit == 'km'
+                            ? Icons.directions_run
+                            : Icons.fitness_center),
                     size: 16,
                     color: isRace ? Colors.purpleAccent : Colors.blueAccent,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     goal.activityType,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
                   ),
-                  if (isRace) ...[const SizedBox(width: 6), Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(color: Colors.purple.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
-                    child: const Text('RACE', style: TextStyle(color: Colors.purpleAccent, fontSize: 9, fontWeight: FontWeight.bold)),
-                  )],
+                  if (isRace) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                          color: Colors.purple.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(4)),
+                      child: const Text('RACE',
+                          style: TextStyle(
+                              color: Colors.purpleAccent,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold)),
+                    )
+                  ],
                 ],
               ),
               // Edit / Delete icons
@@ -596,16 +727,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   if (!isRace)
                     Text('${goal.progressPercentage}%',
-                        style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, fontSize: 13)),
+                        style: const TextStyle(
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13)),
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => _openGoalForm(existingGoal: goal),
-                    child: const Icon(Icons.edit_outlined, size: 18, color: Colors.white38),
+                    child: const Icon(Icons.edit_outlined,
+                        size: 18, color: Colors.white38),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () => _deleteGoal(goal),
-                    child: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                    child: const Icon(Icons.delete_outline,
+                        size: 18, color: Colors.redAccent),
                   ),
                 ],
               ),
@@ -618,14 +754,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 text: TextSpan(children: [
                   TextSpan(
                     text: '${(goal.daysRemaining! / 7).floor()}',
-                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold),
                   ),
-                  const TextSpan(text: ' w  ', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                  const TextSpan(
+                      text: ' w  ',
+                      style: TextStyle(color: Colors.white54, fontSize: 14)),
                   TextSpan(
                     text: '${goal.daysRemaining! % 7}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
-                  const TextSpan(text: ' d to start line', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  const TextSpan(
+                      text: ' d to start line',
+                      style: TextStyle(color: Colors.white38, fontSize: 12)),
                 ]),
               ),
             ),
@@ -635,7 +781,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               value: goal.progressPercentage / 100,
               backgroundColor: Colors.white10,
               valueColor: AlwaysStoppedAnimation<Color>(
-                goal.progressPercentage >= 100 ? Colors.greenAccent : Colors.blueAccent,
+                goal.progressPercentage >= 100
+                    ? Colors.greenAccent
+                    : Colors.blueAccent,
               ),
               borderRadius: BorderRadius.circular(4),
               minHeight: 6,
@@ -697,4 +845,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
 // To keep _widgetOptions happy, we need a widget that wraps _buildDashboardContent.
 // However, _buildDashboardContent is an instance method, so we can't use it in a static list easily.
 // Let's refactor: _widgetOptions should be a getter or build method switch.
-

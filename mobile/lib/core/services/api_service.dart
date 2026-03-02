@@ -20,10 +20,36 @@ class ApiService {
     };
   }
 
+  // ─── System / Refresh ─────────────────────────────────────────
+  Future<void> refreshData() async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/system/refresh'),
+      headers: headers,
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to refresh data: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> getRefreshStatus() async {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/system/refresh/status'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to check refresh status');
+    }
+  }
+
   // ─── Metrics ────────────────────────────────────────────────
   Future<List<Metric>> fetchMetricsHistory() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/metrics/history'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/metrics/history'), headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Metric.fromJson(json)).toList();
@@ -34,7 +60,8 @@ class ApiService {
   // ─── Goals ──────────────────────────────────────────────────
   Future<List<Goal>> fetchGoals() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/goals'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/goals'), headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Goal.fromJson(json)).toList();
@@ -80,7 +107,8 @@ class ApiService {
   // ─── Workouts ───────────────────────────────────────────────
   Future<Map<String, dynamic>?> fetchNextWorkout() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/workouts/next'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/workouts/next'), headers: headers);
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
       if (data is Map<String, dynamic> && data.isNotEmpty) return data;
@@ -91,7 +119,8 @@ class ApiService {
 
   Future<List<dynamic>> fetchWorkoutHistory() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/workouts/history'), headers: headers);
+    final response = await http.get(Uri.parse('$baseUrl/workouts/history'),
+        headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
     }
@@ -133,7 +162,8 @@ class ApiService {
     }
   }
 
-  Future<void> uploadWorkoutToGarmin(Map<String, dynamic> workout, String date) async {
+  Future<void> uploadWorkoutToGarmin(
+      Map<String, dynamic> workout, String date) async {
     final headers = await _getHeaders();
     final response = await http.post(
       Uri.parse('$baseUrl/workouts/upload'),
@@ -147,9 +177,11 @@ class ApiService {
 
   Future<Map<String, dynamic>?> fetchWeeklyStats() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/workouts/weekly-status'), headers: headers);
+    final response = await http
+        .get(Uri.parse('$baseUrl/workouts/weekly-status'), headers: headers);
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     return null;
   }
@@ -157,18 +189,22 @@ class ApiService {
   // ─── AI ─────────────────────────────────────────────────────
   Future<Map<String, dynamic>?> fetchAIInsight() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     return null;
   }
 
   Future<Map<String, dynamic>?> fetchAiModelMetrics() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/ai/model-metrics'), headers: headers);
+    final response = await http.get(Uri.parse('$baseUrl/ai/model-metrics'),
+        headers: headers);
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     return null;
   }
@@ -181,7 +217,8 @@ class ApiService {
       body: json.encode({'days': days}),
     );
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     if (response.statusCode == 429) {
       throw Exception('Daily AI generation limit reached.');
@@ -203,7 +240,8 @@ class ApiService {
       }),
     );
     if (response.statusCode == 200) {
-      final data = json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      final data =
+          json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       return data['reply'] as String? ?? 'No response';
     }
     if (response.statusCode == 429) {
@@ -215,10 +253,12 @@ class ApiService {
   // ─── User Profile ────────────────────────────────────────────
   Future<Map<String, dynamic>?> getUserProfile() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/profile'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/profile'), headers: headers);
 
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     return null;
   }
@@ -238,9 +278,11 @@ class ApiService {
   // ─── Garmin ─────────────────────────────────────────────────
   Future<Map<String, dynamic>?> getGarminStatus() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/garmin/status'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/garmin/status'), headers: headers);
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     return null;
   }
@@ -253,7 +295,8 @@ class ApiService {
       body: json.encode({'username': username, 'password': password}),
     );
     if (response.statusCode != 200) {
-      throw Exception('Failed to save Garmin credentials: ${response.statusCode}');
+      throw Exception(
+          'Failed to save Garmin credentials: ${response.statusCode}');
     }
   }
 
@@ -264,16 +307,19 @@ class ApiService {
       headers: headers,
     );
     if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Failed to delete Garmin credentials: ${response.statusCode}');
+      throw Exception(
+          'Failed to delete Garmin credentials: ${response.statusCode}');
     }
   }
 
   // ─── Settings / GDPR ────────────────────────────────────────
   Future<Map<String, dynamic>?> exportUserData() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/user/export'), headers: headers);
+    final response =
+        await http.get(Uri.parse('$baseUrl/user/export'), headers: headers);
     if (response.statusCode == 200) {
-      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
     }
     throw Exception('Failed to export data: ${response.statusCode}');
   }
