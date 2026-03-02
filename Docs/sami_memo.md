@@ -1,40 +1,62 @@
-#  Quick Start
-Tässä komennot projektin ajamiseen. Varmista, että olet oikeassa kansiossa.
+# 🚀 Quick Start
+Tässä selkeät ohjeet projektin eri osien käynnistämiseen. Varmista, että avaat komennot projektin juurikansiosta (`health_ai`).
 
 ### Muutokset main-haarasta ja yhdistä ne omiisi (rebase):
 ```bash
 git pull origin main --rebase
 ```
 
-### Backend (API)
-**Option A: Docker (Production-like)**
-```bash
-docker-compose up
-```
+---
 
-**Option B: Manual (Faster for Dev)**
+### 1️⃣ Backend (API)
+**Backend TÄYTYY olla käynnissä**, jotta mobiili- ja web-sovellukset toimivat.
+Avaa uusi terminaali ja aja seuraavat komennot:
+
+**Vaihtoehto A: Lokaali kehitys (Suositeltu)**
+Tämä käynnistää backendin niin, että myös samaan WiFiin kytketty puhelin pääsee siihen käsiksi.
 ```bash
 cd backend
 .venv\Scripts\activate  # Windows
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Frontend (Next.js)
+**Vaihtoehto B: Docker**
+```bash
+docker-compose up
+```
+
+---
+
+### 2️⃣ Web Frontend (Next.js)
+Avaa uusi terminaali ja aja:
 ```bash
 cd frontend
 npm run dev
 ```
 
-### Mobile App (Flutter)
-1. Käynnistä Android Emulator (`flutter emulators --launch Medium_Phone_API_36.1`)
-2. Aja sovellus:
+---
+
+### 3️⃣ Mobile App (Flutter)
+Emulaattori saattaa olla raskas ja katkeilla, joten **fyysisen laitteen käyttöä suositellaan**.
+
+**A. Puhelimen valmistelu:**
+1. Laita puhelimesta "USB-virheenkorjaus" (USB Debugging) päälle kehittäjäasetuksista.
+2. Kytke puhelin tietokoneeseen USB-kaapelilla.
+3. Varmista että puhelin näkyy tietokoneelle ajamalla komento `flutter devices`.
+
+**B. Sovelluksen käynnistäminen TERMINAALISTA:**
+Avaa uusi terminaali ja aja:
 ```bash
 cd mobile
 flutter run
 ```
-*Tai VS Codessa: Avaa `mobile/lib/main.dart` ja paina F5.*
 
+**C. Sovelluksen käynnistäminen VS CODESTA (Vaihtoehtoinen):**
+1. Avaa tiedosto `mobile/lib/main.dart`
+2. Valitse editorin oikeasta alakulmasta kohdelaitteeksi kytkemäsi puhelin.
+3. Paina **F5** (tai Run -> Start Debugging).
 
+*Huom! Jos backend yhteys ei toimi (Time out), tarkista että `mobile/lib/core/services/api_service.dart` tiedostossa oleva IP-osoite vastaa tietokoneesi nykyistä lokaalia IP:tä ja että backend on varmasti käynnissä.*
 ### 1. Datan päivitys (Inkrementaalinen)
 Hakee vain uudet päivät Garminilta ja lisää ne olemassa oleviin tiedostoihin.
 ```bash
@@ -2267,3 +2289,19 @@ Kuroimme kiinni kaikki puuttuvat mobiiliominaisuudet `mobile_vs_web_comparison.m
 *   Käyttää backendišta R²-arvoja ja MAE:ta `fetchAiModelMetrics` -metodin kautta.
 
 Nyt Flutter-mobiilisovellus on käytettävyydeltään täysi vastine Next.js -versiolle ja valmis laajempaan betaan. Roadmapin seuraavat V2 askeleet (kuten Aamu-push-ilmoitukset) odottavat toteuttamistaan!
+
+---
+
+## 2026-03-02 – Mobile Garmin Sync & MLFlow Fixes 🔄
+
+Tänään tuotiin loppuun "Async Data Refresh & Progress Polling" -ominaisuus mobiilisovelluksen puolelle, jotta käyttäjä voi päivittää Garmin-tilastonsa suoraan puhelimesta käsin ja seurata taustatyön edistymistä.
+
+### 1. Mobile Sync Progress UI
+*   Mobiilisovelluksen Dashboard AppBariin lisättiin "Sync"-kuvake.
+*   Kun synkronointi aloitetaan (`POST /system/refresh`), UI lukittuu pyörivään "Loading"-indikaattoriin ja käynnistää taustapollingin (`GET /system/refresh/status`).
+*   Tämä palauttaa numeraalisen prosentin ja tekstin (esim. "Fetching data..." tai "Training XGBoost..."), joka piirretään reaaliajassa näytön yläreunaan 0-100% säteellä, tuoden täydellisen ominaisuuspariteetin Next.js -web-version rinnalle (joka tehtiin 28. helmikuuta).
+
+### 2. MLFlow SQLite "Device or resource busy" -korjaus
+*   Backendissä ilmeni ongelma, joissa `process_garmin_data.py` kaatui Alembic-migraatiovirheeseen (`Can't locate revision identified by 'd3e4f5a6b7c8'`) Python-ympäristöjen päivityksen myötä.
+*   Syyksi paljastui lokaalin `mlflow.db` -tietokannan jääminen irralleen kirjastoversioista, sekä uvicornin in-memory -lukko itse SQLite-tiedostolle.
+*   Ongelma korjattiin tappamalla kokonaan Python-backend (`taskkill //F //IM python.exe`), tuhoamalla väkisin lokaalin `mlruns/` -kansion sekä korruptoituneen `.db` -tiedoston. Uudelleenkäynnistyksen myötä uusi konfiguraatio alusti puhtaan ja ehjän MLFlow-kirjausjärjestelmän, sallien mallin mennä taas 100% asti läpi.
