@@ -85,6 +85,7 @@ Kolmivaiheinen prosessi:
 ```
 landing_page/
 ├── index.html              # Pääsivu (HTML)
+├── instructions.html       # Käyttöohjeet
 ├── privacy.html            # Tietosuojaseloste (GDPR)
 ├── terms.html              # Käyttöehdot
 ├── styles.css              # Tyylitiedosto

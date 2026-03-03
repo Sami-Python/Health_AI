@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructions - Health AI</title>
+    <meta name="description"
+        content="Instructions for using Health AI. Learn how to get the most out of your AI coach.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body class="legal-page">
+    <!-- Navigation -->
+    <nav class="navbar scrolled">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="nav-logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 4L4 10V18C4 24.6274 9.37258 28 16 28C22.6274 28 28 24.6274 28 18V10L16 4Z"
+                            fill="url(#logo-gradient)" />
+                        <path
+                            d="M16 12C14.3431 12 13 13.3431 13 15C13 16.6569 14.3431 18 16 18C17.6569 18 19 16.6569 19 15C19 13.3431 17.6569 12 16 12Z"
+                            fill="white" />
+                        <defs>
+                            <linearGradient id="logo-gradient" x1="4" y1="4" x2="28" y2="28"
+                                gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#6366F1" />
+                                <stop offset="1" stop-color="#8B5CF6" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">Health AI</span>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="legal-content">
+        <div class="container">
+            <div class="legal-header">
+                <h1>Instructions</h1>
+                <p class="legal-updated">Welcome to Health AI!</p>
+            </div>
+
+            <div class="legal-body">
+                <section class="legal-section">
+                    <h2>1. Getting Started & Logging In</h2>
+                    <p>The first step to using your Health AI coach is securely logging in and syncing your health data.
+                    </p>
+                    <ul>
+                        <li>Log in to the application. <strong>Note: Currently, sign-in is only supported via Google
+                                Account.</strong></li>
+                        <li>Navigate to the Settings menu and select "Connect Garmin".</li>
+                        <li>Follow the on-screen instructions to securely share your data (heart rate, sleep, workouts).
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="legal-section">
+                    <h2>2. Initializing Your Data (Important First Steps)</h2>
+                    <p>Before the AI can give you accurate recommendations, you need to sync your historical data from
+                        Garmin and train the machine learning model.</p>
+                    <ul>
+                        <li><strong>Refresh all data:</strong> On your first use, click "Refresh all data". This will
+                            fetch all your Garmin data and run it through the XGBoost machine learning
+                            model.<br><em>Please note: This process may take up to 10 minutes.</em></li>
+                        <li><strong>Incremental refresh:</strong> After the full refresh is complete, click "Incremental
+                            refresh" as a test and precaution to ensure recent data is correctly processed. This takes
+                            about 5 minutes.</li>
+                        <li><strong>Verify the results:</strong> Go to your <strong>Profile -&gt; ML Accuracy</strong>
+                            to check the results and ensure the model training was successful.</li>
+                    </ul>
+                </section>
+
+                <section class="legal-section">
+                    <h2>3. AI Analysis & Readiness</h2>
+                    <p>Once your data is synced and the model is trained, the AI starts its analysis.</p>
+                    <ul>
+                        <li><strong>Training Readiness:</strong> The XGBoost machine learning model analyzes your recent
+                            sleep and stress levels, indicating how ready you are for high-intensity training.</li>
+                        <li><strong>Gemini AI Coach:</strong> Analyzes your training history and generates personalized
+                            daily training recommendations.</li>
+                    </ul>
+                </section>
+
+                <section class="legal-section">
+                    <h2>4. Setting Goals</h2>
+                    <p>The AI needs direction to help you in the best possible way.</p>
+                    <ul>
+                        <li>Go to the "Goals" section on your Dashboard.</li>
+                        <li>Set your main objective (e.g., training for a marathon, improving base fitness).</li>
+                        <li>Set weekly targets for individual sports like running, skiing, or strength training.</li>
+                    </ul>
+                </section>
+
+                <section class="legal-section">
+                    <h2>5. Training Calendar</h2>
+                    <p>Track your progress and plan the weeks ahead.</p>
+                    <ul>
+                        <li>The calendar provides a convenient view of your past workouts and the AI's recommendations
+                            for active days.</li>
+                        <li>You can drag and drop workouts to any day to adjust your weekly schedule.</li>
+                    </ul>
+                </section>
+
+                <section class="legal-section">
+                    <h2>6. Security & Privacy</h2>
+                    <div class="legal-warning-box">
+                        <p><strong>🔒 Your Privacy is Our Priority</strong></p>
+                        <p>All your health data is secured using industry-standard AES-256 encryption. Your data is
+                            never sold or shared with external parties and is strictly used to optimize your own
+                            training.</p>
+                    </div>
+                </section>
+
+                <section class="legal-section">
+                    <h2>7. Frequently Asked Questions (FAQ)</h2>
+                    <h3>Why aren't my Garmin syncs showing up immediately?</h3>
+                    <p>Data fetching happens in the background. If new data doesn't appear immediately, you can try
+                        manually updating it using the "Refresh data" button.</p>
+
+                    <h3>Is the app free?</h3>
+                    <p>We are currently in the Early Access phase, and basic features are free to use.</p>
+                </section>
+
+                <section class="legal-section">
+                    <h2>8. Support & Contact</h2>
+                    <p>If you encounter any issues, you can always contact our support team:</p>
+                    <div class="legal-info-box">
+                        <p>Email: <a href="mailto:info@personalaicoach.ai">info@personalaicoach.ai</a></p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 Health AI. All rights reserved.</p>
+                <div class="footer-legal-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

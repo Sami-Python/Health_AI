@@ -2305,3 +2305,28 @@ Tänään tuotiin loppuun "Async Data Refresh & Progress Polling" -ominaisuus mo
 *   Backendissä ilmeni ongelma, joissa `process_garmin_data.py` kaatui Alembic-migraatiovirheeseen (`Can't locate revision identified by 'd3e4f5a6b7c8'`) Python-ympäristöjen päivityksen myötä.
 *   Syyksi paljastui lokaalin `mlflow.db` -tietokannan jääminen irralleen kirjastoversioista, sekä uvicornin in-memory -lukko itse SQLite-tiedostolle.
 *   Ongelma korjattiin tappamalla kokonaan Python-backend (`taskkill //F //IM python.exe`), tuhoamalla väkisin lokaalin `mlruns/` -kansion sekä korruptoituneen `.db` -tiedoston. Uudelleenkäynnistyksen myötä uusi konfiguraatio alusti puhtaan ja ehjän MLFlow-kirjausjärjestelmän, sallien mallin mennä taas 100% asti läpi.
+
+## 2026-03-03 – Landing Page Instructions & Cloudflare Deployment 🚀
+
+Toteutettiin uusi Käyttöohjeet (Instructions) alisivu landing pagelle ja päivitettiin tuotanto-ohjeet.
+
+### 1. Käyttöohjeet (`instructions.html`)
+- **Teema:** Yhtenäinen landing pagen muiden alasivujen (privacy/terms) kanssa (glassmorphism ja tumma teema).
+- **Sisältö:** Kattavat, englanninkieliset ohjeet Health AI:n käytön aloitukseen:
+  - Google Account Login
+  - Garmin Connection Steps
+  - Initial Data Sync ("Refresh all data" step, mainittu ~10min kesto XGBoost koulutukselle)
+  - Incremental Sync test step (~5min)
+  - Mallin tilan tarkistus (Profile -> ML Accuracy)
+  - AI Analysis (Readiness & Gemini Coach)
+  - Setting Goals & Using the Training Calendar
+- **Linkitys:** Sivu on julkaistu, mutta linkitetty toistaiseksi "piilotetusti" ainoastaan pääsivun footeriin (`index.html`). 
+
+### 2. Sähköpostin korjaus
+- Tukisähköpostiksi vaihdettu ohjeisiin `info@personalaicoach.ai`, joka vastaa Cloudflare Email Routing asetuksia.
+- Huomattu, että `sami@personalaicoach.ai` on pelkästään testikäyttäjien asetus.
+
+### 3. Järjestelmäpäivitykset & Julkaisu
+- Siirretty suoraan Github pushien kautta Cloudflare Pages tuotantoon (`git push origin main` triggeröi automaattisen julkaisun).
+- `Docs/landing_page.md` päivitetty vastaamaan uutta tiedostorakennetta.
+
