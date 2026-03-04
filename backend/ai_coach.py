@@ -47,8 +47,19 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     → Harkitse tarkkaan ohjelmoinnin keventämistä välttääksesi rasitusvammat.
         """
 
+
+    # XGBoost Predictive Context
+    xgboost_instruction = ""
+    if 'xgboost_predicted_charge' in ctx:
+        xgb_val = ctx['xgboost_predicted_charge']
+        xgboost_instruction = f"""
+    🤖 XGBOOST ENNUSTE: Koneoppimismalli ennustaa huomisen palautumistason (Body Battery) olevan {xgb_val:.1f}/100.
+    → SÄÄNTÖ: Jos luku on matala (<45), vältä raskaita harjoituksia ja painota palautumista. Jos luku on korkea (>75), urheilija on todennäköisesti valmis kovaan tehotreeniin huomenna.
+        """
+
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
+    {xgboost_instruction}
     
     Urheilijan tilanne tänään ({ctx['date']}):
     - Body Battery (Palautuminen): {ctx['predicted_charge']:.0f}/100 → {bb_interpretation}
@@ -131,8 +142,18 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
     """
 
 def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_feedback="", active_goals=""):
+    # XGBoost Predictive Context
+    xgboost_instruction = ""
+    if 'xgboost_predicted_charge' in ctx:
+        xgb_val = ctx['xgboost_predicted_charge']
+        xgboost_instruction = f"""
+    🤖 XGBOOST ENNUSTE: Koneoppimismalli ennustaa huomisen palautumistason (Body Battery) asettuvan tasoon {xgb_val:.1f}/100.
+    → SÄÄNTÖ: Ota tämä matemaattinen arvio välittömästi huomioon seuraavien 1-2 päivän ohjelmoinnissa! 
+        """
+        
     return f"""
     Olet huippu-urheiluun erikoistunut valmentaja.
+    {xgboost_instruction}
     
     Urheilijan lähtötilanne:
     - Body Battery: {ctx['predicted_charge']:.0f}/100
