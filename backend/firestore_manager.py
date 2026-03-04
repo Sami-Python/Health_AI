@@ -288,11 +288,79 @@ def get_recent_plans(user_id: str, limit: int = 5):
         print(f"Firestore history error: {e}")
         return []
 
+def _match_and_score_pending_workout(user_id: str, workout_data: dict):
+    workout_date = workout_data.get('date')
+    if not workout_date:
+        return
+        
+    docs = db.collection('workouts')\
+             .where(filter=FieldFilter('user_id', '==', user_id))\
+             .where(filter=FieldFilter('date', '==', workout_date))\
+             .where(filter=FieldFilter('status', '==', 'PENDING'))\
+             .stream()
+             
+    planned_workout = None
+    planned_doc_ref = None
+    for d in docs:
+        planned_workout = d.to_dict()
+        planned_doc_ref = d.reference
+        break
+        
+    if planned_workout:
+        p_dur = planned_workout.get('duration_min', 0)
+        p_load = planned_workout.get('load_estimate', 0)
+        a_dur = workout_data.get('duration_min', 0)
+        a_load = workout_data.get('load_estimate', 0)
+        
+        dur_score = min(100, (a_dur / p_dur * 100)) if p_dur > 0 else (100 if a_dur > 0 else 0)
+        load_score = min(100, (a_load / p_load * 100)) if p_load > 0 else (100 if a_load > 0 else 0)
+        
+        execution_score = int((dur_score * 0.5) + (load_score * 0.5))
+        
+        workout_data['execution_score'] = execution_score
+        workout_data['planned_duration'] = p_dur
+        workout_data['planned_load'] = p_load
+        
+        # Keep planned structure if available and actual is missing
+        if 'structure' not in workout_data or not workout_data['structure']:
+            workout_data['structure'] = planned_workout.get('structure', '')
+            
+        planned_doc_ref.delete()
+
+def get_average_execution_score(user_id: str, days: int = 7):
+    """Calculates average execution score from the past N days."""
+    try:
+        from datetime import datetime, timedelta
+        start_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
+        
+        docs = db.collection('workouts')\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .where(filter=FieldFilter('status', '==', 'DONE'))\
+                 .where(filter=FieldFilter('date', '>=', start_date))\
+                 .stream()
+                 
+        scores = []
+        for d in docs:
+            data = d.to_dict()
+            if 'execution_score' in data:
+                scores.append(data['execution_score'])
+                
+        if scores:
+            return sum(scores) / len(scores)
+        return None
+    except Exception as e:
+        print(f"Firestore Error (Execution Score): {e}")
+        return None
+
 def save_workout(user_id: str, workout_data: dict):
     """Saves a workout to the 'workouts' collection."""
     try:
         workout_data['user_id'] = user_id
         workout_data['created_at'] = firestore.SERVER_TIMESTAMP
+        
+        if workout_data.get('status') == 'DONE':
+            _match_and_score_pending_workout(user_id, workout_data)
+            
         db.collection('workouts').add(workout_data)
         return True
     except Exception as e:
@@ -304,6 +372,10 @@ def save_garmin_workout(user_id: str, workout_data: dict, activity_id: str):
     try:
         workout_data['user_id'] = user_id
         workout_data['updated_at'] = firestore.SERVER_TIMESTAMP
+        
+        if workout_data.get('status') == 'DONE':
+            _match_and_score_pending_workout(user_id, workout_data)
+            
         # Use .set with merge=True to update or create
         db.collection('workouts').document(str(activity_id)).set(workout_data, merge=True)
         return True

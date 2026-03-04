@@ -361,6 +361,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildAIInsightCard(),
             const SizedBox(height: 24),
           ],
+          
+          // Injury Risk Banner
+          if (_hasHighInjuryRisk()) ...[
+            _buildInjuryRiskBanner(),
+            const SizedBox(height: 24),
+          ],
 
           // Stats Grid (2x2)
           GridView.count(
@@ -592,6 +598,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontStyle: FontStyle.italic,
                   ),
                 )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  bool _hasHighInjuryRisk() {
+    if (_history.length < 8) return false;
+
+    // Calculate ATL and Sleep trend over last 7 days compared to previous 7 days
+    final latest7 = _history.sublist(_history.length - 7);
+    final previous7 = _history.sublist(_history.length - 14, _history.length - 7);
+
+    final avgAtlLatest = latest7.map((m) => m.atl).reduce((a, b) => a + b) / 7;
+    final avgAtlPrev = previous7.map((m) => m.atl).reduce((a, b) => a + b) / 7;
+    
+    final avgSleepLatest = latest7.map((m) => m.sleepMin).reduce((a, b) => a + b) / 7 / 60.0;
+    final avgSleepPrev = previous7.map((m) => m.sleepMin).reduce((a, b) => a + b) / 7 / 60.0;
+
+    double atlChangePct = 0;
+    if (avgAtlPrev > 0) {
+      atlChangePct = ((avgAtlLatest - avgAtlPrev) / avgAtlPrev) * 100;
+    }
+    
+    double sleepChangeHours = avgSleepLatest - avgSleepPrev;
+
+    // Critical threshold matching backend (ATL > 30% and sleep < -0.5h) or general warning (ATL > 40%)
+    return (atlChangePct > 30 && sleepChangeHours < -0.5) || atlChangePct > 40;
+  }
+
+  Widget _buildInjuryRiskBanner() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.redAccent.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.redAccent.withOpacity(0.5)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'HIGH INJURY RISK DETECTED',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Your recent training load (ATL) has spiked significantly while your sleep has decreased. Consider resting or doing light active recovery today to avoid injury.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           )

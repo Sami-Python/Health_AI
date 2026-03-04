@@ -497,6 +497,10 @@ Tavoite: Varoittaa käyttäjää, jos ATL nousee äkillisesti yhdessä heikentyv
 - [x] Sisällytetty LLM System promptiin kontekstina.
 - [ ] Etusivun visuaalinen varoitus-badge (UI).
 
+### 17.2 Automaattiset Korjaukset (Scheduled for tomorrow)
+- [ ] **Garmin Export Title Bug:** Korjaa AI-valmentajan Garmin Connect -treeniviennin otsikko ("AI Coach - 2024-01-05"). Päivämäärä tulee asettaa vastaamaan oikeaa treenipäivää.
+- [ ] **Garmin Export Content Bug:** Garminiin generoitu ohjelma ei täysin vastaa AI:n tekemää suunnitelmaa. Tarkista `ai_coach.py` vaiheistus (steps) ja JSON-mäppäys Garminin ymmärtämään muotoon.
+
 
 ## Phase 10: Security Hardening
 
@@ -847,5 +851,12 @@ Tänään saatiin mobiilisovellus feature-paritytasolle web-sovelluksen kanssa.
 - [x] **GoalFormSheet suojattu** – Dropdown RangeError jos backend-arvo ei listalla (#759)
 - [x] **Race goal -näyttö korjattu** – `89.0 / 55.0 km` → `Race distance: 55.0 km` (#760)
 
----
+### 17.3 Toteutusseuranta (Execution Score) ✅
+Tavoite: Seurata noudattaako käyttäjä AI:n generoimaa ohjelmaa keston ja rasituksen osalta ja syöttää tämä takaisin AI:lle.
 
+- [x] Backend: `firestore_manager.py` mäppää valmistuneet Garmin-aktiviteetit ("DONE") saman päivän AI-koutsauksiin ("PENDING") ja laskee 0-100 `execution_score`n.
+- [x] Backend: `ai_coach.py` hakee viimeisen 7 päivän toteumat ja injektoi sen Gemini AI:n system promptiin.
+- [x] Frontend: Mobiilisovelluksen `CalendarScreen`in kisakortit näyttävät nyt värillisen "Score: X%" -badgen riippuen onnistumisesta (Vihreä >80, Oranssi >50, Punainen <50).
+- [x] **Status:** Coded and implemented directly following the user-approved implementation plan.
+
+---

@@ -384,6 +384,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                               child: const Text('NEXT', style: TextStyle(color: Colors.blueAccent, fontSize: 9, fontWeight: FontWeight.bold)),
                                             ),
                                           ],
+                                          if (w['raw']?['execution_score'] != null) ...[
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(
+                                                color: ((w['raw']['execution_score'] as num) >= 80)
+                                                    ? Colors.greenAccent.withOpacity(0.2)
+                                                    : ((w['raw']['execution_score'] as num) >= 50)
+                                                        ? Colors.orangeAccent.withOpacity(0.2)
+                                                        : Colors.redAccent.withOpacity(0.2),
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    ((w['raw']['execution_score'] as num) >= 80) ? Icons.check_circle : Icons.error_outline,
+                                                    size: 10,
+                                                    color: ((w['raw']['execution_score'] as num) >= 80)
+                                                        ? Colors.greenAccent
+                                                        : ((w['raw']['execution_score'] as num) >= 50)
+                                                            ? Colors.orangeAccent
+                                                            : Colors.redAccent,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    'Score: ${w['raw']['execution_score']}%',
+                                                    style: TextStyle(
+                                                      color: ((w['raw']['execution_score'] as num) >= 80)
+                                                          ? Colors.greenAccent
+                                                          : ((w['raw']['execution_score'] as num) >= 50)
+                                                              ? Colors.orangeAccent
+                                                              : Colors.redAccent,
+                                                      fontSize: 9,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         ],
                                       ),
                                       if (w['duration'] != null && (w['duration'] as num) > 0)
