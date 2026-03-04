@@ -854,23 +854,23 @@ Tänään saatiin mobiilisovellus feature-paritytasolle web-sovelluksen kanssa.
 ### 17.3 Toteutusseuranta (Execution Score) ✅
 Tavoite: Seurata noudattaako käyttäjä AI:n generoimaa ohjelmaa keston ja rasituksen osalta ja syöttää tämä takaisin AI:lle.
 
-- [x] Backend: `firestore_manager.py` mäppää valmistuneet Garmin-aktiviteetit ("DONE") saman päivän AI-koutsauksiin ("PENDING") ja laskee 0-100 `execution_score`n.
-- [x] Backend: `ai_coach.py` hakee viimeisen 7 päivän toteumat ja injektoi sen Gemini AI:n system promptiin.
-- [x] Frontend: Mobiilisovelluksen `CalendarScreen`in kisakortit näyttävät nyt värillisen "Score: X%" -badgen riippuen onnistumisesta (Vihreä >80, Oranssi >50, Punainen <50).
-- [x] **Status:** Coded and implemented directly following the user-approved implementation plan.
+- [x] Backend: `firestore_manager.py` mäppää valmistuneet Garmin-aktiviteetit ("DONE") saman päivän AI-koutsauksiin ("PENDING") ja laskee 0-100 `execution_score`n. (#341)
+- [x] Backend: `ai_coach.py` hakee viimeisen 7 päivän toteumat ja injektoi sen Gemini AI:n system promptiin. (#342)
+- [x] Frontend: Mobiilisovelluksen `CalendarScreen`in kisakortit näyttävät nyt värillisen "Score: X%" -badgen riippuen onnistumisesta (Vihreä >80, Oranssi >50, Punainen <50). (#343)
+- [x] **Status:** Coded and implemented directly following the user-approved implementation plan. (#344)
 
 ### 18.0 AI Valmentaja: XGBoost Ennusteet ✅
 Tavoite: Syöttää koneoppimismallin (XGBoost) tuottama absoluuttinen matemaattinen palautumisennuste suoraan AI Valmentajan promptiin tarkan ja ennakoivan valmennuksen tueksi.
-- [x] Backend: Uusi `backend/scripts/predict_readiness.py` -skripti joka lataa viimeisimmät (max 90 pv taaksepäin) tiedot ja laskee ennustetun arvon mallilla. 
-- [x] Backend: `predict_readiness.py` toteuttaa fallbackin lokaaliin globaaliin malliin jos käyttäjäkohtaista mallia ei löydy.
-- [x] Backend: `main.py` injektoi tuloksen päivittäisen ja monipäiväisen `/plans/generate` tekoälyn promptiin.
-- [x] Backend: `ai_coach.py` ottaa numeerisen ennusteen vastaan ja kieltää tehotreenit jos huomisen ennustettu `Body Battery` on alhainen (<45).
-- [x] **Status:** Valmis ja testattu paikallisella cli-komennolla ja FastAPI palvelimen verifioinnilla.
+- [x] Backend: Uusi `backend/scripts/predict_readiness.py` -skripti joka lataa viimeisimmät (max 90 pv taaksepäin) tiedot ja laskee ennustetun arvon mallilla. (#345)
+- [x] Backend: `predict_readiness.py` toteuttaa fallbackin lokaaliin globaaliin malliin jos käyttäjäkohtaista mallia ei löydy. (#346)
+- [x] Backend: `main.py` injektoi tuloksen päivittäisen ja monipäiväisen `/plans/generate` tekoälyn promptiin. (#347)
+- [x] Backend: `ai_coach.py` ottaa numeerisen ennusteen vastaan ja kieltää tehotreenit jos huomisen ennustettu `Body Battery` on alhainen (<45). (#348)
+- [x] **Status:** Valmis ja testattu paikallisella cli-komennolla ja FastAPI palvelimen verifioinnilla. (#349)
 
 ### 18.1 MLflow Strategia (Päätös) 🛑
 Tavoite: Linjata mallin elinkaaren hallinnan (MLOps) laajuus projektin tässä vaiheessa.
-- [x] **Päätös:** MLflow pidetään toistaiseksi **vain lokaalina työkaluna** (SQLite + lokaalit tiedostot). Sitä käytetään vain mallikokeiluihin ja tutkimukseen omalla koneella.
-- [x] **Perustelu:** Cloud Runissa raskaan taustaprosessin ylläpito ja levykirjoitukset ovat kalliita ja hitaita. Parhaat operatiiviset tulokset (metriikat ja mallin onnistuminen) viedään kevyesti suoraan Firestoreen.
-- [x] **Linjaus:** Uusia Cloud-kytköksiä (Vertex AI, Cloud SQL for MLflow) ei rakenneta ennen kuin mallin monimutkaisuus tai tiimin koko sitä ehdottomasti vaatii.
+- [x] **Päätös:** MLflow pidetään toistaiseksi **vain lokaalina työkaluna** (SQLite + lokaalit tiedostot). Sitä käytetään vain mallikokeiluihin ja tutkimukseen omalla koneella. (#350)
+- [x] **Perustelu:** Cloud Runissa raskaan taustaprosessin ylläpito ja levykirjoitukset ovat kalliita ja hitaita. Parhaat operatiiviset tulokset (metriikat ja mallin onnistuminen) viedään kevyesti suoraan Firestoreen. (#351)
+- [x] **Linjaus:** Uusia Cloud-kytköksiä (Vertex AI, Cloud SQL for MLflow) ei rakenneta ennen kuin mallin monimutkaisuus tai tiimin koko sitä ehdottomasti vaatii. (#352)
 
 ---
