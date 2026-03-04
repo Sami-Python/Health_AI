@@ -867,4 +867,10 @@ Tavoite: Syöttää koneoppimismallin (XGBoost) tuottama absoluuttinen matemaatt
 - [x] Backend: `ai_coach.py` ottaa numeerisen ennusteen vastaan ja kieltää tehotreenit jos huomisen ennustettu `Body Battery` on alhainen (<45).
 - [x] **Status:** Valmis ja testattu paikallisella cli-komennolla ja FastAPI palvelimen verifioinnilla.
 
+### 18.1 MLflow Strategia (Päätös) 🛑
+Tavoite: Linjata mallin elinkaaren hallinnan (MLOps) laajuus projektin tässä vaiheessa.
+- [x] **Päätös:** MLflow pidetään toistaiseksi **vain lokaalina työkaluna** (SQLite + lokaalit tiedostot). Sitä käytetään vain mallikokeiluihin ja tutkimukseen omalla koneella.
+- [x] **Perustelu:** Cloud Runissa raskaan taustaprosessin ylläpito ja levykirjoitukset ovat kalliita ja hitaita. Parhaat operatiiviset tulokset (metriikat ja mallin onnistuminen) viedään kevyesti suoraan Firestoreen.
+- [x] **Linjaus:** Uusia Cloud-kytköksiä (Vertex AI, Cloud SQL for MLflow) ei rakenneta ennen kuin mallin monimutkaisuus tai tiimin koko sitä ehdottomasti vaatii.
+
 ---
