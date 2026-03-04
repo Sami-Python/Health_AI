@@ -178,9 +178,10 @@ def main_process(user_id: str = None, mode: str = "incremental"):
 
     df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
     
-    features_csv = get_path("data/garmin_merged_features.csv")
-    df_merged.to_csv(features_csv, index=False)
-    logger.info(f"Saved merged features to {features_csv}")
+    # Use fast Parquet format instead of CSV to reduce disk I/O and load times
+    features_parquet = get_path("data/garmin_merged_features.parquet")
+    df_merged.to_parquet(features_parquet, index=False)
+    logger.info(f"Saved merged features to {features_parquet}")
     
     # --- Sync to Firestore (Multi-User) ---
     if user_id:
@@ -233,13 +234,14 @@ def main_process(user_id: str = None, mode: str = "incremental"):
             import traceback
             traceback.print_exc()
 
-    # Set tracking URI to local SQLite database in backend/data
-    # For MLflow logic, we keep a shared DB for experiment tracking, 
-    # OR we could isolate. Shared DB is usually fine for experiments if we tag run with user_id.
-    mlflow_db_path = os.path.join(backend_dir, "data", "mlflow.db")
-    os.makedirs(os.path.dirname(mlflow_db_path), exist_ok=True)
-    mlflow.set_tracking_uri(f"sqlite:///{mlflow_db_path}")
-    mlflow.set_experiment("xgboost_readiness_prediction")
+    # MLflow Setup - Optional in Production to save disk IO
+    mlflow_enabled = os.environ.get("MLFLOW_ENABLED", "false").lower() == "true"
+    
+    if mlflow_enabled:
+        mlflow_db_path = os.path.join(backend_dir, "data", "mlflow.db")
+        os.makedirs(os.path.dirname(mlflow_db_path), exist_ok=True)
+        mlflow.set_tracking_uri(f"sqlite:///{mlflow_db_path}")
+        mlflow.set_experiment("xgboost_readiness_prediction")
     
     # --- Training with GridSearchCV & Cross-Validation ---
     logger.info("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
@@ -328,11 +330,11 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         
         logger.info("Incremental update complete.")
         
-        # We skip MLflow grid logging for incremental to save time/noise, 
-        # but we could log the run as "incremental".
-        with mlflow.start_run(run_name=f"incremental_{user_id if user_id else 'global'}"):
-             mlflow.log_metrics({"mae": mae_log, "r2": r2_log, "rmse": rmse_log, "new_samples": len(X_new)})
-             mlflow.sklearn.log_model(best_model, "xgboost_model")
+        # Incremental update complete. MLFlow logging is disabled by default in proc to save IO.
+        if mlflow_enabled:
+            with mlflow.start_run(run_name=f"incremental_{user_id if user_id else 'global'}"):
+                 mlflow.log_metrics({"mae": mae_log, "r2": r2_log, "rmse": rmse_log, "new_samples": len(X_new)})
+                 mlflow.sklearn.log_model(best_model, "xgboost_model")
         
     else:
         # --- FULL TRAINING ---
@@ -349,40 +351,42 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         'colsample_bytree': [0.8]
     }
     
-    xgb = XGBRegressor(random_state=42)
-    tscv = TimeSeriesSplit(n_splits=3)
+    xgb = XGBRegressor(random_state=42, n_jobs=-1)
+    tscv = TimeSeriesSplit(n_splits=2)
     
-    # ⚠️ Use n_jobs=1 for reliability on shared environments / Windows subprocess issues
-    # ⚠️ Use n_jobs=1 for reliability on shared environments / Windows subprocess issues
+    # ⚠️ Cloud Run has 2 cores, use n_jobs=-1 to utilize them and speed up tuning
     grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
-                               cv=tscv, n_jobs=1, scoring='r2', verbose=1)
+                               cv=tscv, n_jobs=-1, scoring='r2', verbose=0)
     
-    # Start MLflow run
-    with mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}"):
-        # Log hyperparameters from grid search
-        mlflow.log_params({
-            "n_estimators_grid": str(param_grid['n_estimators']),
-            "learning_rate_grid": str(param_grid['learning_rate']),
-            "max_depth_grid": str(param_grid['max_depth']),
-            "subsample": param_grid['subsample'][0],
-            "colsample_bytree": param_grid['colsample_bytree'][0],
-            "cv_splits": 3,
-            "test_size": 0.2,
-            "user_id": user_id if user_id else "global"
-        })
-        
+    # Initialize basic model flow (MLflow conditional)
+    if mlflow_enabled:
+        mlflow_run = mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}")
+        mlflow_run.__enter__()
         grid_search.fit(X_train, y_train)
         
         best_model = grid_search.best_estimator_
         logger.info(f"Best Parameters: {grid_search.best_params_}")
         logger.info(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
         
-        # SQLite safety checks for `best_cv_r2`
-        best_cv_r2_log = float(0.0) if pd.isna(grid_search.best_score_) else float(grid_search.best_score_)
-        
-        # Log best parameters
-        mlflow.log_params(grid_search.best_params_)
-        mlflow.log_metric("best_cv_r2", best_cv_r2_log)
+        if mlflow_enabled:
+            # Log hyperparameters from grid search
+            mlflow.log_params({
+                "n_estimators_grid": str(param_grid['n_estimators']),
+                "learning_rate_grid": str(param_grid['learning_rate']),
+                "max_depth_grid": str(param_grid['max_depth']),
+                "subsample": param_grid['subsample'][0],
+                "colsample_bytree": param_grid['colsample_bytree'][0],
+                "cv_splits": 2,
+                "test_size": 0.2,
+                "user_id": user_id if user_id else "global"
+            })
+            
+            # SQLite safety checks for `best_cv_r2`
+            best_cv_r2_log = float(0.0) if pd.isna(grid_search.best_score_) else float(grid_search.best_score_)
+            
+            # Log best parameters
+            mlflow.log_params(grid_search.best_params_)
+            mlflow.log_metric("best_cv_r2", best_cv_r2_log)
 
         preds = best_model.predict(X_test)
         mae = mean_absolute_error(y_test, preds)
@@ -397,28 +401,24 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
         logger.info(f"Final Test Model Performance", extra={"mae": mae_log, "r2": r2_log, "rmse": rmse_log})
         
-        # Log metrics
-        mlflow.log_metrics({
-            "mae": mae_log,
-            "r2_score": r2_log,
-            "rmse": rmse_log,
-            "train_samples": len(X_train),
-            "test_samples": len(X_test),
-            "total_features": X.shape[1]
-        })
-
-        # Save Model (traditional way) handled in common block now
-        # model_path = get_path("models/xgb_model.pkl") 
-        # os.makedirs(os.path.dirname(model_path), exist_ok=True)
-        # joblib.dump(best_model, model_path)
-        # logger.info(f"Model saved to {model_path}")
-        
-        # Log model to MLflow
-        mlflow.sklearn.log_model(best_model, "xgboost_model")
-        logger.info("Model logged to MLflow")
+        if mlflow_enabled:
+            # Log metrics
+            mlflow.log_metrics({
+                "mae": mae_log,
+                "r2_score": r2_log,
+                "rmse": rmse_log,
+                "train_samples": len(X_train),
+                "test_samples": len(X_test),
+                "total_features": X.shape[1]
+            })
+            
+            # Log model to MLflow
+            mlflow.sklearn.log_model(best_model, "xgboost_model")
+            logger.info("Model logged to MLflow")
+            mlflow_run.__exit__(None, None, None)
     
     # --- Common Save Logic (for both modes) ---
-    if best_model:
+    if best_model is not None:
         # Save Model
         # Ensure params are updated for incremental too
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
@@ -440,7 +440,8 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         logger.info(f"Feature importance saved to {fi_json_path}")
         
         # Log feature importance as MLflow artifact
-        mlflow.log_artifact(fi_json_path, "feature_importance")
+        if mlflow_enabled:
+            mlflow.log_artifact(fi_json_path, "feature_importance")
     
         # Save Metrics to backend/data where API expects it
         metrics = {
@@ -490,39 +491,42 @@ def main_process(user_id: str = None, mode: str = "incremental"):
                 logger.info("[SUCCESS] Model performance saved to Firestore")
             else:
                 logger.error("[ERROR] Failed to save model performance to Firestore")
-
-
-        # --- Plotting --- (kept for context)
-        plt.figure(figsize=(10, 6))
-        sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
-        plt.title('Top 10 Feature Importance')
-        plt.xlabel('Importance')
-        plt.tight_layout()
-        fi_png_path = get_path('outputs/feature_importance.png')
-        os.makedirs(os.path.dirname(fi_png_path), exist_ok=True)
-        plt.savefig(fi_png_path)
-        plt.close()
-        
-        # Log to MLflow
-        mlflow.log_artifact(fi_png_path, "plots")
-
-        plt.figure(figsize=(10, 6))
-        plt.scatter(y_test, preds, alpha=0.5)
-        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
-        plt.xlabel('Actual')
-        plt.ylabel('Predicted')
-        plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
-        plt.tight_layout()
-        perf_png_path = get_path('outputs/model_performance.png')
-        plt.savefig(perf_png_path)
-        plt.close()
-        
-        # Log to MLflow
-        mlflow.log_artifact(perf_png_path, "plots")
-
-        logger.info(f"Plots saved to {os.path.dirname(fi_png_path)}")
-        logger.info(f"[SUCCESS] MLflow tracking complete. View experiments at: http://localhost:5000")
-        logger.info(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
+        # --- Plotting --- (kept for condition when mlflow is enabled)
+        if mlflow_enabled:
+            import matplotlib.pyplot as plt
+            import seaborn as sns
+            
+            plt.figure(figsize=(10, 6))
+            sns.barplot(x=list(feat_imp_dict.values())[:10], y=list(feat_imp_dict.keys())[:10], palette='viridis')
+            plt.title('Top 10 Feature Importance')
+            plt.xlabel('Importance')
+            plt.tight_layout()
+            fi_png_path = get_path('outputs/feature_importance.png')
+            os.makedirs(os.path.dirname(fi_png_path), exist_ok=True)
+            plt.savefig(fi_png_path)
+            plt.close()
+            
+            # Log to MLflow
+            mlflow.log_artifact(fi_png_path, "plots")
+    
+            plt.figure(figsize=(10, 6))
+            if 'preds' in locals() and 'y_test' in locals():
+                plt.scatter(y_test, preds, alpha=0.5)
+                plt.plot([y.min(), y.max()], [y.min(), y.max()], 'r--', lw=2)
+                plt.xlabel('Actual')
+                plt.ylabel('Predicted')
+                plt.title(f'Actual vs Predicted (R2: {r2:.2f})')
+            plt.tight_layout()
+            perf_png_path = get_path('outputs/model_performance.png')
+            plt.savefig(perf_png_path)
+            plt.close()
+            
+            # Log to MLflow
+            mlflow.log_artifact(perf_png_path, "plots")
+    
+            logger.info(f"Plots saved to {os.path.dirname(fi_png_path)}")
+            logger.info(f"[SUCCESS] MLflow tracking complete. View experiments at: http://localhost:5000")
+            logger.info(f"   Command: mlflow ui --backend-store-uri sqlite:///{mlflow_db_path}")
 
 
 
