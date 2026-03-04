@@ -342,73 +342,67 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
 
+        param_grid = {
+            'n_estimators': [100],
+            'learning_rate': [0.05],
+            'max_depth': [4],
+            'subsample': [0.8],
+            'colsample_bytree': [0.8]
+        }
+        
+        xgb = XGBRegressor(random_state=42, n_jobs=-1)
+        tscv = TimeSeriesSplit(n_splits=2)
+        
+        # ⚠️ Cloud Run: n_jobs=-1 hyödyntää kaikki ytimet, n_splits=2 nopeuttaa hakua
+        grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
+                                   cv=tscv, n_jobs=-1, scoring='r2', verbose=0)
+        
+        # 1. Train the model (ALWAYS RUN)
+        grid_search.fit(X_train, y_train)
+        
+        best_model = grid_search.best_estimator_
+        logger.info(f"Best Parameters: {grid_search.best_params_}")
+        logger.info(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
 
-    param_grid = {
-        'n_estimators': [100],
-        'learning_rate': [0.05],
-        'max_depth': [4],
-        'subsample': [0.8],
-        'colsample_bytree': [0.8]
-    }
-    
-    xgb = XGBRegressor(random_state=42, n_jobs=-1)
-    tscv = TimeSeriesSplit(n_splits=2)
-    
-    # ⚠️ Cloud Run has 2 cores, use n_jobs=-1 to utilize them and speed up tuning
-    grid_search = GridSearchCV(estimator=xgb, param_grid=param_grid, 
-                               cv=tscv, n_jobs=-1, scoring='r2', verbose=0)
-    
-    # 1. Train the model (ALWAYS RUN)
-    grid_search.fit(X_train, y_train)
-    
-    best_model = grid_search.best_estimator_
-    logger.info(f"Best Parameters: {grid_search.best_params_}")
-    logger.info(f"Best CV Score (R2): {grid_search.best_score_:.2f}")
-
-    preds = best_model.predict(X_test)
-    mae = mean_absolute_error(y_test, preds)
-    r2 = r2_score(y_test, preds)
-    rmse = np.sqrt(mean_squared_error(y_test, preds))
-    
-    # SQLite safety checks for metrics
-    best_cv_r2_log = float(0.0) if pd.isna(grid_search.best_score_) else float(grid_search.best_score_)
-    mae_log = float(0.0) if pd.isna(mae) else float(mae)
-    r2_log = float(0.0) if pd.isna(r2) else float(r2)
-    rmse_log = float(0.0) if pd.isna(rmse) else float(rmse)
-    
-    print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
-    logger.info(f"Final Test Model Performance", extra={"mae": mae_log, "r2": r2_log, "rmse": rmse_log})
-    
-    # 2. Log to MLflow (CONDITIONALLY RUN)
-    if mlflow_enabled:
-        with mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}"):
-            # Log hyperparameters from grid search
-            mlflow.log_params({
-                "n_estimators_grid": str(param_grid['n_estimators']),
-                "learning_rate_grid": str(param_grid['learning_rate']),
-                "max_depth_grid": str(param_grid['max_depth']),
-                "subsample": param_grid['subsample'][0],
-                "colsample_bytree": param_grid['colsample_bytree'][0],
-                "cv_splits": 2,
-                "test_size": 0.2,
-                "user_id": user_id if user_id else "global"
-            })
-            
-            # Log best parameters & metrics
-            mlflow.log_params(grid_search.best_params_)
-            mlflow.log_metric("best_cv_r2", best_cv_r2_log)
-            mlflow.log_metrics({
-                "mae": mae_log,
-                "r2_score": r2_log,
-                "rmse": rmse_log,
-                "train_samples": len(X_train),
-                "test_samples": len(X_test),
-                "total_features": X.shape[1]
-            })
-            
-            # Log model to MLflow
-            mlflow.sklearn.log_model(best_model, "xgboost_model")
-            logger.info("Model logged to MLflow")
+        preds = best_model.predict(X_test)
+        mae = mean_absolute_error(y_test, preds)
+        r2 = r2_score(y_test, preds)
+        rmse = np.sqrt(mean_squared_error(y_test, preds))
+        
+        # SQLite safety checks for metrics
+        best_cv_r2_log = float(0.0) if pd.isna(grid_search.best_score_) else float(grid_search.best_score_)
+        mae_log = float(0.0) if pd.isna(mae) else float(mae)
+        r2_log = float(0.0) if pd.isna(r2) else float(r2)
+        rmse_log = float(0.0) if pd.isna(rmse) else float(rmse)
+        
+        print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
+        logger.info(f"Final Test Model Performance", extra={"mae": mae_log, "r2": r2_log, "rmse": rmse_log})
+        
+        # 2. Log to MLflow (CONDITIONALLY RUN)
+        if mlflow_enabled:
+            with mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}"):
+                mlflow.log_params({
+                    "n_estimators_grid": str(param_grid['n_estimators']),
+                    "learning_rate_grid": str(param_grid['learning_rate']),
+                    "max_depth_grid": str(param_grid['max_depth']),
+                    "subsample": param_grid['subsample'][0],
+                    "colsample_bytree": param_grid['colsample_bytree'][0],
+                    "cv_splits": 2,
+                    "test_size": 0.2,
+                    "user_id": user_id if user_id else "global"
+                })
+                mlflow.log_params(grid_search.best_params_)
+                mlflow.log_metric("best_cv_r2", best_cv_r2_log)
+                mlflow.log_metrics({
+                    "mae": mae_log,
+                    "r2_score": r2_log,
+                    "rmse": rmse_log,
+                    "train_samples": len(X_train),
+                    "test_samples": len(X_test),
+                    "total_features": X.shape[1]
+                })
+                mlflow.sklearn.log_model(best_model, "xgboost_model")
+                logger.info("Model logged to MLflow")
     
     # --- Common Save Logic (for both modes) ---
     if best_model is not None:
