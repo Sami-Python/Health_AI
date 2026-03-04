@@ -89,7 +89,7 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
                 "Loppuverryttely: 5min ..."
             ],
             "garmin_workout": {{
-                "workoutName": "AI Coach - [Date]",
+                "workoutName": "AI Coach - {ctx['date']}",
                 "sport": "RUNNING",
                 "steps": [
                     {{
@@ -120,12 +120,11 @@ def construct_prompt(ctx, compliance_history="", preference_feedback="", active_
         }}
     ]
 
-    * garmin_workout:
-        - durationType: TIME (seconds), DISTANCE (meters)
-        - targetType: HEART_RATE (bpm), PACE (seconds/km), POWER (watts), CADENCE (rpm), NO_TARGET
-        - intensity: WARMUP, COOLDOWN, INTERVAL, RECOVERY, REST
-
-
+    * garmin_workout säännöt:
+        - "durationType": Vain "TIME" (sekunteja) tai "DISTANCE" (metrejä)
+        - "targetType": "HEART_RATE" (bpm, käytä targetValueOne/Two), "PACE" (s/km, käytä targetValueOne/Two), "NO_TARGET" (ei targetValueOne/Two kenttiä)
+        - "intensity": Vain "WARMUP", "INTERVAL", "RECOVERY", "REST", tai "COOLDOWN"
+    
     * load_estimate: Arvioitu kuormitus 0-100 (TSS-tyyppinen).
     
     Kieli: Suomi.
@@ -162,7 +161,7 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
                 "Loppuverryttely: ..."
             ],
             "garmin_workout": {{
-                "workoutName": "AI Coach - [Date]",
+                "workoutName": "AI Coach - Päivä {{day}}",
                 "sport": "RUNNING",
                 "steps": [
                     {{
@@ -197,6 +196,11 @@ def construct_multi_day_prompt(ctx, n_days, compliance_history="", preference_fe
         }}
     ]
     
+    * garmin_workout säännöt:
+        - "durationType": Vain "TIME" (sekunteja) tai "DISTANCE" (metrejä)
+        - "targetType": "HEART_RATE" (bpm, käytä targetValueOne/Two), "PACE" (s/km, käytä targetValueOne/Two), "NO_TARGET" (ei targetValueOne/Two kenttiä)
+        - "intensity": Vain "WARMUP", "INTERVAL", "RECOVERY", "REST", tai "COOLDOWN"
+    
     * load_estimate: Arvioitu kuormitus 0-100 (TSS-tyyppinen).
     
     Kieli: Suomi.
@@ -212,6 +216,11 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
     try:
         client = genai.Client(api_key=api_key)
         
+        # Fetch Execution Score compliance
+        avg_score = db_manager.get_average_execution_score(user_id, days=7)
+        if avg_score is not None:
+            compliance_history += f"\n- Treenien toteutus-% viimeiseltä 7 päivältä on {avg_score:.0f}%. (100% = täydellinen, tavoite/oikea kesto ja rasitus. <70% = heikko). Mukauta suosituksia toteutumaan."
+            
         # Fetch Active Goals
         goals_list = db_manager.get_active_goals(user_id)
         
