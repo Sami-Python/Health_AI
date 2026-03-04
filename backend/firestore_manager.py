@@ -839,9 +839,14 @@ def get_garmin_credentials(user_id: str) -> dict | None:
             'username': data['username'],
             'password': decrypted_password
         }
-        # Include garth OAuth2 tokens if available
-        if 'garth_tokens' in data:
-            result['garth_tokens'] = data['garth_tokens']
+        # Include garth OAuth2 tokens if available (decrypt first)
+        if 'garth_tokens_encrypted' in data:
+            try:
+                from encryption_helper import decrypt_password
+                import json as _json
+                result['garth_tokens'] = _json.loads(decrypt_password(data['garth_tokens_encrypted']))
+            except Exception as te:
+                print(f"Could not decrypt garth tokens: {te}")
         return result
         
     except Exception as e:
@@ -883,12 +888,16 @@ def save_garmin_tokens(user_id: str, tokens: dict) -> bool:
         True if successful, False otherwise
     """
     try:
+        from encryption_helper import encrypt_password
+        import json
         doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        # Encrypt tokens as JSON string before storing
+        encrypted_tokens = encrypt_password(json.dumps(tokens))
         doc_ref.update({
-            'garth_tokens': tokens,
+            'garth_tokens_encrypted': encrypted_tokens,
             'tokens_updated_at': firestore.SERVER_TIMESTAMP
         })
-        print(f"[SUCCESS] Garth tokens saved for user: {user_id}")
+        print(f"[SUCCESS] Garth tokens saved (encrypted) for user: {user_id}")
         return True
     except Exception as e:
         print(f"Firestore Error (save_garmin_tokens): {e}")
