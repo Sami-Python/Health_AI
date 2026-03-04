@@ -178,10 +178,15 @@ def main_process(user_id: str = None, mode: str = "incremental"):
 
     df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
     
-    # Use fast Parquet format instead of CSV to reduce disk I/O and load times
+    # Prefer Parquet for speed, fall back to CSV if pyarrow not available
     features_parquet = get_path("data/garmin_merged_features.parquet")
-    df_merged.to_parquet(features_parquet, index=False)
-    logger.info(f"Saved merged features to {features_parquet}")
+    try:
+        df_merged.to_parquet(features_parquet, index=False)
+        logger.info(f"Saved merged features to {features_parquet}")
+    except Exception as e:
+        features_csv = get_path("data/garmin_merged_features.csv")
+        df_merged.to_csv(features_csv, index=False)
+        logger.warning(f"Parquet failed ({e}), fell back to CSV: {features_csv}")
     
     # --- Sync to Firestore (Multi-User) ---
     if user_id:
