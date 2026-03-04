@@ -252,19 +252,9 @@ def main_process(user_id: str = None, mode: str = "incremental"):
     X = X.select_dtypes(include=['number'])
     y = df_merged[target]
 
-    y = df_merged[target]
-
     # --- Mode Selection: Incremental vs Full ---
-    model_path = get_path(model_path_rel) 
-    # (Note: get_path handles user_id subdir logic too, but valid check requires consistency)
-    # We essentially need the absolute path to check existence.
-    # get_path("models/xgb_model.pkl") -> .../models/UID/xgb_model.pkl if user_id passed
-    
-    # We need to construct the relative path for get_path correctly
-    # If user_id is passed, get_path handles the injection effectively if we pass just filename?
-    # No, get_path logic: if user_id, it injects it.
-    rel_model_name = "models/xgb_model.pkl"
-    model_path = get_path(rel_model_name)
+    # get_path injects user_id into subdir automatically: models/{user_id}/xgb_model.pkl
+    model_path = get_path("models/xgb_model.pkl")
 
     # Check for Last Trained Date
     last_trained_date = None
