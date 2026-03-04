@@ -12,6 +12,7 @@ garminconnect
 xgboost
 scikit-learn
 joblib
+pyarrow
 matplotlib
 seaborn
 google-genai
