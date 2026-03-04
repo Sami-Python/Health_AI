@@ -383,20 +383,27 @@ mlflow.set_tags({
 - [Backend Scripts](file:///c:/Users/samih/code/health_ai/backend/scripts/process_garmin_data.py) – Treenausskripti
 - [MLflow Official Docs](https://www.mlflow.org/docs/latest/index.html)
 
+## Tuotantokäyttö (Cloud Run & Paikallinen)
+
+### 1. MLflow-rajoittaminen Tuotannossa (Cloud Run Optimointi)
+Pilviympäristössä (kuten Cloud Run) levylle kirjoittaminen ja prosessiin sitomattomien tausta-ajojen pyörittäminen voi syödä resursseja (`Memory`/`CPU`). Tästä syystä `process_garmin_data.py` on optimoitu siten, että:
+
+1. **MLflow on OLETUKSENA POIS PÄÄLTÄ** nopeuttamaan ajoa.
+2. Välitetään R² / MAE pisteet ja malli kuitenkin suoraan Firestoreen reaaliajassa, mutta ei generoida plotti-kuvia.
+3. Jos teet kokeita paikallisesti, ota se käyttöön lipulla:
+   ```bash
+   # Windows PowerShell
+   $env:MLFLOW_ENABLED="true"; python scripts/process_garmin_data.py --user-id YOUR_UID
+   
+   # Linux/Mac
+   MLFLOW_ENABLED=true python scripts/process_garmin_data.py --user-id YOUR_UID
+   ```
+
+### 2. CSV -> Parquet -päivitys
+Mallin ominaisuusmatriisi (Feature matrix) pakataan nyt `.csv` -tekstitiedoston sijaan nopeammin latautuvaan ja kompressoituun **Parquet** (`.parquet`) -muotoon polkuun:
+`backend/data/garmin_merged_features.parquet`
+
 ---
 
-## Yhteenveto
-
-| Toiminto | Komento/URL |
-|----------|-------------|
-| **Treenaa malli** | `python scripts/process_garmin_data.py --user-id UID` |
-| **Käynnistä UI** | `mlflow ui --backend-store-uri sqlite:///data/mlflow.db` |
-| **Avaa UI** | http://localhost:5000 |
-| **Database** | `backend/data/mlflow.db` |
-| **Experiment Name** | `xgboost_readiness_prediction` |
-
----
-
-**Viimeksi päivitetty:** 2026-02-28  
-**Dokumentaation kattavuus:** Experiment Tracking, Model Registry, Local Deployment  
-**TODO:** Cloud Deployment (Cloud Run, Vertex AI), A/B Testing, Drift Detection
+**Viimeksi päivitetty:** 2026-03-04  
+**Dokumentaation kattavuus:** Experiment Tracking, Model Registry, Local Deployment, Cloud Cost Opt.
