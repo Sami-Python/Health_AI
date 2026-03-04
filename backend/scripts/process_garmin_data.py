@@ -189,39 +189,34 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         try:
             # Prepare metrics list from df_merged
             # We sync ALL columns that map to our schema
-            metrics_list = []
-            
-            # Sync last 120 days to be safe (covering history + retraining range)
-            # or sync everything? 400 records is 1 batch. efficient enough.
-            # Let's sync everything for now to ensure consistency.
-            
-            for _, row in df_merged.iterrows():
-                # Convert date to string YYYY-MM-DD
-                date_str = str(row['date'].date()) if hasattr(row['date'], 'date') else str(row['date'])[:10]
-                
-                metric_doc = {
-                    'date': date_str,
-                    # Core
-                    'bodyBatteryChargedValue': int(row.get('bodyBatteryChargedValue', 0)) if pd.notna(row.get('bodyBatteryChargedValue')) else 0,
-                    'bodyBatteryHighestValue': int(row.get('bodyBatteryHighestValue', 0)) if pd.notna(row.get('bodyBatteryHighestValue')) else 0,
-                    'bodyBatteryLowestValue': int(row.get('bodyBatteryLowestValue', 0)) if pd.notna(row.get('bodyBatteryLowestValue')) else 0,
-                    'averageStressLevel': int(row.get('averageStressLevel', 0)) if pd.notna(row.get('averageStressLevel')) else 0,
-                    'totalSteps': int(row.get('totalSteps', 0)) if pd.notna(row.get('totalSteps')) else 0,
-                    'totalSleep_minutes': int(row.get('totalSleep_minutes', 0)) if pd.notna(row.get('totalSleep_minutes')) else 0,
-                    
-                    # Training Load (Calculated)
-                    'workout_calories': int(row.get('workout_calories', 0)) if pd.notna(row.get('workout_calories')) else 0,
-                    'workout_duration_seconds': int(row.get('workout_duration_seconds', 0)) if pd.notna(row.get('workout_duration_seconds')) else 0,
-                    'CTL': float(row.get('CTL', 0)) if pd.notna(row.get('CTL')) else 0.0,
-                    'ATL': float(row.get('ATL', 0)) if pd.notna(row.get('ATL')) else 0.0,
-                    'TSB': float(row.get('TSB', 0)) if pd.notna(row.get('TSB')) else 0.0,
-                }
-                
-                # Add optional fields if they exist
-                if 'averageHR' in row and pd.notna(row['averageHR']): metric_doc['averageHR'] = float(row['averageHR'])
-                if 'restingHeartRate' in row and pd.notna(row['restingHeartRate']): metric_doc['restingHeartRate'] = int(row['restingHeartRate'])
-                
-                metrics_list.append(metric_doc)
+            # Vectorized approach: fill NaN once per column, then convert all rows at once
+            int_cols = ['bodyBatteryChargedValue', 'bodyBatteryHighestValue', 'bodyBatteryLowestValue',
+                        'averageStressLevel', 'totalSteps', 'totalSleep_minutes',
+                        'workout_calories', 'workout_duration_seconds']
+            float_cols = ['CTL', 'ATL', 'TSB']
+            optional_cols = {'averageHR': float, 'restingHeartRate': int}
+
+            sync_df = df_merged.copy()
+            sync_df['date'] = sync_df['date'].apply(
+                lambda d: str(d.date()) if hasattr(d, 'date') else str(d)[:10]
+            )
+            for col in int_cols:
+                if col in sync_df.columns:
+                    sync_df[col] = sync_df[col].fillna(0).astype(int)
+                else:
+                    sync_df[col] = 0
+            for col in float_cols:
+                if col in sync_df.columns:
+                    sync_df[col] = sync_df[col].fillna(0.0).astype(float)
+                else:
+                    sync_df[col] = 0.0
+            for col, cast in optional_cols.items():
+                if col not in sync_df.columns:
+                    sync_df[col] = None
+
+            keep_cols = ['date'] + int_cols + float_cols + list(optional_cols.keys())
+            keep_cols = [c for c in keep_cols if c in sync_df.columns]
+            metrics_list = sync_df[keep_cols].where(sync_df[keep_cols].notna(), None).to_dict('records')
             
             # Batch save
             if firestore_garmin_metrics.batch_save_metrics(user_id, metrics_list):
