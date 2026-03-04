@@ -13,6 +13,7 @@ import json
 import ai_coach
 import ai_coach
 import firestore_garmin_metrics
+import scripts.predict_readiness as predictor
 from garmin_client import GarminClient # Handles file uploads
 try:
     from google.cloud import error_reporting
@@ -1246,6 +1247,10 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
         trend_data = firestore_garmin_metrics.get_user_trend_data(user['uid'])
         ctx.update(trend_data)
 
+        # 1.5 Hae Koneoppimismallin matemaattinen ennuste (XGBoost)
+        xgb_prediction = predictor.predict_tomorrow_readiness(user['uid'])
+        if xgb_prediction is not None:
+             ctx['xgboost_predicted_charge'] = xgb_prediction
 
         # 2. Call AI Coach
         response_json = ai_coach.generate_coach_advice(

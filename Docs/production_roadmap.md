@@ -859,4 +859,12 @@ Tavoite: Seurata noudattaako käyttäjä AI:n generoimaa ohjelmaa keston ja rasi
 - [x] Frontend: Mobiilisovelluksen `CalendarScreen`in kisakortit näyttävät nyt värillisen "Score: X%" -badgen riippuen onnistumisesta (Vihreä >80, Oranssi >50, Punainen <50).
 - [x] **Status:** Coded and implemented directly following the user-approved implementation plan.
 
+### 18.0 AI Valmentaja: XGBoost Ennusteet ✅
+Tavoite: Syöttää koneoppimismallin (XGBoost) tuottama absoluuttinen matemaattinen palautumisennuste suoraan AI Valmentajan promptiin tarkan ja ennakoivan valmennuksen tueksi.
+- [x] Backend: Uusi `backend/scripts/predict_readiness.py` -skripti joka lataa viimeisimmät (max 90 pv taaksepäin) tiedot ja laskee ennustetun arvon mallilla. 
+- [x] Backend: `predict_readiness.py` toteuttaa fallbackin lokaaliin globaaliin malliin jos käyttäjäkohtaista mallia ei löydy.
+- [x] Backend: `main.py` injektoi tuloksen päivittäisen ja monipäiväisen `/plans/generate` tekoälyn promptiin.
+- [x] Backend: `ai_coach.py` ottaa numeerisen ennusteen vastaan ja kieltää tehotreenit jos huomisen ennustettu `Body Battery` on alhainen (<45).
+- [x] **Status:** Valmis ja testattu paikallisella cli-komennolla ja FastAPI palvelimen verifioinnilla.
+
 ---
