@@ -25,6 +25,7 @@ interface Workout {
     duration?: number;
     duration_min?: number;
     tips?: string;
+    execution_score?: number | null;
     [key: string]: any; // Allow other props for flexibility
 }
 
@@ -57,8 +58,16 @@ function WorkoutCard({ workout, isOverlay = false, onClick, style, attributes, l
         }
     }
 
+    // Execution Score badge color helper
+    const getScoreStyle = (score: number) => {
+        if (score >= 80) return "bg-green-500/20 text-green-400 border-green-500/30";
+        if (score >= 50) return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+        return "bg-red-500/20 text-red-400 border-red-500/30";
+    };
+
     // History Item (Not Draggable)
     if (workout.type === 'history') {
+        const score = workout.execution_score;
         return (
             <div
                 onClick={onClick}
@@ -68,8 +77,13 @@ function WorkoutCard({ workout, isOverlay = false, onClick, style, attributes, l
                     {Icon && <Icon className="h-3 w-3" />}
                     <span className="truncate">{workout.type === 'history' ? `Load: ${workout.load || 0}` : workout.activity}</span>
                 </div>
-                <div className="text-[10px] opacity-70 mt-1 line-clamp-2 leading-tight">
-                    R: {workout.readiness}% • S: {Math.round((workout.sleep_min || 0) / 60)}h
+                <div className="flex items-center justify-between mt-1">
+                    <span className="text-[10px] opacity-70">R: {workout.readiness}% • S: {Math.round((workout.sleep_min || 0) / 60)}h</span>
+                    {score != null && (
+                        <span className={`text-[9px] font-bold px-1 py-0.5 rounded border ${getScoreStyle(score)}`}>
+                            {score}%
+                        </span>
+                    )}
                 </div>
             </div>
         )
@@ -568,6 +582,26 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                                         <div className="text-xs text-slate-500">Load Estimate</div>
                                         <div className="font-semibold">{selectedWorkout.load_estimate || selectedWorkout.load || 0}</div>
                                     </div>
+                                    {selectedWorkout.execution_score != null && (
+                                        <div className="col-span-2 mt-2 pt-2 border-t border-slate-800">
+                                            <div className="text-xs text-slate-500 mb-1">Execution Score</div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
+                                                    <div
+                                                        className={`h-full rounded-full transition-all ${selectedWorkout.execution_score >= 80 ? 'bg-green-500' :
+                                                                selectedWorkout.execution_score >= 50 ? 'bg-orange-500' : 'bg-red-500'
+                                                            }`}
+                                                        style={{ width: `${selectedWorkout.execution_score}%` }}
+                                                    />
+                                                </div>
+                                                <span className={`text-sm font-bold ${selectedWorkout.execution_score >= 80 ? 'text-green-400' :
+                                                        selectedWorkout.execution_score >= 50 ? 'text-orange-400' : 'text-red-400'
+                                                    }`}>
+                                                    {selectedWorkout.execution_score}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Garmin Upload Section */}
