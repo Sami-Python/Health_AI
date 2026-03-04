@@ -20,6 +20,10 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     """
     Authenticate to Garmin using credentials.
     
+    Uses garth token storage in Firestore to avoid the
+    'OAuth1 token is required for OAuth2 refresh' error.
+    Fresh login is only done when no valid token exists.
+    
     Args:
         user_id: Firebase UID. If provided, uses encrypted credentials from Firestore.
                  If None, falls back to GARMIN_EMAIL/GARMIN_PASSWORD from .env (legacy).
@@ -36,7 +40,6 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     if user_id:
         # NEW: Per-user credentials from Firestore
         try:
-            # Import here to avoid circular dependency issues
             import firestore_manager
             
             creds = firestore_manager.get_garmin_credentials(user_id)
@@ -60,15 +63,64 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         
         logger.warning(f"⚠️  Using legacy GARMIN_EMAIL from environment: {email}")
 
-    # Authenticate
+    # Authenticate using garth token if available, otherwise fresh login
     try:
+        import garth
+        import tempfile
+        import json
+
         client = Garmin(email, password)
+
+        # Try to load saved garth tokens from Firestore
+        garth_tokens = None
+        if user_id:
+            try:
+                import firestore_manager
+                creds_doc = firestore_manager.get_garmin_credentials(user_id)
+                if creds_doc and 'garth_tokens' in creds_doc:
+                    garth_tokens = creds_doc['garth_tokens']
+                    logger.info("🔑 Found saved garth tokens, attempting token-based login...")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not load garth tokens: {e}")
+
+        if garth_tokens:
+            # Resume session using saved tokens (avoids full re-login + OAuth1 issue)
+            try:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    # Write tokens to temp file for garth to load
+                    token_file = os.path.join(tmpdir, "oauth2_token.json")
+                    with open(token_file, "w") as f:
+                        json.dump(garth_tokens, f)
+                    client.garth.load(tmpdir)
+                logger.info("✅ Garmin session resumed from saved tokens")
+                return client
+            except Exception as token_err:
+                logger.warning(f"⚠️ Token resume failed ({token_err}), falling back to fresh login...")
+
+        # Fresh login
         client.login()
         logger.info(f"✅ Garmin login successful for: {email}")
+
+        # Save garth tokens to Firestore for next time
+        if user_id:
+            try:
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    client.garth.dump(tmpdir)
+                    token_file = os.path.join(tmpdir, "oauth2_token.json")
+                    if os.path.exists(token_file):
+                        with open(token_file, "r") as f:
+                            tokens = json.load(f)
+                        import firestore_manager
+                        firestore_manager.save_garmin_tokens(user_id, tokens)
+                        logger.info("💾 Garth tokens saved to Firestore")
+            except Exception as save_err:
+                logger.warning(f"⚠️ Could not save garth tokens: {save_err}")
+
         return client
     except Exception as e:
         logger.error(f"❌ Garmin authentication failed: {e}")
         raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
+
 
 
 

@@ -835,10 +835,14 @@ def get_garmin_credentials(user_id: str) -> dict | None:
         # Decrypt password
         decrypted_password = decrypt_password(data['password_encrypted'])
         
-        return {
+        result = {
             'username': data['username'],
             'password': decrypted_password
         }
+        # Include garth OAuth2 tokens if available
+        if 'garth_tokens' in data:
+            result['garth_tokens'] = data['garth_tokens']
+        return result
         
     except Exception as e:
         print(f"Firestore Error (get_garmin_credentials): {e}")
@@ -863,6 +867,31 @@ def delete_garmin_credentials(user_id: str) -> bool:
         
     except Exception as e:
         print(f"Firestore Error (delete_garmin_credentials): {e}")
+        return False
+
+
+def save_garmin_tokens(user_id: str, tokens: dict) -> bool:
+    """
+    Saves garth OAuth2 tokens to Firestore alongside credentials.
+    Called after successful fresh login to avoid re-login on next sync.
+    
+    Args:
+        user_id: Firebase UID
+        tokens: garth OAuth2 token dict (from oauth2_token.json)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        doc_ref = db.collection('users').document(user_id).collection('garmin_credentials').document('default')
+        doc_ref.update({
+            'garth_tokens': tokens,
+            'tokens_updated_at': firestore.SERVER_TIMESTAMP
+        })
+        print(f"[SUCCESS] Garth tokens saved for user: {user_id}")
+        return True
+    except Exception as e:
+        print(f"Firestore Error (save_garmin_tokens): {e}")
         return False
 
 
