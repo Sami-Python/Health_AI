@@ -189,6 +189,14 @@ echo "ENCRYPTION_KEY=your-key-here" > backend/.env
 - Restore original encryption key from backup
 - OR delete all encrypted credentials and re-enter
 
+### Error: "OAuth1 token is required for OAuth2 refresh"
+
+**Cause:** `garth` library bug – token refresh fails after initial OAuth2 login.
+
+**Solution (automatic):** The backend saves the OAuth2 token to Firestore after first sync. Subsequent syncs resume from the saved token. If the error persists, disconnect and reconnect your Garmin account in Profile settings to force a fresh token save.
+
+---
+
 ### Docker: Encryption not working
 
 **Cause:** `.env` not mounted to Docker container
@@ -211,8 +219,10 @@ users/
   {uid}/
     garmin_credentials/
       default/
-        - username: "user@example.com" (plaintext)
-        - password_encrypted: "gAAAAABm..." (AES-256 encrypted)
+        - username: "user@example.com"        (plaintext – email is not sensitive)
+        - password_encrypted: "gAAAAABm..."   (AES-256 encrypted)
+        - garth_tokens_encrypted: "gAAAAABm..." (AES-256 encrypted OAuth2 token, added after first sync)
+        - tokens_updated_at: timestamp
         - created_at: timestamp
         - last_updated: timestamp
 ```
@@ -227,7 +237,22 @@ users/
 
 ---
 
-**Last Updated:** 2026-01-18  
+## OAuth2 Token Cache
+
+After the first successful Garmin login, `fetch_garmin_data.py` saves the **garth OAuth2 token** to Firestore (encrypted). On subsequent syncs the token is loaded instead of performing a full re-login. This avoids the known `garth` library error:
+
+> `OAuth1 token is required for OAuth2 refresh`
+
+**Flow:**
+1. First sync → full email/password login → token saved as `garth_tokens_encrypted`
+2. Later syncs → token loaded → session resumed without re-login
+3. If token expired or load fails → automatic fallback to fresh login
+
+**Security:** Token is encrypted with the same AES-256 (Fernet) key as the password. It is never stored in plaintext.
+
+---
+
+**Last Updated:** 2026-03-04  
 **Security Level:** AES-256 Encryption (Fernet)
 
 ---
