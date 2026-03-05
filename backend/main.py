@@ -1623,6 +1623,78 @@ _sessions_lock = threading.Lock()
 MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
 
 
+def _save_garth_tokens(garmin_client, uid: str) -> bool:
+    """
+    Saves garth OAuth2 tokens to Firestore after a successful login.
+    Uses multiple strategies to extract the token data robustly.
+
+    Returns True if tokens were saved successfully, False otherwise.
+    """
+    import tempfile
+    import json as _json
+    import os as _os
+
+    try:
+        # Strategy 1: Access oauth2_token directly from garth client object
+        # (garth >= 0.4 exposes garth.client.oauth2_token)
+        try:
+            token_obj = getattr(garmin_client.garth, 'oauth2_token', None)
+            if token_obj is None:
+                token_obj = getattr(getattr(garmin_client, 'garth', None), 'client', None)
+                if token_obj:
+                    token_obj = getattr(token_obj, 'oauth2_token', None)
+            if token_obj is not None:
+                # oauth2_token may be a dataclass or dict-like
+                if hasattr(token_obj, '__dict__'):
+                    tokens_dict = token_obj.__dict__
+                elif hasattr(token_obj, 'dict'):
+                    tokens_dict = token_obj.dict()
+                else:
+                    tokens_dict = dict(token_obj)
+                if tokens_dict:
+                    db_manager.save_garmin_tokens(uid, tokens_dict)
+                    logger.info(f"💾 Garth tokens saved via attribute access for uid={uid}")
+                    return True
+        except Exception as attr_err:
+            logger.debug(f"Strategy 1 (attribute) failed: {attr_err}")
+
+        # Strategy 2: garth.dump() to temp dir, scan all .json files
+        with tempfile.TemporaryDirectory() as tmpdir:
+            try:
+                garmin_client.garth.dump(tmpdir)
+            except Exception as dump_err:
+                logger.warning(f"garth.dump() failed: {dump_err}")
+                return False
+
+            files = _os.listdir(tmpdir)
+            logger.info(f"garth.dump() created files: {files}")
+
+            for fname in files:
+                if not fname.endswith('.json'):
+                    continue
+                fpath = _os.path.join(tmpdir, fname)
+                try:
+                    with open(fpath) as f:
+                        content = f.read().strip()
+                    if not content:
+                        logger.debug(f"Skipping empty file: {fname}")
+                        continue
+                    tokens = _json.loads(content)
+                    if isinstance(tokens, dict) and tokens:
+                        db_manager.save_garmin_tokens(uid, tokens)
+                        logger.info(f"💾 Garth tokens saved from {fname} for uid={uid}")
+                        return True
+                except Exception as fe:
+                    logger.debug(f"Could not read {fname}: {fe}")
+
+        logger.warning(f"⚠️ No valid token file found for uid={uid}")
+        return False
+
+    except Exception as e:
+        logger.error(f"❌ _save_garth_tokens error for uid={uid}: {e}")
+        return False
+
+
 def _purge_expired_sessions():
     """Remove sessions older than TTL (called on each new session creation)."""
     now = _time.time()
@@ -1664,26 +1736,31 @@ async def garmin_connect(
 
     try:
         from garminconnect import Garmin
-        import garth
         import tempfile
         import json as _json
 
         mfa_event = threading.Event()
         mfa_code_holder: Dict[str, str] = {}
 
+        # ── CRITICAL: create code_event BEFORE starting the login thread ──
+        # mfa_callback() runs inside the login thread. If we set _event AFTER
+        # the join() timeout (which is after mfa_callback already ran), the
+        # callback sees _event=None and returns "" immediately — wrong code!
+        code_event = threading.Event()
+        mfa_code_holder["_event"] = code_event
+
         def mfa_callback() -> str:
             """Called by garth when Garmin demands a 2FA code."""
             logger.info(f"🔐 Garmin MFA requested for uid={uid}")
-            mfa_event.set()   # Signal the endpoint to return mfa_required
-            # Block the garth thread until the code arrives (max TTL)
-            code_event = mfa_code_holder.get("_event")
-            if code_event:
-                code_event.wait(timeout=MFA_SESSION_TTL_SECONDS)
-            return mfa_code_holder.get("code", "")
+            mfa_event.set()  # Signal the endpoint to stop waiting
+            # Block until the user submits their MFA code (or session expires)
+            code_event.wait(timeout=MFA_SESSION_TTL_SECONDS)
+            code = mfa_code_holder.get("code", "")
+            logger.info(f"🔐 MFA code received for uid={uid}: {'(empty)' if not code else '***'}")
+            return code
 
         garmin_client = Garmin(req.username, req.password, prompt_mfa=mfa_callback)
 
-        # Run login in a daemon thread so we can intercept the MFA pause
         login_result: Dict[str, Any] = {}
         login_exception: Dict[str, Any] = {}
 
@@ -1691,21 +1768,21 @@ async def garmin_connect(
             try:
                 garmin_client.login()
                 login_result["done"] = True
+                logger.info(f"✅ Garmin login thread finished for uid={uid}")
             except Exception as exc:
                 login_exception["error"] = exc
+                logger.error(f"❌ Garmin login thread error for uid={uid}: {exc}")
 
         login_thread = threading.Thread(target=do_login, daemon=True)
         login_thread.start()
 
-        # Wait up to 15 seconds for either: login done OR MFA demanded
+        # Wait up to 15 seconds for: login done OR mfa_callback triggered
         login_thread.join(timeout=15)
 
         # ── Case 1: MFA required ──────────────────────────────────────────
         if mfa_event.is_set() and not login_result.get("done"):
             session_id = str(uuid.uuid4())
-            code_event = threading.Event()
-            mfa_code_holder["_event"] = code_event
-
+            # code_event already created above (mfa_callback is waiting on it)
             with _sessions_lock:
                 _garmin_mfa_sessions[session_id] = {
                     "uid": uid,
@@ -1715,9 +1792,8 @@ async def garmin_connect(
                     "code_event": code_event,
                     "expires_at": _time.time() + MFA_SESSION_TTL_SECONDS,
                     "username": req.username,
-                    "password": req.password,  # needed to save creds after MFA
+                    "password": req.password,
                 }
-
             logger.info(f"🔐 2FA required for uid={uid}, session={session_id}")
             return {"status": "mfa_required", "session_id": session_id}
 
@@ -1726,16 +1802,8 @@ async def garmin_connect(
             raise login_exception["error"]
 
         # ── Case 3: Login succeeded without MFA ───────────────────────────
-        # Save credentials (password encrypted) & garth tokens
         db_manager.save_garmin_credentials(uid, req.username, req.password)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            garmin_client.garth.dump(tmpdir)
-            token_file = os.path.join(tmpdir, "oauth2_token.json")
-            if os.path.exists(token_file):
-                with open(token_file) as f:
-                    tokens = _json.load(f)
-                db_manager.save_garmin_tokens(uid, tokens)
+        _save_garth_tokens(garmin_client, uid)
 
         logger.info(f"✅ Garmin connected (no 2FA) for uid={uid}")
         return {"status": "connected"}
@@ -1780,27 +1848,25 @@ async def garmin_connect_mfa(
         # Supply the code to the waiting garth thread
         session["mfa_code_holder"]["code"] = req.mfa_code.strip()
         session["code_event"].set()
+        logger.info(f"🔐 MFA code submitted for session {req.session_id}, waiting for garth...")
 
-        # Wait for garth to finish login
-        session["login_thread"].join(timeout=30)
-
-        if not session.get("client"):
-            raise ValueError("Garmin client not available in session")
+        # Wait for garth to finish the full login handshake
+        session["login_thread"].join(timeout=45)
 
         garmin_client = session["client"]
         username = session["username"]
         password = session["password"]
 
+        # Check if login thread actually finished successfully
+        # (If join timed out, the thread may still be running or have errored)
+        if session["login_thread"].is_alive():
+            raise ValueError(
+                "Garmin login is taking too long. Please try again."
+            )
+
         # Save credentials (encrypted) and tokens
         db_manager.save_garmin_credentials(uid, username, password)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            garmin_client.garth.dump(tmpdir)
-            token_file = os.path.join(tmpdir, "oauth2_token.json")
-            if os.path.exists(token_file):
-                with open(token_file) as f:
-                    tokens = _json.load(f)
-                db_manager.save_garmin_tokens(uid, tokens)
+        _save_garth_tokens(garmin_client, uid)
 
         # Clean up session
         with _sessions_lock:
