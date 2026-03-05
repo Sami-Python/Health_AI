@@ -1590,3 +1590,262 @@ async def debug_files(user: dict = Depends(verify_admin)):
         "files": results,
         "uid": user.get('uid')
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Garmin 2FA / OAuth Connect Endpoints
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# Flow:
+#  1. POST /garmin/connect   → tries login; if Garmin demands MFA returns
+#                              {status:"mfa_required", session_id:"..."}
+#  2. POST /garmin/connect/mfa → user supplies MFA code; completes login and
+#                              saves encrypted tokens to Firestore
+#  3. GET  /garmin/status    → returns {connected: bool, username: str|null}
+#  4. DELETE /garmin/credentials → disconnects (removes creds + tokens)
+#
+# Credentials are stored by the existing save_garmin_credentials() /
+# save_garmin_tokens() helpers which encrypt with AES-256 before Firestore.
+# ─────────────────────────────────────────────────────────────────────────────
+
+import uuid
+import threading
+import time as _time
+from typing import Dict, Any
+
+# In-memory MFA session store.
+# Key   : session_id (uuid4 string)
+# Value : {uid, client (Garmin obj), expires_at (epoch float)}
+# Passwords are NOT stored here; only the half-initialised garth login object.
+_garmin_mfa_sessions: Dict[str, Any] = {}
+_sessions_lock = threading.Lock()
+
+MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
+
+
+def _purge_expired_sessions():
+    """Remove sessions older than TTL (called on each new session creation)."""
+    now = _time.time()
+    with _sessions_lock:
+        expired = [sid for sid, s in _garmin_mfa_sessions.items()
+                   if s["expires_at"] < now]
+        for sid in expired:
+            del _garmin_mfa_sessions[sid]
+            logger.info(f"🗑️ Purged expired Garmin MFA session {sid}")
+
+
+class GarminConnectRequest(BaseModel):
+    username: str
+    password: str
+
+
+class GarminMfaRequest(BaseModel):
+    session_id: str
+    mfa_code: str
+
+
+@app.post("/garmin/connect", tags=["Garmin"])
+@limiter.limit("5/minute")
+async def garmin_connect(
+    req: GarminConnectRequest,
+    request: Request,
+    user: dict = Depends(verify_token),
+):
+    """
+    Start Garmin login.
+
+    - If login succeeds without 2FA → saves encrypted credentials & tokens,
+      returns `{status: "connected"}`.
+    - If Garmin requires MFA → returns `{status: "mfa_required", session_id}`.
+      The caller must follow up with POST /garmin/connect/mfa.
+    """
+    uid = user["uid"]
+    _purge_expired_sessions()
+
+    try:
+        from garminconnect import Garmin
+        import garth
+        import tempfile
+        import json as _json
+
+        mfa_event = threading.Event()
+        mfa_code_holder: Dict[str, str] = {}
+
+        def mfa_callback() -> str:
+            """Called by garth when Garmin demands a 2FA code."""
+            logger.info(f"🔐 Garmin MFA requested for uid={uid}")
+            mfa_event.set()   # Signal the endpoint to return mfa_required
+            # Block the garth thread until the code arrives (max TTL)
+            code_event = mfa_code_holder.get("_event")
+            if code_event:
+                code_event.wait(timeout=MFA_SESSION_TTL_SECONDS)
+            return mfa_code_holder.get("code", "")
+
+        garmin_client = Garmin(req.username, req.password, prompt_mfa=mfa_callback)
+
+        # Run login in a daemon thread so we can intercept the MFA pause
+        login_result: Dict[str, Any] = {}
+        login_exception: Dict[str, Any] = {}
+
+        def do_login():
+            try:
+                garmin_client.login()
+                login_result["done"] = True
+            except Exception as exc:
+                login_exception["error"] = exc
+
+        login_thread = threading.Thread(target=do_login, daemon=True)
+        login_thread.start()
+
+        # Wait up to 15 seconds for either: login done OR MFA demanded
+        login_thread.join(timeout=15)
+
+        # ── Case 1: MFA required ──────────────────────────────────────────
+        if mfa_event.is_set() and not login_result.get("done"):
+            session_id = str(uuid.uuid4())
+            code_event = threading.Event()
+            mfa_code_holder["_event"] = code_event
+
+            with _sessions_lock:
+                _garmin_mfa_sessions[session_id] = {
+                    "uid": uid,
+                    "client": garmin_client,
+                    "login_thread": login_thread,
+                    "mfa_code_holder": mfa_code_holder,
+                    "code_event": code_event,
+                    "expires_at": _time.time() + MFA_SESSION_TTL_SECONDS,
+                    "username": req.username,
+                    "password": req.password,  # needed to save creds after MFA
+                }
+
+            logger.info(f"🔐 2FA required for uid={uid}, session={session_id}")
+            return {"status": "mfa_required", "session_id": session_id}
+
+        # ── Case 2: Login exception (bad password etc.) ───────────────────
+        if login_exception.get("error"):
+            raise login_exception["error"]
+
+        # ── Case 3: Login succeeded without MFA ───────────────────────────
+        # Save credentials (password encrypted) & garth tokens
+        db_manager.save_garmin_credentials(uid, req.username, req.password)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            garmin_client.garth.dump(tmpdir)
+            token_file = os.path.join(tmpdir, "oauth2_token.json")
+            if os.path.exists(token_file):
+                with open(token_file) as f:
+                    tokens = _json.load(f)
+                db_manager.save_garmin_tokens(uid, tokens)
+
+        logger.info(f"✅ Garmin connected (no 2FA) for uid={uid}")
+        return {"status": "connected"}
+
+    except Exception as e:
+        logger.error(f"❌ Garmin connect error for uid={uid}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/garmin/connect/mfa", tags=["Garmin"])
+@limiter.limit("10/minute")
+async def garmin_connect_mfa(
+    req: GarminMfaRequest,
+    request: Request,
+    user: dict = Depends(verify_token),
+):
+    """
+    Complete Garmin 2FA login by supplying the MFA code.
+
+    Requires a valid `session_id` returned by POST /garmin/connect.
+    Returns `{status: "connected"}` on success.
+    """
+    uid = user["uid"]
+    import tempfile
+    import json as _json
+
+    with _sessions_lock:
+        session = _garmin_mfa_sessions.get(req.session_id)
+
+    if not session:
+        raise HTTPException(status_code=404, detail="MFA session not found or expired. Please start login again.")
+
+    if session["uid"] != uid:
+        raise HTTPException(status_code=403, detail="Session does not belong to this user.")
+
+    if _time.time() > session["expires_at"]:
+        with _sessions_lock:
+            _garmin_mfa_sessions.pop(req.session_id, None)
+        raise HTTPException(status_code=410, detail="MFA session expired. Please start login again.")
+
+    try:
+        # Supply the code to the waiting garth thread
+        session["mfa_code_holder"]["code"] = req.mfa_code.strip()
+        session["code_event"].set()
+
+        # Wait for garth to finish login
+        session["login_thread"].join(timeout=30)
+
+        if not session.get("client"):
+            raise ValueError("Garmin client not available in session")
+
+        garmin_client = session["client"]
+        username = session["username"]
+        password = session["password"]
+
+        # Save credentials (encrypted) and tokens
+        db_manager.save_garmin_credentials(uid, username, password)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            garmin_client.garth.dump(tmpdir)
+            token_file = os.path.join(tmpdir, "oauth2_token.json")
+            if os.path.exists(token_file):
+                with open(token_file) as f:
+                    tokens = _json.load(f)
+                db_manager.save_garmin_tokens(uid, tokens)
+
+        # Clean up session
+        with _sessions_lock:
+            _garmin_mfa_sessions.pop(req.session_id, None)
+
+        logger.info(f"✅ Garmin 2FA completed for uid={uid}")
+        return {"status": "connected"}
+
+    except Exception as e:
+        logger.error(f"❌ Garmin MFA completion error for uid={uid}: {e}")
+        with _sessions_lock:
+            _garmin_mfa_sessions.pop(req.session_id, None)
+        raise HTTPException(status_code=400, detail=f"MFA verification failed: {str(e)}")
+
+
+@app.get("/garmin/status", tags=["Garmin"])
+@limiter.limit("30/minute")
+async def garmin_status(request: Request, user: dict = Depends(verify_token)):
+    """
+    Returns whether the user has a connected Garmin account.
+
+    Response: `{connected: bool, username: str | null}`
+    """
+    uid = user["uid"]
+    try:
+        creds = db_manager.get_garmin_credentials(uid)
+        if creds:
+            return {"connected": True, "username": creds.get("username")}
+        return {"connected": False, "username": None}
+    except Exception as e:
+        logger.error(f"❌ Garmin status error for uid={uid}: {e}")
+        return {"connected": False, "username": None}
+
+
+@app.delete("/garmin/credentials", tags=["Garmin"])
+@limiter.limit("5/minute")
+async def garmin_disconnect(request: Request, user: dict = Depends(verify_token)):
+    """
+    Disconnects the Garmin account by deleting stored credentials and tokens.
+    """
+    uid = user["uid"]
+    try:
+        db_manager.delete_garmin_credentials(uid)
+        logger.info(f"🔌 Garmin disconnected for uid={uid}")
+        return {"status": "success", "message": "Garmin account disconnected"}
+    except Exception as e:
+        logger.error(f"❌ Garmin disconnect error for uid={uid}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -11,29 +11,33 @@ class GarminClient:
         self.client = None
 
     def connect(self):
-        """Authenticate with Garmin Connect using stored credentials."""
+        """
+        Authenticate with Garmin Connect.
+        
+        Priority:
+        1. Saved garth OAuth2 tokens (Firestore, encrypted) – silent re-auth
+        2. Fresh login with prompt_mfa callback that raises a clear error
+           if 2FA is demanded (user must reconnect via the app settings).
+        
+        Raises:
+            ValueError: If no credentials found or login fails.
+            GarminMFARequiredError (from fetch_garmin_data): If 2FA required.
+        """
         try:
-            creds = firestore_manager.get_garmin_credentials(self.user_id)
-            if not creds:
-                raise ValueError("No Garmin credentials found. Please connect your account in Settings.")
-
-            email = creds['username']
-            password = creds['password'] 
-            # Note: firestore_manager.get_garmin_credentials already decrypts the password 
-            # if using the helper from fetch_garmin_data.py context, but let's double check.
-            # actually fetch_garmin_data.py does: 
-            # creds = firestore_manager.get_garmin_credentials(user_id)
-            # email = creds['username']
-            # password = creds['password']
-            # So we assume it returns decrypted password. 
-            
-            self.client = Garmin(email, password)
-            self.client.login()
+            # Use the shared get_garmin_client() which already handles the
+            # token-first → fresh-login flow with proper MFA error handling.
+            import sys, os
+            scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+            if scripts_dir not in sys.path:
+                sys.path.insert(0, scripts_dir)
+            from fetch_garmin_data import get_garmin_client
+            self.client = get_garmin_client(self.user_id)
             logger.info(f"✅ Garmin login successful for user {self.user_id}")
             
         except Exception as e:
             logger.error(f"❌ Garmin auth failed: {e}")
             raise ValueError(f"Garmin authentication failed: {str(e)}")
+
 
     def upload_workout(self, workout_json: Dict[str, Any]) -> Optional[str]:
         """

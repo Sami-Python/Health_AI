@@ -287,16 +287,38 @@ class ApiService {
     return null;
   }
 
-  Future<void> saveGarminCredentials(String username, String password) async {
+  /// Starts Garmin login. Returns the raw response map, which may be:
+  ///   {status: "connected"}                       → login done, no 2FA
+  ///   {status: "mfa_required", session_id: "..."} → caller must show MFA dialog
+  Future<Map<String, dynamic>> connectGarmin(
+      String username, String password) async {
     final headers = await _getHeaders();
     final response = await http.post(
-      Uri.parse('$baseUrl/garmin/credentials'),
+      Uri.parse('$baseUrl/garmin/connect'),
       headers: headers,
       body: json.encode({'username': username, 'password': password}),
     );
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
+    }
+    final detail = json.decode(utf8.decode(response.bodyBytes))['detail'] ??
+        'Unknown error';
+    throw Exception('Garmin connect failed: $detail');
+  }
+
+  /// Submits the 2FA code to complete a pending MFA login session.
+  Future<void> submitGarminMfa(String sessionId, String mfaCode) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/garmin/connect/mfa'),
+      headers: headers,
+      body: json.encode({'session_id': sessionId, 'mfa_code': mfaCode}),
+    );
     if (response.statusCode != 200) {
-      throw Exception(
-          'Failed to save Garmin credentials: ${response.statusCode}');
+      final detail = json.decode(utf8.decode(response.bodyBytes))['detail'] ??
+          'Unknown error';
+      throw Exception('Garmin MFA failed: $detail');
     }
   }
 
@@ -311,6 +333,7 @@ class ApiService {
           'Failed to delete Garmin credentials: ${response.statusCode}');
     }
   }
+
 
   // ─── Settings / GDPR ────────────────────────────────────────
   Future<Map<String, dynamic>?> exportUserData() async {

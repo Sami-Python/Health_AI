@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Lock, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Lock, CheckCircle, XCircle, Loader2, ShieldCheck } from "lucide-react";
 import toast from "react-hot-toast";
 import { useGarminStatus } from "@/hooks/useGarminStatus";
 
@@ -14,43 +14,21 @@ export default function GarminCredentialsForm() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
-    const [testing, setTesting] = useState(false);
 
-    const handleTest = async () => {
-        if (!user || !username || !password) return;
-        setTesting(true);
-        try {
-            const token = await user.getIdToken();
-            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/test`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                toast.success("Connection successful! Credentials are valid.");
-            } else {
-                toast.error(data.detail || "Connection failed. Please check credentials.");
-            }
-        } catch (e: any) {
-            toast.error(e.message || "Network error during test");
-        } finally {
-            setTesting(false);
-        }
-    };
+    // 2FA / MFA state
+    const [mfaStep, setMfaStep] = useState(false);
+    const [mfaSessionId, setMfaSessionId] = useState("");
+    const [mfaCode, setMfaCode] = useState("");
+    const [mfaLoading, setMfaLoading] = useState(false);
 
-    const handleSave = async (e: React.FormEvent) => {
+    const handleConnect = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
-
+        if (!user || !username || !password) return;
         setLoading(true);
 
         try {
             const token = await user.getIdToken();
-            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/credentials`, {
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/connect`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -58,29 +36,70 @@ export default function GarminCredentialsForm() {
                 },
                 body: JSON.stringify({ username, password })
             });
-
             const data = await res.json();
 
-            if (res.ok) {
-                toast.success("Garmin credentials saved securely!");
-                setPassword(""); // Clear password field
-                refreshStatus(); // Refresh status
-            } else {
-                toast.error(data.detail || "Failed to save credentials");
+            if (!res.ok) {
+                toast.error(data.detail || "Yhdistäminen epäonnistui");
+                return;
+            }
+
+            if (data.status === "connected") {
+                toast.success("✅ Garmin yhdistetty onnistuneesti!");
+                setPassword("");
+                setUsername("");
+                refreshStatus();
+            } else if (data.status === "mfa_required") {
+                // Switch to MFA input step
+                setMfaSessionId(data.session_id);
+                setMfaStep(true);
+                toast("🔐 Kaksivaiheinen tunnistus vaaditaan – tarkista sähköpostisi tai tekstiviestisi.", { icon: "🔐" });
             }
         } catch (e: any) {
-            toast.error(e.message || "Network error");
+            toast.error(e.message || "Verkkovirhe");
         } finally {
             setLoading(false);
         }
     };
 
+    const handleMfaSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user || !mfaCode.trim()) return;
+        setMfaLoading(true);
+
+        try {
+            const token = await user.getIdToken();
+            const res = await fetchWithRetry(`${API_BASE_URL}/garmin/connect/mfa`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ session_id: mfaSessionId, mfa_code: mfaCode.trim() })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.status === "connected") {
+                toast.success("✅ Garmin yhdistetty 2FA:n kautta!");
+                setMfaStep(false);
+                setMfaCode("");
+                setPassword("");
+                setUsername("");
+                refreshStatus();
+            } else {
+                toast.error(data.detail || "Koodi virheellinen tai vanhentunut");
+            }
+        } catch (e: any) {
+            toast.error(e.message || "Verkkovirhe");
+        } finally {
+            setMfaLoading(false);
+        }
+    };
+
     const handleDisconnect = async () => {
-        if (!confirm("Are you sure you want to disconnect your Garmin account?")) return;
+        if (!confirm("Haluatko varmasti katkaista Garmin-yhteyden?")) return;
         if (!user) return;
 
         setLoading(true);
-
         try {
             const token = await user.getIdToken();
             const res = await fetchWithRetry(`${API_BASE_URL}/garmin/credentials`, {
@@ -89,19 +108,27 @@ export default function GarminCredentialsForm() {
             });
 
             if (res.ok) {
-                toast.success("Garmin account disconnected");
+                toast.success("Garmin-yhteys katkaistu");
                 setUsername("");
                 setPassword("");
+                setMfaStep(false);
+                setMfaCode("");
                 refreshStatus();
             } else {
                 const data = await res.json();
-                toast.error(data.detail || "Failed to disconnect");
+                toast.error(data.detail || "Katkaisu epäonnistui");
             }
         } catch (e: any) {
-            toast.error(e.message || "Network error");
+            toast.error(e.message || "Verkkovirhe");
         } finally {
             setLoading(false);
         }
+    };
+
+    const cancelMfa = () => {
+        setMfaStep(false);
+        setMfaCode("");
+        setMfaSessionId("");
     };
 
     return (
@@ -136,95 +163,134 @@ export default function GarminCredentialsForm() {
                 )}
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSave} className="space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Garmin Username or Email
-                    </label>
-                    <input
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="username or email@example.com"
-                        required
-                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                    />
-                </div>
+            {/* ── MFA Step ─────────────────────────────────────── */}
+            {mfaStep ? (
+                <form onSubmit={handleMfaSubmit} className="space-y-4">
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-amber-900/20 border border-amber-700/30">
+                        <ShieldCheck className="h-5 w-5 text-amber-400 shrink-0" />
+                        <p className="text-sm text-amber-300">
+                            Garmin vaatii kaksivaiheisen tunnistuksen. Syötä sähköpostiisi tai puhelimeesi lähetetty koodi.
+                        </p>
+                    </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                        Garmin Password
-                    </label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        required
-                        className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                    />
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                        <Lock className="h-3 w-3" />
-                        Encrypted with AES-256 before storage
-                    </p>
-                </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Vahvistuskoodi (MFA)
+                        </label>
+                        <input
+                            type="text"
+                            value={mfaCode}
+                            onChange={(e) => setMfaCode(e.target.value)}
+                            placeholder="123456"
+                            maxLength={8}
+                            required
+                            autoFocus
+                            className="w-full px-4 py-3 bg-slate-800/50 border border-amber-700/50 rounded-lg text-white text-center text-2xl tracking-[0.5em] placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                        />
+                    </div>
 
-                <div className="flex gap-3">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleTest}
-                        disabled={testing || loading || !username || !password}
-                        className="flex-1 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700"
-                    >
-                        {testing ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Testing...
-                            </>
-                        ) : (
-                            "Test Connection"
-                        )}
-                    </Button>
-
-                    <Button
-                        type="submit"
-                        disabled={loading || testing || !username || !password}
-                        className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            <>
-                                <Lock className="mr-2 h-4 w-4" />
-                                {status?.connected ? "Update" : "Connect"}
-                            </>
-                        )}
-                    </Button>
-
-                    {status?.connected && (
+                    <div className="flex gap-3">
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={handleDisconnect}
-                            disabled={loading}
-                            className="border-red-800/50 text-red-400 hover:bg-red-900/20"
+                            onClick={cancelMfa}
+                            className="flex-1 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700"
                         >
-                            Disconnect
+                            Peruuta
                         </Button>
-                    )}
-                </div>
-            </form>
+                        <Button
+                            type="submit"
+                            disabled={mfaLoading || mfaCode.length < 4}
+                            className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white"
+                        >
+                            {mfaLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Vahvistetaan...
+                                </>
+                            ) : (
+                                <>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />
+                                    Vahvista koodi
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </form>
+            ) : (
+                /* ── Credentials Form ─────────────────────────── */
+                <form onSubmit={handleConnect} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Garmin Username or Email
+                        </label>
+                        <input
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="username or email@example.com"
+                            required
+                            className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">
+                            Garmin Password
+                        </label>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            required
+                            className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        />
+                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Encrypted with AES-256 before storage
+                        </p>
+                    </div>
+
+                    <div className="flex gap-3">
+                        <Button
+                            type="submit"
+                            disabled={loading || !username || !password}
+                            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white"
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Yhdistetään...
+                                </>
+                            ) : (
+                                <>
+                                    <Lock className="mr-2 h-4 w-4" />
+                                    {status?.connected ? "Päivitä" : "Yhdistä"}
+                                </>
+                            )}
+                        </Button>
+
+                        {status?.connected && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleDisconnect}
+                                disabled={loading}
+                                className="border-red-800/50 text-red-400 hover:bg-red-900/20"
+                            >
+                                Katkaise
+                            </Button>
+                        )}
+                    </div>
+                </form>
+            )}
 
             {/* Security Notice */}
             <div className="mt-4 p-3 rounded-lg bg-blue-900/10 border border-blue-800/30">
                 <p className="text-xs text-blue-300/80">
-                    🔒 <strong>Security:</strong> Your password is encrypted before transmission and storage.
-                    Only you can access your Garmin data.
+                    🔒 <strong>Tietoturva:</strong> Salasanasi salataan AES-256:lla ennen lähettämistä ja tallennusta.
+                    OAuth2-tokenit salataan myös – salasanaa ei tarvita uusintakirjautumiseen.
                 </p>
             </div>
         </div>
