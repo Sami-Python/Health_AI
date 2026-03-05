@@ -16,6 +16,15 @@ if BACKEND_DIR not in sys.path:
 from logger import logger
 
 
+
+class GarminMFARequiredError(ValueError):
+    """
+    Raised when Garmin demands 2FA during an automated sync.
+    The user must re-connect their Garmin account via the app to refresh tokens.
+    """
+    pass
+
+
 def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     """
     Authenticate to Garmin using credentials.
@@ -32,6 +41,8 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         Authenticated Garmin client
         
     Raises:
+        GarminMFARequiredError: If 2FA is required but no session is available
+                                (user must reconnect via the app).
         ValueError: If credentials not found or authentication fails
     """
     email = None
@@ -69,7 +80,18 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
         import tempfile
         import json
 
-        client = Garmin(email, password)
+        def _mfa_not_supported() -> str:
+            """
+            MFA callback used for background/automated sync calls.
+            If this is triggered it means saved tokens have expired and
+            the user needs to reconnect via the app (interactive 2FA).
+            """
+            raise GarminMFARequiredError(
+                "Garmin 2FA is required but cannot be completed automatically. "
+                "Please reconnect your Garmin account in the app settings to refresh your session."
+            )
+
+        client = Garmin(email, password, prompt_mfa=_mfa_not_supported)
 
         # Try to load saved garth tokens from Firestore
         garth_tokens = None
@@ -94,10 +116,12 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                     client.garth.load(tmpdir)
                 logger.info("✅ Garmin session resumed from saved tokens")
                 return client
+            except GarminMFARequiredError:
+                raise  # Propagate clearly
             except Exception as token_err:
                 logger.warning(f"⚠️ Token resume failed ({token_err}), falling back to fresh login...")
 
-        # Fresh login
+        # Fresh login (will raise GarminMFARequiredError if 2FA triggered)
         client.login()
         logger.info(f"✅ Garmin login successful for: {email}")
 
@@ -117,10 +141,11 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                 logger.warning(f"⚠️ Could not save garth tokens: {save_err}")
 
         return client
+    except GarminMFARequiredError:
+        raise  # Do not wrap – let the caller handle it
     except Exception as e:
         logger.error(f"❌ Garmin authentication failed: {e}")
         raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
-
 
 
 
