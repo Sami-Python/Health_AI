@@ -109,19 +109,52 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
             # Resume session using saved tokens (avoids full re-login + OAuth1 issue)
             try:
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    # Write tokens to temp file for garth to load
-                    token_file = os.path.join(tmpdir, "oauth2_token.json")
-                    with open(token_file, "w") as f:
-                        json.dump(garth_tokens, f)
+                    # Try multi-file format first (new: stores exactly what garth.dump() wrote)
+                    token_files_json = None
+                    if user_id:
+                        try:
+                            import firestore_manager
+                            from encryption_helper import decrypt_password
+                            creds_raw = firestore_manager.db.collection('users').document(user_id)\
+                                .collection('garmin_credentials').document('default').get()
+                            if creds_raw.exists:
+                                enc = creds_raw.to_dict().get('garth_token_files_encrypted')
+                                if enc:
+                                    token_files_json = json.loads(decrypt_password(enc))
+                                    logger.info(f"🔑 Loaded multi-file tokens: {list(token_files_json.keys())}")
+                        except Exception as mf_err:
+                            logger.debug(f"Multi-file token load skipped: {mf_err}")
+
+                    if token_files_json:
+                        # Restore ALL files garth originally wrote
+                        for fname, fdata in token_files_json.items():
+                            with open(os.path.join(tmpdir, fname), "w") as f:
+                                json.dump(fdata, f)
+                    else:
+                        # Legacy: single oauth2_token dict
+                        token_file = os.path.join(tmpdir, "oauth2_token.json")
+                        with open(token_file, "w") as f:
+                            json.dump(garth_tokens, f)
+
                     client.garth.load(tmpdir)
                 logger.info("✅ Garmin session resumed from saved tokens")
                 return client
             except GarminMFARequiredError:
                 raise  # Propagate clearly
             except Exception as token_err:
-                logger.warning(f"⚠️ Token resume failed ({token_err}), falling back to fresh login...")
+                # Tokens are present but couldn't be used (wrong format, expired, etc.)
+                # Do NOT fall back to fresh login — that would trigger 2FA again.
+                # Tell the user to reconnect interactively.
+                logger.warning(f"⚠️ Token resume failed for uid={user_id}: {token_err}")
+                raise GarminMFARequiredError(
+                    "Your Garmin session has expired. "
+                    "Please reconnect your Garmin account in the app settings to refresh your session."
+                )
 
-        # Fresh login (will raise GarminMFARequiredError if 2FA triggered)
+
+        # No saved tokens at all → attempt fresh login
+        # (Only reaches here on first-ever connect without tokens)
+        # Will raise GarminMFARequiredError via _mfa_not_supported if 2FA triggered
         client.login()
         logger.info(f"✅ Garmin login successful for: {email}")
 
@@ -146,6 +179,7 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     except Exception as e:
         logger.error(f"❌ Garmin authentication failed: {e}")
         raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
+
 
 
 
