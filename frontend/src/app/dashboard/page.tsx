@@ -195,6 +195,25 @@ export default function DashboardPage() {
     const readinessSpark = last7Days.map((m: any) => m.readiness);
     const loadSpark = last7Days.map((m: any) => m.load);
 
+    // Helper to format last sync time
+    const formatTimeAgo = (dateString: string | undefined | null) => {
+        if (!dateString) return 'Unknown';
+        try {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now.getTime() - date.getTime();
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours < 24) return `${diffHours} hr${diffHours === 1 ? '' : 's'} ago`;
+            return date.toLocaleDateString();
+        } catch (e) {
+            return 'Unknown';
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 p-8 text-white">
             {showGenerateModal && (
@@ -224,7 +243,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="hidden md:block text-right text-xs text-slate-500 mr-2">
-                                <p>Last synced: Just now</p>
+                                <p>Last synced: {formatTimeAgo(readiness?.last_sync_time)}</p>
                             </div>
                             <UserMenu />
                         </div>
