@@ -1,6 +1,6 @@
 # 📱 Mobile (Flutter) vs Web (Next.js) – Feature Vertailu
 
-> **Päivitetty:** 2026-02-25
+> **Päivitetty:** 2026-03-06
 > **Mobiili:** `mobile/lib/features/` (6 näkymää + bottom nav 5 välilehteä)
 > **Web:** `frontend/src/app/` + `components/` (20+ komponenttia)
 
@@ -18,7 +18,7 @@
 | **Kalenteri (TrainingCalendar)** | ✅ | ✅ | API-data käytössä (`/workouts/history` + `/workouts/next`) |
 | Drag & Drop treenit | ✅ | ❌ | Depriorisoitu |
 | Treenin poisto (roskakori) | ✅ | ❌ | Depriorisoitu |
-| \"Send to Garmin\" -nappi | ✅ | ✅ | Phase 14.4 ✅ (`POST /workouts/upload`) |
+| "Send to Garmin" -nappi | ✅ | ✅ | Phase 14.4 ✅ (`POST /workouts/upload`) |
 | Treenin modal-tiedot | ✅ | ❌ | Mobiilissa lista, ei modal |
 | AI-plan generointi kalenterista | ✅ | ❌ | Depriorisoitu |
 | **Analysis** | ✅ | ✅ | CTL/ATL/TSB, Load, Sleep, Readiness |
@@ -28,10 +28,9 @@
 | Race Goal countdown | ✅ | ✅ | Erityisnäyttö (Race distance + countdown) |
 | **Manuaalinen treenikirjaus** | ✅ | ✅ | Phase 16.1 ✅ |
 | **AI Chat Coach** | ✅ | ✅ | Phase 15.2 ✅ |
-| **Profiili-sivu** | ✅ | ✅ | Phase 14.2 ✅ |
+| **Profiili-sivu / Asetukset** | ✅ | ✅ | Phase 14.2 ✅ |
 | Fysiologiset tiedot (ikä, paino, pituus) | ✅ | ✅ | `GET/PUT /profile` |
-| Garmin-tunnusten hallinta | ✅ | ✅ | Syötä/vaihda/poista |
-| **Asetukset (Settings)** | ✅ | ✅ | Phase 14.3 ✅ |
+| **Garmin-yhteys (2FA/MFA tuki)** | ✅ | ✅ | Täysi tuki myös 2-vaiheiselle todennukselle (Phase 16.2 ✅) |
 | Data export (GDPR) | ✅ | ✅ | `GET /user/export` |
 | Tilin poisto (GDPR) | ✅ | ✅ | `DELETE /account` |
 | Palaute-lomake | ✅ | ✅ | `POST /feedback` |
@@ -40,11 +39,12 @@
 
 ---
 
-## 🔴 Avoimet tehtävät (Phase 15)
+## 🔴 Avoimet tehtävät (Phase 15/16)
 
 | Tehtävä | Prioriteetti | Status |
 |---|---|---|
-| **AI Chat testaus** – fyysinen puhelin tai emulaattori | 🔴 Korkea | ✅ VALMIS |
+| **Garmin 2FA / MFA Tuki** | 🔴 Korkea | ✅ VALMIS |
+| **AI Chat testaus** | 🔴 Korkea | ✅ VALMIS |
 | Manuaalinen treenikirjaus | 🟡 Tärkeä | ✅ VALMIS |
 | Push-ilmoitukset | 🟢 Matala | ⏸️ Depriorisoitu (#160) |
 | Apple Health / Google Fit | 🟢 Matala | ⏸️ Depriorisoitu (#161) |
@@ -57,10 +57,10 @@
 |---|---|---|
 | Näkymät/Sivut | 6 (dashboard, calendar, profile, settings, admin, login) | 6 (home, calendar, analysis, chat, profile, auth + settings) |
 | Komponentit | 20+ | ~15 |
-| API-kutsut | Täysi kattavuus | Kattava (kalenteri, goals, profile, settings, chat) |
-| CRUD-toiminnot | Kaikki | Goals ✅, Profile ✅, Settings ✅, Workouts (read+send) ✅ |
+| API-kutsut | Täysi kattavuus | Kattava (kalenteri, goals, profile, settings, chat, garmin mfa) |
+| CRUD-toiminnot | Kaikki | Goals ✅, Profile ✅, Settings ✅, Workouts (read+send) ✅, Garmin (connect+mfa) ✅ |
 
 **Mobiili on tällä hetkellä 100% web-sovelluksen ominaisuuksista.**
-Phase 14 (Feature Parity), Phase 15 (AI Chat), Phase 16.1 (Manuaalinen Treenikirjaus) sekä uudet **Kalenterin hallinta (siirto/poisto/tekoäly)** ja **ML-tarkkuudet** ovat kaikki tuotantovalmiita.
+Phase 14 (Feature Parity), Phase 15 (AI Chat), Phase 16.1 (Manuaalinen Treenikirjaus) ja **Garmin 2-vaiheinen tunnistautuminen (2FA/MFA)** ovat kaikki tuotantovalmiita kummallakin alustalla.
 
 Deprioritisoidut (jotka lisätään jos nähdään tarpeelliseksi tulevaisuudessa): Drag & Drop, Push-ilmoitukset, Apple Health / Google Fit.
