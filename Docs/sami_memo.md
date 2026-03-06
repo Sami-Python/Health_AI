@@ -2330,3 +2330,24 @@ Toteutettiin uusi Käyttöohjeet (Instructions) alisivu landing pagelle ja päiv
 - Siirretty suoraan Github pushien kautta Cloudflare Pages tuotantoon (`git push origin main` triggeröi automaattisen julkaisun).
 - `Docs/landing_page.md` päivitetty vastaamaan uutta tiedostorakennetta.
 
+---
+
+## 2026-03-06 – Garmin 2FA / MFA Support & Security Parity 🔐🚀
+
+Tänään ratkaistiin merkittävä haaste, jossa käyttäjät, joilla on Garmin-tililleen kytkettynä 2-vaiheinen todennus (MFA), eivät voineet synkronoida tietojaan onnistuneesti taustalla (OAuth1 token error / GarminMFARequiredError).
+
+### 1. Robust Token Management
+- **Ongelma:** Aiempi tokenien tallennusmenetelmä (Strategy 1: direct dump vs Strategy 2: `garth.dump()`) oli epävakaa ja kadotti tärkeitä MFA-istuntokohtaisia tokeneita (mm. `oauth1_token.json`).
+- **Ratkaisu:** Siirryttiin yksinomaan `garth.dump()` -pohjaiseen tallennukseen (`garth_token_files_encrypted` sanakirjassa Firestoreen tallennettuna AES-256 suojalla). Kaikki 4 token-tiedostoa palautetaan nyt kerralla `garth.resume()` -hakemistoon, mikä takaa saumattoman taustasynkronoinnin.
+
+### 2. Stateless 2FA Integration (Backend)
+- Backend (`main.py`) paloittelee nyt sisäänkirjautumisen tiloilla: `mfa_required` vs `connected`.
+- Kun kirjautumisen yhteydessä havaitaan 2-vaiheinen todennus, säie pysähtyy (max 45 sek) ja odottaa MFA-koodia.
+- Käyttäjä antaa koodin uuden endpointin (`POST /garmin/connect/mfa`) kautta, jolloin viestinvälitystapahtuma (Event) vapauttaa kirjautumissäikeen viimeistelemään laitteen yhdistämisen.
+
+### 3. Web & Mobile Error Handling & UI Banner
+- Tuki ulotettiin täydellisesti sekä Next.js että Flutter-sovelluksiin. Asetuksissa näytetään nyt dynaamisesti 6-numeroinen OTP-koodikenttä tarpeen vaatiessa.
+- Lisäksi Web Dashboard sai kriittisen tärkeysluokan virheenkäsittelybannerin: jos token vanhenee yllättäen (GarminMFARequiredError), Dashboard esittää selkeän, visuaalisen laatikon ("Garmin Session Expired") kryptisten JSON-virheiden sijaan, ja käyttäjä voi siirtyä Asetuksiin kytkemään laitteensa yhdellä napilla.
+
+**Status:** 🟢 **PRODUCTION READY**, Phase 16.4 valmis. 100% Feature-Parity Garmin-integraatioissa saavutettu.
+

@@ -479,6 +479,16 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 - [x] Tyylikäs ML Metrics -indikaattori `AnalysisScreen`iin. (#825)
 - [x] Backend-kutsu API-palveluun `fetchAiModelMetrics` (`GET /ai/model-metrics`). (#826)
+
+### 16.4 Garmin 2-vaiheinen todennus (2FA/MFA) ✅
+– Tavoite: Tukea Garmin-tilejä, joissa on 2-vaiheinen todennus (MFA) käytössä. Mahdollistaa taustasynkronoinnin saumattomasti ilman "OAuth1 token" -virheitä.
+
+- [x] Backend: Uudet 2FA API endpointit (`POST /garmin/connect`, `POST /garmin/connect/mfa`, `GET /garmin/status`).
+- [x] Backend: `fetch_garmin_data.py` token-restore ja virheenkäsittely (GarminMFARequiredError).
+- [x] Web Frontend: 2FA-koodin syöttö olemassa olevaan UI:hin sekä Dashboard-banneri.
+- [x] Mobile Frontend: Settings-näkymän Garmin-yhdistys ja OTP-dialogit.
+- [x] **Status:** Täysin tuotantovalmis kummallakin alustalla (2026-03-06).
+
 - **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
 ---
