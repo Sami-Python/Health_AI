@@ -1626,7 +1626,10 @@ MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
 def _save_garth_tokens(garmin_client, uid: str) -> bool:
     """
     Saves garth OAuth2 tokens to Firestore after a successful login.
-    Uses multiple strategies to extract the token data robustly.
+
+    Stores ALL files created by garth.dump() as a single dict:
+      {"oauth2_token.json": {...}, "oauth1_token.json": {...}}
+    This allows exact restoration via garth.load() later.
 
     Returns True if tokens were saved successfully, False otherwise.
     """
@@ -1635,30 +1638,6 @@ def _save_garth_tokens(garmin_client, uid: str) -> bool:
     import os as _os
 
     try:
-        # Strategy 1: Access oauth2_token directly from garth client object
-        # (garth >= 0.4 exposes garth.client.oauth2_token)
-        try:
-            token_obj = getattr(garmin_client.garth, 'oauth2_token', None)
-            if token_obj is None:
-                token_obj = getattr(getattr(garmin_client, 'garth', None), 'client', None)
-                if token_obj:
-                    token_obj = getattr(token_obj, 'oauth2_token', None)
-            if token_obj is not None:
-                # oauth2_token may be a dataclass or dict-like
-                if hasattr(token_obj, '__dict__'):
-                    tokens_dict = token_obj.__dict__
-                elif hasattr(token_obj, 'dict'):
-                    tokens_dict = token_obj.dict()
-                else:
-                    tokens_dict = dict(token_obj)
-                if tokens_dict:
-                    db_manager.save_garmin_tokens(uid, tokens_dict)
-                    logger.info(f"💾 Garth tokens saved via attribute access for uid={uid}")
-                    return True
-        except Exception as attr_err:
-            logger.debug(f"Strategy 1 (attribute) failed: {attr_err}")
-
-        # Strategy 2: garth.dump() to temp dir, scan all .json files
         with tempfile.TemporaryDirectory() as tmpdir:
             try:
                 garmin_client.garth.dump(tmpdir)
@@ -1667,8 +1646,14 @@ def _save_garth_tokens(garmin_client, uid: str) -> bool:
                 return False
 
             files = _os.listdir(tmpdir)
-            logger.info(f"garth.dump() created files: {files}")
+            logger.info(f"garth.dump() wrote files: {files} for uid={uid}")
 
+            if not files:
+                logger.warning(f"⚠️ garth.dump() created no files for uid={uid}")
+                return False
+
+            # Read ALL json files garth wrote and store them keyed by filename
+            token_files: dict = {}
             for fname in files:
                 if not fname.endswith('.json'):
                     continue
@@ -1679,16 +1664,37 @@ def _save_garth_tokens(garmin_client, uid: str) -> bool:
                     if not content:
                         logger.debug(f"Skipping empty file: {fname}")
                         continue
-                    tokens = _json.loads(content)
-                    if isinstance(tokens, dict) and tokens:
-                        db_manager.save_garmin_tokens(uid, tokens)
-                        logger.info(f"💾 Garth tokens saved from {fname} for uid={uid}")
-                        return True
+                    parsed = _json.loads(content)
+                    if isinstance(parsed, dict) and parsed:
+                        token_files[fname] = parsed
+                        logger.debug(f"Collected token file: {fname}")
                 except Exception as fe:
                     logger.debug(f"Could not read {fname}: {fe}")
 
-        logger.warning(f"⚠️ No valid token file found for uid={uid}")
-        return False
+            if not token_files:
+                logger.warning(f"⚠️ No valid token data in dump for uid={uid}")
+                return False
+
+            # Save both the legacy single-token format (garth_tokens) for backward
+            # compat AND the new multi-file format (garth_token_files)
+            primary_token = token_files.get("oauth2_token.json") or next(iter(token_files.values()))
+            db_manager.save_garmin_tokens(uid, primary_token)  # updates garth_tokens_encrypted
+
+            # Also store all files for exact restoration
+            try:
+                import json
+                import firestore_manager
+                from encryption_helper import encrypt_password
+                encrypted = encrypt_password(json.dumps(token_files))
+                firestore_manager.db.collection('users').document(uid)\
+                    .collection('garmin_credentials').document('default')\
+                    .update({'garth_token_files_encrypted': encrypted})
+                logger.info(f"💾 Garth token files saved ({list(token_files.keys())}) for uid={uid}")
+            except Exception as multi_err:
+                logger.warning(f"Could not save multi-file tokens: {multi_err}")
+                # Single-file save above still succeeded
+
+            return True
 
     except Exception as e:
         logger.error(f"❌ _save_garth_tokens error for uid={uid}: {e}")
