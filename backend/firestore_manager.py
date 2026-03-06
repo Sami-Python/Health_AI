@@ -178,9 +178,15 @@ def get_weekly_load_status(user_id: str):
         return 0, 0, {}
 
 def get_latest_readiness(user_id: str):
-    """Fetches latest readiness (projected charge) from plans."""
+    """Fetches latest readiness (projected charge) from plans and last sync time from profile."""
     try:
-        # Latest plan by timestamp
+        result = {
+            "readiness": "--",
+            "date": "",
+            "last_sync_time": None
+        }
+        
+        # 1. Get latest plan charge
         docs = db.collection('plans')\
                  .where(filter=FieldFilter('user_id', '==', user_id))\
                  .order_by('timestamp', direction=firestore.Query.DESCENDING)\
@@ -189,12 +195,25 @@ def get_latest_readiness(user_id: str):
                  
         for doc in docs:
             data = doc.to_dict()
-            # Saved as 'charge' in save_generated_plan
-            return {
-                "readiness": data.get('charge', 80), # Default to 80 if missing
-                "date": data.get('timestamp', datetime.now()).strftime('%Y-%m-%d') if isinstance(data.get('timestamp'), datetime) else str(data.get('timestamp'))
-            }
-        return None
+            result["readiness"] = data.get('charge', 80)
+            result["date"] = data.get('timestamp', datetime.now()).strftime('%Y-%m-%d') if isinstance(data.get('timestamp'), datetime) else str(data.get('timestamp'))
+            
+        # 2. Get last sync time from user profile
+        user_doc = db.collection('users').document(user_id).collection('profile').document('metrics').get()
+        if user_doc.exists:
+            result["last_sync_time"] = user_doc.to_dict().get('last_sync_time')
+            
+        # Fallback to general user document if not in metrics
+        if not result["last_sync_time"]:
+            user_main = db.collection('users').document(user_id).get()
+            if user_main.exists:
+                result["last_sync_time"] = user_main.to_dict().get('last_sync_time')
+                
+        # Handle datetime serialization if it's a Firestore Datetime
+        if isinstance(result["last_sync_time"], datetime):
+            result["last_sync_time"] = result["last_sync_time"].isoformat()
+            
+        return result if result["readiness"] != "--" or result["last_sync_time"] else None
     except Exception as e:
         print(f"Firestore Error (Readiness): {e}")
         return None
