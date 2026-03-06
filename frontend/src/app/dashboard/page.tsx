@@ -115,8 +115,12 @@ export default function DashboardPage() {
                 if (resPlanned.ok) setPlannedWorkouts(await resPlanned.json());
 
             } catch (err: any) {
-                setFetchError(err.message);
                 console.error("Fetch error", err);
+                if (err.message && err.message.includes('GarminMFARequiredError')) {
+                    setFetchError('GARMIN_AUTH_EXPIRED');
+                } else {
+                    setFetchError(err.message);
+                }
             }
         }
     }, [user]);
@@ -162,7 +166,13 @@ export default function DashboardPage() {
                             setTimeout(() => setRefreshProgress(null), 3000);
                         } else if (statusData.status === "failed") {
                             clearInterval(pollInterval);
-                            toast.error(statusData.error || 'Refresh failed');
+                            const errMsg = statusData.error || '';
+                            if (errMsg.includes('GarminMFARequiredError')) {
+                                setFetchError('GARMIN_AUTH_EXPIRED');
+                                toast.error('Garmin session expired. Please reconnect in Settings.', { duration: 5000 });
+                            } else {
+                                toast.error(errMsg || 'Refresh failed');
+                            }
                             setRefreshing(false);
                             setRefreshProgress(null);
                         }
@@ -175,7 +185,12 @@ export default function DashboardPage() {
 
         } catch (e: any) {
             console.error("Refresh failed", e);
-            toast.error(e.message || 'An error occurred while refreshing data');
+            if (e.message && e.message.includes('GarminMFARequiredError')) {
+                setFetchError('GARMIN_AUTH_EXPIRED');
+                toast.error('Garmin session expired. Please reconnect in Settings.');
+            } else {
+                toast.error(e.message || 'An error occurred while refreshing data');
+            }
             setRefreshing(false);
             setRefreshProgress(null);
         }
@@ -318,7 +333,7 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <StatCard
                             title="Readiness"
-                            value={readiness ? `${readiness.readiness}%` : "--"}
+                            value={readiness?.readiness ? `${readiness.readiness}%` : "--"}
                             description="Body Battery Estimate"
                             icon={Battery}
                             trend={readiness?.readiness > 80 ? 'up' : 'neutral'}
@@ -349,6 +364,29 @@ export default function DashboardPage() {
                         />
                     </div>
                 </AnimateEntry>
+
+                {/* Garmin Auth Expired Banner */}
+                {fetchError === 'GARMIN_AUTH_EXPIRED' && (
+                    <AnimateEntry delay={0.25}>
+                        <div className="bg-red-950/40 border-l-4 border-red-500 rounded-r-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shadow-red-900/20">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-red-500/20 rounded-full">
+                                    <LogOut className="h-5 w-5 text-red-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-red-400 font-semibold">Garmin Session Expired</h3>
+                                    <p className="text-red-300 text-sm">Your Garmin connection needs to be re-authenticated to continue syncing data.</p>
+                                </div>
+                            </div>
+                            <Button
+                                onClick={() => router.push('/settings?tab=garmin')}
+                                className="bg-red-600 hover:bg-red-500 text-white shrink-0 shadow-md shadow-red-900/50"
+                            >
+                                <RefreshCw className="mr-2 h-4 w-4" /> Reconnect Now
+                            </Button>
+                        </div>
+                    </AnimateEntry>
+                )}
 
                 {/* Calendar Section */}
                 <AnimateEntry delay={0.3}>
