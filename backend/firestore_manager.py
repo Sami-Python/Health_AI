@@ -371,6 +371,65 @@ def get_average_execution_score(user_id: str, days: int = 7):
         print(f"Firestore Error (Execution Score): {e}")
         return None
 
+def get_gamification_summary(user_id: str):
+    """Calculates consistency score, streak, and badges from recent completed workouts."""
+    try:
+        from datetime import datetime, timedelta
+        
+        # Fetch all DONE workouts from the last 30 days (for streak and 14-day avg)
+        start_date_30 = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+        docs = db.collection('workouts')\
+                 .where(filter=FieldFilter('user_id', '==', user_id))\
+                 .where(filter=FieldFilter('status', '==', 'DONE'))\
+                 .where(filter=FieldFilter('date', '>=', start_date_30))\
+                 .stream()
+                 
+        workouts = []
+        for d in docs:
+            data = d.to_dict()
+            if 'execution_score' in data and 'date' in data:
+                workouts.append(data)
+                
+        # Sort by date descending (newest first)
+        workouts.sort(key=lambda x: x['date'], reverse=True)
+        
+        # 1. Calculate 14-day consistency score
+        start_date_14 = (datetime.now() - timedelta(days=14)).strftime('%Y-%m-%d')
+        recent_14_scores = [w['execution_score'] for w in workouts if w['date'] >= start_date_14]
+        consistency_score = int(sum(recent_14_scores) / len(recent_14_scores)) if recent_14_scores else 0
+        
+        # 2. Calculate Streak (consecutive logged workouts with execution_score >= 80)
+        streak = 0
+        for w in workouts:
+            if w['execution_score'] >= 80:
+                streak += 1
+            else:
+                break
+                
+        # 3. Evaluate Badges
+        badges = []
+        if consistency_score >= 60:
+            badges.append({"id": "bronze", "name": "Solid Base", "icon": "🥉", "level": "bronze"})
+        if consistency_score >= 80:
+            badges.append({"id": "silver", "name": "Dedicated", "icon": "🥈", "level": "silver"})
+        if consistency_score >= 95:
+            badges.append({"id": "gold", "name": "AI's Favorite", "icon": "🥇", "level": "gold"})
+        if streak >= 7:
+            badges.append({"id": "fire", "name": "7-Day Streak", "icon": "🔥", "level": "special"})
+            
+        return {
+            "consistency_score": consistency_score,
+            "streak": streak,
+            "badges": badges
+        }
+    except Exception as e:
+        print(f"Firestore Error (Gamification): {e}")
+        return {
+            "consistency_score": 0,
+            "streak": 0,
+            "badges": []
+        }
+
 def save_workout(user_id: str, workout_data: dict):
     """Saves a workout to the 'workouts' collection."""
     try:

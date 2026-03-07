@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import ChatInterface from "@/components/ChatInterface";
 import GarminConnectBanner from "@/components/GarminConnectBanner";
+import GamificationWidget from "@/components/GamificationWidget";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export default function DashboardPage() {
     // Full history for calendar and sparklines
     const [fullHistory, setFullHistory] = useState<any[]>([]);
     const [plannedWorkouts, setPlannedWorkouts] = useState<any[]>([]);
+    const [gamification, setGamification] = useState<any>(null);
 
     // UI State
     const [showManualForm, setShowManualForm] = useState(false);
@@ -113,6 +115,10 @@ export default function DashboardPage() {
                 // 7. Get Planned Workouts
                 const resPlanned = await fetchWithRetry(`${API_BASE_URL}/workouts/upcoming`, { headers });
                 if (resPlanned.ok) setPlannedWorkouts(await resPlanned.json());
+
+                // 8. Get Gamification Summary
+                const resGamif = await fetchWithRetry(`${API_BASE_URL}/gamification/summary`, { headers });
+                if (resGamif.ok) setGamification(await resGamif.json());
 
             } catch (err: any) {
                 console.error("Fetch error", err);
@@ -363,6 +369,13 @@ export default function DashboardPage() {
                                 <p className="text-red-300 text-sm mt-1">Your recent training load (ATL) has spiked significantly while your sleep has decreased. Consider resting or doing light active recovery today to avoid injury.</p>
                             </div>
                         </div>
+                    </AnimateEntry>
+                )}
+
+                {/* Gamification Widget */}
+                {gamification && (
+                    <AnimateEntry delay={0.18}>
+                        <GamificationWidget data={gamification} />
                     </AnimateEntry>
                 )}
 
