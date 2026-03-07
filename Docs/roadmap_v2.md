@@ -46,3 +46,13 @@ Rikastetaan koneoppimisanalytiikkaa viemällä sitä yksilöidympiin ennusteisii
 - [ ] **Riskianalyysi ja Loukkaantumisennusteet:** XGBoost-mallia päivitetään havaitsemaan poikkeavuuksia harjoituskuormituksesta verrattuna palautumisen tasoon (Acute-To-Chronic Workload Ratio + uni). AI antaa konkreettisen prosentuaalisen vammariskin ja hidastaa ohjelmaa aktiivisesti.
 - [ ] **Fysiologisen Syklin Seuranta:** Esim. naisten kuukautiskierron seuranta ja sen yhdistäminen AI-valmentajan suosituksiin (esim. kevennys luteaalivaiheen aikana ihon lämpötilan ja palautumisen muutosten perustella).
 - [ ] **Offline ML Models (On-device AI):** Treenidatan analytiikka puhelimen NPU (Neural Processing Unit) kautta lennosta, turvaten datayksityisyyttä tehokkaammin.
+
+---
+
+## Phase 22: App Store Release & Tuotteistaminen (Mobile)
+Mobiilisovelluksen paketoiminen ja vieminen Google Playhin sekä Apple App Storeen täyttäen molempien alustojen tuotantovaatimukset.
+
+- [ ] **Brändäys ja Visuaalisuus:** Kustomoidut sovelluskuvakkeet (App Icon), käynnistysruudut (Splash Screen), ja sovelluksen lopullisen nimen sekä kuvauksen asetus (`pubspec.yaml`).
+- [ ] **Tuotantoympäristön Konfiguraatiot:** Tuotannon API URLien määritys (esim. flavorien, .envin tai CI/CD -muuttujien avulla) sekä iOS-version Firebase-rekisteröinti (`GoogleService-Info.plist`).
+- [ ] **Tietoturva & Juridiikka:** Julkaisun (Release/Signing) avainten luonti ja integrointi konfiguraatioon molemmille alustoille. Play Kaupan / App Storen vaatima tietosuojaselosteen (Privacy Policy) URL ja analytiikan/Crashlyticsin asennus mahdollisia vianhakutilanteita varten.
+- [ ] **Kauppojen Vaatimat Materiaalit:** Sovelluskauppoihin edustavat kuvakaappaukset eri laitekokojen (puhelimet ja tabletit) resoluutioilla ja houkuttelevat promootiotekstit.
