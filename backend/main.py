@@ -856,6 +856,23 @@ async def get_weekly_status(user: dict = Depends(verify_token)):
         "breakdown": breakdown
     }
 
+@app.get("/gamification/summary", tags=["Analytics"])
+async def get_gamification_status(user: dict = Depends(verify_token)):
+    """
+    Get the gamification metrics and badges for the current user.
+    
+    Returns:
+    - `consistency_score`: 14-day execution score average
+    - `streak`: Consecutive workouts with >=80 execution score
+    - `badges`: List of unlocked badges (e.g., Bronze, Silver, Gold, Fire)
+    """
+    try:
+        summary = db_manager.get_gamification_summary(user['uid'])
+        return summary
+    except Exception as e:
+        logger.error(f"Gamification Summary Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/workouts/upcoming", tags=["Workouts"])
 @limiter.limit("20/minute")
 def get_upcoming_workouts(request: Request, user: dict = Depends(verify_token)):

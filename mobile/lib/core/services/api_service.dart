@@ -158,6 +158,20 @@ class ApiService {
       body: json.encode({'date': newDate}),
     );
     if (response.statusCode != 200) {
+      throw Exception('Failed to update date: ${response.statusCode}');
+    }
+  }
+
+  // ─── Gamification ─────────────────────────────────────────────
+  Future<Map<String, dynamic>?> fetchGamificationSummary() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/gamification/summary'), headers: headers);
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    }
+    return null;
+  }
+
       throw Exception('Failed to update workout date: ${response.statusCode}');
     }
   }

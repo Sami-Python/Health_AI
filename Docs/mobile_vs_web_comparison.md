@@ -1,6 +1,6 @@
 # 📱 Mobile (Flutter) vs Web (Next.js) – Feature Vertailu
 
-> **Päivitetty:** 2026-03-06
+> **Päivitetty:** 2026-03-07
 > **Mobiili:** `mobile/lib/features/` (6 näkymää + bottom nav 5 välilehteä)
 > **Web:** `frontend/src/app/` + `components/` (20+ komponenttia)
 
@@ -30,6 +30,7 @@
 | **AI Chat Coach** | ✅ | ✅ | Phase 15.2 ✅ |
 | **Profiili-sivu / Asetukset** | ✅ | ✅ | Phase 14.2 ✅ |
 | Fysiologiset tiedot (ikä, paino, pituus) | ✅ | ✅ | `GET/PUT /profile` |
+| **Gamification & Badges** | ✅ | ✅ | Phase 20 ✅ (Consistency, Streaks, Badges) |
 | **Garmin-yhteys (2FA/MFA tuki)** | ✅ | ✅ | Täysi tuki myös 2-vaiheiselle todennukselle (Phase 16.2 ✅) |
 | Data export (GDPR) | ✅ | ✅ | `GET /user/export` |
 | Tilin poisto (GDPR) | ✅ | ✅ | `DELETE /account` |

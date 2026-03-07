@@ -35,8 +35,8 @@ Tuodaan valmennuslaitteisto sinne, missä urheilijat katsovat sitä – suoraan 
 Sovellus on tähän asti ollut yksilösuoritus. Yhteisö sitouttaa yli rajojen.
 
 - [ ] **Valmennusryhmät / Virtuaalitiimit (Leaderboards):** Käyttäjät voivat perustaa ryhmiä. AI Coach analysoi ryhmän kokonaiskuormitusta ja ehdottaa yhteistreenejä tai joukkuetavoitteita.
-- [ ] **Consistency Score (Johdonmukaisuuspisteet):** Uusi mittari mallin antaman datan perusteella. Et saa pisteitä pelkästä treenistä vaan siitä, kuinka fiksusti treenaat *ja lepäät* AI:n ohjeiden mukaan.
-- [ ] **Badge-järjestelmä:** Tekoäly ojentaa pronssi/hopea/kulta-tason virtuaalisia pinssejä.
+- [x] **Consistency Score (Johdonmukaisuuspisteet) ✅:** Mitataan 14 päivän liukuvaa keskiarvoa Execution Scoreista ja ylläpidetään "Treeniputkea" (Streak).
+- [x] **Badge-järjestelmä ✅:** Tekoäly ojentaa pronssi/hopea/kulta/liekki-tason virtuaalisia pinssejä.
 
 ---
 

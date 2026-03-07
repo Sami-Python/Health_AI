@@ -5,6 +5,7 @@ import '../../data/models/goal_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'widgets/readiness_chart.dart';
 import 'widgets/sleep_chart.dart';
+import 'widgets/gamification_card.dart';
 import '../calendar/calendar_screen.dart';
 import '../analysis/analysis_screen.dart';
 import '../chat/chat_screen.dart';
@@ -35,6 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _nextWorkout;
   Map<String, dynamic>? _aiInsight;
   Map<String, dynamic>? _weeklyStats;
+  Map<String, dynamic>? _gamification;
 
   @override
   void initState() {
@@ -68,6 +70,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final aiInsight = await _apiService.fetchAIInsight();
       print('Fetching weekly stats...');
       final weeklyStats = await _apiService.fetchWeeklyStats();
+      print('Fetching gamification...');
+      final gamification = await _apiService.fetchGamificationSummary();
       print('All fetchcomplete');
 
       if (mounted) {
@@ -81,6 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _nextWorkout = nextWorkout;
           _aiInsight = aiInsight;
           _weeklyStats = weeklyStats;
+          _gamification = gamification;
           _isLoading = false;
         });
       }
@@ -366,6 +371,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           if (_hasHighInjuryRisk()) ...[
             _buildInjuryRiskBanner(),
             const SizedBox(height: 24),
+          ],
+          
+          // Gamification Widget
+          if (_gamification != null) ...[
+            GamificationCard(data: _gamification),
+            const SizedBox(height: 8),
           ],
 
           // Stats Grid (2x2)
