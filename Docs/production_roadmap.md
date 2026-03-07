@@ -505,11 +505,11 @@ Tavoite: Varoittaa käyttäjää, jos ATL nousee äkillisesti yhdessä heikentyv
 - [x] Backend `ai_coach.py` analysoi ATL/CTL suhdetta (Acute to Chronic Workload Ratio) ja viimeisimmän viikon unen trendejä (`sleep_minutes_roll_7d`).
 - [x] Generoi hälytyksiä tyyliin: "Analyysin perusteella ATL on kasvanut 40% viikossa..."
 - [x] Sisällytetty LLM System promptiin kontekstina.
-- [ ] Etusivun visuaalinen varoitus-badge (UI).
+- [x] Etusivun visuaalinen varoitus-badge (UI).
 
-### 17.2 Automaattiset Korjaukset (Scheduled for tomorrow)
-- [ ] **Garmin Export Title Bug:** Korjaa AI-valmentajan Garmin Connect -treeniviennin otsikko ("AI Coach - 2024-01-05"). Päivämäärä tulee asettaa vastaamaan oikeaa treenipäivää.
-- [ ] **Garmin Export Content Bug:** Garminiin generoitu ohjelma ei täysin vastaa AI:n tekemää suunnitelmaa. Tarkista `ai_coach.py` vaiheistus (steps) ja JSON-mäppäys Garminin ymmärtämään muotoon.
+### 17.2 Automaattiset Korjaukset ✅ (Tarkistettu ja todettu valmiiksi aiemmissa koodeissa)
+- [x] **Garmin Export Title Bug:** Korjaa AI-valmentajan Garmin Connect -treeniviennin otsikko ("AI Coach - 2024-01-05"). Päivämäärä tulee asettaa vastaamaan oikeaa treenipäivää.
+- [x] **Garmin Export Content Bug:** Garminiin generoitu ohjelma ei täysin vastaa AI:n tekemää suunnitelmaa. Tarkista `ai_coach.py` vaiheistus (steps) ja JSON-mäppäys Garminin ymmärtämään muotoon.
 
 
 ## Phase 10: Security Hardening

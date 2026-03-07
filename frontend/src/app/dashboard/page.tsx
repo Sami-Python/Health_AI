@@ -14,7 +14,7 @@ import UserMenu from "@/components/UserMenu";
 import ChartsSection from "@/components/ChartsSection";
 import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
-import { Activity, Battery, Calendar, Brain, RefreshCw, LogOut, ChevronDown, Plus, TrendingUp, History, XCircle } from "lucide-react";
+import { Activity, Battery, Calendar, Brain, RefreshCw, LogOut, ChevronDown, Plus, TrendingUp, History, XCircle, AlertTriangle } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -210,6 +210,29 @@ export default function DashboardPage() {
     const readinessSpark = last7Days.map((m: any) => m.readiness);
     const loadSpark = last7Days.map((m: any) => m.load);
 
+    // Injury Risk Logic
+    const hasHighInjuryRisk = () => {
+        if (!fullHistory || fullHistory.length < 8) return false;
+
+        const latest7 = fullHistory.slice(-7);
+        const previous7 = fullHistory.slice(-14, -7);
+
+        const avgAtlLatest = latest7.reduce((sum: number, m: any) => sum + (m.atl || 0), 0) / 7;
+        const avgAtlPrev = previous7.reduce((sum: number, m: any) => sum + (m.atl || 0), 0) / 7;
+
+        const avgSleepLatest = latest7.reduce((sum: number, m: any) => sum + (m.sleep_min || 0), 0) / 7 / 60.0;
+        const avgSleepPrev = previous7.reduce((sum: number, m: any) => sum + (m.sleep_min || 0), 0) / 7 / 60.0;
+
+        let atlChangePct = 0;
+        if (avgAtlPrev > 0) {
+            atlChangePct = ((avgAtlLatest - avgAtlPrev) / avgAtlPrev) * 100;
+        }
+
+        const sleepChangeHours = avgSleepLatest - avgSleepPrev;
+
+        return (atlChangePct > 30 && sleepChangeHours < -0.5) || atlChangePct > 40;
+    };
+
     // Helper to format last sync time
     const formatTimeAgo = (dateString: string | undefined | null) => {
         if (!dateString) return 'Unknown';
@@ -327,6 +350,21 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </AnimateEntry>
+
+                {/* Injury Risk Banner */}
+                {hasHighInjuryRisk() && (
+                    <AnimateEntry delay={0.15}>
+                        <div className="bg-red-950/40 border-l-4 border-red-500 rounded-r-xl p-4 flex flex-col sm:flex-row items-center gap-4 shadow-lg shadow-red-900/20 mb-4">
+                            <div className="p-2 bg-red-500/20 rounded-full shrink-0">
+                                <AlertTriangle className="h-6 w-6 text-red-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-red-400 font-semibold uppercase tracking-wider text-sm">High Injury Risk Detected</h3>
+                                <p className="text-red-300 text-sm mt-1">Your recent training load (ATL) has spiked significantly while your sleep has decreased. Consider resting or doing light active recovery today to avoid injury.</p>
+                            </div>
+                        </div>
+                    </AnimateEntry>
+                )}
 
                 {/* Stats Grid */}
                 <AnimateEntry delay={0.2}>
