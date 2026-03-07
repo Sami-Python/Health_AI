@@ -7,7 +7,7 @@
 ## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
 Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen.
 
-- [ ] **Aamubriefing (Push-ilmoitukset):** Päivittäinen älykäs aamupusku. *Esimerkki: "Huomenta! Body Batterysi on alhainen (32). Ehdotan, että perumme tänään ohjelmassa olevan vetotreenin ja teemme palauttavan 30 min kävelyn. Vahvistatko?"*
+- [ ] **Aamubriefing (Push-ilmoitukset):** Päivittäinen älykäs aamupusku. *(Tehdään myöhemmin)* *Esimerkki: "Huomenta! Body Batterysi on alhainen (32). Ehdotan, että perumme tänään ohjelmassa olevan vetotreenin ja teemme palauttavan 30 min kävelyn. Vahvistatko?"*
 - [ ] **Reaaliaikainen Voice-ohjaus (Voice AI):** Mahdollisuus kommunikoida AI-valmentajalle äänellä treenin aikana. *Esimerkki: "Kävelen tänään mieluummin hieman kovempaa – kuinka nopeasti minun tulisi mennä, jotta pysyn peruskestävyysalueella?"*
 - [ ] **Dynamic Re-scheduling:** Jos käyttäjä skippaa treenin, AI ehdottaa automaattisesti push-ilmoituksella uutta ajankohtaa sen sijaan, että odottaisi kalenterin päivitystä.
 
