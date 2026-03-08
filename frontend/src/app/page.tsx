@@ -33,7 +33,7 @@ export default function Home() {
           Your intelligent training companion. Powered by Data, Guided by AI.
         </p>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link href="/login">
             <Button size="lg" className="px-8 font-semibold">
               Log In
@@ -44,6 +44,11 @@ export default function Home() {
               Go to Dashboard
             </Button>
           </Link>
+          <a href="/personal-ai-coach.apk" download>
+            <Button size="lg" className="px-8 bg-emerald-600 hover:bg-emerald-500 text-white border-none shadow-lg shadow-emerald-500/20">
+              Download for Android
+            </Button>
+          </a>
         </div>
       </div>
     </div>

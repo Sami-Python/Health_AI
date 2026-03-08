@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../../data/models/metric_model.dart';
 import '../../data/models/goal_model.dart';
 
 class ApiService {
-  // Use physical device PC IP over WiFi
-  static const String baseUrl = 'http://192.168.1.130:8000';
+  static const String baseUrl = kReleaseMode
+      ? 'https://health-ai-backend-35976089058.europe-north1.run.app'
+      : 'http://192.168.1.130:8000';
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -172,10 +174,6 @@ class ApiService {
     return null;
   }
 
-      throw Exception('Failed to update workout date: ${response.statusCode}');
-    }
-  }
-
   Future<void> uploadWorkoutToGarmin(
       Map<String, dynamic> workout, String date) async {
     final headers = await _getHeaders();
@@ -321,6 +319,18 @@ class ApiService {
     throw Exception('Garmin connect failed: $detail');
   }
 
+  Future<void> saveGarminCredentials(String username, String password) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/garmin/credentials'),
+      headers: headers,
+      body: json.encode({'email': username, 'password': password}),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to save Garmin credentials: ${response.statusCode}');
+    }
+  }
+
   /// Submits the 2FA code to complete a pending MFA login session.
   Future<void> submitGarminMfa(String sessionId, String mfaCode) async {
     final headers = await _getHeaders();
@@ -384,3 +394,4 @@ class ApiService {
     }
   }
 }
+
