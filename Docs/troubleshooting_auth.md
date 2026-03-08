@@ -15,13 +15,24 @@ Tämä dokumentti auttaa ratkaisemaan yleisimmät Google Sign-In -ongelmat Healt
     -   Ei rajoita HTTP-refererejä väärällä domainilla. Sallittujen listalta tulee löytyä: `app.personalaicoach.ai/*`.
 4.  Jos avain on vaihdettu: Päivitä `.env.production`, aja `npm run build`, ja julkaise uudelleen.
 
-### Virhe: `auth/unauthorized-domain`
-**Oire:** Google-kirjautumisikkuna ei aukea, tai se sulkeutuu heti virheilmoituksella.
-**Syy:** Tuotantodomain ei ole sallittujen listalla Firebase Authentication -asetuksissa.
-**Ratkaisu:**
-1.  Mene Firebase Console → Authentication → Settings → Authorized domains.
-2.  Lisää: `app.personalaicoach.ai`.
-3.  Lisää myös (jos haluat staging-testauksen): `staging-url.cloudflare.pages.dev`.
+### Virhe: `auth/unauthorized-domain` tai `auth/requests-from-referer-are-blocked`
+**Oire:** Google-kirjautumisikkuna ei aukea, tai se sulkeutuu heti virheilmoituksella, jossa mainitaan estetty referer (esim. `personalaicoach-app.pages.dev`).
+**Syy:** Uusi tuotantodomain (kuten Cloudflare Pages -osoite) ei ole sallittujen listalla **joko** Firebasessa tai Google Cloud Platformissa. Tämän täytyy täsmätä molemmissa!
+
+**Ratkaisu (2 Vaihetta):**
+
+**Vaihe 1: Firebase Console (Sallitut verkkotunnukset)**
+1. Mene Firebase Console → Authentication → Settings → Authorized domains.
+2. Klikkaa "Add domain" ja lisää verkkotunnus täsmällisesti (esim. `personalaicoach-app.pages.dev`).
+3. Varmista että myös varsinainen päädomain `app.personalaicoach.ai` on listalla.
+
+**Vaihe 2: Google Cloud Console (OAuth 2.0 Web Client)**
+1. Mene Google Cloud Console → APIs & Services → Credentials.
+2. Etsi "OAuth 2.0 Client IDs" -listauksesta Web-asiakas (esim. *Web client (auto created by Google Service)*).
+3. Rullaa alas asetusnäkymässä kohtaan **"Authorized JavaScript origins"**.
+4. Klikkaa "ADD URI" ja liitä sinne kyseinen uusi osoite (esim. `https://personalaicoach-app.pages.dev`). Anna muodossa `https://...` ilman perässä olevaa vinoviivaa `/`.
+5. Tallenna.
+6. **Huom:** Tässä saattaa kestää 2-5 minuuttia astua voimaan. Tyhjennä selaimen välimuisti ja kokeile uudelleen.
 
 ### Virhe: `auth/popup-blocked`
 **Oire:** Selain estää kirjautumisikkunan avautumisen.
