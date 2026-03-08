@@ -22,5 +22,5 @@ Tutustu [julkaisuoppaaseen](deployment.md) aloittaaksesi kehitys- tai tuotantoym
 - **AI-valmennus:** Päivittäiset oivallukset ja treenimuokkaukset LLM:n avulla.
 - **Garmin Export:** Vie tekoälyn luomat harjoitukset suoraan Garmin-kellon kalenteriin.
 - **Kisavalmistautuminen:** Kohdistettu tavoiteseuranta kisoja varten.
-- **Mobiilisovellus (Tulossa):** Natiivi iOS/Android -sovellus Flutterilla.
+- **Mobiilisovellus:** Natiivi Android-sovellus ladattavissa suoraan asennuspakettina (.apk) landing pagelta. (iOS tulossa myöhemmin).
 - **Tietosuoja:** GDPR-yhteensopivuus ja salatut tunnukset.

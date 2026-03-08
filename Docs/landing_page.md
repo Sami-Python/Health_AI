@@ -36,8 +36,8 @@ Kolmivaiheinen prosessi:
 3. Saavuta kuntotavoitteet
 
 ### 5. Latausosio
-- App Store -merkki (Tulossa pian)
-- Google Play -merkki (Tulossa pian)
+- **Android APK Lataus:** Suora `personal-ai-coach.apk` -latauslinkki (Sideloading) ilman sovelluskauppaa.
+- App Store -merkki (iOS Tulossa pian)
 - Mobiili edellä -suunnittelu
 
 ### 6. Odotuslista-widget (Waitlist)

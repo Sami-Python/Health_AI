@@ -64,4 +64,6 @@
 **Mobiili on tällä hetkellä 100% web-sovelluksen ominaisuuksista.**
 Phase 14 (Feature Parity), Phase 15 (AI Chat), Phase 16.1 (Manuaalinen Treenikirjaus) ja **Garmin 2-vaiheinen tunnistautuminen (2FA/MFA)** ovat kaikki tuotantovalmiita kummallakin alustalla.
 
+Mobiilisovelluksen asennuspaketti (APK/AAB) ja Sideloading web-jakelu on myös saatu valmiiksi Phase 22 (Android App Release) myötä.
+
 Deprioritisoidut (jotka lisätään jos nähdään tarpeelliseksi tulevaisuudessa): Drag & Drop, Push-ilmoitukset, Apple Health / Google Fit.
