@@ -122,6 +122,13 @@ Kun sovellusta päivitetään jatkossa Google Play -kaupassa, noudata seuraavaa 
 Mobiilisovellus voidaan jakaa käyttäjille myös täysin ilman Google Play -kaupan valvontaa suorana latauslinkkinä:
 
 1.  **Käännä APK:** Aja sovelluksen juuressa `flutter build apk --release`. Tämä luo itsenäisen `app-release.apk` -tiedoston (koko n. 20-30 MB).
-2.  **Houstaus:** Lataa `.apk` esimerkiksi suoraan Cloudflare Pages -sivustollesi (`frontend/public/` -kansioon) tai GitHub Releases -sivulle.
-3.  **Lataaminen:** Lisää projektisi nettisivulle nappi "Lataa Androidille (.apk)". Linkitä se suoraan hostaamaasi `.apk` -tiedostoon (esim. `https://sun-domaini.com/personal-ai-coach.apk`).
-4.  **Asennus Laitteessa:** Kun käyttäjä lataa tiedoston puhelimellaan ja yrittää avata sen, Android varoittaa oletuksena tuntemattomasta lähteestä. Käyttäjän tulee ohjeiden mukaisesti sallia Androidin tila-asetuksista "Salli asennus tästä lähteestä" (Chrome / puhelimen selain), jonka jälkeen asennus onnistuu paikallisesti täydellisesti.
+2.  **Jakelu ja Rajoitukset (Tärkeää):** 
+    *   **Cloudflare Pages** ilmaisversiolla on tiukka 25 MB:n rajoitus yksittäiselle tiedostolle. Koska Flutterin Release APK (`app-release.apk`) on tyypillisesti 50-60 MB kokoinen, sitä **EI VOI** houstata suoraan `frontend/public/` -kansiossa, vaan se katkaisee koko Pages-käännöksen.
+    *   **GitHub Releases:** Paras tapa tallentaa iso `.apk` -tiedosto on hyödyntää GitHubin "Releases" -ominaisuutta.
+    *   **HUOM (Yksityinen Repo):** Jos GitHub-reposesi on asetettu yksityiseksi (Private), julkinen "Download for Android" -linkki palauttaa puhelimen selaimella **404 Not Found** -virheen jokaiselle, joka ei ole sillä hetkellä kirjautunut selaimessa Githubiin sinun tunnuksillasi.
+3.  **Vaihtoehtoiset asennustavat (Sideloading Private-projektissa):**
+    *   **Google Drive (Helpoin ja suositelluin):** Lataa `.apk` Google Driveen ja avaa se sieltä suoraan puhelimella asennusta varten. Tämä ohittaa kaikki yksityisyyssäädöt ja tarjoaa ehjän asennuspaketin.
+    *   **USB-kaapeli:** Kopioi tiedosto MTP-yhteydellä puhelimen latauskansioon (Downloads) uuden version kääntämisen jälkeen (löytyy kansiosta `mobile/build/app/outputs/flutter-apk/`). *Varoitus: Varmista, että tiedosto ehtii kopioitua loppuun, sillä keskeytynyt kopiointi johtaa rikkinäiseen asennuspakettiin.*
+4.  **Yleisimmät virheet asennuksessa:**
+    *   **"App not installed" (Asennus ei onnistunut):** Tämä johtuu järjestään "Allekirjoitusten ristiriidasta" (Signature mismatch). Puhelimessasi on jo asennettuna aiempi *Debug*-versio (kehitysversio kytkettynä USB-johdolla) samasta sovelluksesta. Poista aiempi "Personal AI Coach" asennus kokonaan puhelimesta ja yritä `.apk` asennusta uudelleen.
+    *   Käyttäjän tulee ohjeiden mukaisesti sallia Androidin tila-asetuksista "Salli asennus tästä lähteestä" (Chrome / puhelimenSelain / Ohjauspaneeli), jonka jälkeen asennus onnistuu paikallisesti täydellisesti.
