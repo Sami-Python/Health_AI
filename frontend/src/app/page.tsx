@@ -44,7 +44,7 @@ export default function Home() {
               Go to Dashboard
             </Button>
           </Link>
-          <a href="/personal-ai-coach.apk" download>
+          <a href="https://github.com/Sami-Python/Health_AI/releases/latest/download/personal-ai-coach.apk" target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="px-8 bg-emerald-600 hover:bg-emerald-500 text-white border-none shadow-lg shadow-emerald-500/20">
               Download for Android
             </Button>
