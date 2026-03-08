@@ -884,3 +884,22 @@ Tavoite: Linjata mallin elinkaaren hallinnan (MLOps) laajuus projektin tässä v
 - [x] **Linjaus:** Uusia Cloud-kytköksiä (Vertex AI, Cloud SQL for MLflow) ei rakenneta ennen kuin mallin monimutkaisuus tai tiimin koko sitä ehdottomasti vaatii. (#352)
 
 ---
+
+## Phase 22: App Store Release & Tuotteistaminen (Mobile) ✅
+> **Tavoite:** Android-mobiilisovelluksen brändäys, paketoiminen (.aab/.apk) ja suorajakelun (Sideloading) varmistaminen tuotantoympäristössä.
+> **Status:** COMPLETED (2026-03-08)
+
+### 22.1 Brändäys ja Visuaalisuus
+- [x] **App Icon & Nimi:** Nimi päivitetty "Personal AI Coach" ja ikoni luotu "Tech Data" -teemalla (`flutter_launcher_icons`).
+- [x] **Splash Screen:** Generoitu natiivit latausruudut `flutter_native_splash` -paketilla kaikkiin Android/iOS-kokoihin.
+
+### 22.2 Tuotantoympäristö & API
+- [x] **API Reititys:** Päivitetty `api_service.dart` käyttämään automaattisesti Cloud Run -tuotanto-osoitetta (`https://health-ai-backend-35976089058.europe-north1.run.app`) kun käännetään Release-moodissa (`kDebugMode`).
+
+### 22.3 Julkaisu ja Turvallisuus (Keystore)
+- [x] **Android Keystore:** Luotu `upload-keystore.jks` ja konfiguroitu `android/key.properties` salasanat `.gitignore`:n taakse.
+- [x] **App Bundle (AAB):** Käännetty valmis `app-release.aab` Google Play Console -julkaisua varten.
+
+### 22.4 Sideloading & Web Jakelu
+- [x] **APK Suorajakelu:** Käännetty erillinen `app-release.apk` ja injektoitu Next.js -frontendin `public/`-kansioon.
+- [x] **Web Landing Page:** Lisätty "Download for Android" -latauspainike, josta sovelluksen voi asentaa suoraan puhelimeen ilman kauppaa.

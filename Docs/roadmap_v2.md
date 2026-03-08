@@ -52,7 +52,8 @@ Rikastetaan koneoppimisanalytiikkaa viemällä sitä yksilöidympiin ennusteisii
 ## Phase 22: App Store Release & Tuotteistaminen (Mobile)
 Mobiilisovelluksen paketoiminen ja vieminen Google Playhin sekä Apple App Storeen täyttäen molempien alustojen tuotantovaatimukset.
 
-- [ ] **Brändäys ja Visuaalisuus:** Kustomoidut sovelluskuvakkeet (App Icon), käynnistysruudut (Splash Screen), ja sovelluksen lopullisen nimen sekä kuvauksen asetus (`pubspec.yaml`).
-- [ ] **Tuotantoympäristön Konfiguraatiot:** Tuotannon API URLien määritys (esim. flavorien, .envin tai CI/CD -muuttujien avulla) sekä iOS-version Firebase-rekisteröinti (`GoogleService-Info.plist`).
-- [ ] **Tietoturva & Juridiikka:** Julkaisun (Release/Signing) avainten luonti ja integrointi konfiguraatioon molemmille alustoille. Play Kaupan / App Storen vaatima tietosuojaselosteen (Privacy Policy) URL ja analytiikan/Crashlyticsin asennus mahdollisia vianhakutilanteita varten.
-- [ ] **Kauppojen Vaatimat Materiaalit:** Sovelluskauppoihin edustavat kuvakaappaukset eri laitekokojen (puhelimet ja tabletit) resoluutioilla ja houkuttelevat promootiotekstit.
+- [x] **Brändäys ja Visuaalisuus ✅:** Kustomoidut sovelluskuvakkeet (App Icon), käynnistysruudut (Splash Screen), ja sovelluksen lopullisen nimen sekä kuvauksen asetus (`pubspec.yaml`).
+- [x] **Tuotantoympäristön Konfiguraatiot ✅:** Tuotannon API URLien määritys (esim. flavorien, .envin tai CI/CD -muuttujien avulla) sekä iOS-version Firebase-rekisteröinti (`GoogleService-Info.plist`).
+- [x] **Tietoturva & Juridiikka ✅:** Julkaisun (Release/Signing) avainten luonti ja integrointi konfiguraatioon (Android Keystore).
+- [x] **Sideloading (Suorajakelu) ✅:** APK-tiedoston kokoaminen ja lisääminen landing pagelle suoraan asennettavaksi ilman sovelluskauppaa.
+- [ ] **Kauppojen Vaatimat Materiaalit:** Sovelluskauppoihin edustavat kuvakaappaukset eri laitekokojen (puhelimet ja tabletit) resoluutioilla ja houkuttelevat promootiotekstit. (Vielä tekemättä)
