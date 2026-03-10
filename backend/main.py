@@ -1056,7 +1056,7 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         import traceback
         traceback.print_exc()
         refresh_statuses[uid]["status"] = "failed"
-        refresh_statuses[uid]["error"] = f"[V4-PATCH-TRACER] Refresh failed: {str(e)}"
+        refresh_statuses[uid]["error"] = f"Refresh failed: {str(e)}"
 
 @app.post("/system/refresh")
 async def refresh_data(
