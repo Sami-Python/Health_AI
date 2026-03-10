@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     DB_FILE_PATH: str = "/data/health_ai.db"
     
     # Firebase
-    FIREBASE_PROJECT_ID: str = "personal-ai-coach-92c39"
+    FIREBASE_PROJECT_ID: str = os.getenv("GCP_PROJECT_ID", os.getenv("GOOGLE_CLOUD_PROJECT", "personal-ai-coach-92c39"))
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
 
     # CORS Defaults (Restrictive by default)

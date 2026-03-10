@@ -1045,9 +1045,37 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         
         process_garmin_data.main_process(user_id=uid, mode=mode)
         
+        # --- NEW: Propagation to UI ---
+        # 1. Update last_sync_time in Firestore
+        try:
+            now = datetime.now()
+            db = db_manager.get_db()
+            # Update main user doc
+            db.collection('users').document(uid).set({"last_sync_time": now}, merge=True)
+            # Update profile/metrics for backward compatibility
+            db.collection('users').document(uid).collection('profile').document('metrics').set({"last_sync_time": now}, merge=True)
+            logger.info(f"Updated last_sync_time for {uid}")
+        except Exception as sync_time_err:
+            logger.warning(f"Failed to update last_sync_time: {sync_time_err}")
+
+        # 2. Trigger a fresh readiness prediction for the Readiness Card
+        try:
+            pred = predictor.predict_tomorrow_readiness(uid)
+            if pred is not None:
+                # Save as a daily plan so the 'Readiness' card sees it
+                db_manager.save_generated_plan(
+                    user_id=uid,
+                    plan_data={"type": "sync_update", "source": "garmin_sync"},
+                    advice_text="Data synkronoitu onnistuneesti. Valmiustilasi huomiselle on päivitetty.",
+                    predicted_charge=int(pred)
+                )
+                logger.info(f"Refreshed readiness prediction for {uid}: {pred}")
+        except Exception as pred_err:
+            logger.warning(f"Failed to generate post-sync prediction: {pred_err}")
+
         refresh_statuses[uid]["progress"] = 100
         refresh_statuses[uid]["status"] = "completed"
-        refresh_statuses[uid]["message"] = "Data refreshed and model retrained."
+        refresh_statuses[uid]["message"] = "Data refreshed, model trained and readiness updated."
             
     except ValueError as ve:
         refresh_statuses[uid]["status"] = "failed"
