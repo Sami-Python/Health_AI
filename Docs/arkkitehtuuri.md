@@ -105,9 +105,12 @@ graph TD
 ### 2. Firebase Platform (Pilvipalvelut)
 *   **Authentication:** Hallinnoi käyttäjien identiteettiä ja turvallisuutta (JWT).
 *   **Firestore:** NoSQL-tietokanta (Source of Truth UI:lle):
-    *   Käyttäjän tavoitteet, treenit, suunnitelmat, profiilit.
-    *   **Garmin Metrics:** Prosessoidut metriikat (Daily Summary, Load, Stress).
-    *   **Garmin Credentials:** Salatut tunnukset.
+    *   **Nested Structure:** Skaalautuvuuden ja suorituskyvyn varmistamiseksi data tallennetaan pääosin käyttäjäkohtaisiin subkokoelmiin (`users/{uid}/...`):
+        *   `workouts`: Käyttäjän harjoitukset (Garmin + manuaaliset).
+        *   `plans`: AI-valmentajan generoimat suunnitelmat ja ennusteet.
+        *   `goals`: Käyttäjän asettamat tavoitteet.
+    *   **Garmin Metrics:** Prosessoidut metriikat subkokoelmassa (`garmin_metrics/{uid}/daily_metrics`).
+    *   **Garmin Credentials:** Salatut tokenit ja tunnukset (`users/{uid}/garmin_credentials`).
 
 ### 3. Backend & AI Core
 *   **Backend API (`backend/`):** FastAPI-palvelin (v1.0.0).

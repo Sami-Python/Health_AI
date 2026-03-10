@@ -52,7 +52,7 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
     - [x] Päivitetty `fetch_garmin_data.py` käyttämään per-user -tunnuksia (#136)
     - [x] Päivitetty `/system/refresh` endpoint tukemaan molempia tiloja (#137)
     - [x] Backward compatibility: Legacy mode jos tunnuksia ei tallennettu (#138)
-    - [ ] Testaa multi-user datan haku (#139)
+    - [x] Testaa multi-user datan haku (#139) ✅ (Verified 2026-03-10)
 - [x] **Documentation:** `garmin_setup.md` – Setup guide ja troubleshooting (#140)
 
 **Security:** Salasanat ovat luettavissa vain oikealla salausavaimella. Admin ei näe salasanoja ilman avainta.
@@ -903,3 +903,21 @@ Tavoite: Linjata mallin elinkaaren hallinnan (MLOps) laajuus projektin tässä v
 ### 22.4 Sideloading & Web Jakelu
 - [x] **APK Suorajakelu:** Käännetty erillinen `app-release.apk` ja injektoitu Next.js -frontendin `public/`-kansioon.
 - [x] **Web Landing Page:** Lisätty "Download for Android" -latauspainike, josta sovelluksen voi asentaa suoraan puhelimeen ilman kauppaa.
+
+---
+
+## Phase 23: Scalable Architecture & Data Sync Stability (2026-03-10) ✅
+
+Tavoitteena vikasietoisuuden parantaminen ja skaalautuvuuden varmistaminen poistamalla riippuvuudet Firestore-indekseistä.
+
+- [x] **Garmin Sync Fix (403 Forbidden):** (#900)
+    - [x] Korjattu `display_name` käsittely ja sessioiden hallinta. Estetty `/None` -virheet API-pyynnöissä.
+- [x] **Firestore Nested Architecture:** (#901)
+    - [x] Siirretty `workouts`, `plans` ja `goals` käyttäjäkohtaisiksi subkokoelmiksi (`users/{uid}/workouts`).
+    - [x] Poistettu tarve monimutkaisille Firestore-indekseille (Scalable).
+- [x] **Dashboard Card Logic & Fallbacks:** (#902)
+    - [x] Readiness-kortin fallback Body Batteryyn (estää `--%` näkymän).
+    - [x] Weekly Load -kuvaajan daily breakdown -logiikka bäkendiin.
+    - [x] Automaattinen kuormituksen laskenta Garmin-treeneille (duration-based fallback).
+- [x] **ML Reliability Guardrails:** (#903)
+    - [x] Lisätty miniminäytemäärä (5 päivää) XGBoost-koulutukselle.
