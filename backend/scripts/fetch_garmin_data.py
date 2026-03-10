@@ -201,6 +201,25 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                     # If this endpoint is blocked (403) for non-MFA users, raising an error would break their sync forever.
                     # We simply log it. If the next API call (daily summary) fails, it will be caught later.
 
+        # 3. Ultimate Fallback: Scrape the original payload or use a safe default
+        if not getattr(client, "display_name", None):
+            logger.error("🛑 ALL methods to retrieve display_name failed. Attempting deep scrape...")
+            try:
+                # Garth creates a 'profile' property, but the underlying JSON might have nested structures
+                if hasattr(client.garth, "profile") and client.garth.profile:
+                    logger.debug(f"DEBUG PROFILE DUMP: {client.garth.profile}")
+            except Exception as e:
+                pass
+            
+            # If we still have nothing, we must inject *something* to avoid `/None` crash
+            # Often the username or email works as a fallback identifier for Garmin APIs
+            fallback_name = getattr(client.garth, "username", email)
+            if fallback_name and "@" in fallback_name:
+                fallback_name = fallback_name.split("@")[0] # Best effort
+            
+            client.display_name = fallback_name or "unknown"
+            logger.warning(f"⚠️ Forcing display_name to fallback value: {client.display_name}")
+
         return client
     except GarminMFARequiredError:
         raise  # Do not wrap – let the caller handle it
