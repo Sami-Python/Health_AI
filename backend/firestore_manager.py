@@ -152,25 +152,37 @@ def get_weekly_load_status(user_id: str):
         current_load = 0
         planned_load = 0
         
-        # Simple breakdown (no daily mapping implemented yet for graph, returning flattened for cards)
-        # If frontend graph needs 'breakdown' object with dates, we can generate it.
-        # Check main.py: breakdown is passed but dashboard only uses current/planned for the TOP card.
-        # The Sparkline uses 'loadSpark' which comes from metrics/history endpoint.
+        # Calculate daily breakdown for the graph
+        breakdown = {}
+        for i in range(7):
+            day = start_date + timedelta(days=i)
+            breakdown[day.strftime('%Y-%m-%d')] = {"current": 0, "planned": 0}
         
         for doc in docs:
             data = doc.to_dict()
             load = data.get('load_estimate', 0)
+            workout_date = data.get('date')
             
             # If manual log, calculate load if missing
             if load == 0 and 'duration_min' in data and 'rpe' in data:
                 load = data['duration_min'] * data['rpe']
+            
+            # Garmin fallback for Weekly Load card if activityTrainingLoad is missing
+            if load == 0 and data.get('source') == 'GARMIN':
+                # Assume moderate intensity (5) for Garmin sessions if load is 0
+                load = data.get('duration_min', 0) * 5
                 
             planned_load += load
+            
+            if workout_date in breakdown:
+                breakdown[workout_date]["planned"] += load
+                if data.get('status') == 'DONE':
+                    breakdown[workout_date]["current"] += load
             
             if data.get('status') == 'DONE':
                 current_load += load
                 
-        return current_load, planned_load, {} 
+        return current_load, planned_load, breakdown
     except Exception as e:
         print(f"Firestore Error (Weekly Load): {e}")
         return 0, 0, {}
@@ -206,6 +218,20 @@ def get_latest_readiness(user_id: str):
             if user_main.exists:
                 result["last_sync_time"] = user_main.to_dict().get('last_sync_time')
                 
+        # 3. CRITICAL FALLBACK: If readiness is still "--", use current body battery from daily_metrics
+        if result["readiness"] == "--":
+            try:
+                # Import here to avoid circular dependencies
+                import firestore_garmin_metrics
+                latest_metric = firestore_garmin_metrics.get_latest_metric(user_id)
+                if latest_metric:
+                    # Use Highest Value or Charge as proxy for readiness if prediction is missing
+                    result["readiness"] = latest_metric.get('bodyBatteryHighestValue', latest_metric.get('bodyBatteryChargedValue', "--"))
+                    if result["date"] == "":
+                        result["date"] = latest_metric.get('date', "")
+            except Exception as fe:
+                print(f"Readiness Fallback Error: {fe}")
+
         # Handle datetime serialization if it's a Firestore Datetime
         if isinstance(result["last_sync_time"], datetime):
             result["last_sync_time"] = result["last_sync_time"].isoformat()
@@ -308,8 +334,7 @@ def _match_and_score_pending_workout(user_id: str, workout_data: dict):
     if not workout_date:
         return
         
-    docs = db.collection('workouts')\
-             .where(filter=FieldFilter('user_id', '==', user_id))\
+    docs = db.collection('users').document(user_id).collection('workouts')\
              .where(filter=FieldFilter('date', '==', workout_date))\
              .where(filter=FieldFilter('status', '==', 'PENDING'))\
              .stream()
@@ -348,8 +373,7 @@ def get_average_execution_score(user_id: str, days: int = 7):
         from datetime import datetime, timedelta
         start_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
         
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('workouts')\
                  .where(filter=FieldFilter('status', '==', 'DONE'))\
                  .where(filter=FieldFilter('date', '>=', start_date))\
                  .stream()
@@ -374,8 +398,7 @@ def get_gamification_summary(user_id: str):
         
         # Fetch all DONE workouts from the last 30 days (for streak and 14-day avg)
         start_date_30 = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('workouts')\
                  .where(filter=FieldFilter('status', '==', 'DONE'))\
                  .where(filter=FieldFilter('date', '>=', start_date_30))\
                  .stream()
@@ -435,7 +458,7 @@ def save_workout(user_id: str, workout_data: dict):
         if workout_data.get('status') == 'DONE':
             _match_and_score_pending_workout(user_id, workout_data)
             
-        db.collection('workouts').add(workout_data)
+        db.collection('users').document(user_id).collection('workouts').add(workout_data)
         return True
     except Exception as e:
         print(f"Firestore Error: {e}")
@@ -526,10 +549,9 @@ def get_workouts_in_range(user_id: str, start_date: str, end_date: str):
 def delete_pending_workouts(user_id: str, start_date: str, end_date: str):
     """Deletes pending workouts in date range (inclusive)."""
     try:
-        # Simplified query: user_id + date range only.
-        # Filter 'status' == 'PENDING' in memory to avoid needing a specific composite index.
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        # Fetch pending workouts in range
+        docs = db.collection('users').document(user_id).collection('workouts')\
+                 .where(filter=FieldFilter('status', '==', 'PENDING'))\
                  .where(filter=FieldFilter('date', '>=', start_date))\
                  .where(filter=FieldFilter('date', '<=', end_date))\
                  .stream()
