@@ -1420,12 +1420,11 @@ async def delete_workout_endpoint(workout_id: str, request: Request, user: dict 
         # But we can use db.collection(...).delete() wrapper.
         # Let's assume we can add it or modify firestore_manager efficiently?
         # Or just do:
-        doc_ref = db_manager.db.collection('workouts').document(workout_id)
+        uid = user['uid']
+        doc_ref = db_manager.db.collection('users').document(uid).collection('workouts').document(workout_id)
         doc = doc_ref.get()
         if not doc.exists:
              raise HTTPException(status_code=404, detail="Workout not found")
-        if doc.to_dict().get('user_id') != user['uid']:
-             raise HTTPException(status_code=403, detail="Permission denied")
         
         doc_ref.delete()
         return {"status": "success", "message": "Workout deleted"}
