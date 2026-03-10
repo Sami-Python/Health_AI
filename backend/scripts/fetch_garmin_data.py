@@ -184,6 +184,14 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                     client.full_name = prof.get("fullName")
                     logger.info(f"Populated Garmin display_name: {client.display_name}")
             except Exception as prof_err:
+                from garminconnect import GarminConnectAuthenticationError
+                err_str = str(prof_err).lower()
+                if isinstance(prof_err, GarminConnectAuthenticationError) or "403" in err_str or "401" in err_str:
+                    logger.warning(f"Profile fetch failed with auth error (tokens likely expired): {prof_err}")
+                    raise GarminMFARequiredError(
+                        "Your Garmin session has expired. "
+                        "Please reconnect your Garmin account in the app settings to refresh your session."
+                    )
                 logger.warning(f"Failed to populate display_name: {prof_err}")
 
         return client
