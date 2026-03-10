@@ -220,6 +220,21 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
             client.display_name = fallback_name or "unknown"
             logger.warning(f"⚠️ Forcing display_name to fallback value: {client.display_name}")
 
+        # 4. Bulletproof Runtime Patch
+        # Prevent `display_name=None` from EVER reaching the URL string in get_user_summary
+        original_get_user_summary = client.get_user_summary
+        def safe_get_user_summary(cdate: str) -> dict:
+            if not getattr(client, "display_name", None):
+                fallback = getattr(client.garth, "username", "unknown")
+                if fallback and "@" in fallback:
+                    fallback = fallback.split("@")[0]
+                client.display_name = fallback or "unknown"
+                logger.warning(f"Runtime Patch: Forced display_name to {client.display_name} right before API call.")
+            return original_get_user_summary(cdate)
+            
+        client.get_user_summary = safe_get_user_summary
+        client.get_stats = safe_get_user_summary
+
         return client
     except GarminMFARequiredError:
         raise  # Do not wrap – let the caller handle it
