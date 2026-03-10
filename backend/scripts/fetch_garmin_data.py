@@ -176,23 +176,30 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 
         # Fix: Ensure display_name is populated regardless of how we authenticated
         if not getattr(client, "display_name", None):
+            # 1. Try to get it from cached garth profile to avoid unnecessary/failing API calls
             try:
-                logger.debug("Fetching Garmin profile to populate missing display_name...")
-                prof = client.garth.connectapi("/userprofile-service/userprofile/profile")
-                if prof and isinstance(prof, dict):
-                    client.display_name = prof.get("displayName")
-                    client.full_name = prof.get("fullName")
-                    logger.info(f"Populated Garmin display_name: {client.display_name}")
-            except Exception as prof_err:
-                from garminconnect import GarminConnectAuthenticationError
-                err_str = str(prof_err).lower()
-                if isinstance(prof_err, GarminConnectAuthenticationError) or "403" in err_str or "401" in err_str:
-                    logger.warning(f"Profile fetch failed with auth error (tokens likely expired): {prof_err}")
-                    raise GarminMFARequiredError(
-                        "Your Garmin session has expired. "
-                        "Please reconnect your Garmin account in the app settings to refresh your session."
-                    )
-                logger.warning(f"Failed to populate display_name: {prof_err}")
+                if hasattr(client.garth, "profile") and isinstance(client.garth.profile, dict):
+                    client.display_name = client.garth.profile.get("displayName")
+                    client.full_name = client.garth.profile.get("fullName")
+                    if client.display_name:
+                        logger.info(f"Populated Garmin display_name from cache: {client.display_name}")
+            except Exception as cache_err:
+                logger.debug(f"Failed to read display_name from cache: {cache_err}")
+
+            # 2. If still missing, attempt the API fetch as a last resort
+            if not getattr(client, "display_name", None):
+                try:
+                    logger.debug("Fetching Garmin profile via API to populate missing display_name...")
+                    prof = client.garth.connectapi("/userprofile-service/userprofile/profile")
+                    if prof and isinstance(prof, dict):
+                        client.display_name = prof.get("displayName")
+                        client.full_name = prof.get("fullName")
+                        logger.info(f"Populated Garmin display_name via API: {client.display_name}")
+                except Exception as prof_err:
+                    logger.warning(f"Failed to populate display_name via API: {prof_err}")
+                    # Do NOT raise GarminMFARequiredError here! 
+                    # If this endpoint is blocked (403) for non-MFA users, raising an error would break their sync forever.
+                    # We simply log it. If the next API call (daily summary) fails, it will be caught later.
 
         return client
     except GarminMFARequiredError:
