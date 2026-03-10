@@ -139,7 +139,7 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                     client.garth.load(tmpdir)
                 logger.info("✅ Garmin session resumed from saved tokens")
                 
-                return client
+                pass # Continue to patch display_name below
             except GarminMFARequiredError:
                 raise  # Propagate clearly
             except Exception as token_err:
