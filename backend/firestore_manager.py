@@ -86,9 +86,8 @@ def get_next_workout(user_id: str):
         from datetime import datetime
         today_str = datetime.now().strftime('%Y-%m-%d')
         
-        # Query: status == 'PENDING', user_id == uid, date >= today, order by date, limit 1
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        # Query: status == 'PENDING', date >= today, order by date, limit 1
+        docs = db.collection('users').document(user_id).collection('workouts')\
                  .where(filter=FieldFilter('status', '==', 'PENDING'))\
                  .where(filter=FieldFilter('date', '>=', today_str))\
                  .order_by('date')\
@@ -123,7 +122,7 @@ def get_next_workout(user_id: str):
 def get_active_goals(user_id: str):
     """Fetches active goals for specific user."""
     try:
-        docs = db.collection('goals').where(filter=FieldFilter('user_id', '==', user_id)).where(filter=FieldFilter('status', '==', 'ACTIVE')).stream()
+        docs = db.collection('users').document(user_id).collection('goals').where(filter=FieldFilter('status', '==', 'ACTIVE')).stream()
         goals = []
         for d in docs:
             g = d.to_dict()
@@ -145,8 +144,7 @@ def get_weekly_load_status(user_id: str):
         end_str = today.strftime('%Y-%m-%d')
         
         # Fetch all workouts in range
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('workouts')\
                  .where(filter=FieldFilter('date', '>=', start_str))\
                  .where(filter=FieldFilter('date', '<=', end_str))\
                  .stream()
@@ -187,8 +185,7 @@ def get_latest_readiness(user_id: str):
         }
         
         # 1. Get latest plan charge
-        docs = db.collection('plans')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('plans')\
                  .order_by('timestamp', direction=firestore.Query.DESCENDING)\
                  .limit(1)\
                  .stream()
@@ -229,7 +226,7 @@ def add_goal(user_id: str, goal_data: dict):
         # Add timestamp
         goal_data['created_at'] = firestore.SERVER_TIMESTAMP
 
-        db.collection('goals').add(goal_data)
+        db.collection('users').document(user_id).collection('goals').add(goal_data)
         return True
     except Exception as e:
         print(f"Firestore Error: {e}")
@@ -238,8 +235,8 @@ def add_goal(user_id: str, goal_data: dict):
 def delete_goal(user_id: str, goal_id: str):
     """Deletes a goal."""
     try:
-        # Verify ownership
-        doc_ref = db.collection('goals').document(goal_id)
+        # Verify ownership (implicit in nested structure, but checking existance)
+        doc_ref = db.collection('users').document(user_id).collection('goals').document(goal_id)
         doc = doc_ref.get()
         if not doc.exists:
             return False
@@ -256,9 +253,9 @@ def delete_goal(user_id: str, goal_id: str):
 def update_goal(user_id: str, goal_id: str, updates: dict):
     """Updates a goal."""
     try:
-        doc_ref = db.collection('goals').document(goal_id)
+        doc_ref = db.collection('users').document(user_id).collection('goals').document(goal_id)
         doc = doc_ref.get()
-        if not doc.exists or doc.to_dict().get('user_id') != user_id:
+        if not doc.exists:
             return False
             
         doc_ref.update(updates)
@@ -278,7 +275,7 @@ def save_generated_plan(user_id: str, plan_data: dict, advice_text: str, predict
             'context': plan_data, # JSON blob of context
             'type': 'daily_plan'
         }
-        db.collection('plans').add(doc_data)
+        db.collection('users').document(user_id).collection('plans').add(doc_data)
         return True
     except Exception as e:
         print(f"Firestore Error: {e}")
@@ -288,8 +285,7 @@ def get_recent_plans(user_id: str, limit: int = 5):
     """Fetches recent AI coaching plans."""
     try:
         # Order by timestamp descending
-        docs = db.collection('plans')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('plans')\
                  .order_by('timestamp', direction=firestore.Query.DESCENDING)\
                  .limit(limit)\
                  .stream()
@@ -455,7 +451,7 @@ def save_garmin_workout(user_id: str, workout_data: dict, activity_id: str):
             _match_and_score_pending_workout(user_id, workout_data)
             
         # Use .set with merge=True to update or create
-        db.collection('workouts').document(str(activity_id)).set(workout_data, merge=True)
+        db.collection('users').document(user_id).collection('workouts').document(str(activity_id)).set(workout_data, merge=True)
         return True
     except Exception as e:
         print(f"Firestore Error (Garmin Sync): {e}")
@@ -746,8 +742,7 @@ def get_all_goals(user_id: str):
 def get_all_workouts(user_id: str, limit: int = 1000):
     """Fetches all workouts for a user (capped at limit for performance)."""
     try:
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id).collection('workouts')\
                  .order_by('date', direction='DESCENDING')\
                  .limit(limit)\
                  .stream()

@@ -176,25 +176,11 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         if col in df_merged.columns:
             df_merged[f'{col}_lag_1'] = df_merged[col].shift(1)
 
-    df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
-    
-    # Prefer Parquet for speed, fall back to CSV if pyarrow not available
-    features_parquet = get_path("data/garmin_merged_features.parquet")
-    try:
-        df_merged.to_parquet(features_parquet, index=False)
-        logger.info(f"Saved merged features to {features_parquet}")
-    except Exception as e:
-        features_csv = get_path("data/garmin_merged_features.csv")
-        df_merged.to_csv(features_csv, index=False)
-        logger.warning(f"Parquet failed ({e}), fell back to CSV: {features_csv}")
-    
     # --- Sync to Firestore (Multi-User) ---
     if user_id:
         logger.info(f"Syncing processed metrics to Firestore for user {user_id}...")
         try:
             # Prepare metrics list from df_merged
-            # We sync ALL columns that map to our schema
-            # Vectorized approach: fill NaN once per column, then convert all rows at once
             int_cols = ['bodyBatteryChargedValue', 'bodyBatteryHighestValue', 'bodyBatteryLowestValue',
                         'averageStressLevel', 'totalSteps', 'totalSleep_minutes',
                         'workout_calories', 'workout_duration_seconds']
@@ -231,8 +217,9 @@ def main_process(user_id: str = None, mode: str = "incremental"):
                  
         except Exception as e:
             logger.error(f"Failed to sync to Firestore: {e}")
-            import traceback
-            traceback.print_exc()
+
+    # Drop NaNs for training only
+    df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
 
     # MLflow Setup - Optional in Production to save disk IO
     mlflow_enabled = os.environ.get("MLFLOW_ENABLED", "false").lower() == "true"
