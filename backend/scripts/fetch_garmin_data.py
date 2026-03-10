@@ -138,6 +138,20 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 
                     client.garth.load(tmpdir)
                 logger.info("✅ Garmin session resumed from saved tokens")
+                
+                # Fix: garth.load doesn't always populate profile/display_name natively
+                # If display_name is missing, fetch it so URLs like /daily/{display_name} don't fail (None)
+                if not getattr(client, "display_name", None):
+                    try:
+                        logger.info("Fetching Garmin profile to restore display_name...")
+                        prof = client.garth.connectapi("/userprofile-service/userprofile/profile")
+                        if prof and isinstance(prof, dict):
+                            client.display_name = prof.get("displayName")
+                            client.full_name = prof.get("fullName")
+                            logger.info(f"Restored Garmin display_name: {client.display_name}")
+                    except Exception as prof_err:
+                        logger.warning(f"Failed to restore display_name: {prof_err}")
+
                 return client
             except GarminMFARequiredError:
                 raise  # Propagate clearly
