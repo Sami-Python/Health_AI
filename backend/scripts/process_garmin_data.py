@@ -252,6 +252,23 @@ def main_process(user_id: str = None, mode: str = "incremental"):
     X = X.select_dtypes(include=['number'])
     y = df_merged[target]
 
+    # --- MINIMUM DATA CHECK ---
+    # We need at least 5 samples for TimeSeriesSplit(n_splits=2) + train_test_split(0.2)
+    min_samples = 5
+    if len(X) < min_samples:
+        logger.warning(f"⚠️ Not enough data points ({len(X)}) to train XGBoost model. Need at least {min_samples}.")
+        
+        # Save placeholder metrics to avoid API 404s/500s
+        if not os.path.exists(output_metrics_path):
+            placeholder = {
+                "mae": 0.0, "r2": 0.0, "rmse": 0.0, "best_cv_score": 0.0,
+                "last_trained": str(date.today()),
+                "status": "waiting_for_more_data"
+            }
+            with open(output_metrics_path, 'w') as f:
+                json.dump(placeholder, f)
+        return
+
     # --- Mode Selection: Incremental vs Full ---
     # get_path injects user_id into subdir automatically: models/{user_id}/xgb_model.pkl
     model_path = get_path("models/xgb_model.pkl")
