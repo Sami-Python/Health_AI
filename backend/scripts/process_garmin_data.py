@@ -262,7 +262,7 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         if not os.path.exists(output_metrics_path):
             placeholder = {
                 "mae": 0.0, "r2": 0.0, "rmse": 0.0, "best_cv_score": 0.0,
-                "last_trained": str(date.today()),
+                "last_trained": str(pd.Timestamp.now().date()),
                 "status": "waiting_for_more_data"
             }
             with open(output_metrics_path, 'w') as f:
