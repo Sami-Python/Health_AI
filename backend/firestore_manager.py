@@ -151,6 +151,7 @@ def get_weekly_load_status(user_id: str):
                  
         current_load = 0
         planned_load = 0
+        duration_min = 0 # New field
         
         # Calculate daily breakdown for the graph
         breakdown = {}
@@ -161,6 +162,7 @@ def get_weekly_load_status(user_id: str):
         for doc in docs:
             data = doc.to_dict()
             load = data.get('load_estimate', 0)
+            duration = data.get('duration_min', 0) # Track duration
             workout_date = data.get('date')
             
             # If manual log, calculate load if missing
@@ -170,9 +172,10 @@ def get_weekly_load_status(user_id: str):
             # Garmin fallback for Weekly Load card if activityTrainingLoad is missing
             if load == 0 and data.get('source') == 'GARMIN':
                 # Assume moderate intensity (5) for Garmin sessions if load is 0
-                load = data.get('duration_min', 0) * 5
+                load = duration * 5
                 
             planned_load += load
+            duration_min += duration # Aggregate Total Duration
             
             if workout_date in breakdown:
                 breakdown[workout_date]["planned"] += load
@@ -182,7 +185,7 @@ def get_weekly_load_status(user_id: str):
             if data.get('status') == 'DONE':
                 current_load += load
                 
-        return current_load, planned_load, breakdown
+        return current_load, planned_load, breakdown, duration_min
     except Exception as e:
         print(f"Firestore Error (Weekly Load): {e}")
         return 0, 0, {}
@@ -1268,4 +1271,28 @@ def batch_save_metrics(user_id: str, metrics_list: List[Dict]) -> bool:
         
     except Exception as e:
         print(f"Firestore Error (batch_save_metrics): {e}")
+        return False
+
+
+def log_security_event(event_type: str, data: dict) -> bool:
+    """
+    Logs a security event (e.g., rate limit exceeded, auth failure) to Firestore.
+    
+    Args:
+        event_type: Type of event (e.g., "rate_limit_exceeded")
+        data: Dict containing event details (IP, path, etc.)
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        event_data = {
+            "event_type": event_type,
+            "timestamp": firestore.SERVER_TIMESTAMP,
+            "data": data
+        }
+        db.collection('security_events').add(event_data)
+        return True
+    except Exception as e:
+        print(f"Firestore Error (log_security_event): {e}")
         return False

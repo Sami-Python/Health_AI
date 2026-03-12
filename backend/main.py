@@ -251,12 +251,21 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
         
         result = []
         for row in metrics:
+            # Prefer 'load_estimate' (Garmin's native load) if available
+            # Fallback to workout_calories (raw calories) scaled to TSS range if not
+            load_val = row.get('load_estimate')
+            if load_val is None:
+                load_val = row.get('workout_calories', 0)
+                # If it's suspiciously high (calories usually > 200), scale it down to proxy TSS
+                if load_val > 200:
+                    load_val = load_val * 0.1
+            
             result.append({
                 "date": row.get('date'),
                 "ctl": round(row.get('CTL', 0), 1),
                 "atl": round(row.get('ATL', 0), 1),
                 "tsb": round(row.get('TSB', 0), 1),
-                "load": int(row.get('workout_calories', 0)),
+                "load": int(load_val),
                 "readiness": int(row.get('bodyBatteryHighestValue', 0)),
                 "sleep_min": int(row.get('totalSleep_minutes', 0))
             })
@@ -1457,7 +1466,7 @@ class GarminCredentials(BaseModel):
     password: str
 
 @app.post("/garmin/credentials")
-@limiter.limit("5/hour")
+@limiter.limit("20/hour")
 async def save_garmin_credentials_endpoint(
     request: Request,
     credentials: GarminCredentials,
@@ -1471,6 +1480,7 @@ async def save_garmin_credentials_endpoint(
     - Rate limited to 5 requests per hour
     - Only user can save their own credentials
     """
+    logger.info(f"💾 Saving Garmin credentials for user {user['uid']}")
     try:
         success = db_manager.save_garmin_credentials(
             user['uid'],

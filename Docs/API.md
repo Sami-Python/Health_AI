@@ -706,7 +706,7 @@ All resources include:
 | Standard endpoints | 20 requests/minute |
 | AI endpoints | 10 requests/minute |
 | Data refresh | 2 requests/hour |
-| Garmin credentials | 5 requests/hour |
+| Garmin credentials | 20 requests/hour |
 | User data export | 3 requests/hour |
 | Account deletion | 1 request/hour |
 
@@ -751,5 +751,5 @@ Import collection: `docs/postman_collection.json` (TODO)
 
 ---
 
-**Last Updated:** 2026-02-28  
+**Last Updated:** 2026-03-12  
 **Maintained by:** Health AI Team
