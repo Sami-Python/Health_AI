@@ -114,6 +114,33 @@ npx playwright test
 
 ---
 
+## 2026-03-10 – Garmin Sync Fix & Dashboard Scaling 🚀✅
+
+Ratkaistu kriittiset Garmin-synkronointiin ja Dashboardin päivitykseen liittyvät ongelmat.
+
+### 1. Garmin Sync & ML Training
+- **Fix (403 Forbidden):** Korjattu Garmin-synkronointi, joka kaatui tyhjään `display_name`-arvoon (`/None`). Lisätty automaattinen tunnistus ja profiilin haku.
+- **ML Robustness:** Lisätty tarkistus `process_garmin_data.py`:hyn – koulutus unohdetaan, jos dataa on alle 5 päivää (estää kaatumisen uusilla käyttäjillä).
+- **Inkrementaalinen haku:** Varmistettu, että uusi data tallentuu Firestoreen heti, vaikka historiadataa ei olisi vielä tarpeeksi ML-mallille.
+
+### 2. Firestore Arkkitehtuuri (Scalability)
+- **Nested Collections:** Refaktoroitu `workouts`, `plans` ja `goals` käyttäjäkohtaisiksi subkokoelmiksi (`users/{uid}/workouts`).
+- **Index-Free Querying:** Uusi rakenne poisti tarpeen monimutkaisille Firestore-indekseille, mikä korjasi Kalenterin ja Dashboardin tyhjät näkymät uudessa ympäristössä.
+- **Cleanup:** Poistettu vanhat globaalit kokoelmat ja päivitetty kaikki API-endpointit (`main.py`) uuteen rakenteeseen.
+
+### 3. Dashboard Card Fixes
+- **Readiness Fallback:** Jos AI-ennustetta ei ole vielä saatavilla, Readiness-kortti näyttää nyt tuoreimman **Body Batteryn** Garminista (`--%` sijaan).
+- **Weekly Load Breakdown:** Lisätty bäkendiin päiväkohtainen kuormituserittely, jotta Weekly Load -graafi piirtyy oikein.
+- **Auto-Calculated Load:** Jos Garmin-treenistä puuttuu kuormitusluku, se lasketaan nyt automaattisesti keston perusteella.
+
+**Tiedostot muutettu:**
+- `backend/firestore_manager.py` – Koko arkkitehtuuri uusiksi
+- `backend/main.py` – Endpointit ja synkronointi-triggerit
+- `backend/scripts/process_garmin_data.py` – Data flow parannus
+- `backend/scripts/fetch_garmin_data.py` – Sync logic korjaus
+
+---
+
 ## 2026-02-24 – Mobile AI Chat Coach Implementation 💬
 
 Toteutettiin AI Chat Coach -ominaisuus Flutter-mobiilisovellukseen. Backend `/ai/chat` oli jo olemassa (Phase 11, web), nyt integroitu mobiiliin.
