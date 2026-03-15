@@ -505,15 +505,17 @@ def save_daily_insight(user_id: str, date_str: str, insight: str):
         print(f"Firestore Cache Save Error: {e}")
 
 def get_upcoming_workouts(user_id: str):
-    """Fetches upcoming workouts (today onwards)."""
+    """
+    Fetches upcoming workouts (today onwards) from user's sub-collection.
+    Optimized to avoid composite index requirements (status + date).
+    """
     try:
         from datetime import datetime
         today_str = datetime.now().strftime('%Y-%m-%d')
         
-        # Simple query: where date >= today
-        # Note: In a real app, 'date' string comparison works for ISO dates 'YYYY-MM-DD'
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        # Simple query: just by date
+        docs = db.collection('users').document(user_id)\
+                 .collection('workouts')\
                  .where(filter=FieldFilter('date', '>=', today_str))\
                  .stream()
                  
@@ -521,19 +523,24 @@ def get_upcoming_workouts(user_id: str):
         for d in docs:
             w = d.to_dict()
             w['id'] = d.id
-            if 'date' in w:
-                w['load'] = w.get('load_estimate', 0) # Map estimate to load for simple Viz
+            
+            # Filter PENDING in memory to avoid needing composite index (status, date)
+            if w.get('status') == 'PENDING' and 'date' in w:
+                w['load'] = w.get('load_estimate', 0)
                 workouts.append(w)
+        
+        # Sort by date
+        workouts.sort(key=lambda x: x.get('date', ''))
         return workouts
     except Exception as e:
-        print(f"Firestore Error: {e}")
+        print(f"Firestore Error (Upcoming Memory Filter): {e}")
         return []
 
 def get_workouts_in_range(user_id: str, start_date: str, end_date: str):
-    """Fetches workouts (Manual & AI) within a date range."""
+    """Fetches workouts within a date range from user's sub-collection."""
     try:
-        docs = db.collection('workouts')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        docs = db.collection('users').document(user_id)\
+                 .collection('workouts')\
                  .where(filter=FieldFilter('date', '>=', start_date))\
                  .where(filter=FieldFilter('date', '<=', end_date))\
                  .stream()
@@ -542,50 +549,55 @@ def get_workouts_in_range(user_id: str, start_date: str, end_date: str):
         for d in docs:
             w = d.to_dict()
             w['id'] = d.id
-            if w.get('status') == 'DONE': # Only count completed
-                workouts.append(w)
+            workouts.append(w)
         return workouts
     except Exception as e:
-        print(f"Firestore Range Error: {e}")
+        print(f"Firestore Error (Range): {e}")
         return []
 
 def delete_pending_workouts(user_id: str, start_date: str, end_date: str):
-    """Deletes pending workouts in date range (inclusive)."""
+    """
+    Deletes pending workouts in date range (inclusive).
+    Optimized to avoid composite index requirements by filtering PENDING in memory if needed,
+    but here we use the specific collection path.
+    """
     try:
-        # Fetch pending workouts in range
-        docs = db.collection('users').document(user_id).collection('workouts')\
-                 .where(filter=FieldFilter('status', '==', 'PENDING'))\
-                 .where(filter=FieldFilter('date', '>=', start_date))\
-                 .where(filter=FieldFilter('date', '<=', end_date))\
-                 .stream()
+        # Fetch pending workouts for user in standard sub-collection
+        query = db.collection('users').document(user_id).collection('workouts')\
+                  .where(filter=FieldFilter('status', '==', 'PENDING'))
+        
+        # We fetch and filter dates in memory to avoid "Missing Index" errors on range + inequality
+        docs = query.stream()
         
         batch = db.batch()
-        count = 0
         deleted_count = 0
+        total_processed = 0
         
         for d in docs:
             data = d.to_dict()
-            if data.get('status') == 'PENDING':
+            workout_date = data.get('date', '')
+            
+            # Date range check
+            if start_date <= workout_date <= end_date:
                 batch.delete(d.reference)
                 deleted_count += 1
-                count += 1
+                total_processed += 1
             
-            # Commit in batches of 400 if needed (Firestore limit is 500)
-            if count >= 400:
-                batch.commit()
-                batch = db.batch()
-                count = 0
+                if total_processed >= 400:
+                    batch.commit()
+                    batch = db.batch()
+                    total_processed = 0
                 
-        if count > 0:
+        if total_processed > 0:
             batch.commit()
             
         if deleted_count > 0:
-            print(f"Deleted {deleted_count} pending workouts.")
+            print(f"[CLEANUP] Deleted {deleted_count} stale pending workouts for {user_id}")
             
         return True
     except Exception as e:
-        print(f"Firestore Delete Error: {e}")
-        return True
+        print(f"Firestore Cleanup Error: {e}")
+        return False
 
 
 def get_user_profile(user_id: str):
@@ -608,8 +620,55 @@ def update_user_profile(user_id: str, data: dict):
         doc_ref.set(data, merge=True)
         return True
     except Exception as e:
-        print(f"Firestore Profile Update Error: {e}")
         return False
+
+def save_fcm_token(user_id: str, token: str):
+    """Saves the user's FCM token for push notifications."""
+    try:
+        db.collection('users').document(user_id).set({'fcm_token': token}, merge=True)
+        return True
+    except Exception as e:
+        print(f"Error saving FCM token: {e}")
+        return False
+
+def get_fcm_token(user_id: str):
+    """Retrieves the user's FCM token."""
+    try:
+        doc = db.collection('users').document(user_id).get()
+        if doc.exists:
+            return doc.to_dict().get('fcm_token')
+        return None
+    except Exception as e:
+        print(f"Error getting FCM token: {e}")
+        return None
+
+def get_last_missed_workout(user_id: str):
+    """
+    Finds the SINGLE most recent PENDING workout before today.
+    Returns the workout dict or None.
+    """
+    try:
+        from datetime import datetime
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        
+        # Query: PENDING workouts where date < today, ordered by date descending
+        docs = db.collection('users').document(user_id).collection('workouts')\
+                 .where(filter=FieldFilter('status', '==', 'PENDING'))\
+                 .where(filter=FieldFilter('date', '<', today_str))\
+                 .order_by('date', direction='DESCENDING')\
+                 .limit(1)\
+                 .stream()
+        
+        for d in docs:
+            w = d.to_dict()
+            w['id'] = d.id
+            return w
+            
+        return None
+    except Exception as e:
+        print(f"Error fetching missed workout: {e}")
+        return None
+
 
 def update_workout_date(user_id: str, workout_id: str, new_date: str):
     """Updates the date of a specific workout (Drag & Drop)."""

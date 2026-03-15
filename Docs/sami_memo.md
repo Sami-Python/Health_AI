@@ -114,6 +114,33 @@ npx playwright test
 
 ---
 
+## 2026-03-15 – ML Accuracy Breakthrough & UI Improvements 🚀✅
+
+Tänään saavutettiin merkittävä läpimurto ML-mallin ennustekyvyssä ja korjattiin kriittisiä käytettävyysongelmia.
+
+### 1. ML-mallin tarkkuus: 0% -> 25% (Phase 31) 🚀
+- **Ongelma:** Malli yritti ennustaa nettolatausta ("amount charged"), mikä oli liian epävakaa luku (R² < 0).
+- **Ratkaisu:** Vaihdettiin ennusteen kohteeksi **aamun lataushuippu** (`bodyBatteryHighestValue`).
+- **Tulos:** Malli löysi välittömästi selkeän matemaattisen korrelaation (R² = 0.25). 
+- **Tärkein piirre:** Tämän päivän stressitaso (`averageStressLevel`) ennustaa vahvasti huomisaamun valmiustilaa.
+
+### 2. Datan laatu & suodatus (Phase 30)
+- **Zero-Value Filters:** Koodi suodattaa nyt automaattisesti pois päivät, jolloin kello ei ole ollut kädessä (BB < 10, Stress = 0).
+- **Continuity Guard:** Ennuste-parit luodaan vain peräkkäisistä päivistä. Jos datassa on tauko (esim. kello pois 5 päivää), AI osaa odottaa uutta peräkkäistä päivää ennen oppimista.
+
+### 3. Käyttöliittymä & Bugit
+- **UI Overflow Fix (Phase 32):** Lisätty `SingleChildScrollView` mobiilisovelluksen treenikortteihin. Poistaa "Bottom overflowed" -virheet pitkillä kuvauksilla.
+- **ML Health UI:** Erotettiin "Training..."-ilmoitus R²-luvusta. Se näkyy nyt vain, kun palvelin oikeasti tekee laskentaa.
+- **Service Consistency:** Renamoitu `getRefreshStatus` -> `fetchRefreshStatus` mobiilin puolella koodin selkeyttämiseksi ja käännösvirheiden estämiseksi.
+
+**Tiedostot muutettu:**
+- `backend/scripts/process_garmin_data.py` – ML-logiikan päivitys
+- `mobile/lib/features/calendar/calendar_screen.dart` – UI-korjaus
+- `mobile/lib/features/analysis/analysis_screen.dart` – ML Health UI parity
+- `mobile/lib/core/services/api_service.dart` – Nimeämisen korjaus
+
+---
+
 ## 2026-03-10 – Garmin Sync Fix & Dashboard Scaling 🚀✅
 
 Ratkaistu kriittiset Garmin-synkronointiin ja Dashboardin päivitykseen liittyvät ongelmat.
@@ -2396,4 +2423,28 @@ Tänään ratkaistiin kriittinen virhe Garmin-tunnusten tallennuksessa ja viimei
 - Vahvistettiin, että ML-mallin tarkkuus ($R^2$ Score) on saavuttanut 67 % tason. Tämä on merkittävä parannus ja antaa erinomaisen pohjan personoidulle valmennukselle.
 
 **Status:** 🟢 **STABLE**, Kaikki kriittiset bugit korjattu ja lokitus kunnossa. Kalenterin tarkastus lisätty jatkotehtäväksi.
+
+---
+
+## 2026-03-15 – Phase 24 Mobile UI & Data Logic Refinement 🛠️✅
+
+Tänään saatiin valmiiksi Phase 24:n mukaiset mobiilisovelluksen visuaaliset ja laskennalliset korjaukset (Mobile UI/UX & Data Logic Refinement).
+
+### 1. Fitness & Fatigue Chart Scaling
+- **Ongelma:** Y-akselin etiketit menivät päällekkäin mobiilinäytöillä.
+- **Ratkaisu:** Päivitettiin `performance_chart.dart` käyttämään `reservedSize: 45` ja `interval: null`, mikä antaa enemmän tilaa arvoille ja poistaa päällekkäisyydet siististi FlChartissa.
+
+### 2. ML Model Health (R² Score) Fix
+- **Ongelma:** Joskus mallin R²-arvo näytti negatiivisia arvoja (kuten -103%), kun koulutus oli kesken tai dataa ei ollut tarpeeksi.
+- **Ratkaisu:** `analysis_screen.dart` näyttää nyt tekstin "Training..." jos R² on negatiivinen. Lisäksi animaatio- ja progress bar -arvo pakotettiin (clamp) pysymään turvallisesti 0.0 - 1.0 välillä.
+
+### 3. Load & Duration Calculation Anomaly
+- **Ongelma:** Pieni osa treeneistä sai epänormaalin korkeita tai tuplaantuneita kuormituslukuja (esim. 2214 Load anomaly).
+- **Ratkaisu:** `fetch_garmin_data.py` -skriptin `incremental`-tilan koodia korjattiin niin, että se hakee dataa vain 1 päivän taaksepäin (aiemman 5 päivän sijaan), estäen duplikaatit tai sekaisin menevät datalataukset osittaisissa päivityksissä.
+
+### 4. Calendar & Workout UI Improvements
+- **Ongelma:** Kalenterin vieritys pätki, generoidut treenit eivät tulleet nätisti esiin.
+- **Ratkaisu:** Kirjoitettiin `calendar_screen.dart` vieritys uudelleen käyttämään `CustomScrollView` + `SliverList`. Lisäksi Workout-kortteihin lisättiin uusi visuaalinen "NEXT"-merkki ja execution score -visualisaatio päivitettiin paremmaksi.
+
+**Status:** 🟢 **STABLE & COMPLETED**. Phase 24 on nyt täysin valmis. Seuraavaksi voidaan siirtyä proaktiivisen AI:n (Phase 17) ja automaattisen ohjauksen jatkokehitykseen tai muihin roadmapin kirjauksiin.
 

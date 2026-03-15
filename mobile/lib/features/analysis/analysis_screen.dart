@@ -20,6 +20,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   List<Metric> _history = [];
   Map<String, dynamic>? _weeklyStats;
   Map<String, dynamic>? _mlMetrics;
+  Map<String, dynamic>? _refreshStatus;
 
   @override
   void initState() {
@@ -37,12 +38,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       final metrics = await _apiService.fetchMetricsHistory();
       final weeklyStats = await _apiService.fetchWeeklyStats();
       final mlMetrics = await _apiService.fetchAiModelMetrics();
+      final refreshStatus = await _apiService.fetchRefreshStatus();
       
       if (mounted) {
         setState(() {
           _history = metrics;
           _weeklyStats = weeklyStats;
           _mlMetrics = mlMetrics;
+          _refreshStatus = refreshStatus;
           _isLoading = false;
         });
       }
@@ -176,9 +179,26 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                  ),
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (_refreshStatus != null && _refreshStatus!['status'] == 'in_progress') ...[
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.indigoAccent),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Päivitetään: ${_refreshStatus!['message'] ?? 'Koulutetaan mallia...'}',
+                              style: const TextStyle(color: Colors.indigoAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                        children: [
                          const Text('Accuracy (R² Score)', style: TextStyle(color: Colors.white70)),
                          Container(
@@ -188,25 +208,27 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                              borderRadius: BorderRadius.circular(8),
                              border: Border.all(color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent),
                            ),
-                           child: Text(
-                             '${((_mlMetrics!['r2'] ?? 0) * 100).toStringAsFixed(0)}%',
-                             style: TextStyle(
-                               fontWeight: FontWeight.bold,
-                               color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
+                             child: Text(
+                               (_refreshStatus != null && _refreshStatus!['status'] == 'in_progress')
+                                   ? 'Training...'
+                                   : '${((_mlMetrics!['r2'] ?? 0).clamp(0, 1.0) * 100).toStringAsFixed(0)}%',
+                               style: TextStyle(
+                                 fontWeight: FontWeight.bold,
+                                 color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
+                               ),
                              ),
-                           ),
                          ),
                        ],
                      ),
                      const SizedBox(height: 12),
                      ClipRRect(
                        borderRadius: BorderRadius.circular(8),
-                       child: LinearProgressIndicator(
-                         value: (_mlMetrics!['r2'] ?? 0) as double,
-                         backgroundColor: Colors.white10,
-                         color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
-                         minHeight: 8,
-                       ),
+                        child: LinearProgressIndicator(
+                          value: ((_mlMetrics!['r2'] ?? 0) as num).toDouble().clamp(0.0, 1.0),
+                          backgroundColor: Colors.white10,
+                          color: ((_mlMetrics!['r2'] ?? 0) >= 0.8) ? Colors.greenAccent : Colors.yellowAccent,
+                          minHeight: 8,
+                        ),
                      ),
                      const SizedBox(height: 16),
                      Row(

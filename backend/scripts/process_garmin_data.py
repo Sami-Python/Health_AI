@@ -171,10 +171,42 @@ def main_process(user_id: str = None, mode: str = "incremental"):
     # Roll 7d for simple stats
     df_merged['workout_calories_roll_7d'] = df_merged['workout_calories'].rolling(7, min_periods=1).mean()
     
-    lag_cols = ['bodyBatteryChargedValue', 'averageStressLevel', 'totalSteps', 'totalSleep_minutes']
+    # --- Predictive Lagging & Quality Control ---
+    # We want to predict TOMORROW'S recovery (bodyBatteryChargedValue) 
+    # based on TODAY'S load, stress, and previous stats.
+    
+    # QUALITY FILTER: Mark days without watch as NaN.
+    # We check for BB Charged=0, Stress=0, or Sleep=0, as these indicate 
+    # the watch was not worn or data is invalid for recovery training.
+    # threshold 10 for BB caught partial days (e.g. putting watch on mid-day).
+    invalid_mask = (df_merged['bodyBatteryChargedValue'] < 10) | \
+                   (df_merged['averageStressLevel'] == 0) | \
+                   (df_merged['totalSleep_minutes'] == 0)
+                   
+    if invalid_mask.any():
+        logger.info(f"Filtering {invalid_mask.sum()} days with invalid/missing metrics (watch off).")
+        cols_to_null = ['bodyBatteryChargedValue', 'averageStressLevel', 'bodyBatteryHighestValue', 
+                        'bodyBatteryLowestValue', 'totalSteps', 'totalSleep_minutes',
+                        'restingHeartRate', 'averageHR', 'maxHeartRate']
+        df_merged.loc[invalid_mask, [c for c in cols_to_null if c in df_merged.columns]] = np.nan
+
+    # Target: Tomorrow's Peak Body Battery (Highest Value)
+    # This is more predictive and stable than net charge.
+    df_merged['target_recovery'] = df_merged['bodyBatteryHighestValue'].shift(-1)
+    
+    # CONTINUITY CHECK: Target only valid if next row is today + 1 day
+    # and both today and tomorrow have valid data.
+    next_is_consecutive = (df_merged['date'].shift(-1) - df_merged['date']).dt.days == 1
+    df_merged.loc[~next_is_consecutive, 'target_recovery'] = np.nan
+
+    lag_cols = ['bodyBatteryHighestValue', 'averageStressLevel', 'totalSteps', 'totalSleep_minutes']
+    prev_is_consecutive = (df_merged['date'] - df_merged['date'].shift(1)).dt.days == 1
+    
     for col in lag_cols:
         if col in df_merged.columns:
             df_merged[f'{col}_lag_1'] = df_merged[col].shift(1)
+            # Ensure lag 1 is only from the immediate previous day
+            df_merged.loc[~prev_is_consecutive, f'{col}_lag_1'] = np.nan
 
     # --- Sync to Firestore (Multi-User) ---
     if user_id:
@@ -218,26 +250,33 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         except Exception as e:
             logger.error(f"Failed to sync to Firestore: {e}")
 
-    # Drop NaNs for training only
-    df_merged = df_merged.dropna(subset=['bodyBatteryChargedValue', 'bodyBatteryChargedValue_lag_1'])
-
-    # MLflow Setup - Optional in Production to save disk IO
-    mlflow_enabled = os.environ.get("MLFLOW_ENABLED", "false").lower() == "true"
+    # --- Feature Selection & Data Preparation ---
+    # We prioritize averageStressLevel as it has the highest correlation with Peak Recovery.
+    top_features = [
+        'averageStressLevel', 'bodyBatteryHighestValue', 'totalSleep_minutes',
+        'ATL', 'CTL', 'TSB', 'workout_calories', 'totalSteps',
+        'restingHeartRate', 'averageHR', 'bodyBatteryHighestValue_lag_1',
+        'averageStressLevel_lag_1', 'workout_calories_roll_7d'
+    ]
+    target = 'target_recovery'
+    available_features = [f for f in top_features if f in df_merged.columns]
     
+    # Drop rows with NaNs in our selected features + target
+    df_train = df_merged.dropna(subset=[target] + available_features)
+    logger.info(f"Cleaned data: {len(df_train)} samples available for training (selected {len(available_features)} features).")
+
+    # MLflow Setup - Optional in Production
+    mlflow_enabled = os.environ.get("MLFLOW_ENABLED", "false").lower() == "true"
     if mlflow_enabled:
         mlflow_db_path = os.path.join(backend_dir, "data", "mlflow.db")
         os.makedirs(os.path.dirname(mlflow_db_path), exist_ok=True)
         mlflow.set_tracking_uri(f"sqlite:///{mlflow_db_path}")
         mlflow.set_experiment("xgboost_readiness_prediction")
-    
-    # --- Training with GridSearchCV & Cross-Validation ---
+
+    # --- Training ---
     logger.info("Training XGBoost Model (with Hyperparameter Tuning & TimeSeries CV)...")
-    
-    target = 'bodyBatteryChargedValue'
-    drop_cols = ['date', 'bodyBatteryChargedValue', 'bodyBatteryDrainedValue', 'calendarDate', 'calendarDate_sleep']
-    X = df_merged.drop(columns=[c for c in drop_cols if c in df_merged.columns])
-    X = X.select_dtypes(include=['number'])
-    y = df_merged[target]
+    X = df_train[available_features]
+    y = df_train[target]
 
     # --- MINIMUM DATA CHECK ---
     # We need at least 5 samples for TimeSeriesSplit(n_splits=2) + train_test_split(0.2)
@@ -294,7 +333,12 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         logger.info(f"Found {len(new_data)} new data points to learn from.")
         
         # 2. Prepare X_new, y_new
-        X_new = new_data.drop(columns=[c for c in drop_cols if c in new_data.columns]).select_dtypes(include=['number'])
+        new_data = new_data.dropna(subset=[target] + available_features)
+        if new_data.empty:
+            logger.info("No valid new data points after cleaning. Skipping incremental update.")
+            return
+
+        X_new = new_data[available_features]
         y_new = new_data[target]
         
         # 3. Load Existing Model
@@ -319,10 +363,20 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         logger.info("Updating model with new data...")
         # Create new instance with same params
         best_model = XGBRegressor(**loaded_model.get_params())
+        
+        # BACKUP: Before fitting, we might want to keep the booster if we fail
+        # But here we fit and then save. I will add backup call before joblib.dump.
+        
         # Fit with xgb_model=loaded_model (uses internal booster)
         best_model.fit(X_new, y_new, xgb_model=loaded_model.get_booster())
         
-        logger.info("Incremental update complete.")
+        logger.info(f"Incremental update complete on {len(X_new)} samples.")
+        training_details = {
+            "mode": "incremental",
+            "samples": len(X_new),
+            "pre_update_mae": float(mae),
+            "pre_update_r2": float(r2)
+        }
         
         # Incremental update complete. MLFlow logging is disabled by default in proc to save IO.
         if mlflow_enabled:
@@ -337,9 +391,9 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, shuffle=False)
 
         param_grid = {
-            'n_estimators': [100],
-            'learning_rate': [0.05],
-            'max_depth': [4],
+            'n_estimators': [100, 150], # Added 150
+            'learning_rate': [0.05, 0.1], # Added 0.1
+            'max_depth': [4, 5], # Added 5
             'subsample': [0.8],
             'colsample_bytree': [0.8]
         }
@@ -372,6 +426,13 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         print(f"Final Test Model Performance - MAE: {mae:.2f}, R2: {r2:.2f}, RMSE: {rmse:.2f}")
         logger.info(f"Final Test Model Performance", extra={"mae": mae_log, "r2": r2_log, "rmse": rmse_log})
         
+        training_details = {
+            "mode": "full",
+            "samples": len(X_train),
+            "test_samples": len(X_test),
+            "best_params": grid_search.best_params_
+        }
+        
         # 2. Log to MLflow (CONDITIONALLY RUN)
         if mlflow_enabled:
             with mlflow.start_run(run_name=f"full_train_{user_id if user_id else 'global'}"):
@@ -400,6 +461,16 @@ def main_process(user_id: str = None, mode: str = "incremental"):
     
     # --- Common Save Logic (for both modes) ---
     if best_model is not None:
+        # BACKUP PREVIOUS MODEL
+        if os.path.exists(model_path):
+            backup_path = model_path.replace(".pkl", "_prev.pkl")
+            try:
+                import shutil
+                shutil.copy2(model_path, backup_path)
+                logger.info(f"💾 Backup of previous model saved to {backup_path}")
+            except Exception as be:
+                logger.warning(f"⚠️ Could not backup model: {be}")
+
         # Save Model
         # Ensure params are updated for incremental too
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
@@ -428,8 +499,12 @@ def main_process(user_id: str = None, mode: str = "incremental"):
         metrics = {
             "mae": float(0.0) if pd.isna(mae) else float(mae),
             "r2": float(0.0) if pd.isna(r2) else float(r2),
-            "last_trained": str(pd.Timestamp.now().date())
+            "last_trained": str(pd.Timestamp.now().date()),
+            "training_mode": training_details.get("mode", "unknown"),
+            "sample_count": training_details.get("samples", 0)
         }
+        if "pre_update_r2" in training_details:
+            metrics["pre_update_r2"] = training_details["pre_update_r2"]
         
         # CRITICAL: In Docker, backend is at /app. Locally it might be ./backend
         # Let's ensure we find the backend/data directory.

@@ -921,3 +921,63 @@ Tavoitteena vikasietoisuuden parantaminen ja skaalautuvuuden varmistaminen poist
     - [x] Automaattinen kuormituksen laskenta Garmin-treeneille (duration-based fallback).
 - [x] **ML Reliability Guardrails:** (#903)
     - [x] Lisätty miniminäytemäärä (5 päivää) XGBoost-koulutukselle.
+
+---
+
+## Phase 24: Mobile UI/UX & Data Logic Refinement (2026-03-12) 🛠️
+
+Tavoitteena mobiilisovelluksen visuaalisten ja laskennallisten virheiden korjaus.
+
+- [x] **Fitness & Fatigue Chart Scaling:** (#910)
+    - [x] Korjaa Y-akselin etikettien päällekkäisyys mobiilissa.
+- [x] **ML model Health (R² Score) Fix:** (#911)
+    - [x] Tutki miksi R² score näyttää virheellisiä arvoja (-103%).
+- [x] **Load & Duration Calculation:** (#912)
+    - [x] Varmista kuormituslukujen oikeellisuus (2214 Load anomaly).
+- [x] **Calendar & Workout UI:** (#913)
+    - [x] Korjaa kalenterin vieritysongelma.
+    - [x] Varmista, että generoidut treenit näkyvät heti kalenterissa ja niistä tulee "pallo" päivälle.
+    - [x] Korjaa Workout-korttien sisällön näkyvyys.
+
+---
+
+## Phase 29: ML Model Health UI Fix (2026-03-15) ✅
+
+Tavoitteena korjata harhaanjohtavat "Training..."-tilat ja negatiiviset tarkkuusluvut.
+
+- [x] **UI Decoupling:** "Training..."-tila ei enää riipu R²-luvusta, vaan todellisesta taustatyön tilasta. (#920)
+- [x] **R² Display Cap:** Negatiiviset R²-luvut näytetään 0.0% tasolla käyttöliittymässä hämmennyksen välttämiseksi. (#921)
+
+---
+
+## Phase 30: ML Data Quality & Filters (2026-03-15) ✅
+
+Tavoitteena puhdistaa data epärealistisista nollapäivistä, jotka sotkevat AI:n oppimista.
+
+- [x] **Zero-Value Filtering:** Automaattinen suodatus päiville, jolloin kello ei ole ollut kädessä (BB < 10, Stress = 0). (#930)
+- [x] **Date Continuity Check:** AI oppii nyt vain peräkkäisistä päivistä. Jos datassa on tauko, oppiminen "nollautuu" saumattomasti. (#931)
+
+---
+
+## Phase 31: Peak Recovery Prediction Breakthrough (2026-03-15) ✅ 🚀
+
+Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
+
+- [x] **Target Shift:** Ennustetaan huomisen maksimilatausta (Peak BB) pelkän latausmäärän sijaan. (#940)
+- [x] **Accuracy Breakthrough:** R² tarkkuus nousi 0% -> **25%** (validi matemaattinen korrelaatio löytynyt). (#941)
+- [x] **Feature Optimization:** Tämän päivän stressitaso (`averageStressLevel`) tunnistettu tärkeimmäksi ennustajaksi. (#942)
+
+---
+
+## Phase 32: Mobile UI Layout Refinement (2026-03-15) ✅
+
+- [x] **Workout Detail Scroll Fix:** Lisätty `SingleChildScrollView` treenin lisätietoihin, mikä poisti "Bottom overflowed" -virheet. (#950)
+
+---
+
+## Phase 33: Garmin 2FA Stability (2026-03) 🗓️
+
+> **Status:** PLANNED
+
+- [ ] **2FA Session Refresh:** Korjaa Garmin MFA-istunnon automaattinen uusiminen taustalla. (#960)
+- [ ] **Proactive Notifications:** Ilmoita käyttäjälle proaktiivisesti, jos Garmin-yhteys vaatii uutta koodia. (#961)

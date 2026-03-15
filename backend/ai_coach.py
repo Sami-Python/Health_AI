@@ -359,3 +359,48 @@ def generate_daily_insight(ctx):
     except Exception as e:
         print(f"Insight Error: {e}")
         return "Tänään on hyvä päivä kuunnella kehoa."
+
+def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
+    """
+    Generates a suggestion for rescheduling a missed workout.
+    """
+    if not api_key:
+        return None
+
+    prompt = f"""
+    Olet huippu-urheiluun erikoistunut valmentaja.
+    
+    Urheilija SKIPPASI seuraavan treenin:
+    - Treeni: {missed_workout.get('activity')}
+    - Kuvaus: {missed_workout.get('description')}
+    - Alkuperäinen päivä: {missed_workout.get('date')}
+    
+    Nykyinen tilanne ({current_metrics.get('date')}):
+    - Body Battery: {current_metrics.get('readiness', 0)}/100
+    - TSB (Vireystila): {current_metrics.get('tsb', 0)}
+    
+    Tehtävä:
+    Ehdotus uudelle ajankohdalle tälle treenille. 
+    Palauta JSON-muodossa:
+    {{
+        "new_date": "YYYY-MM-DD",
+        "reasoning": "Lyhyt selitys suomeksi, miksi tämä päivä on hyvä (max 20 sanaa).",
+        "push_message": "Lyhyt, tsemppaava viesti push-ilmoitukseen suomeksi (esim. 'Huomenna on loistava päivä korvata eilinen veto!')."
+    }}
+    
+    Sääntö koon suhteen: Suosittele uutta päivää aikavälille {current_metrics.get('date')} - 3 päivää eteenpäin.
+    """
+    
+    try:
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        import json
+        return json.loads(response.text)
+    except Exception as e:
+        print(f"Rescheduling AI Error: {e}")
+        return None
+

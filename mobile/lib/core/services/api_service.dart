@@ -22,11 +22,21 @@ class ApiService {
     };
   }
 
+  // ─── Generic Helpers ────────────────────────────────────────
+  Future<http.Response> post(String path, Map<String, dynamic> body) async {
+    final headers = await _getHeaders();
+    return await http.post(
+      Uri.parse('$baseUrl$path'),
+      headers: headers,
+      body: json.encode(body),
+    );
+  }
+
   // ─── System / Refresh ─────────────────────────────────────────
-  Future<void> refreshData() async {
+  Future<void> refreshData({String mode = 'incremental'}) async {
     final headers = await _getHeaders();
     final response = await http.post(
-      Uri.parse('$baseUrl/system/refresh'),
+      Uri.parse('$baseUrl/system/refresh?mode=$mode'),
       headers: headers,
     );
     if (response.statusCode != 200 && response.statusCode != 201) {
@@ -34,7 +44,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> getRefreshStatus() async {
+  Future<Map<String, dynamic>> fetchRefreshStatus() async {
     final headers = await _getHeaders();
     final response = await http.get(
       Uri.parse('$baseUrl/system/refresh/status'),
@@ -117,6 +127,16 @@ class ApiService {
       return null;
     }
     return null;
+  }
+
+  Future<List<dynamic>> fetchUpcomingWorkouts() async {
+    final headers = await _getHeaders();
+    final response = await http.get(Uri.parse('$baseUrl/workouts/upcoming'),
+        headers: headers);
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
+    }
+    return [];
   }
 
   Future<List<dynamic>> fetchWorkoutHistory() async {
@@ -324,7 +344,7 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$baseUrl/garmin/credentials'),
       headers: headers,
-      body: json.encode({'email': username, 'password': password}),
+      body: json.encode({'username': username, 'password': password}),
     );
     if (response.statusCode != 200) {
       throw Exception('Failed to save Garmin credentials: ${response.statusCode}');

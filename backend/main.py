@@ -634,6 +634,84 @@ async def update_profile_endpoint(profile: UserProfile, request: Request, user: 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class TokenRequest(BaseModel):
+    token: str
+
+@app.post("/notifications/token", tags=["Notifications"])
+@limiter.limit("5/minute")
+async def register_fcm_token(token_req: TokenRequest, request: Request, user: dict = Depends(verify_token)):
+    """Registers or updates the user's FCM token for push notifications."""
+    try:
+        success = db_manager.save_fcm_token(user['uid'], token_req.token)
+        if success:
+            return {"status": "success", "message": "FCM token registered"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to save token")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+def check_and_reschedule_missed_workout(user_id: str):
+    """
+    Internal logic to detect the last missed workout and suggest a reschedule.
+    """
+    try:
+        from notification_service import notification_service
+        import ai_coach
+        
+        # 1. Detect last missed workout
+        missed = db_manager.get_last_missed_workout(user_id)
+        if not missed:
+            return
+            
+        # 2. Get current metrics for AI context
+        # Fetch todays metrics if available
+        recent_metrics = firestore_garmin_metrics.get_user_daily_metrics(user_id, days=1)
+        if not recent_metrics:
+             current_metrics = {"date": date.today().isoformat(), "readiness": 50, "tsb": 0}
+        else:
+             m = recent_metrics[0]
+             current_metrics = {
+                 "date": m.get('date'),
+                 "readiness": int(m.get('bodyBatteryHighestValue', 50)),
+                 "tsb": round(m.get('TSB', 0), 1)
+             }
+        
+        # 3. Generate AI suggestion
+        suggestion = ai_coach.generate_rescheduling_suggestion(user_id, missed, current_metrics)
+        if not suggestion:
+            return
+            
+        # 4. Mark missed workout as SKIPPED
+        db_manager.db.collection('users').document(user_id).collection('workouts')\
+                 .document(missed['id']).update({'status': 'SKIPPED'})
+        
+        # 5. Create the new suggested workout
+        new_workout = missed.copy()
+        new_workout.pop('id', None)
+        new_workout['date'] = suggestion['new_date']
+        new_workout['status'] = 'PENDING'
+        new_workout['rescheduled_from'] = missed['date']
+        new_workout['ai_note'] = suggestion['reasoning']
+        
+        db_manager.save_workout(user_id, new_workout)
+        
+        # 6. Send Push Notification
+        notification_service.send_push_notification(
+            user_id,
+            title="Treeni rästissä? 🏃",
+            body=suggestion['push_message'],
+            data={
+                "type": "reschedule_suggestion",
+                "original_data": missed['date'],
+                "new_date": suggestion['new_date']
+            }
+        )
+        logger.info(f"Rescheduled missed workout for {user_id} from {missed['date']} to {suggestion['new_date']}")
+        
+    except Exception as e:
+        logger.error(f"Error in background rescheduling: {e}")
+
+
 
 
 @app.delete("/account", tags=["User"])
@@ -1085,6 +1163,13 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         refresh_statuses[uid]["progress"] = 100
         refresh_statuses[uid]["status"] = "completed"
         refresh_statuses[uid]["message"] = "Data refreshed, model trained and readiness updated."
+        
+        # NEW: Check for missed workouts after successful sync/refresh
+        try:
+            check_and_reschedule_missed_workout(uid)
+        except Exception as resch_err:
+            logger.error(f"Non-critical error in rescheduling check: {resch_err}")
+
             
     except ValueError as ve:
         refresh_statuses[uid]["status"] = "failed"
@@ -1680,78 +1765,17 @@ MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
 def _save_garth_tokens(garmin_client, uid: str) -> bool:
     """
     Saves garth OAuth2 tokens to Firestore after a successful login.
-
-    Stores ALL files created by garth.dump() as a single dict:
-      {"oauth2_token.json": {...}, "oauth1_token.json": {...}}
-    This allows exact restoration via garth.load() later.
-
-    Returns True if tokens were saved successfully, False otherwise.
+    Uses the shared implementation from fetch_garmin_data.
     """
-    import tempfile
-    import json as _json
-    import os as _os
-
     try:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            try:
-                garmin_client.garth.dump(tmpdir)
-            except Exception as dump_err:
-                logger.warning(f"garth.dump() failed: {dump_err}")
-                return False
-
-            files = _os.listdir(tmpdir)
-            logger.info(f"garth.dump() wrote files: {files} for uid={uid}")
-
-            if not files:
-                logger.warning(f"⚠️ garth.dump() created no files for uid={uid}")
-                return False
-
-            # Read ALL json files garth wrote and store them keyed by filename
-            token_files: dict = {}
-            for fname in files:
-                if not fname.endswith('.json'):
-                    continue
-                fpath = _os.path.join(tmpdir, fname)
-                try:
-                    with open(fpath) as f:
-                        content = f.read().strip()
-                    if not content:
-                        logger.debug(f"Skipping empty file: {fname}")
-                        continue
-                    parsed = _json.loads(content)
-                    if isinstance(parsed, dict) and parsed:
-                        token_files[fname] = parsed
-                        logger.debug(f"Collected token file: {fname}")
-                except Exception as fe:
-                    logger.debug(f"Could not read {fname}: {fe}")
-
-            if not token_files:
-                logger.warning(f"⚠️ No valid token data in dump for uid={uid}")
-                return False
-
-            # Save both the legacy single-token format (garth_tokens) for backward
-            # compat AND the new multi-file format (garth_token_files)
-            primary_token = token_files.get("oauth2_token.json") or next(iter(token_files.values()))
-            db_manager.save_garmin_tokens(uid, primary_token)  # updates garth_tokens_encrypted
-
-            # Also store all files for exact restoration
-            try:
-                import json
-                import firestore_manager
-                from encryption_helper import encrypt_password
-                encrypted = encrypt_password(json.dumps(token_files))
-                firestore_manager.db.collection('users').document(uid)\
-                    .collection('garmin_credentials').document('default')\
-                    .update({'garth_token_files_encrypted': encrypted})
-                logger.info(f"💾 Garth token files saved ({list(token_files.keys())}) for uid={uid}")
-            except Exception as multi_err:
-                logger.warning(f"Could not save multi-file tokens: {multi_err}")
-                # Single-file save above still succeeded
-
-            return True
-
+        import sys, os
+        scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+        if scripts_dir not in sys.path:
+            sys.path.insert(0, scripts_dir)
+        from fetch_garmin_data import save_garth_session
+        return save_garth_session(uid, garmin_client)
     except Exception as e:
-        logger.error(f"❌ _save_garth_tokens error for uid={uid}: {e}")
+        logger.error(f"Failed to load shared save_garth_session: {e}")
         return False
 
 

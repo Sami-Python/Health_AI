@@ -25,6 +25,58 @@ class GarminMFARequiredError(ValueError):
     pass
 
 
+def save_garth_session(user_id: str, client: Garmin) -> bool:
+    """
+    Saves garth OAuth2/OAuth1 tokens to Firestore robustly.
+    Stores ALL files produced by garth.dump() (multi-file format).
+    """
+    import tempfile
+    import json
+    import os
+    import firestore_manager
+    from encryption_helper import encrypt_password
+
+    if not user_id or not client:
+        return False
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            client.garth.dump(tmpdir)
+            files = os.listdir(tmpdir)
+            if not files:
+                logger.warning(f"⚠️ garth.dump() produced no files for {user_id}")
+                return False
+
+            token_files = {}
+            for fname in files:
+                if not fname.endswith('.json'):
+                    continue
+                fpath = os.path.join(tmpdir, fname)
+                with open(fpath, "r") as f:
+                    content = f.read().strip()
+                    if content:
+                        token_files[fname] = json.loads(content)
+
+            if not token_files:
+                return False
+
+            # 1. Save legacy single-token format for backward compatibility
+            primary_token = token_files.get("oauth2_token.json") or next(iter(token_files.values()))
+            firestore_manager.save_garmin_tokens(user_id, primary_token)
+
+            # 2. Save new multi-file format (encrypted)
+            encrypted = encrypt_password(json.dumps(token_files))
+            firestore_manager.db.collection('users').document(user_id)\
+                .collection('garmin_credentials').document('default')\
+                .update({'garth_token_files_encrypted': encrypted})
+            
+            logger.info(f"💾 Garth session tokens (multi-file) persisted for {user_id}")
+            return True
+    except Exception as e:
+        logger.error(f"❌ Failed to save garth session: {e}")
+        return False
+
+
 def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     """
     Authenticate to Garmin using credentials.
@@ -161,18 +213,7 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 
         # Save garth tokens to Firestore for next time
         if user_id:
-            try:
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    client.garth.dump(tmpdir)
-                    token_file = os.path.join(tmpdir, "oauth2_token.json")
-                    if os.path.exists(token_file):
-                        with open(token_file, "r") as f:
-                            tokens = json.load(f)
-                        import firestore_manager
-                        firestore_manager.save_garmin_tokens(user_id, tokens)
-                        logger.info("💾 Garth tokens saved to Firestore")
-            except Exception as save_err:
-                logger.warning(f"⚠️ Could not save garth tokens: {save_err}")
+            save_garth_session(user_id, client)
 
         # Fix: Ensure display_name is populated regardless of how we authenticated
         if not getattr(client, "display_name", None):
@@ -431,14 +472,19 @@ def main(user_id: Optional[str] = None, mode: str = "incremental"):
     
     last_sync = get_latest_date(f"{data_dir}/garmin_daily_summary.csv")
     
-    if last_sync:
-        overlap_days = 1 if mode == "incremental" else 5
-        start = last_sync - timedelta(days=overlap_days)
-        logger.info(f"Found existing data up to {last_sync}. Fetching from {start} ({overlap_days}-day overlap) [{mode}]...")
+    if mode == "full":
+        # Full Retrain: Fetch 180 days (half year) of history as requested
+        start = today - timedelta(days=180)
+        logger.info(f"🚀 Full Retrain mode: Fetching 180 days of history starting from {start}...")
+    elif last_sync:
+        # Incremental: Just fetch since last sync with a small overlap
+        start = last_sync - timedelta(days=1)
+        logger.info(f"🔄 Incremental mode: Found data up to {last_sync}. Fetching from {start}...")
     else:
-        fallback_days = 7 if mode == "incremental" else 360
+        # Initial sync: Default to 7 days for quick start
+        fallback_days = 7
         start = today - timedelta(days=fallback_days)
-        logger.info(f"No existing data. Fetching from {start} (fallback: {fallback_days} days) [{mode}]...")
+        logger.info(f"🆕 Initial sync: Fetching from {start} (fallback {fallback_days} days)...")
 
     if start > today:
         logger.info("Data is already up to date!")
@@ -499,6 +545,10 @@ def main(user_id: Optional[str] = None, mode: str = "incremental"):
     
     # 6. NOTE: Daily summary metrics are synced to Firestore by process_garmin_data.py
     # This ensures calculated metrics (CTL/ATL/TSB) are included.
+
+    # 7. Persistence: Save back the potentially refreshed tokens
+    if user_id:
+        save_garth_session(user_id, client)
 
     logger.info(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 

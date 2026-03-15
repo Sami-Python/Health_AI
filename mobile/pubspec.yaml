@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.27.0
   firebase_auth: ^4.17.8
+  firebase_messaging: ^14.7.15
   google_sign_in: ^6.2.1
   http: ^0.13.6
   fl_chart: ^0.66.0
@@ -59,13 +60,19 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/logo.png"
+  image_path: "assets/images/logo_foreground.png"
+  adaptive_icon_background: "#020617"
+  adaptive_icon_foreground: "assets/images/logo_foreground.png"
 
 flutter_native_splash:
   color: "#020617"
-  image: "assets/images/logo.png"
+  image: "assets/images/logo_foreground.png"
   android: true
   ios: true
+  fullscreen: true
+  android_12:
+    image: "assets/images/logo_foreground.png"
+    color: "#020617"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,6 +88,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/logo.png
+    - assets/images/logo_foreground.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

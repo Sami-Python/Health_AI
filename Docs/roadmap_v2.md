@@ -7,8 +7,6 @@
 ## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
 Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen.
 
-- [ ] **Aamubriefing (Push-ilmoitukset):** Päivittäinen älykäs aamupusku. *(Tehdään myöhemmin)* *Esimerkki: "Huomenta! Body Batterysi on alhainen (32). Ehdotan, että perumme tänään ohjelmassa olevan vetotreenin ja teemme palauttavan 30 min kävelyn. Vahvistatko?"*
-- [ ] **Reaaliaikainen Voice-ohjaus (Voice AI):** Mahdollisuus kommunikoida AI-valmentajalle äänellä treenin aikana. *Esimerkki: "Kävelen tänään mieluummin hieman kovempaa – kuinka nopeasti minun tulisi mennä, jotta pysyn peruskestävyysalueella?"*
 - [ ] **Dynamic Re-scheduling:** Jos käyttäjä skippaa treenin, AI ehdottaa automaattisesti push-ilmoituksella uutta ajankohtaa sen sijaan, että odottaisi kalenterin päivitystä.
 
 ---
@@ -44,6 +42,7 @@ Sovellus on tähän asti ollut yksilösuoritus. Yhteisö sitouttaa yli rajojen.
 Rikastetaan koneoppimisanalytiikkaa viemällä sitä yksilöidympiin ennusteisiin terveyden eri aspekteissa.
 
 - [ ] **Riskianalyysi ja Loukkaantumisennusteet:** XGBoost-mallia päivitetään havaitsemaan poikkeavuuksia harjoituskuormituksesta verrattuna palautumisen tasoon (Acute-To-Chronic Workload Ratio + uni). AI antaa konkreettisen prosentuaalisen vammariskin ja hidastaa ohjelmaa aktiivisesti.
+- [ ] **Uudet algoritmit:** Muistilla varustetut mallit (esim. LSTM-verkko), joka ymmärtää pitempiä trendejä, kuten ylikunnon kehittyminen viikkojen kuluessa.
 - [ ] **Fysiologisen Syklin Seuranta:** Esim. naisten kuukautiskierron seuranta ja sen yhdistäminen AI-valmentajan suosituksiin (esim. kevennys luteaalivaiheen aikana ihon lämpötilan ja palautumisen muutosten perustella).
 - [ ] **Offline ML Models (On-device AI):** Treenidatan analytiikka puhelimen NPU (Neural Processing Unit) kautta lennosta, turvaten datayksityisyyttä tehokkaammin.
 
@@ -57,3 +56,9 @@ Mobiilisovelluksen paketoiminen ja vieminen Google Playhin sekä Apple App Store
 - [x] **Tietoturva & Juridiikka ✅:** Julkaisun (Release/Signing) avainten luonti ja integrointi konfiguraatioon (Android Keystore).
 - [x] **Sideloading (Suorajakelu) ✅:** APK-tiedoston kokoaminen ja lisääminen landing pagelle suoraan asennettavaksi ilman sovelluskauppaa.
 - [ ] **Kauppojen Vaatimat Materiaalit:** Sovelluskauppoihin edustavat kuvakaappaukset eri laitekokojen (puhelimet ja tabletit) resoluutioilla ja houkuttelevat promootiotekstit. (Vielä tekemättä)
+
+---
+
+## Nice to Have (Tulevaisuuden Visio)
+- [ ] **Aamubriefing (Push-ilmoitukset):** Päivittäinen älykäs aamupusku. *(Tehdään myöhemmin)* *Esimerkki: "Huomenta! Body Batterysi on alhainen (32). Ehdotan, että perumme tänään ohjelmassa olevan vetotreenin ja teemme palauttavan 30 min kävelyn. Vahvistatko?"*
+- [ ] **Reaaliaikainen Voice-ohjaus (Voice AI):** Mahdollisuus kommunikoida AI-valmentajalle äänellä treenin aikana. *Esimerkki: "Kävelen tänään mieluummin hieman kovempaa – kuinka nopeasti minun tulisi mennä, jotta pysyn peruskestävyysalueella?"*

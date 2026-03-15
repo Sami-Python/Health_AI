@@ -99,18 +99,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Future<void> _syncData() async {
+  Future<void> _syncData({String mode = 'incremental'}) async {
     if (_isSyncing) return;
 
     setState(() {
       _isSyncing = true;
       _syncProgress = 0.0;
-      _syncMessage = 'Initiating sync...';
+      _syncMessage = 'Initiating ${mode == 'full' ? 'full' : 'quick'} sync...';
       _error = null;
     });
 
     try {
-      await _apiService.refreshData();
+      await _apiService.refreshData(mode: mode);
       
       bool isPolling = true;
       while (isPolling && mounted) {
@@ -118,7 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (!mounted) break;
         
         try {
-          final status = await _apiService.getRefreshStatus();
+          final status = await _apiService.fetchRefreshStatus();
           if (mounted) {
             setState(() {
               _syncProgress = (status['progress'] ?? 0).toDouble() / 100.0;
@@ -203,50 +203,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF020617), // Slate 950
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text(_getAppBarTitle()),
         backgroundColor: const Color(0xFF020617),
         elevation: 0,
         automaticallyImplyLeading: false,
-        actions: [
-          if (_isSyncing)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        value: _syncProgress > 0 ? _syncProgress : null,
-                        strokeWidth: 2, 
-                        color: Colors.blueAccent
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${(_syncProgress * 100).toInt()}%',
-                      style: const TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.sync, color: Colors.blueAccent),
-              onPressed: _syncData,
-              tooltip: 'Sync Garmin Data',
-            ),
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white70),
-            onPressed: () {
-              setState(() {
-                _selectedIndex = 4; // Switch to Profile tab
-              });
-            },
-          ),
-        ],
+        actions: _getAppBarActions(),
       ),
       body: _buildBody(),
       floatingActionButton: (_selectedIndex == 0 || _selectedIndex == 1)
@@ -287,6 +248,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  String _getAppBarTitle() {
+    switch (_selectedIndex) {
+      case 0: return 'Dashboard';
+      case 1: return 'Training Calendar';
+      case 2: return 'Analysis';
+      case 3: return 'AI Coach';
+      case 4: return 'Profile';
+      default: return 'Health AI';
+    }
+  }
+
+  List<Widget> _getAppBarActions() {
+    // Shared sync logic or specific indicators here
+    if (_isSyncing) {
+      return [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Center(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    value: _syncProgress > 0 ? _syncProgress : null,
+                    strokeWidth: 2, 
+                    color: Colors.blueAccent
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${(_syncProgress * 100).toInt()}%',
+                  style: const TextStyle(color: Colors.blueAccent, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        )
+      ];
+    }
+
+    // Default actions
+    final List<Widget> actions = [];
+
+    // Sync button (Visible on most tabs)
+    if (_selectedIndex < 3) {
+      actions.add(
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.sync, color: Colors.blueAccent),
+          tooltip: 'Sync Garmin Data',
+          onSelected: (mode) => _syncData(mode: mode),
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'incremental',
+              child: ListTile(
+                leading: Icon(Icons.bolt, color: Colors.amber),
+                title: Text('Quick Sync'),
+                subtitle: Text('Fast, latest data only', style: TextStyle(fontSize: 10)),
+              ),
+            ),
+            const PopupMenuItem(
+              value: 'full',
+              child: ListTile(
+                leading: Icon(Icons.refresh, color: Colors.blue),
+                title: Text('Full Retrain'),
+                subtitle: Text('Comprehensive, slow', style: TextStyle(fontSize: 10)),
+              ),
+            ),
+          ],
+        )
+      );
+    }
+
+    // Settings/Profile button
+    if (_selectedIndex != 4) {
+      actions.add(
+        IconButton(
+          icon: const Icon(Icons.person, color: Colors.white70),
+          onPressed: () => setState(() => _selectedIndex = 4),
+        )
+      );
+    }
+
+    return actions;
   }
 
   Widget _buildBody() {
@@ -333,7 +380,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Garmin connection banner
           if (!_garminConnected)
             GestureDetector(
-              onTap: () => setState(() => _selectedIndex = 3),
+              onTap: () => setState(() => _selectedIndex = 4),
               child: Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 padding:

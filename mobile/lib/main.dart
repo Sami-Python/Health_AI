@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/core/services/auth_service.dart';
 import 'package:mobile/core/theme/app_theme.dart';
+import 'package:mobile/core/services/notification_service.dart';
 import 'package:mobile/features/auth/login_screen.dart';
 import 'package:mobile/features/dashboard/dashboard_screen.dart';
 import 'firebase_options.dart';
@@ -11,6 +12,10 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize Push Notifications
+  await NotificationService().initialize();
+  
   runApp(const HealthAICoachApp());
 }
 

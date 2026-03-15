@@ -102,8 +102,8 @@ class PerformanceChart extends StatelessWidget {
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
-                      interval: 20,
+                      reservedSize: 45,
+                      interval: null,
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
