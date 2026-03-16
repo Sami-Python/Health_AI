@@ -650,21 +650,16 @@ async def register_fcm_token(token_req: TokenRequest, request: Request, user: di
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def check_and_reschedule_missed_workout(user_id: str):
+def _process_workout_rescheduling(user_id: str, workout: dict):
     """
-    Internal logic to detect the last missed workout and suggest a reschedule.
+    Handles the AI-driven rescheduling logic for a specific workout.
     """
     try:
         from notification_service import notification_service
         import ai_coach
+        from datetime import date
         
-        # 1. Detect last missed workout
-        missed = db_manager.get_last_missed_workout(user_id)
-        if not missed:
-            return
-            
-        # 2. Get current metrics for AI context
-        # Fetch todays metrics if available
+        # 1. Get current metrics for AI context
         recent_metrics = firestore_garmin_metrics.get_user_daily_metrics(user_id, days=1)
         if not recent_metrics:
              current_metrics = {"date": date.today().isoformat(), "readiness": 50, "tsb": 0}
@@ -676,40 +671,50 @@ def check_and_reschedule_missed_workout(user_id: str):
                  "tsb": round(m.get('TSB', 0), 1)
              }
         
-        # 3. Generate AI suggestion
-        suggestion = ai_coach.generate_rescheduling_suggestion(user_id, missed, current_metrics)
+        # 2. Generate AI suggestion
+        suggestion = ai_coach.generate_rescheduling_suggestion(user_id, workout, current_metrics)
         if not suggestion:
-            return
+            return None
             
-        # 4. Mark missed workout as SKIPPED
+        # 3. Mark workout as SKIPPED
         db_manager.db.collection('users').document(user_id).collection('workouts')\
-                 .document(missed['id']).update({'status': 'SKIPPED'})
+                 .document(workout['id']).update({'status': 'SKIPPED'})
         
-        # 5. Create the new suggested workout
-        new_workout = missed.copy()
+        # 4. Create the new suggested workout
+        new_workout = workout.copy()
         new_workout.pop('id', None)
         new_workout['date'] = suggestion['new_date']
         new_workout['status'] = 'PENDING'
-        new_workout['rescheduled_from'] = missed['date']
+        new_workout['rescheduled_from'] = workout['date']
         new_workout['ai_note'] = suggestion['reasoning']
         
         db_manager.save_workout(user_id, new_workout)
         
-        # 6. Send Push Notification
+        # 5. Send Push Notification
         notification_service.send_push_notification(
             user_id,
             title="Treeni rästissä? 🏃",
             body=suggestion['push_message'],
             data={
                 "type": "reschedule_suggestion",
-                "original_data": missed['date'],
+                "original_date": workout['date'],
                 "new_date": suggestion['new_date']
             }
         )
-        logger.info(f"Rescheduled missed workout for {user_id} from {missed['date']} to {suggestion['new_date']}")
+        logger.info(f"Rescheduled workout for {user_id} from {workout['date']} to {suggestion['new_date']}")
+        return suggestion
         
     except Exception as e:
-        logger.error(f"Error in background rescheduling: {e}")
+        logger.error(f"Error in workout rescheduling logic: {e}")
+        return None
+
+def check_and_reschedule_missed_workout(user_id: str):
+    """
+    Internal logic to detect the last missed workout and suggest a reschedule.
+    """
+    missed = db_manager.get_last_missed_workout(user_id)
+    if missed:
+        _process_workout_rescheduling(user_id, missed)
 
 
 
@@ -743,6 +748,40 @@ async def delete_account_endpoint(request: Request, user: dict = Depends(verify_
 
         return {"status": "success", "message": "Account deleted permanently"}
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/workouts/{workout_id}/skip", tags=["Workouts"])
+async def skip_workout_endpoint(workout_id: str, user: dict = Depends(verify_token)):
+    """
+    Explicitly skip a workout and trigger AI rescheduling.
+    """
+    try:
+        uid = user['uid']
+        # 1. Fetch the workout to skip
+        workout_ref = db_manager.db.collection('users').document(uid).collection('workouts').document(workout_id)
+        workout_doc = workout_ref.get()
+        
+        if not workout_doc.exists:
+            raise HTTPException(status_code=404, detail="Workout not found")
+        
+        workout = workout_doc.to_dict()
+        workout['id'] = workout_id
+        
+        # 2. Trigger rescheduling
+        suggestion = _process_workout_rescheduling(uid, workout)
+        
+        if not suggestion:
+             return {"status": "skipped", "message": "Workout skipped, but AI could not generate a rescheduling suggestion at this time."}
+
+        return {
+            "status": "success",
+            "message": "Workout skipped and rescheduled",
+            "suggestion": suggestion
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error skipping workout: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # --- GDPR Compliance Endpoints (Phase 7.2) ---
@@ -1093,6 +1132,36 @@ def upload_workout_endpoint(
 
 refresh_statuses = {}
 
+def handle_garmin_mfa_required(uid: str):
+    """
+    Centralized handler for when Garmin demands 2FA/MFA.
+    Sends push notification and updates Firestore flag.
+    """
+    try:
+        from notification_service import notification_service
+        from datetime import datetime
+        
+        logger.warning(f"🔐 Handling Garmin 2FA requirement for uid={uid}")
+        
+        # 1. Update Firestore User Doc with MFA status
+        db_manager.db.collection('users').document(uid).set({
+            "garmin_mfa_required": True,
+            "last_sync_error": "MFA Required",
+            "last_sync_error_time": datetime.now()
+        }, merge=True)
+        
+        # 2. Send Push Notification
+        notification_service.send_push_notification(
+            uid,
+            "Garmin-yhteys vaatii huomiota",
+            "Garmin-istuntosi on vanhentunut. Ole hyvä ja kirjaudu uudelleen sovelluksen asetuksissa jatkaaksesi synkronointia.",
+            {"type": "garmin_mfa_required"}
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Failed to handle Garmin MFA requirement for {uid}: {e}")
+        return False
+
 def execute_refresh_task(uid: str, mode: str = "incremental"):
     """Background task to fetch data and train model with progress updates."""
     try:
@@ -1172,13 +1241,31 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
 
             
     except ValueError as ve:
+        error_msg = str(ve)
+        is_mfa = "GarminMFARequiredError" in error_msg or "Garmin 2FA" in error_msg
+        
         refresh_statuses[uid]["status"] = "failed"
-        refresh_statuses[uid]["error"] = str(ve) + " Please connect your Garmin account in Profile settings."
+        
+        if is_mfa:
+            refresh_statuses[uid]["error"] = "Garmin 2FA vaaditaan. Ole hyvä ja kirjaudu uudelleen profiiliasetuksissa."
+            handle_garmin_mfa_required(uid)
+        else:
+            refresh_statuses[uid]["error"] = error_msg + " Please connect your Garmin account in Profile settings."
     except Exception as e:
         import traceback
         traceback.print_exc()
+        
+        # Check specifically for Garmin MFA Required
+        error_msg = str(e)
+        is_mfa = "GarminMFARequiredError" in error_msg or "Garmin 2FA" in error_msg
+        
         refresh_statuses[uid]["status"] = "failed"
-        refresh_statuses[uid]["error"] = f"Refresh failed: {str(e)}"
+        
+        if is_mfa:
+            refresh_statuses[uid]["error"] = "Garmin 2FA vaaditaan. Ole hyvä ja kirjaudu uudelleen profiiliasetuksissa."
+            handle_garmin_mfa_required(uid)
+        else:
+            refresh_statuses[uid]["error"] = f"Refresh failed: {error_msg}"
 
 @app.post("/system/refresh")
 async def refresh_data(

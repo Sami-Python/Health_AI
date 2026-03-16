@@ -173,6 +173,8 @@ Log a manual workout.
 
 ---
 
+---
+
 #### `POST /workouts/upload`
 Upload a structured workout to Garmin Connect.
 
@@ -183,6 +185,22 @@ Upload a structured workout to Garmin Connect.
 {
   "workout": { "...Garmin workout JSON..." },
   "date": "2024-01-20"
+}
+```
+
+---
+
+#### `POST /workouts/{workout_id}/skip`
+Skip a workout and trigger AI rescheduling.
+
+**Tags:** Workouts, AI  
+**Rate Limit:** 5/min  
+**Response:**
+```json
+{
+  "new_date": "2024-01-22",
+  "reasoning": "Based on your current body battery...",
+  "push_message": "Treeni rästissä? 🏃 Tehdään se maanantaina!"
 }
 ```
 
@@ -420,7 +438,7 @@ Test Garmin credentials without saving them.
 ---
 
 #### `GET /garmin/status`
-Check Garmin connection status.
+Check Garmin connection status and MFA requirements.
 
 **Tags:** Garmin  
 **Rate Limit:** 20/min  
@@ -428,7 +446,8 @@ Check Garmin connection status.
 ```json
 {
   "connected": true,
-  "username": "your_username"
+  "username": "your_username",
+  "garmin_mfa_required": false
 }
 ```
 
@@ -751,5 +770,5 @@ Import collection: `docs/postman_collection.json` (TODO)
 
 ---
 
-**Last Updated:** 2026-03-12  
+**Last Updated:** 2026-03-16  
 **Maintained by:** Health AI Team

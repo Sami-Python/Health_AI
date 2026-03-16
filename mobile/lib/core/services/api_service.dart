@@ -172,6 +172,18 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> skipWorkout(String workoutId) async {
+    final headers = await _getHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/workouts/$workoutId/skip'),
+      headers: headers,
+    );
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to skip workout: ${response.statusCode}');
+  }
+
   Future<void> updateWorkoutDate(String workoutId, String newDate) async {
     final headers = await _getHeaders();
     final response = await http.patch(

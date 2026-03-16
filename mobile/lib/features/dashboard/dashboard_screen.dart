@@ -28,6 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _syncMessage = '';
   String? _error;
   bool _garminConnected = true; // Optimistic default to avoid flash
+  bool _garminMfaRequired = false;
 
   // Data
   Metric? _latestMetric;
@@ -48,8 +49,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _fetchGarminStatus() async {
     try {
       final status = await _apiService.getGarminStatus();
-      if (mounted)
-        setState(() => _garminConnected = status?['connected'] == true);
+      if (mounted) {
+        setState(() {
+          _garminConnected = status?['connected'] == true;
+          _garminMfaRequired = status?['garmin_mfa_required'] == true;
+        });
+      }
     } catch (_) {}
   }
 
@@ -378,6 +383,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 24),
 
           // Garmin connection banner
+          if (_garminConnected && _garminMfaRequired)
+            GestureDetector(
+              onTap: () => setState(() => _selectedIndex = 4),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border:
+                      Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                ),
+                child: Row(children: [
+                  const Icon(Icons.lock_reset_rounded,
+                      color: Colors.redAccent, size: 20),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Garmin connection expired',
+                          style: TextStyle(
+                              color: Colors.redAccent,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Re-login required in Profile settings',
+                          style: TextStyle(
+                              color: Colors.redAccent, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios,
+                      color: Colors.redAccent, size: 14),
+                ]),
+              ),
+            ),
+
           if (!_garminConnected)
             GestureDetector(
               onTap: () => setState(() => _selectedIndex = 4),

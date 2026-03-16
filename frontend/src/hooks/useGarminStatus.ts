@@ -5,6 +5,7 @@ import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 export interface GarminStatus {
     connected: boolean;
     username: string | null;
+    garmin_mfa_required?: boolean;
 }
 
 export function useGarminStatus() {
@@ -37,7 +38,7 @@ export function useGarminStatus() {
             console.error("Failed to fetch Garmin status", e);
             setError(e.message);
             // Default to not connected on error to avoid blocking UI
-            setStatus({ connected: false, username: null });
+            setStatus({ connected: false, username: null, garmin_mfa_required: false });
         } finally {
             setLoading(false);
         }

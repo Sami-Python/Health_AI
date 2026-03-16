@@ -112,6 +112,54 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-03-16 – Garmin 2FA Stability 🔐✅
+
+Parannettiin Garmin-yhteyden vakautta ja käyttäjäkokemusta MFA-tilanteissa (Phase 33).
+
+### 1. Automaattinen istunnon uusiminen (#960)
+- **Problem:** Garmin-istunnot vanhenivat taustalla, mikä aiheutti synkronointivirheitä ilman selitystä.
+- **Solution:** Lisätty proaktiivinen `client.garth.refresh()` kutsu aina kun tallennettuja tokeneita käytetään. Tämä varmistaa istunnon voimassaolon ennen datan hakua.
+
+### 2. Proaktiiviset ilmoitukset & UI-varoitukset (#961, #962, #963)
+- **Centralized MFA Handling:** Luotu `handle_garmin_mfa_required` funktio bäkendiin, joka hoitaa push-ilmoitusten lähetyksen ja Firestore-tilapäivitykset keskitetysti.
+- **Mobile Dashboard:** Lisätty punainen varoitusbanneri mobiiliin, joka ilmoittaa vanhentuneesta Garmin-yhteydestä ja ohjaa käyttäjän asetuksiin.
+- **Web Dashboard:** Integroitu vastaava "Garmin Connection Expired" -varoitus `GarminConnectBanner`-komponenttiin.
+- **User Experience:** Käyttäjä saa nyt välittömästi push-ilmoituksen puhelimeensa, jos taustasynkronointi vaatii uutta 2FA-koodia.
+
+**Tiedostot muutettu:**
+- `backend/scripts/fetch_garmin_data.py` – Proactive refresh logic
+- `backend/main.py` – Centralized MFA notifications
+- `backend/garmin_client.py` – Error propagation fixes
+- `mobile/lib/features/dashboard/dashboard_screen.dart` – Mobile MFA banner
+- `frontend/src/components/GarminConnectBanner.tsx` – Web MFA banner
+- `frontend/src/hooks/useGarminStatus.ts` – Frontend status types
+
+---
+
+## 2026-03-16 – Proactive AI & Workout Action Filtering 🚀✅
+
+Toteutettiin treenien automaattinen uudelleenaikataulutus (Skip) ja siistittiin käyttöliittymää suodattamalla turhat toiminnot historiasta.
+
+### 1. AI-pohjainen uudelleenaikataulutus (Phase 17)
+- **Problem:** Jos treeni jäi väliin, se piti siirtää manuaalisesti.
+- **Solution:** Lisätty "Skip & Reschedule" -toiminto. Kun käyttäjä skippaa treenin, AI Coach analysoi tilanteen ja ehdottaa uutta optimaalista päivää.
+- **Push Notifications:** Käyttäjä saa ilmoituksen ehdotetusta uudesta ajankohasta perusteluineen.
+
+### 2. Treenitoimintojen suodatus
+- **Cleanup:** "Skip", "Delete" ja "Send to Garmin" -toiminnot on nyt piilotettu jo tehdyiltä (DONE) tai Garminiin viedyiltä treeneiltä.
+- **Focus:** Nappulat näkyvät vain AI:n suunnittelemille tuleville treeneille, mikä selkeyttää kalenterin käyttöä huomattavasti.
+
+### 3. Backend Bug Fixes & Stabiilius
+- **Firestore Fix:** Korjattu kriittinen vika, jossa subkokoelmien polut olivat väärin (`/workouts` vs `/users/{uid}/workouts`). Tämä korjasi "Skip" ja "Reschedule" toimimattomuuden.
+- **Mobile Parity:** Standardoitu mobiilisovelluksen treeniluokittelu (`type: planned` vs `history`) logiikan varmistamiseksi.
+
+**Tiedostot muutettu:**
+- `backend/firestore_manager.py` – Path fixes (update_workout_date)
+- `backend/main.py` – New /skip endpoint & path logic
+- `mobile/lib/features/calendar/calendar_screen.dart` – UI filters & standardization
+- `frontend/src/components/TrainingCalendar.tsx` – Web UI filters
+- `Docs/API.md` – Updated with new endpoint
+
 ---
 
 ## 2026-03-15 – ML Accuracy Breakthrough & UI Improvements 🚀✅

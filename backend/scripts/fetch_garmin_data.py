@@ -143,7 +143,14 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                 "Please reconnect your Garmin account in the app settings to refresh your session."
             )
 
+        # Define a closure that captures user_id for the garth callback
+        def on_token_updated():
+            if user_id:
+                logger.info(f"🔄 Garth tokens refreshed for {user_id}, saving to Firestore...")
+                save_garth_session(user_id, client)
+
         client = Garmin(email, password, prompt_mfa=_mfa_not_supported)
+        client.garth.token_updated = on_token_updated
 
         # Try to load saved garth tokens from Firestore
         garth_tokens = None
@@ -189,18 +196,36 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                             json.dump(garth_tokens, f)
 
                     client.garth.load(tmpdir)
+
+                # --- PROACTIVE REFRESH ---
+                # Check if tokens are expired or need refresh to avoid "OAuth1 required" errors during API calls
+                try:
+                    logger.info("Verifying Garmin session validity...")
+                    # garth.refresh() will attempt to refresh OAuth tokens if they are expired or close to it
+                    client.garth.refresh()
+                    logger.info("✅ Garmin session refreshed/verified")
+                except Exception as refresh_err:
+                    logger.warning(f"⚠️ Proactive garth refresh failed: {refresh_err}")
+                    # If refresh fails, it's likely we need a fresh MFA login
+                    raise GarminMFARequiredError(
+                        "Garmin session expired and could not be refreshed automatically. "
+                        "Please reconnect your Garmin account in the app settings."
+                    )
+
                 logger.info("✅ Garmin session resumed from saved tokens")
                 
                 pass # Continue to patch display_name below
             except GarminMFARequiredError:
                 raise  # Propagate clearly
             except Exception as token_err:
-                # Tokens are present but couldn't be used (wrong format, expired, etc.)
-                # Do NOT fall back to fresh login — that would trigger 2FA again.
-                # Tell the user to reconnect interactively.
+                # Tokens are present but couldn't be used
                 logger.warning(f"⚠️ Token resume failed for uid={user_id}: {token_err}")
+                
+                # If we have credentials, we COULD try client.login(), but if that triggers MFA
+                # we are stuck in a non-interactive loop.
+                # Safer to raise MFA error right away if token load fails.
                 raise GarminMFARequiredError(
-                    "Your Garmin session has expired. "
+                    "Your Garmin session is invalid. "
                     "Please reconnect your Garmin account in the app settings to refresh your session."
                 )
 

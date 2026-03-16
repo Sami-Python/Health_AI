@@ -493,9 +493,7 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 
 ---
 
-## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (2026-03) 🚀
-
-> **Status:** IN PROGRESS (Aloitettu 2026-03-01)  
+## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (2026-03) ✅
 > **Source:** `roadmap_v2.md`
 
 ### 17.1 Loukkaantumisriskin Ennustaminen (Injury Risk Prediction) ✅
@@ -510,6 +508,20 @@ Tavoite: Varoittaa käyttäjää, jos ATL nousee äkillisesti yhdessä heikentyv
 ### 17.2 Automaattiset Korjaukset ✅ (Tarkistettu ja todettu valmiiksi aiemmissa koodeissa)
 - [x] **Garmin Export Title Bug:** Korjaa AI-valmentajan Garmin Connect -treeniviennin otsikko ("AI Coach - 2024-01-05"). Päivämäärä tulee asettaa vastaamaan oikeaa treenipäivää.
 - [x] **Garmin Export Content Bug:** Garminiin generoitu ohjelma ei täysin vastaa AI:n tekemää suunnitelmaa. Tarkista `ai_coach.py` vaiheistus (steps) ja JSON-mäppäys Garminin ymmärtämään muotoon.
+
+### 17.3 AI-pohjainen Treenien Uudelleenaikataulutus ✅
+Tavoite: Mahdollistaa treenin skippaus ja automaattinen uudelleensijoittaminen.
+- [x] Backend: `/workouts/{id}/skip` endpoint joka merkitsee treenin skapatuksi ja pyytää AI:lta uuden ehdotuksen.
+- [x] AI Coach: Generoi uuden päivämäärän ja perustelut (valmius, kuormitus).
+- [x] UI (Mobile & Web): "Skip & Reschedule" -painike.
+
+### 17.4 Treenitoimintojen Suodatus ✅
+Tavoite: Piilottaa "Skip", "Delete" ja "Send to Garmin" toiminnot historiassa olevilta tai Garminiin jo viedyiltä treeneiltä.
+- [x] UI Logic: Näytä toiminnalliset napit vain "planned" tyyppisille AI-treeneille.
+- [x] Mobile Data Standardization: Varmistettu että kaikki treenit luokitellaan oikein (history vs planned).
+
+### 17.5 Backend Bug Fixes ✅
+- [x] **Firestore Path Correction:** Korjattu virheelliset kokoelmapolut (`/workouts` -> `/users/{uid}/workouts`) jotka estivät treenien päivityksen.
 
 
 ## Phase 10: Security Hardening
@@ -975,9 +987,10 @@ Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
 
 ---
 
-## Phase 33: Garmin 2FA Stability (2026-03) 🗓️
+## Phase 33: Garmin 2FA Stability (2026-03-16) ✅
 
-> **Status:** PLANNED
+> **Status:** COMPLETED
 
-- [ ] **2FA Session Refresh:** Korjaa Garmin MFA-istunnon automaattinen uusiminen taustalla. (#960)
-- [ ] **Proactive Notifications:** Ilmoita käyttäjälle proaktiivisesti, jos Garmin-yhteys vaatii uutta koodia. (#961)
+- [x] **2FA Session Refresh:** Korjaa Garmin MFA-istunnon automaattinen uusiminen taustalla. (#960)
+- [x] **Proactive Notifications:** Ilmoita käyttäjälle proaktiivisesti, jos Garmin-yhteys vaatii uutta koodia. (#961)
+- [x] **MFA UI Warnings (Mobile & Web):** Lisätty näkyvät varoitusbannerit dashboardiin, jos Garmin-yhteys vaatii huomiota. (#962, #963)

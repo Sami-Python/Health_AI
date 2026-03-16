@@ -56,7 +56,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             'date': _normalizeDate(DateTime.tryParse(w['date'].toString()) ?? DateTime.now()),
             'name': w['workout_type'] ?? w['type'] ?? w['activity'] ?? 'Workout',
             'duration': w['duration_minutes'] ?? w['duration_min'] ?? w['planned_duration'] ?? 0,
-            'type': w['workout_type'] ?? w['type'] ?? w['activity'] ?? 'Training',
+            'type': 'history',
+            'activity': w['workout_type'] ?? w['type'] ?? w['activity'] ?? 'Workout',
             'raw': w,
             'source': 'history',
           });
@@ -70,7 +71,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             'date': _normalizeDate(DateTime.tryParse(w['date'].toString()) ?? DateTime.now()),
             'name': w['activity'] ?? w['workout_type'] ?? w['type'] ?? 'Planned Workout',
             'duration': w['duration_min'] ?? w['duration_minutes'] ?? w['planned_duration'] ?? 0,
-            'type': w['activity'] ?? w['workout_type'] ?? w['type'] ?? 'Training',
+            'type': 'planned',
+            'activity': w['activity'] ?? w['workout_type'] ?? w['type'] ?? 'Planned Workout',
             'raw': w,
             'source': 'upcoming',
           });
@@ -86,7 +88,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
           'date': normalizedDate,
           'name': content['activity'] ?? content['workout_type'] ?? content['type'] ?? 'Next Workout',
           'duration': content['duration_min'] ?? content['duration_minutes'] ?? content['planned_duration'] ?? 0,
-          'type': content['activity'] ?? content['workout_type'] ?? content['type'] ?? 'Training',
+          'type': 'planned',
+          'activity': content['activity'] ?? content['workout_type'] ?? content['type'] ?? 'Next Workout',
           'raw': next,
           'source': 'next',
         });
@@ -166,18 +169,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                workout['name'] as String,
-                style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              if (content['description'] != null && content['description'].toString().isNotEmpty)
-                Text(
-                  content['description'].toString(),
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              
+                children: [
+                  Text(
+                    workout['name'] as String,
+                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  if (content['description'] != null && content['description'].toString().isNotEmpty)
+                    Text(
+                      content['description'].toString(),
+                      style: const TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  const SizedBox(height: 16),
               if (content['structure'] != null && content['structure'].toString().isNotEmpty) ...[
                 const SizedBox(height: 16),
                 const Text('STRUCTURE:', style: TextStyle(color: Colors.indigoAccent, fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
@@ -220,7 +223,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ],
               const SizedBox(height: 32),
               
-              if (workoutId != null) ...[
+              if (workoutId != null && workout['type'] == 'planned') ...[
+                ListTile(
+                  leading: const Icon(Icons.block, color: Colors.orangeAccent),
+                  title: const Text('Skip Workout', style: TextStyle(color: Colors.white)),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: const Color(0xFF0F172A),
+                        title: const Text('Skip Workout', style: TextStyle(color: Colors.white)),
+                        content: const Text('Skip this workout and let AI suggest a new time?', style: TextStyle(color: Colors.white70)),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            child: const Text('Skip & Reschedule', style: TextStyle(color: Colors.orangeAccent)),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      setState(() => _loading = true);
+                      try {
+                        await _apiService.skipWorkout(workoutId.toString());
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Workout skipped and rescheduled!'), backgroundColor: Colors.orange));
+                          _fetchWorkouts();
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e'), backgroundColor: Colors.red));
+                        }
+                      } finally {
+                        if (mounted) setState(() => _loading = false);
+                      }
+                    }
+                  },
+                ),
                 ListTile(
                   leading: const Icon(Icons.calendar_month, color: Colors.blueAccent),
                   title: const Text('Reschedule Workout', style: TextStyle(color: Colors.white)),
@@ -295,6 +337,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   },
                 ),
                 ],
+              ],
               ),
             ),
           ),
@@ -517,7 +560,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   child: Row(
                                     children: [
                                       Icon(
-                                        _workoutIcon(w['type'] as String),
+                                        _workoutIcon(w['activity'] as String),
                                         color: isNext ? Colors.blueAccent : Colors.white54,
                                         size: 20,
                                       ),
@@ -613,7 +656,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
                             const SizedBox(height: 16),
                             // Send to Garmin button
-                            SizedBox(
+                            if (w['type'] == 'planned')
+                              SizedBox(
                               width: double.infinity,
                               child: OutlinedButton.icon(
                                 onPressed: () => _sendToGarmin(w),

@@ -673,13 +673,14 @@ def get_last_missed_workout(user_id: str):
 def update_workout_date(user_id: str, workout_id: str, new_date: str):
     """Updates the date of a specific workout (Drag & Drop)."""
     try:
-        doc_ref = db.collection('workouts').document(workout_id)
+        doc_ref = db.collection('users').document(user_id).collection('workouts').document(workout_id)
         doc = doc_ref.get()
         
         if not doc.exists:
             return False
             
-        if doc.to_dict().get('user_id') != user_id:
+        # Optional: verify ownership if data has user_id
+        if doc.to_dict().get('user_id') and doc.to_dict().get('user_id') != user_id:
             return False
             
         doc_ref.update({'date': new_date})

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths } from "date-fns";
 import { ChevronLeft, ChevronRight, CheckCircle2, XCircle, Calendar as CalendarIcon, Trash2, RefreshCw, AlertTriangle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "react-hot-toast";
 import { DndContext, DragOverlay, useDraggable, useDroppable, DragEndEvent, DragStartEvent, PointerSensor, MouseSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { useAuth } from "@/context/AuthContext";
@@ -262,6 +263,33 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
             setUploadStatus({ success: false, message: e.message || "Failed to send to Garmin" });
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleSkip = async () => {
+        if (!user || !selectedWorkout) return;
+        if (!confirm("Skip this workout and let AI suggest a new time?")) return;
+
+        setIsRegenerating(true);
+        try {
+            const token = await user.getIdToken();
+            const res = await fetchWithRetry(`${API_BASE_URL}/workouts/${selectedWorkout.id}/skip`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                toast.success("Workout skipped and rescheduled!");
+                setSelectedWorkout(null);
+                onUpdate?.();
+            } else {
+                const data = await res.json();
+                toast.error(data.detail || "Failed to skip workout");
+            }
+        } catch (e: any) {
+            toast.error(e.message || "An error occurred");
+        } finally {
+            setIsRegenerating(false);
         }
     };
 
@@ -604,8 +632,22 @@ export default function TrainingCalendar({ history = [], planned = [], onUpdate 
                                     )}
                                 </div>
 
+                                {selectedWorkout.type === 'planned' && (
+                                    <div className="mt-6 pt-4 border-t border-slate-800">
+                                        <Button
+                                            onClick={handleSkip}
+                                            disabled={isRegenerating}
+                                            variant="outline"
+                                            className="w-full border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300"
+                                        >
+                                            {isRegenerating ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <XCircle className="mr-2 h-4 w-4" />}
+                                            Skip & Reschedule
+                                        </Button>
+                                    </div>
+                                )}
+
                                 {/* Garmin Upload Section */}
-                                {selectedWorkout.garmin_workout && (
+                                {selectedWorkout.type === 'planned' && selectedWorkout.garmin_workout && (
                                     <div className="mt-6 pt-4 border-t border-slate-800">
                                         <Button
                                             onClick={handleUploadToGarmin}

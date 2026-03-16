@@ -87,6 +87,8 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 | REQ-I1 | Garmin-datan haku (garminconnect-kirjasto) | Valmis |
 | REQ-I2 | Tietojen päivitys pyynnöstä (Refresh) | Valmis |
 | REQ-I3 | Dashboard-banneri jos Garmin ei yhdistetty | Valmis |
+| REQ-I4 | Proaktiivinen istunnon uusiminen (Background Refresh) | Valmis |
+| REQ-I5 | Push-ilmoitus ja UI-varoitus jos MFA vaaditaan | Valmis |
 
 ---
 
@@ -146,6 +148,8 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 | `/goals` | GET/POST/PUT/DELETE | Tavoitteet | 20/min |
 | `/workouts/next` | GET | Seuraava treeni | 20/min |
 | `/workouts/history` | GET | Treenihistoria | 20/min |
+| `/workouts/upcoming` | GET | Tulevat treenit | 20/min |
+| `/workouts/{id}/skip` | POST | Treenin skippaus (AI) | 5/min |
 | `/workouts/log` | POST | Manuaalinen kirjaus | 20/min |
 | `/ai/insight` | GET | AI-oivallus | 10/min |
 | `/ai/generate-plan` | POST | AI-treeniohjelma | 5/h |
@@ -153,7 +157,7 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 | `/user/export` | GET | GDPR: Data export | 3/h |
 | `/user/account` | DELETE | GDPR: Tilin poisto | 1/h |
 | `/garmin/credentials` | POST | Garmin-yhteys | 5/h |
-| `/garmin/status` | GET | Garmin-tila | 20/min |
+| `/garmin/status` | GET | Garmin-tila (sis. MFA-tila) | 20/min |
 | `/system/refresh` | POST | Data refresh | 2/h |
 | `/feedback` | POST | Palaute | 10/h |
 | `/admin/feedback` | GET | Admin palautteet | 20/min |
@@ -178,4 +182,4 @@ Projekti täyttää kaikki vaatimukset, kun:
 
 ---
 
-**Viimeksi päivitetty:** 2026-02-09
+**Viimeksi päivitetty:** 2026-03-16

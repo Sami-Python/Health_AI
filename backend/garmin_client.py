@@ -35,6 +35,12 @@ class GarminClient:
             logger.info(f"✅ Garmin login successful for user {self.user_id}")
             
         except Exception as e:
+            # Preserve special error types for the caller to handle
+            err_str = str(e)
+            if "GarminMFARequiredError" in err_str or "Garmin 2FA" in err_str:
+                logger.warning(f"🔐 Garmin MFA required error detected in GarminClient for {self.user_id}")
+                raise
+                
             logger.error(f"❌ Garmin auth failed: {e}")
             raise ValueError(f"Garmin authentication failed: {str(e)}")
 

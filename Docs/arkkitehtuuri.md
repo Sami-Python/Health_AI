@@ -97,7 +97,7 @@ graph TD
 *   **Kehitysportaali (`frontend/`):** React-pohjainen sovellus, joka tarjoaa rikkaan käyttökokemuksen.
     *   **Dashboard:** Päänäkymä, joka kokoaa kaiken tiedon.
     *   **Goal Management:** Tavoitteiden hallinta (CRUD) ja Race-tavoitteet.
-    *   **Training Calendar:** Interaktiivinen kalenteri (Drag & Drop).
+    *   **Training Calendar:** Interaktiivinen kalenteri (Drag & Drop, Workout Rescheduling & Skip).
     *   **AI Chat Coach:** Interaktiivinen chatti.
     *   **Authentication:** Firebase Auth -integraatio.
     *   **API Client:** Kommunikoi Backendin kanssa (`fetchWithRetry`).
@@ -110,14 +110,18 @@ graph TD
         *   `plans`: AI-valmentajan generoimat suunnitelmat ja ennusteet.
         *   `goals`: Käyttäjän asettamat tavoitteet.
     *   **Garmin Metrics:** Prosessoidut metriikat subkokoelmassa (`garmin_metrics/{uid}/daily_metrics`).
+    *   **Garmin Status & 2FA:** Käyttäjäkohtainen tila ja MFA-vaatimukset (`users/{uid}/garmin_mfa_required`).
     *   **Garmin Credentials:** Salatut tokenit ja tunnukset (`users/{uid}/garmin_credentials`).
 
 ### 3. Backend & AI Core
 *   **Backend API (`backend/`):** FastAPI-palvelin (v1.0.0).
     *   Orkestroi liikenteen ja validoi liikenteen (`firebase-admin`).
+    *   **Centralized MFA Handling:** Keskitetty logiikka (`main.py:handle_garmin_mfa_required`) push-ilmoituksille ja Firestore-tilan päivityksille, kun Garmin vaatii huomiota.
     *   **Huomio:** Käyttää sisäisesti `firestore_manager.py`:tä tietokantatoimintoihin.
 *   **Backend Scripts (`backend/scripts/`):**
-    *   `fetch_garmin_data.py`: Hakee datan Garminilta (Optimized: Batch & Parallel) -> Tallentaa CSV (välimuisti) JA Synkronoi aktiviteetit Firestoreen.
+    *   `fetch_garmin_data.py`: Hakee datan Garminilta (Optimized: Batch & Parallel).
+        *   **Proactive Refresh:** Varmistaa istunnon voimassaolon `garth.refresh()` -kutsulla ennen datan hakua.
+        *   Tallentaa CSV (välimuisti) JA Synkronoi aktiviteetit Firestoreen.
     *   `process_garmin_data.py`: Lukee CSV-historian -> Kouluttaa XGBoost-mallin (Inkrementaalinen päivitys / Full retrain) -> Laskee metriikat (CTL/ATL/TSB) -> Tallentaa tulokset Firestoreen.
 *   **AI Coach:** Yhdistää fysiologisen datan Gemini 2.5 -kielimalliin.
 
