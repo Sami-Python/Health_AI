@@ -24,6 +24,7 @@ import main
 
 class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
+        mock_db_manager.reset_mock()
         self.user_id = "test_user_678"
         self.workout_id = "test_workout_999"
         self.workout_data = {
