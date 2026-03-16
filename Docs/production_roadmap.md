@@ -993,4 +993,4 @@ Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
 
 - [x] **2FA Session Refresh:** Korjaa Garmin MFA-istunnon automaattinen uusiminen taustalla. (#960)
 - [x] **Proactive Notifications:** Ilmoita käyttäjälle proaktiivisesti, jos Garmin-yhteys vaatii uutta koodia. (#961)
-- [x] **MFA UI Warnings (Mobile & Web):** Lisätty näkyvät varoitusbannerit dashboardiin, jos Garmin-yhteys vaatii huomiota. (#962, #963)
+- [x] **MFA UI Warnings (Mobile & Web):** Lisätty näkyvät varoitusbannerit dashboardiin, jos Garmin-yhteys vaatii huomiota. (#962, #963) (#358)
