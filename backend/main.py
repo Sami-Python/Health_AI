@@ -14,6 +14,8 @@ import ai_coach
 import ai_coach
 import firestore_garmin_metrics
 import scripts.predict_readiness as predictor
+from notification_service import notification_service
+from datetime import date, timedelta, datetime
 from garmin_client import GarminClient # Handles file uploads
 try:
     from google.cloud import error_reporting
@@ -655,10 +657,6 @@ def _process_workout_rescheduling(user_id: str, workout: dict):
     Handles the AI-driven rescheduling logic for a specific workout.
     """
     try:
-        from notification_service import notification_service
-        import ai_coach
-        from datetime import date
-        
         # 1. Get current metrics for AI context
         recent_metrics = firestore_garmin_metrics.get_user_daily_metrics(user_id, days=1)
         if not recent_metrics:
