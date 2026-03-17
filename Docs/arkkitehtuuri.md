@@ -1,7 +1,7 @@
 # Arkkitehtuuri – Sami's AI Coach
 
 ## Järjestelmän Yleiskuva
-Sami's AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 2.5) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.
+Sami's AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 1.5) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.
 
 ## Arkkitehtuurikaavio (Mermaid)
 
@@ -9,7 +9,7 @@ Sami's AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garmi
 graph TD
     %% Ulkoiset Palvelut
     Garmin((Garmin Connect API))
-    Gemini((Gemini 2.5 AI))
+    Gemini((Gemini 1.5 AI))
     User((Käyttäjä))
 
     %% Firebase Platform
