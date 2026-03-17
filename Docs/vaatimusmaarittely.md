@@ -1,8 +1,8 @@
 # Vaatimusmäärittely – Health AI Coach
 
-**Versio:** 1.0  
+**Versio:** 1.2  
 **Status:** Production Ready  
-**API:** v1.0.0
+**API:** v1.2.0
 
 ---
 
@@ -146,20 +146,27 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 |----------|--------|--------|------------|
 | `/health` | GET | Terveystarkistus | – |
 | `/goals` | GET/POST/PUT/DELETE | Tavoitteet | 20/min |
-| `/workouts/next` | GET | Seuraava treeni | 20/min |
+| `/workouts/next` | GET | Seuraava suositeltu treeni | 20/min |
 | `/workouts/history` | GET | Treenihistoria | 20/min |
 | `/workouts/upcoming` | GET | Tulevat treenit | 20/min |
 | `/workouts/{id}/skip` | POST | Treenin skippaus (AI) | 5/min |
-| `/workouts/log` | POST | Manuaalinen kirjaus | 20/min |
+| `/workouts/manual` | POST | Manuaalinen kirjaus | 20/min |
+| `/workouts/upload` | POST | Garmin-vienti | 5/min |
+| `/next-workout` | GET | Seuraava treeni (legacy) | 20/min |
+| `/gamification/summary` | GET | Pelillistäminen | 20/min |
 | `/ai/insight` | GET | AI-oivallus | 10/min |
-| `/ai/generate-plan` | POST | AI-treeniohjelma | 5/h |
-| `/user/profile` | GET/POST | Käyttäjäprofiili | 20/min |
+| `/ai/chat` | POST | AI Chat | 10/min |
+| `/plans/generate` | POST | AI-treeniohjelma | 5/min |
+| `/profile` | GET/PUT | Käyttäjäprofiili | 20/min |
 | `/user/export` | GET | GDPR: Data export | 3/h |
-| `/user/account` | DELETE | GDPR: Tilin poisto | 1/h |
-| `/garmin/credentials` | POST | Garmin-yhteys | 5/h |
-| `/garmin/status` | GET | Garmin-tila (sis. MFA-tila) | 20/min |
+| `/account` | DELETE | GDPR: Tilin poisto | 2/min |
+| `/notifications/token` | POST | FCM Token | 5/min |
+| `/garmin/connect` | POST | Garmin Login (2FA) | 5/min |
+| `/garmin/connect/mfa` | POST | Garmin MFA | 10/min |
+| `/garmin/status` | GET | Garmin-tila | 20/min |
+| `/garmin/credentials` | POST/DELETE | Garmin Credentials | 5/h |
 | `/system/refresh` | POST | Data refresh | 2/h |
-| `/feedback` | POST | Palaute | 10/h |
+| `/feedback` | POST | Palaute | 5/h |
 | `/admin/feedback` | GET | Admin palautteet | 20/min |
 | `/admin/security-events` | GET | Admin tietoturva | 50/min |
 | `/admin/revoke-tokens/{uid}` | POST | Admin uloskirjaus | 5/min |
@@ -182,4 +189,4 @@ Projekti täyttää kaikki vaatimukset, kun:
 
 ---
 
-**Viimeksi päivitetty:** 2026-03-16
+**Viimeksi päivitetty:** 2026-03-17

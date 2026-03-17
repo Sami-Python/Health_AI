@@ -1,9 +1,9 @@
 # Health AI Coach API Documentation
 
 **Base URL:** `http://localhost:8000` (development)  
-**Production:** `https://api.personalaicoach.ai`  
-**API Docs:** `http://localhost:8000/docs` (Swagger UI)  
-**Version:** 1.1.0
+**Production:** `https://health-ai-backend-35976089058.europe-north1.run.app`  
+**API Docs:** `https://health-ai-backend-35976089058.europe-north1.run.app/docs` (Swagger UI)  
+**Version:** 1.2.0
 
 
 ---
@@ -374,7 +374,22 @@ Update user profile.
   "age": 35,
   "weight": 75.0,
   "height": 180,
-  "gender": "male"
+  "gender": "male",
+  "resting_heart_rate": 60,
+  "max_heart_rate": 190
+}
+```
+
+---
+
+#### `POST /notifications/token`
+Register an FCM token for push notifications.
+
+**Tags:** Notifications  
+**Rate Limit:** 5/min
+```json
+{
+  "token": "fcm-token-here"
 }
 ```
 
@@ -438,7 +453,7 @@ Test Garmin credentials without saving them.
 ---
 
 #### `GET /garmin/status`
-Check Garmin connection status and MFA requirements.
+Check Garmin connection status.
 
 **Tags:** Garmin  
 **Rate Limit:** 20/min  
@@ -446,8 +461,37 @@ Check Garmin connection status and MFA requirements.
 ```json
 {
   "connected": true,
-  "username": "your_username",
-  "garmin_mfa_required": false
+  "username": "your_username"
+}
+```
+
+---
+
+#### `POST /garmin/connect`
+Initiate Garmin login with MFA support.
+
+**Tags:** Garmin  
+**Rate Limit:** 5/min
+**Response (MFA required):**
+```json
+{
+  "status": "mfa_required",
+  "session_id": "uuid-here"
+}
+```
+
+---
+
+#### `POST /garmin/connect/mfa`
+Complete Garmin login with MFA code.
+
+**Tags:** Garmin  
+**Rate Limit:** 10/min
+**Request Body:**
+```json
+{
+  "session_id": "uuid-here",
+  "mfa_code": "123456"
 }
 ```
 
