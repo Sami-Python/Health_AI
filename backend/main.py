@@ -11,7 +11,6 @@ from fastapi import Depends
 from auth_middleware import verify_token, verify_admin
 import json
 import ai_coach
-import ai_coach
 import firestore_garmin_metrics
 import scripts.predict_readiness as predictor
 from notification_service import notification_service
@@ -1594,18 +1593,10 @@ async def get_next_workout_endpoint(request: Request, user: dict = Depends(verif
 @limiter.limit("10/minute")
 async def delete_workout_endpoint(workout_id: str, request: Request, user: dict = Depends(verify_token)):
     try:
-        # We need a delete function in db_manager or use generic delete if exposed?
-        # firestore_manager.delete_goal exists, but not delete_workout explicitly with ID check.
-        # But we can use db.collection(...).delete() wrapper.
-        # Let's assume we can add it or modify firestore_manager efficiently?
-        # Or just do:
-        uid = user['uid']
-        doc_ref = db_manager.db.collection('users').document(uid).collection('workouts').document(workout_id)
-        doc = doc_ref.get()
-        if not doc.exists:
-             raise HTTPException(status_code=404, detail="Workout not found")
+        success = db_manager.delete_workout(user['uid'], workout_id)
+        if not success:
+             raise HTTPException(status_code=404, detail="Workout not found or error deleting")
         
-        doc_ref.delete()
         return {"status": "success", "message": "Workout deleted"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

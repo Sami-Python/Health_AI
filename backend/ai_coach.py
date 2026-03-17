@@ -352,7 +352,7 @@ def generate_daily_insight(ctx):
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt
         )
         return response.text.replace('"', '').strip() # Clean quotes
@@ -394,7 +394,7 @@ def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )

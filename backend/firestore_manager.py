@@ -689,6 +689,19 @@ def update_workout_date(user_id: str, workout_id: str, new_date: str):
         print(f"Update Date Error: {e}")
         return False
 
+def delete_workout(user_id: str, workout_id: str):
+    """Deletes a specific workout."""
+    try:
+        doc_ref = db.collection('users').document(user_id).collection('workouts').document(workout_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return False
+        doc_ref.delete()
+        return True
+    except Exception as e:
+        print(f"Delete Workout Error: {e}")
+        return False
+
 def check_daily_generation_limit(user_id: str, max_limit: int = 5):
     """Checks if user has exceeded daily generation limit."""
     try:
@@ -710,26 +723,6 @@ def check_daily_generation_limit(user_id: str, max_limit: int = 5):
         # Fail open or closed? Let's fail open but log error
         return True
 
-def check_daily_generation_limit(user_id: str, max_limit: int = 5):
-    """Checks if user has exceeded daily generation limit."""
-    try:
-        from datetime import datetime, time
-        # Get start and end of today
-        now = datetime.now()
-        start_of_day = datetime.combine(now.date(), time.min)
-        
-        # Count plans generated today
-        docs = db.collection('plans')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
-                 .where(filter=FieldFilter('timestamp', '>=', start_of_day))\
-                 .stream()
-                 
-        count = sum(1 for _ in docs)
-        return count < max_limit
-    except Exception as e:
-        print(f"Limit Check Error: {e}")
-        # Fail open or closed? Let's fail open but log error
-        return True
 
 def delete_all_user_data(user_id: str):
     """Deletes ALL user data from Firestore (GDPR Compliance)."""
