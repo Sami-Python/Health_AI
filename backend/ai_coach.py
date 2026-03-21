@@ -8,6 +8,9 @@ import secret_loader
 # Prioritizes Env Var, then Secret Manager
 api_key = secret_loader.get_secret("GEMINI_API_KEY")
 
+# Initialize the Gemini Client ONCE at startup (Singleton)
+ai_client = genai.Client(api_key=api_key) if api_key else None
+
 def construct_prompt(ctx, compliance_history="", preference_feedback="", active_goals="", rejected_context=None):
     rejection_text = ""
     if rejected_context:
@@ -235,8 +238,6 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
     print(f"Calling Gemini Coach (Days: {n_days})...")
     
     try:
-        client = genai.Client(api_key=api_key)
-        
         # Fetch Execution Score compliance
         avg_score = db_manager.get_average_execution_score(user_id, days=7)
         if avg_score is not None:
@@ -273,7 +274,7 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
         else:
             prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text, rejected_context=rejected_context)
         
-        response = client.models.generate_content(
+        response = ai_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt,
             config={
@@ -297,8 +298,6 @@ def generate_trend_analysis(df_recent):
     print("Thinking (Trend Analysis)...")
     
     try:
-        client = genai.Client(api_key=api_key)
-        
         # Prepare data summary
         csv_data = df_recent[['date', 'bodyBatteryChargedValue', 'totalSleep_minutes', 'averageStressLevel', 'workout_calories']].to_csv(index=False)
         
@@ -317,7 +316,7 @@ def generate_trend_analysis(df_recent):
         Output in Finnish language. Keep it concise (bullet points).
         """
         
-        response = client.models.generate_content(
+        response = ai_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt
         )
@@ -350,9 +349,8 @@ def generate_daily_insight(ctx):
     """
     
     try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
             contents=prompt
         )
         return response.text.replace('"', '').strip() # Clean quotes
@@ -392,9 +390,8 @@ def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
     """
     
     try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )

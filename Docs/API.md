@@ -240,6 +240,23 @@ Get weekly training status summary.
 
 ---
 
+#### `GET /gamification/summary`
+Get user gamification metrics and execution score summary.
+
+**Tags:** Gamification, Workouts  
+**Rate Limit:** 20/min  
+**Response:**
+```json
+{
+  "average_score": 85.5,
+  "workouts_analyzed": 10,
+  "streak_days": 5,
+  "level": 3
+}
+```
+
+---
+
 ### AI & Insights
 
 #### `GET /ai/insight`

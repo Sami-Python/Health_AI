@@ -710,92 +710,65 @@ def check_daily_generation_limit(user_id: str, max_limit: int = 5):
         now = datetime.now()
         start_of_day = datetime.combine(now.date(), time.min)
         
-        # Count plans generated today
-        docs = db.collection('plans')\
-                 .where(filter=FieldFilter('user_id', '==', user_id))\
+        # Count plans generated today — use the correct user subcollection path
+        docs = db.collection('users').document(user_id).collection('plans')\
                  .where(filter=FieldFilter('timestamp', '>=', start_of_day))\
                  .stream()
                  
         count = sum(1 for _ in docs)
-        return count  < max_limit
+        return count < max_limit
     except Exception as e:
         print(f"Limit Check Error: {e}")
-        # Fail open or closed? Let's fail open but log error
+        # Fail open but log error
         return True
 
 
 def delete_all_user_data(user_id: str):
     """Deletes ALL user data from Firestore (GDPR Compliance)."""
     try:
-        # Collections to delete: goals, workouts, plans, users (profile + subcollections)
-        collections = ['goals', 'workouts', 'plans']
-        
+        user_ref = db.collection('users').document(user_id)
         batch = db.batch()
         count = 0
-        
-        for collection_name in collections:
-            docs = db.collection(collection_name)\
-                     .where(filter=FieldFilter('user_id', '==', user_id))\
-                     .stream()
-            
-            for doc in docs:
+
+        def _batch_delete(docs_iter):
+            """Helper: add docs to current batch, auto-commit at 400 ops."""
+            nonlocal batch, count
+            for doc in docs_iter:
                 batch.delete(doc.reference)
                 count += 1
-                
-                # Firestore batch limit is 500 operations
                 if count >= 400:
                     batch.commit()
                     batch = db.batch()
                     count = 0
-        
-        # Delete user profile and subcollections
-        user_ref = db.collection('users').document(user_id)
-        
-        # Delete daily_insights subcollection
-        insights = user_ref.collection('daily_insights').stream()
-        for insight in insights:
-            batch.delete(insight.reference)
-            count += 1
-            if count >= 400:
-                batch.commit()
-                batch = db.batch()
-                count = 0
-        
+
+        # Delete all user subcollections (goals, workouts, plans, daily_insights)
+        for subcoll in ['goals', 'workouts', 'plans', 'daily_insights']:
+            _batch_delete(user_ref.collection(subcoll).stream())
+
         # Delete garmin_credentials subcollection (GDPR - encrypted passwords)
         delete_garmin_credentials(user_id)
-        
-        # Delete user profile document
+
+        # Delete user profile document itself
         batch.delete(user_ref)
         count += 1
-        
+
         # Final commit
         if count > 0:
             batch.commit()
-        
-        # Delete Garmin metrics (separate collection structure)
-        # Import here to avoid circular dependency at module level
+
+        # Delete Garmin metrics (separate top-level collection structure)
         import firestore_garmin_metrics
         firestore_garmin_metrics.delete_user_metrics(user_id)
-        
-        # Delete user feedback submissions
+
+        # Delete user feedback submissions (top-level 'feedback' collection)
         delete_user_feedback(user_id)
-        
+
         print(f"[SUCCESS] Deleted ALL data for user {user_id} (GDPR compliant)")
         return True
-        
+
     except Exception as e:
         print(f"[ERROR] User Data Deletion Error: {e}")
         return False
-"""
-GDPR Compliance Helper Functions
-Adds data export and feedback functionality to firestore_manager
-"""
-from google.cloud.firestore import FieldFilter
-
-# Import the shared db client
-import firestore_manager
-
-db = firestore_manager.db
 
 def get_all_goals(user_id: str):
     """Fetches ALL goals for a user (active and archived) for data export."""

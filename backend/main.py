@@ -216,7 +216,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 @app.get("/metrics/history", tags=["Analytics"])
-async def get_metrics_history(user: dict = Depends(verify_token)):
+async def get_metrics_history(user: dict = Depends(verify_token), days: int = 90):
     """
     Get historical recovery and training metrics.
     
@@ -248,7 +248,7 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
 
     try:
         # Load from Firestore (Multi-User)
-        metrics = firestore_garmin_metrics.get_user_daily_metrics(user['uid'], days=90)
+        metrics = firestore_garmin_metrics.get_user_daily_metrics(user['uid'], days=days)
         
         result = []
         for row in metrics:
@@ -276,15 +276,11 @@ async def get_metrics_history(user: dict = Depends(verify_token)):
     except Exception as e:
         print(f"Metrics Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-@app.get("/")
-@limiter.limit("5/minute")
+@app.get("/", tags=["System"], summary="Root Endpoint")
 def read_root(request: Request):
-    return {"message": "Health AI API is running! (DuckDB Version)"}
+    return {"message": "Health AI API is running! (Firestore Version)"}
 
-@app.get("/health")
+@app.get("/health", tags=["System"])
 def health_check():
     return {"status": "ok"}
 
@@ -1180,9 +1176,6 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         import fetch_garmin_data
         import process_garmin_data
         
-        importlib.reload(fetch_garmin_data)
-        importlib.reload(process_garmin_data)
-        
         refresh_statuses[uid]["progress"] = 30
         refresh_statuses[uid]["message"] = "Fetching Garmin Data..."
         
@@ -1331,12 +1324,12 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
     **Fallback:** Returns generic advice if AI generation fails
     """
     try:
-        # Reuse logic to get latest 30 days, but we only need the last one
-        metrics = await get_metrics_history(user)
+        # Hae vain viimeisimmän päivän data Firestoresta
+        metrics = await get_metrics_history(user, days=1)
         if not metrics or len(metrics) == 0:
             return {"insight": "Ei tarpeeksi dataa analyysiin."}
             
-        latest = metrics[-1] # Last day
+        latest = metrics[0] # Jäljellä vain haettu 1 vrk
         
         # 1. OPTIMIZATION: Check Cache
         from datetime import datetime
@@ -1450,12 +1443,12 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
     if not db_manager.check_daily_generation_limit(user['uid']):
          raise HTTPException(status_code=429, detail="Daily plan generation limit (5) reached.")
     try:
-        # 1. Get Context (Metrics)
-        metrics = await get_metrics_history(user)
+        # 1. Hae vain 1 päivän data kontekstia varten
+        metrics = await get_metrics_history(user, days=1)
         if not metrics or len(metrics) == 0:
             latest = {"tsb": 0, "readiness": 50, "sleep_min": 420, "ctl": 0, "load": 0}
         else:
-            latest = metrics[-1]
+            latest = metrics[0]
 
         ctx = {
             "date": date.today().isoformat(),
@@ -1684,65 +1677,9 @@ async def test_garmin_credentials_endpoint(
         logger.warning(f"Garmin Test Failed for {user['uid']}: {e}")
         raise HTTPException(status_code=401, detail=f"Authentication failed. Please check your username and password.")
 
-@app.get("/garmin/status")
-@limiter.limit("20/minute")
-async def get_garmin_status_endpoint(
-    request: Request,
-    user: dict = Depends(verify_token)
-):
-    """
-    Checks if user has saved Garmin credentials.
-    
-    Returns:
-        {
-            "connected": true/false,
-            "username": "user@example.com" (if connected)
-        }
-    """
-    try:
-        has_credentials = db_manager.check_garmin_credentials_exist(user['uid'])
-        
-        if has_credentials:
-            # Get username (but NOT password)
-            creds = db_manager.get_garmin_credentials(user['uid'])
-            return {
-                "connected": True,
-                "username": creds['username'] if creds else None
-            }
-        else:
-            return {
-                "connected": False,
-                "username": None
-            }
-            
-    except Exception as e:
-        print(f"Garmin Status Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.delete("/garmin/credentials")
-@limiter.limit("5/hour")
-async def delete_garmin_credentials_endpoint(
-    request: Request,
-    user: dict = Depends(verify_token)
-):
-    """
-    Deletes user's Garmin credentials (disconnect).
-    """
-    try:
-        success = db_manager.delete_garmin_credentials(user['uid'])
-        
-        if success:
-            return {
-                "status": "success",
-                "message": "Garmin account disconnected"
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Failed to delete credentials")
-            
-    except Exception as e:
-        print(f"Delete Garmin Credentials Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+# NOTE: GET /garmin/status and DELETE /garmin/credentials are defined below
+# in the Garmin 2FA section (with proper tags, rate limits and logging).
+# The old duplicate handlers that were here have been removed.
 
 
 # --- AI Chat Endpoint ---
