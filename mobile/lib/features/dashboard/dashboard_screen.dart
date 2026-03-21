@@ -65,32 +65,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      print('Fetching metrics...');
-      final metrics = await _apiService.fetchMetricsHistory();
-      print('Fetching goals...');
-      final goals = await _apiService.fetchGoals();
-      print('Fetching next workout...');
-      final nextWorkout = await _apiService.fetchNextWorkout();
-      print('Fetching AI insight...');
-      final aiInsight = await _apiService.fetchAIInsight();
-      print('Fetching weekly stats...');
-      final weeklyStats = await _apiService.fetchWeeklyStats();
-      print('Fetching gamification...');
-      final gamification = await _apiService.fetchGamificationSummary();
-      print('All fetchcomplete');
+      print('Starting parallel fetch...');
+      
+      final results = await Future.wait([
+        _apiService.fetchMetricsHistory(),
+        _apiService.fetchGoals(),
+        _apiService.fetchNextWorkout(),
+        _apiService.fetchAIInsight(),
+        _apiService.fetchWeeklyStats(),
+        _apiService.fetchGamificationSummary(),
+      ]);
+      print('All fetch complete');
 
       if (mounted) {
         setState(() {
+          final metrics = results[0] as List<Metric>;
           // Get the most recent metric
           if (metrics.isNotEmpty) {
             _latestMetric = metrics.last;
             _history = metrics;
           }
-          _goals = goals;
-          _nextWorkout = nextWorkout;
-          _aiInsight = aiInsight;
-          _weeklyStats = weeklyStats;
-          _gamification = gamification;
+          _goals = results[1] as List<Goal>;
+          _nextWorkout = results[2] as Map<String, dynamic>?;
+          _aiInsight = results[3] as Map<String, dynamic>?;
+          _weeklyStats = results[4] as Map<String, dynamic>?;
+          _gamification = results[5] as Map<String, dynamic>?;
           _isLoading = false;
         });
       }

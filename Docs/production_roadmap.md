@@ -994,3 +994,20 @@ Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
 - [x] **2FA Session Refresh:** Korjaa Garmin MFA-istunnon automaattinen uusiminen taustalla. (#960)
 - [x] **Proactive Notifications:** Ilmoita käyttäjälle proaktiivisesti, jos Garmin-yhteys vaatii uutta koodia. (#961)
 - [x] **MFA UI Warnings (Mobile & Web):** Lisätty näkyvät varoitusbannerit dashboardiin, jos Garmin-yhteys vaatii huomiota. (#962, #963) (#358)
+
+---
+
+## Phase 34: Mobile App Distribution & Beta Testing
+> **Status:** PLANNED
+
+**Tavoite:** Android-mobiilisovelluksen sujuva ja automatisoitu jakelu testikäyttäjille käyttäen olemassa olevaa Firebase-infrastruktuuria.
+
+- [ ] **Firebase App Distribution Setup:**
+  - [ ] Ota Firebase App Distribution käyttöön Firebase Consolessa.
+  - [ ] Luo "beta-testaajat" -ryhmä ja kutsu ensimmäiset testaajat sähköpostilla.
+- [ ] **CI/CD Automatisointi (GitHub Actions):**
+  - [ ] Valmistele Firebase CLI / Service Account konfiguraatio CI-putkea varten.
+  - [ ] Laajenna olemassa olevaa GitHub Actionsia kääntämään Flutterista luotettavasti Release `.apk`.
+  - [ ] Konfiguroi automaattinen puskeminen Firebaseen kera julkaisunuottien (Release Notes), kun `main`-haara päivittyy.
+- [ ] **Testaajien Kokemus:**
+  - [ ] Testaa kutsuprosessin sujuvuus ja asennus ei-teknisellä käyttäjällä (AppTester / selainlataus).
