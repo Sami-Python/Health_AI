@@ -1,0 +1,55 @@
+name: Distribute Android Beta (Firebase)
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseNotes:
+        description: 'Release Notes for testers'
+        required: true
+        default: 'New beta version released via GitHub Actions'
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to Firebase App Distribution
+    runs-on: ubuntu-latest
+    
+    # We set default directory to mobile since it's a flutter app
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Flutter Pub Get
+        run: flutter pub get
+
+      - name: Build Android APK
+        # We build a debug APK by default for seamless testing without keystore CI configuration.
+        # To build a release APK, you must configure Android keystore secrets in GitHub Actions
+        # and change this to `flutter build apk --release`
+        run: flutter build apk --debug
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
+          # You can use FIREBASE_TOKEN (via `firebase login:ci`) 
+          # OR target a service account JSON stored in FIREBASE_CREDENTIALS
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: testers
+          releaseNotes: ${{ github.event.inputs.releaseNotes }}
+          # Path to the debug APK we just built
+          file: mobile/build/app/outputs/flutter-apk/app-debug.apk

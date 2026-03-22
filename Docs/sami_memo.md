@@ -28,7 +28,7 @@ docker-compose up
 ---
 
 ### 2️⃣ Web Frontend (Next.js)
-Avaa uusi terminaali ja aja:
+Avaa uusi terminaali ja aja:flutter run
 ```bash
 cd frontend
 npm run dev
@@ -111,6 +111,26 @@ cd frontend
 npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
+
+## 2026-03-22 – Garmin Workout Export Fixes & Firebase CI/CD 🚀✅
+
+Tänään ratkaistiin merkittäviä ongelmia Garmin-treeniviennin rakenteessa ja automatisoitiin mobiilisovelluksen beta-jakelu.
+
+### 1. Garmin Workout Payload Fix 🔧
+- **Ongelma:** Käyttäjän generoimat treenit näkyivät Garmin Connectissa vain pelkkinä "kalenterimuistiinpanoina" (Note) ilman varsinaisia juoksu- tai lämmittelyaskeleita. Myös rinnakkaisesti päivälle generoidut AI-ohjelmat saattoivat mennä päällekkäin jo tehtyjen treenien kanssa.
+- **Ratkaisu:** Garmin Connect API hylkäsi hiljaisesti treenin askeleet (`ExecutableStepDTO`), jos payloadissa lähetettiin tyhjiä (None) parametreja tai vääriä kohdetyyppejä (`targetType`). Koodia korjattiin siivoamaan kaikki tyhjät kentät automaattisesti pois ennen lähetystä, jolloin validointi menee läpi.
+- **AI Plan Start Date Fix:** `main.py`:n `/plans/generate` endpointtiin asennettiin tarkistus, joka siirtää AI:n generoiman treeniohjelman alkamaan *huomisesta*, jos tälle päivälle on jo kirjattu tehty treeni (`status == 'DONE'`).
+
+### 2. Firebase App Distribution CI/CD 🚀
+- **Ongelma:** Mobiilisovelluksen testiversioiden jakelu testaajille oli manuaalista ja hidasta.
+- **Ratkaisu:** Rakennettiin uusi GitHub Actions -pipeline (`mobile-beta.yml`), joka rakentaa asennuspaketin (`.apk --debug`) automaattisesti pilvessä ja puskee sen suoraan Firebasen "testers" -ryhmälle. Tämä säästää valtavasti aikaa ohjelmistokehityksen iteraatioissa.
+
+**Tiedostot muutettu:**
+- `backend/garmin_client.py` – Payloadin putsaus ja HR/Pace custom targettien käsittely.
+- `backend/main.py` – Päällekkäisten treenien estologiikka.
+- `.github/workflows/mobile-beta.yml` – CI/CD konfiguraatio Firebaselle.
+
+---
 
 ## 2026-03-16 – Garmin 2FA Stability 🔐✅
 

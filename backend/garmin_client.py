@@ -80,7 +80,9 @@ class GarminClient:
                 "power.zone": { "workoutTargetTypeId": 2, "workoutTargetTypeKey": "power.zone", "displayOrder": 2 },
                 "cadence.zone": { "workoutTargetTypeId": 3, "workoutTargetTypeKey": "cadence.zone", "displayOrder": 3 },
                 "heart.rate.zone": { "workoutTargetTypeId": 4, "workoutTargetTypeKey": "heart.rate.zone", "displayOrder": 4 },
-                "pace.zone": { "workoutTargetTypeId": 6, "workoutTargetTypeKey": "pace.zone", "displayOrder": 6 } 
+                "heart.rate.custom": { "workoutTargetTypeId": 5, "workoutTargetTypeKey": "heart.rate.custom", "displayOrder": 5 },
+                "pace.zone": { "workoutTargetTypeId": 6, "workoutTargetTypeKey": "pace.zone", "displayOrder": 6 },
+                "pace.custom": { "workoutTargetTypeId": 7, "workoutTargetTypeKey": "pace.custom", "displayOrder": 7 } 
             }
 
             # 1. Sport Type
@@ -140,19 +142,38 @@ class GarminClient:
                         target_val_two = None
                         
                     elif val1 >= 10:
-                        # BPM TARGET
-                        # We don't have a confirmed "BPM" structure from debug (User didn't provide).
-                        # Using ID 1 "no.target" is SAFE.
-                        # We append info to description.
-                        target_obj = TARGET_TYPES['no.target']
+                        # BPM TARGET (Custom HR Range)
+                        target_obj = TARGET_TYPES['heart.rate.custom']
+                        target_val_one = val1
+                        try:
+                            target_val_two = float(step.get('targetValueTwo', val1))
+                        except (TypeError, ValueError):
+                            target_val_two = val1
                         zone_number = None
-                        step['description'] = f"{step.get('description','')} (Target HR: {int(val1)})"
 
                 elif "pace" in target:
-                    target_obj = TARGET_TYPES['pace.zone']
-                    # Placeholder if we implement Pace Zones later
+                    try:
+                        val1 = float(step.get('targetValueOne', 0))
+                    except (TypeError, ValueError):
+                        val1 = 0
+                        
+                    if val1 > 0 and val1 < 10:
+                        # ZONE TARGET
+                        target_obj = TARGET_TYPES['pace.zone']
+                        zone_number = int(val1)
+                        target_val_one = None
+                        target_val_two = None
+                    else:
+                        # CUSTOM PACE TARGET (seconds per kilometer)
+                        target_obj = TARGET_TYPES['pace.custom']
+                        target_val_one = val1
+                        try:
+                            target_val_two = float(step.get('targetValueTwo', val1))
+                        except (TypeError, ValueError):
+                            target_val_two = val1
+                        zone_number = None
 
-                # Construct Step DTO (Exact Field Matching Debug JSON)
+                # Construct Step DTO
                 garmin_step = {
                     "type": "ExecutableStepDTO",
                     "stepOrder": i + 1,
@@ -161,31 +182,16 @@ class GarminClient:
                     "description": step.get('description', ''),
                     "endCondition": cond_obj,
                     "endConditionValue": end_val,
-                    "preferredEndConditionUnit": None, # NEW
-                    "endConditionCompare": None, # NEW
                     "targetType": target_obj,
                     "targetValueOne": target_val_one,
                     "targetValueTwo": target_val_two,
-                    "targetValueUnit": None, # NEW
-                    "zoneNumber": zone_number, 
-                    "secondaryTargetType": None,
-                    "secondaryTargetValueOne": None,
-                    "secondaryTargetValueTwo": None,
-                    "secondaryTargetValueUnit": None, # NEW
-                    "secondaryZoneNumber": None,
-                    "endConditionZone": None, # NEW
-                    "strokeType": { "strokeTypeId": 0, "strokeTypeKey": None, "displayOrder": 0 }, # NEW
-                    "equipmentType": { "equipmentTypeId": 0, "equipmentTypeKey": None, "displayOrder": 0 }, # NEW
-                    "category": None, # NEW
-                    "exerciseName": None, # NEW
-                    "workoutProvider": None, # NEW
-                    "providerExerciseSourceId": None, # NEW
-                    "weightValue": None, # NEW
-                    "weightUnit": None # NEW
+                    "zoneNumber": zone_number
                 }
+                
+                # Restore original logic: Remove None values to avoid Garmin API validation errors
+                garmin_step = {k: v for k, v in garmin_step.items() if v is not None}
+                
                 garmin_steps.append(garmin_step)
-
-            # Construct Sport Type Object
             sport_type_obj = {
                 "sportTypeId": sport_type_id,
                 "sportTypeKey": sport_type_key,
@@ -205,9 +211,6 @@ class GarminClient:
                     }
                 ]
             }
-
-            # NOTE: We do NOT remove None values anymore. 
-            # The Debug JSON showed explicit nulls for targetValueOne/Two/zoneNumber are expected.
 
             logger.info(f"Sending transformed payload to Garmin: {json.dumps(final_payload)}")
 

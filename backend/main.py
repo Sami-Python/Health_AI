@@ -1486,23 +1486,30 @@ async def generate_plan_endpoint(request: Request, req: PlanGenerationRequest, u
             
             today = date.today()
             
+            # 3a. Smart Start Date Check: if a workout is DONE today, start plan tomorrow
+            today_str = today.isoformat()
+            workouts_today = db_manager.get_workouts_in_range(user['uid'], today_str, today_str)
+            has_completed_today = any(w.get('status') == 'DONE' for w in workouts_today)
+            
+            start_date = today + timedelta(days=1) if has_completed_today else today
+            
             # 3b. Overwrite Logic: Delete existing PENDING workouts for the target range
             max_day = 1
             for p in plans:
                 max_day = max(max_day, p.get('day', 1))
                 
-            end_date_obj = today + timedelta(days=max_day-1)
+            end_date_obj = start_date + timedelta(days=max_day-1)
             
             db_manager.delete_pending_workouts(
                 user['uid'], 
-                today.isoformat(), 
+                start_date.isoformat(), 
                 end_date_obj.isoformat()
             )
 
             saved_count = 0
             for p in plans:
                 day_offset = p.get('day', 1) - 1
-                workout_date = today + timedelta(days=day_offset)
+                workout_date = start_date + timedelta(days=day_offset)
                 
                 workout_doc = {
                     "date": workout_date.isoformat(),
