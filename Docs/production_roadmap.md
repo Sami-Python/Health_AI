@@ -489,6 +489,14 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] Mobile Frontend: Settings-näkymän Garmin-yhdistys ja OTP-dialogit. (#356)
 - [x] **Status:** Täysin tuotantovalmis kummallakin alustalla (2026-03-06). (#357)
 
+### 16.5 Mobile UI Polish (2026-03-23) ✅
+– Tavoite: Hienosäätää käyttökokemusta ja helpottaa testausta ennen julkaisua.
+
+- [x] Sovelluksen versionumeron näyttäminen UI:ssa (`package_info_plus`).
+- [x] Natiivi "Pull-to-Refresh" (`RefreshIndicator`) Dashboardille ja Kalenterille.
+- [x] Android Login UI:n puhdistaminen oletustunnuksista ja "jäätymis" -bugin (timeoutin puute) korjaaminen.
+- [x] Google Sign-In laittaminen toimintakuntoon CI/CD SHA-1 -avaimilla.
+
 - **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
 ---

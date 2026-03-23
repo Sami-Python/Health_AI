@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../core/services/api_service.dart';
 import '../settings/settings_screen.dart';
 
@@ -31,11 +32,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _garminSaving = false;
   bool _garminPassVisible = false;
 
+  String _appVersion = '';
+
   @override
   void initState() {
     super.initState();
     _loadProfile();
     _loadGarminStatus();
+    _loadAppVersion();
   }
 
   @override
@@ -46,6 +50,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _garminUserCtrl.dispose();
     _garminPassCtrl.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadAppVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() {
+          _appVersion = 'v${info.version} (Build ${info.buildNumber})';
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadProfile() async {
@@ -295,6 +310,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 minimumSize: const Size(double.infinity, 0),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                _appVersion,
+                style: const TextStyle(color: Colors.white24, fontSize: 12),
               ),
             ),
             const SizedBox(height: 40),

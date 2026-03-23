@@ -391,8 +391,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     return Container(
       color: const Color(0xFF020617),
-      child: CustomScrollView(
-        slivers: [
+      child: RefreshIndicator(
+        onRefresh: _fetchWorkouts,
+        color: Colors.blueAccent,
+        backgroundColor: const Color(0xFF0F172A),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           // Actions Row (AI Plan & Refresh)
           SliverToBoxAdapter(
             child: Padding(
@@ -683,6 +688,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ),
         ],
+      ),
       ),
     );
   }

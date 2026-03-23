@@ -358,8 +358,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDashboardContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return RefreshIndicator(
+      onRefresh: () => _syncData(mode: 'incremental'),
+      color: Colors.blueAccent,
+      backgroundColor: const Color(0xFF0F172A),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -581,6 +586,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           const SizedBox(height: 24),
         ],
+      ),
       ),
     );
   }

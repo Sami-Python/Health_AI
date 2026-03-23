@@ -128,10 +128,22 @@ Tänään korjattiin mobiilisovelluksen kirjautumisruudun ongelmia ja viimeistel
 - **Ongelma:** "Sign in with Google" epäonnistui mobiilissa, koska Firebase-projektista puuttui Android-sovelluksen SHA-1 -sormenjäljet.
 - **Ratkaisu:** Haettiin paikalliset Debug ja Release SHA-1 -sormenjäljet `keytoolilla` ja lisättiin ne Firebaseen. Päivitettiin lokaali `google-services.json` tiedosto uuteen versioon, jossa on mukana vaadittava Android Client ID.
 
+### 4. Sovelluksen versionumeron näyttäminen UI:ssa
+- **Ongelma:** Käyttäjän työpöytä- tai mobiilisovelluksen versionumero ei ollut näkyvillä asetusruudussa, mikä haittasi testausta ja App Distributionin kautta saatujen bugiraporttien seurantaa.
+- **Ratkaisu:** Asennettiin `package_info_plus` ja integroitiin sen asynkroninen luku `ProfileScreen` näkymän alaosaan `vX.Y.Z (Build Z)` muodossa.
+
+### 5. Pull-to-Refresh Mobiilisovellukseen
+- **Ongelma:** Datan päivitys vaati pienen Sync-napin etsimistä ja painamista yläpalkista.
+- **Ratkaisu:** Lisättiin natiivi "vedä alaspäin" päivitys (`RefreshIndicator`) sekä Dashboard- että Calendar-näkymiin.
+
 **Tiedostot muutettu:**
 - `mobile/lib/features/auth/login_screen.dart` – UI ja kovakoodatut tunnukset poistettu.
 - `mobile/lib/core/services/api_service.dart` – Lisätty 15 sekunnin HTTP-timeoutit.
 - `mobile/android/app/google-services.json` – Päivitetty uudet SHA-1 avaimet.
+- `mobile/pubspec.yaml` – Lisätty `package_info_plus`.
+- `mobile/lib/features/profile/profile_screen.dart` – Versionäyttö lisätty.
+- `mobile/lib/features/dashboard/dashboard_screen.dart` – Pull-to-Refresh.
+- `mobile/lib/features/calendar/calendar_screen.dart` – Pull-to-Refresh.
 
 ---
 
