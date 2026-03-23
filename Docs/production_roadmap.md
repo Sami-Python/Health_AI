@@ -492,10 +492,10 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ### 16.5 Mobile UI Polish (2026-03-23) ✅
 – Tavoite: Hienosäätää käyttökokemusta ja helpottaa testausta ennen julkaisua.
 
-- [x] Sovelluksen versionumeron näyttäminen UI:ssa (`package_info_plus`).
-- [x] Natiivi "Pull-to-Refresh" (`RefreshIndicator`) Dashboardille ja Kalenterille.
-- [x] Android Login UI:n puhdistaminen oletustunnuksista ja "jäätymis" -bugin (timeoutin puute) korjaaminen.
-- [x] Google Sign-In laittaminen toimintakuntoon CI/CD SHA-1 -avaimilla.
+- [x] Sovelluksen versionumeron näyttäminen UI:ssa (`package_info_plus`). (#368)
+- [x] Natiivi "Pull-to-Refresh" (`RefreshIndicator`) Dashboardille ja Kalenterille. (#369)
+- [x] Android Login UI:n puhdistaminen oletustunnuksista ja "jäätymis" -bugin (timeoutin puute) korjaaminen. (#370)
+- [x] Google Sign-In laittaminen toimintakuntoon CI/CD SHA-1 -avaimilla. (#371)
 
 - **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
