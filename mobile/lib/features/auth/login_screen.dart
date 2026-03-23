@@ -13,9 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 
 class _LoginScreenState extends State<LoginScreen> {
-  // TODO: Replace with your actual credentials for development
-  final _emailController = TextEditingController(text: 'sami@personalaicoach.ai');
-  final _passwordController = TextEditingController(text: 'password123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final AuthService _auth = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
@@ -90,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Your AI-powered recovery assistant',
+                'Your AI-powered Training Coach',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

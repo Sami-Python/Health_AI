@@ -112,6 +112,29 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-03-23 – Android Login Fixes & Google Sign-In 🚀✅
+
+Tänään korjattiin mobiilisovelluksen kirjautumisruudun ongelmia ja viimeisteltiin Google Sign-In Android-sovellukselle.
+
+### 1. UI ja Oletuskirjautuminen
+- **Ongelma:** Kirjautumisruudun teksti ei vastannut tarkoitusta, ja kenttiin oli kovakoodattu oletustunnukset.
+- **Ratkaisu:** Vaihdettiin tekstiksi "Your AI-powered Training Coach". Poistettiin oletustunnukset (`sami@personalaicoach.ai`), joten kentät ovat nyt oikeaoppisesti tyhjät kun sovellus asennetaan.
+
+### 2. Kirjautumisen "Jäätyminen" (App Freeze Fix)
+- **Ongelma:** Jos backend ei ollut heti saavutettavissa, sovellus jäi loputtomaan lataustilaan (spinneri) kirjautumisen jälkeen. Pääsyy oli, että puhelimen `ApiService` HTTP-kutsuista puuttuivat aikakatkaisut (timeouts).
+- **Ratkaisu:** Lisättiin globaalit `.timeout(const Duration(seconds: 15))` kaikkiin `ApiService`:n HTTP-metodeihin. Nyt sovellus näyttää oikean virheilmoituksen 15 sekunnin kuluttua ikuisen latauksen sijaan, ja käyttäjä voi yrittää uudelleen.
+
+### 3. Google Sign-In (Android) Fix
+- **Ongelma:** "Sign in with Google" epäonnistui mobiilissa, koska Firebase-projektista puuttui Android-sovelluksen SHA-1 -sormenjäljet.
+- **Ratkaisu:** Haettiin paikalliset Debug ja Release SHA-1 -sormenjäljet `keytoolilla` ja lisättiin ne Firebaseen. Päivitettiin lokaali `google-services.json` tiedosto uuteen versioon, jossa on mukana vaadittava Android Client ID.
+
+**Tiedostot muutettu:**
+- `mobile/lib/features/auth/login_screen.dart` – UI ja kovakoodatut tunnukset poistettu.
+- `mobile/lib/core/services/api_service.dart` – Lisätty 15 sekunnin HTTP-timeoutit.
+- `mobile/android/app/google-services.json` – Päivitetty uudet SHA-1 avaimet.
+
+---
+
 ## 2026-03-22 – Garmin Workout Export Fixes & Firebase CI/CD 🚀✅
 
 Tänään ratkaistiin merkittäviä ongelmia Garmin-treeniviennin rakenteessa ja automatisoitiin mobiilisovelluksen beta-jakelu.

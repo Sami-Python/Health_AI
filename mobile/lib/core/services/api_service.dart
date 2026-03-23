@@ -29,13 +29,33 @@ class ApiService {
       Uri.parse('$baseUrl$path'),
       headers: headers,
       body: json.encode(body),
-    );
+    ).timeout(const Duration(seconds: 15));
+  }
+
+  Future<http.Response> _get(Uri url, {Map<String, String>? headers}) async {
+    return await http.get(url, headers: headers).timeout(const Duration(seconds: 15));
+  }
+
+  Future<http.Response> _post(Uri url, {Map<String, String>? headers, Object? body}) async {
+    return await http.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+  }
+  
+  Future<http.Response> _put(Uri url, {Map<String, String>? headers, Object? body}) async {
+    return await http.put(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+  }
+
+  Future<http.Response> _patch(Uri url, {Map<String, String>? headers, Object? body}) async {
+    return await http.patch(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+  }
+
+  Future<http.Response> _delete(Uri url, {Map<String, String>? headers}) async {
+    return await http.delete(url, headers: headers).timeout(const Duration(seconds: 15));
   }
 
   // ─── System / Refresh ─────────────────────────────────────────
   Future<void> refreshData({String mode = 'incremental'}) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/system/refresh?mode=$mode'),
       headers: headers,
     );
@@ -46,7 +66,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> fetchRefreshStatus() async {
     final headers = await _getHeaders();
-    final response = await http.get(
+    final response = await _get(
       Uri.parse('$baseUrl/system/refresh/status'),
       headers: headers,
     );
@@ -61,7 +81,7 @@ class ApiService {
   Future<List<Metric>> fetchMetricsHistory() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/metrics/history'), headers: headers);
+        await _get(Uri.parse('$baseUrl/metrics/history'), headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Metric.fromJson(json)).toList();
@@ -73,7 +93,7 @@ class ApiService {
   Future<List<Goal>> fetchGoals() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/goals'), headers: headers);
+        await _get(Uri.parse('$baseUrl/goals'), headers: headers);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(utf8.decode(response.bodyBytes));
       return data.map((json) => Goal.fromJson(json)).toList();
@@ -83,7 +103,7 @@ class ApiService {
 
   Future<void> createGoal(Map<String, dynamic> goalData) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/goals'),
       headers: headers,
       body: json.encode(goalData),
@@ -95,7 +115,7 @@ class ApiService {
 
   Future<void> updateGoal(String goalId, Map<String, dynamic> goalData) async {
     final headers = await _getHeaders();
-    final response = await http.put(
+    final response = await _put(
       Uri.parse('$baseUrl/goals/$goalId'),
       headers: headers,
       body: json.encode(goalData),
@@ -107,7 +127,7 @@ class ApiService {
 
   Future<void> deleteGoal(String goalId) async {
     final headers = await _getHeaders();
-    final response = await http.delete(
+    final response = await _delete(
       Uri.parse('$baseUrl/goals/$goalId'),
       headers: headers,
     );
@@ -120,7 +140,7 @@ class ApiService {
   Future<Map<String, dynamic>?> fetchNextWorkout() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/workouts/next'), headers: headers);
+        await _get(Uri.parse('$baseUrl/workouts/next'), headers: headers);
     if (response.statusCode == 200) {
       final data = json.decode(utf8.decode(response.bodyBytes));
       if (data is Map<String, dynamic> && data.isNotEmpty) return data;
@@ -131,7 +151,7 @@ class ApiService {
 
   Future<List<dynamic>> fetchUpcomingWorkouts() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/workouts/upcoming'),
+    final response = await _get(Uri.parse('$baseUrl/workouts/upcoming'),
         headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
@@ -141,7 +161,7 @@ class ApiService {
 
   Future<List<dynamic>> fetchWorkoutHistory() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/workouts/history'),
+    final response = await _get(Uri.parse('$baseUrl/workouts/history'),
         headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes)) as List<dynamic>;
@@ -151,7 +171,7 @@ class ApiService {
 
   Future<void> logManualWorkout(Map<String, dynamic> workoutData) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/workouts/manual'),
       headers: headers,
       body: json.encode(workoutData),
@@ -163,7 +183,7 @@ class ApiService {
 
   Future<void> deleteWorkout(String workoutId) async {
     final headers = await _getHeaders();
-    final response = await http.delete(
+    final response = await _delete(
       Uri.parse('$baseUrl/workouts/$workoutId'),
       headers: headers,
     );
@@ -174,7 +194,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> skipWorkout(String workoutId) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/workouts/$workoutId/skip'),
       headers: headers,
     );
@@ -186,7 +206,7 @@ class ApiService {
 
   Future<void> updateWorkoutDate(String workoutId, String newDate) async {
     final headers = await _getHeaders();
-    final response = await http.patch(
+    final response = await _patch(
       Uri.parse('$baseUrl/workouts/$workoutId'),
       headers: headers,
       body: json.encode({'date': newDate}),
@@ -199,7 +219,7 @@ class ApiService {
   // ─── Gamification ─────────────────────────────────────────────
   Future<Map<String, dynamic>?> fetchGamificationSummary() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/gamification/summary'), headers: headers);
+    final response = await _get(Uri.parse('$baseUrl/gamification/summary'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     }
@@ -209,7 +229,7 @@ class ApiService {
   Future<void> uploadWorkoutToGarmin(
       Map<String, dynamic> workout, String date) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/workouts/upload'),
       headers: headers,
       body: json.encode({'workout': workout, 'date': date}),
@@ -221,8 +241,7 @@ class ApiService {
 
   Future<Map<String, dynamic>?> fetchWeeklyStats() async {
     final headers = await _getHeaders();
-    final response = await http
-        .get(Uri.parse('$baseUrl/workouts/weekly-status'), headers: headers);
+    final response = await _get(Uri.parse('$baseUrl/workouts/weekly-status'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
           as Map<String, dynamic>;
@@ -234,7 +253,7 @@ class ApiService {
   Future<Map<String, dynamic>?> fetchAIInsight() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
+        await _get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
           as Map<String, dynamic>;
@@ -244,7 +263,7 @@ class ApiService {
 
   Future<Map<String, dynamic>?> fetchAiModelMetrics() async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse('$baseUrl/ai/model-metrics'),
+    final response = await _get(Uri.parse('$baseUrl/ai/model-metrics'),
         headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
@@ -255,7 +274,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> generateAiPlan(int days) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/plans/generate'),
       headers: headers,
       body: json.encode({'days': days}),
@@ -275,7 +294,7 @@ class ApiService {
     List<Map<String, String>> history,
   ) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/ai/chat'),
       headers: headers,
       body: json.encode({
@@ -298,7 +317,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getUserProfile() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/profile'), headers: headers);
+        await _get(Uri.parse('$baseUrl/profile'), headers: headers);
 
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
@@ -309,7 +328,7 @@ class ApiService {
 
   Future<void> saveUserProfile(Map<String, dynamic> profileData) async {
     final headers = await _getHeaders();
-    final response = await http.put(
+    final response = await _put(
       Uri.parse('$baseUrl/profile'),
       headers: headers,
       body: json.encode(profileData),
@@ -323,7 +342,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getGarminStatus() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/garmin/status'), headers: headers);
+        await _get(Uri.parse('$baseUrl/garmin/status'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
           as Map<String, dynamic>;
@@ -337,7 +356,7 @@ class ApiService {
   Future<Map<String, dynamic>> connectGarmin(
       String username, String password) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/garmin/connect'),
       headers: headers,
       body: json.encode({'username': username, 'password': password}),
@@ -353,7 +372,7 @@ class ApiService {
 
   Future<void> saveGarminCredentials(String username, String password) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/garmin/credentials'),
       headers: headers,
       body: json.encode({'username': username, 'password': password}),
@@ -366,7 +385,7 @@ class ApiService {
   /// Submits the 2FA code to complete a pending MFA login session.
   Future<void> submitGarminMfa(String sessionId, String mfaCode) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/garmin/connect/mfa'),
       headers: headers,
       body: json.encode({'session_id': sessionId, 'mfa_code': mfaCode}),
@@ -380,7 +399,7 @@ class ApiService {
 
   Future<void> deleteGarminCredentials() async {
     final headers = await _getHeaders();
-    final response = await http.delete(
+    final response = await _delete(
       Uri.parse('$baseUrl/garmin/credentials'),
       headers: headers,
     );
@@ -395,7 +414,7 @@ class ApiService {
   Future<Map<String, dynamic>?> exportUserData() async {
     final headers = await _getHeaders();
     final response =
-        await http.get(Uri.parse('$baseUrl/user/export'), headers: headers);
+        await _get(Uri.parse('$baseUrl/user/export'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
           as Map<String, dynamic>;
@@ -405,7 +424,7 @@ class ApiService {
 
   Future<void> deleteAccount() async {
     final headers = await _getHeaders();
-    final response = await http.delete(
+    final response = await _delete(
       Uri.parse('$baseUrl/account'),
       headers: headers,
     );
@@ -416,7 +435,7 @@ class ApiService {
 
   Future<void> sendFeedback(String message, String category) async {
     final headers = await _getHeaders();
-    final response = await http.post(
+    final response = await _post(
       Uri.parse('$baseUrl/feedback'),
       headers: headers,
       body: json.encode({'message': message, 'category': category}),

@@ -1,39 +1,62 @@
 {
-    "project_info": {
-        "project_number": "561128557040",
-        "project_id": "personal-ai-coach-92c39",
-        "storage_bucket": "personal-ai-coach-92c39.firebasestorage.app"
-    },
-    "client": [
-        {
-            "client_info": {
-                "mobilesdk_app_id": "1:561128557040:android:340656a8195c72ca10b535",
-                "android_client_info": {
-                    "package_name": "com.personalaicoach.mobile"
-                }
-            },
-            "oauth_client": [
-                {
-                    "client_id": "561128557040-4ns...googleusercontent.com",
-                    "client_type": 3
-                }
-            ],
-            "api_key": [
-                {
-                    "current_key": "AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc"
-                }
-            ],
-            "services": {
-                "appinvite_service": {
-                    "other_platform_oauth_client": [
-                        {
-                            "client_id": "561128557040-4ns...googleusercontent.com",
-                            "client_type": 3
-                        }
-                    ]
-                }
-            }
+  "project_info": {
+    "project_number": "561128557040",
+    "project_id": "personal-ai-coach-92c39",
+    "storage_bucket": "personal-ai-coach-92c39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561128557040:android:d71ae8c6abb3491c10b535",
+        "android_client_info": {
+          "package_name": "com.personalaicoach.mobile"
         }
-    ],
-    "configuration_version": "1"
+      },
+      "oauth_client": [
+        {
+          "client_id": "561128557040-be0vd6ag1hcola0540mrlcadh6f24su9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.personalaicoach.mobile",
+            "certificate_hash": "a18d70a4c31f55ead94257ed756b2279ec1224fe"
+          }
+        },
+        {
+          "client_id": "561128557040-qpo5rq6t0f74tlijm36c8drb2afcn9ui.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.personalaicoach.mobile",
+            "certificate_hash": "b0ba3af07c491c11524664f616ba5f7085519bb4"
+          }
+        },
+        {
+          "client_id": "561128557040-hb9soamnd1sn774h3ehli1fos1aulsru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGzxgQ5k4Qzxjz8P2mRAjnaTMKyQSgacU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "561128557040-hb9soamnd1sn774h3ehli1fos1aulsru.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "561128557040-rjiiks5h0ka5vp098dr03erdq3tj95fl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.personalaicoach.mobile"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }
