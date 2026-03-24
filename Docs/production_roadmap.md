@@ -500,8 +500,8 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 ### 16.6 Android App Stability & Build Fixes (2026-03-24) ✅
 – Tavoite: Korjata kääntäjävirheet ja hiljaiset yhteysvirheet Androidilla.
 
-- [x] **Kotlin kääntäjän päivitys (v2.2.0):** Päivitetty `build.gradle` ja `settings.gradle` vastaamaan `package_info_plus` metadata-vaatimuksia, jotta `flutter build apk` menee läpi.
-- [x] **HTTP Cleartext tuen lisäys:** Lisätty `android:usesCleartextTraffic="true"` `AndroidManifest.xml` -tiedostoon, jotta paikallinen API (`http://192.168.1.130:8000`) voi kommunikoida laitteen kanssa ilman SSL-varmennetta.
+- [x] **Kotlin kääntäjän päivitys (v2.2.0):** Päivitetty `build.gradle` ja `settings.gradle` vastaamaan `package_info_plus` metadata-vaatimuksia, jotta `flutter build apk` menee läpi. (#372)
+- [x] **HTTP Cleartext tuen lisäys:** Lisätty `android:usesCleartextTraffic="true"` `AndroidManifest.xml` -tiedostoon, jotta paikallinen API (`http://192.168.1.130:8000`) voi kommunikoida laitteen kanssa ilman SSL-varmennetta. (#373)
 
 - **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
