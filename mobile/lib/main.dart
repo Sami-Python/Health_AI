@@ -11,7 +11,7 @@ import 'firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  WidgetsFlutterBinding binding = WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
   
   // Keep the splash screen until we are done with basic initialization
   FlutterNativeSplash.preserve(widgetsBinding: binding);
