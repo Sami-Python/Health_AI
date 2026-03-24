@@ -56,8 +56,8 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBGzxgQ5k4Qzxjz8P2mRAjnaTMKyQSgacU',
-    appId: '1:561128557040:android:d71ae8c6abb3491c10b535',
+    apiKey: 'AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc',
+    appId: '1:561128557040:android:340656a8195c72ca10b535',
     messagingSenderId: '561128557040',
     projectId: 'personal-ai-coach-92c39',
     storageBucket: 'personal-ai-coach-92c39.firebasestorage.app',
@@ -69,7 +69,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '561128557040',
     projectId: 'personal-ai-coach-92c39',
     storageBucket: 'personal-ai-coach-92c39.firebasestorage.app',
-    iosClientId: '561128557040-rjiiks5h0ka5vp098dr03erdq3tj95fl.apps.googleusercontent.com',
+    iosClientId: '102524543907033832162', // Found in service_account_key.json client_id, often used as client ID
     iosBundleId: 'com.personalaicoach.mobile',
   );
 }
