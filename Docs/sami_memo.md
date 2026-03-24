@@ -112,6 +112,25 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-03-24 – Android Build & Runtime Fixes 🚀✅
+
+Tänään tunnistettiin ja korjattiin kaksi kriittistä ongelmaa, jotka estivät Android-sovelluksen toimimisen:
+
+### 1. Kotlin-kääntäjän päivitys (Build Fix)
+- **Ongelma:** `package_info_plus` vaati uudempaa Kotlin-versiota (vähintään metadata 2.1.0), jolloin koko sovelluksen kääntäminen Androidille epäonnistui `flutter build apk` -vaiheessa.
+- **Ratkaisu:** Päivitettiin `ext.kotlin_version = '2.2.0'` tiedostoon `android/build.gradle` ja lisättiin `id "org.jetbrains.kotlin.android" version "2.2.0" apply false` tiedoston `android/settings.gradle` plugins-lohkoon. Nyt kääntäjä käyttää uusinta versiota ja kokoaminen menee virheettä läpi.
+
+### 2. Lokaalit HTTP-yhteydet (Cleartext Traffic)
+- **Ongelma:** Sovellus käyttää paikallista taustajärjestelmää `http://192.168.1.130:8000`. Android 9 (API level 28) ja uudemmat estävät oletuksena avoimen tekstin HTTP-liikenteen, jolloin API-kutsut epäonnistuivat hiljaisesti eikä sovellus toiminut.
+- **Ratkaisu:** Lisättiin `android:usesCleartextTraffic="true"` sovelluksen `AndroidManifest.xml` -tiedostoon, mikä salli HTTP-yhteyksien reitittymisen lokaalisti backend-serverille kehitysvaiheessa.
+
+**Tiedostot muutettu:**
+- `mobile/android/build.gradle`
+- `mobile/android/settings.gradle`
+- `mobile/android/app/src/main/AndroidManifest.xml`
+
+---
+
 ## 2026-03-23 – Android Login Fixes & Google Sign-In 🚀✅
 
 Tänään korjattiin mobiilisovelluksen kirjautumisruudun ongelmia ja viimeisteltiin Google Sign-In Android-sovellukselle.
