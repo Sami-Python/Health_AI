@@ -124,10 +124,16 @@ Tänään tunnistettiin ja korjattiin kaksi kriittistä ongelmaa, jotka estivät
 - **Ongelma:** Sovellus käyttää paikallista taustajärjestelmää `http://192.168.1.130:8000`. Android 9 (API level 28) ja uudemmat estävät oletuksena avoimen tekstin HTTP-liikenteen, jolloin API-kutsut epäonnistuivat hiljaisesti eikä sovellus toiminut.
 - **Ratkaisu:** Lisättiin `android:usesCleartextTraffic="true"` sovelluksen `AndroidManifest.xml` -tiedostoon, mikä salli HTTP-yhteyksien reitittymisen lokaalisti backend-serverille kehitysvaiheessa.
 
+### 3. Sovelluksen jäätyminen logoon (Startup Hang Fix) 🔧
+- **Ongelma:** Sovellus jäi jumiin aloituslogoon (splash screen) eikä käynnistynyt. Syynä oli se, että `main()`-funktiossa odotettiin (`await`) ilmoituspalvelun ja taustajärjestelmäyhteyden valmistumista ennen sovelluksen (`runApp`) käynnistämistä. Jos yhteys oli hidas tai lupakysely viipyi, sovellus ei ikinä ehtinyt piirtää mitään ruudulle.
+- **Ratkaisu:** Refaktoroitiin `main.dart` siten, että kriittiset osat (Firebase) ladataan heti, mutta ilmoitukset ja muut taustatyöt alustetaan vasta sovelluksen käynnistymisen jälkeen taustalla. Lisättiin myös `FlutterNativeSplash.remove()` varmistus, joka poistaa logon heti kun Flutter on valmis.
+
 **Tiedostot muutettu:**
 - `mobile/android/build.gradle`
 - `mobile/android/settings.gradle`
 - `mobile/android/app/src/main/AndroidManifest.xml`
+- `mobile/lib/main.dart`
+- `mobile/lib/firebase_options.dart`
 
 ---
 
