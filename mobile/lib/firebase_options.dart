@@ -47,7 +47,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc',
+    apiKey: 'AIzaSyCI0VjJ9TAE1lzQZJFN-ukQ98Ncar-4MTE',
     appId: '1:561128557040:web:cc332becd9f322b410b535',
     messagingSenderId: '561128557040',
     projectId: 'personal-ai-coach-92c39',
@@ -56,15 +56,15 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc',
-    appId: '1:561128557040:android:340656a8195c72ca10b535',
+    apiKey: 'AIzaSyBGzxgQ5k4Qzxjz8P2mRAjnaTMKyQSgacU',
+    appId: '1:561128557040:android:d71ae8c6abb3491c10b535',
     messagingSenderId: '561128557040',
     projectId: 'personal-ai-coach-92c39',
     storageBucket: 'personal-ai-coach-92c39.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDr5wFcRjyPc5MH7_9HlttFQyBOVrNakcc',
+    apiKey: 'AIzaSyCI0VjJ9TAE1lzQZJFN-ukQ98Ncar-4MTE',
     appId: '1:561128557040:ios:e62a8cc0195c72ca10b535',
     messagingSenderId: '561128557040',
     projectId: 'personal-ai-coach-92c39',

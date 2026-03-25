@@ -1681,6 +1681,9 @@ async def test_garmin_credentials_endpoint(
         client.login()
         return {"status": "success", "message": "Credentials verified successfully"}
     except Exception as e:
+        err_msg = str(e)
+        if "429" in err_msg:
+             raise HTTPException(status_code=429, detail="Garmin has rate-limited your login attempts. Please wait 15-30 minutes.")
         logger.warning(f"Garmin Test Failed for {user['uid']}: {e}")
         raise HTTPException(status_code=401, detail=f"Authentication failed. Please check your username and password.")
 
@@ -1913,6 +1916,9 @@ async def garmin_connect(
         return {"status": "connected"}
 
     except Exception as e:
+        err_msg = str(e)
+        if "429" in err_msg:
+             raise HTTPException(status_code=429, detail="Garmin has rate-limited your login attempts. Please wait 15-30 minutes.")
         logger.error(f"❌ Garmin connect error for uid={uid}: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 

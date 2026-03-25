@@ -305,8 +305,13 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
     except GarminMFARequiredError:
         raise  # Do not wrap – let the caller handle it
     except Exception as e:
+        err_msg = str(e)
+        if "429" in err_msg:
+             logger.error(f"🛑 Garmin Rate Limit (429) hit for {user_id or 'legacy'}")
+             raise ValueError("Garmin has rate-limited your login attempts. Please wait 15-30 minutes before trying again.")
+        
         logger.error(f"❌ Garmin authentication failed: {e}")
-        raise ValueError(f"Garmin login failed. Please check your credentials. Error: {str(e)}")
+        raise ValueError(f"Garmin login failed. Please check your credentials. Error: {err_msg}")
 
 
 

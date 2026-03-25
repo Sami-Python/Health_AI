@@ -964,11 +964,13 @@ def get_garmin_credentials(user_id: str) -> dict | None:
             'password': decrypted_password
         }
         # Include garth OAuth2 tokens if available (decrypt first)
-        if 'garth_tokens_encrypted' in data:
+        # Handle both legacy single-file and new multi-file formats
+        tokens_enc = data.get('garth_token_files_encrypted') or data.get('garth_tokens_encrypted')
+        if tokens_enc:
             try:
                 from encryption_helper import decrypt_password
                 import json as _json
-                result['garth_tokens'] = _json.loads(decrypt_password(data['garth_tokens_encrypted']))
+                result['garth_tokens'] = _json.loads(decrypt_password(tokens_enc))
             except Exception as te:
                 print(f"Could not decrypt garth tokens: {te}")
         return result
@@ -1018,7 +1020,7 @@ def save_garmin_tokens(user_id: str, tokens: dict) -> bool:
         # Encrypt tokens as JSON string before storing
         encrypted_tokens = encrypt_password(json.dumps(tokens))
         doc_ref.update({
-            'garth_tokens_encrypted': encrypted_tokens,
+            'garth_token_files_encrypted': encrypted_tokens,  # Use the standard key
             'tokens_updated_at': firestore.SERVER_TIMESTAMP
         })
         print(f"[SUCCESS] Garth tokens saved (encrypted) for user: {user_id}")

@@ -125,24 +125,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     setState(() => _garminSaving = true);
     try {
-      await _apiService.saveGarminCredentials(user, pass);
-      if (mounted) {
-        setState(() {
-          _garminConnected = true;
-          _garminPassCtrl.clear();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Garmin connected! ✅'), backgroundColor: Colors.green),
-        );
+      final response = await _apiService.connectGarmin(user, pass);
+      
+      if (response['status'] == 'connected') {
+        if (mounted) {
+          setState(() {
+            _garminConnected = true;
+            _garminPassCtrl.clear();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Garmin connected successfully! ✅'), backgroundColor: Colors.green),
+          );
+        }
+      } else if (response['status'] == 'mfa_required') {
+        final sessionId = response['session_id'];
+        if (mounted) {
+          _showMfaDialog(sessionId);
+        }
       }
     } catch (e) {
       if (mounted) {
+        String msg = e.toString().replaceAll('Exception:', '').trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Connection failed: $msg'), backgroundColor: Colors.red, duration: const Duration(seconds: 5)),
         );
       }
     }
     if (mounted) setState(() => _garminSaving = false);
+  }
+
+  Future<void> _showMfaDialog(String sessionId) async {
+    final codeCtrl = TextEditingController();
+    final bool? success = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        title: const Text('Garmin 2FA Required', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter the code sent to your email/phone:', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: codeCtrl,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'MFA Code',
+                labelStyle: TextStyle(color: Colors.white38),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.blueAccent)),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel', style: TextStyle(color: Colors.white54))),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Verify'),
+          ),
+        ],
+      ),
+    );
+
+    if (success == true && codeCtrl.text.isNotEmpty) {
+      setState(() => _garminSaving = true);
+      try {
+        await _apiService.submitGarminMfa(sessionId, codeCtrl.text.trim());
+        if (mounted) {
+          setState(() {
+            _garminConnected = true;
+            _garminPassCtrl.clear();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('MFA Verified! Garmin connected! ✅'), backgroundColor: Colors.green),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('MFA Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+      if (mounted) setState(() => _garminSaving = false);
+    } else {
+       if (mounted) setState(() => _garminSaving = false);
+    }
   }
 
   Future<void> _disconnectGarmin() async {

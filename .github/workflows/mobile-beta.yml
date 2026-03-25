@@ -36,20 +36,26 @@ jobs:
       - name: Flutter Pub Get
         run: flutter pub get
 
+      - name: Decode Android Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=../app/upload-keystore.jks" >> android/key.properties
+
       - name: Build Android APK
-        # We build a debug APK by default for seamless testing without keystore CI configuration.
-        # To build a release APK, you must configure Android keystore secrets in GitHub Actions
-        # and change this to `flutter build apk --release`
-        run: flutter build apk --debug
+        # Build a release APK signed with the production keystore
+        run: flutter build apk --release
 
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID_ANDROID }}
-          # You can use FIREBASE_TOKEN (via `firebase login:ci`) 
-          # OR target a service account JSON stored in FIREBASE_CREDENTIALS
           token: ${{ secrets.FIREBASE_TOKEN }}
           groups: testers
           releaseNotes: ${{ github.event.inputs.releaseNotes }}
-          # Path to the debug APK we just built
-          file: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          # Path to the release APK
+          file: mobile/build/app/outputs/flutter-apk/app-release.apk
