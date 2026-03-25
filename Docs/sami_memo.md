@@ -112,6 +112,32 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-03-25 – Google Sign-In & Garmin Sync Fixes 🚀✅
+
+Tänään ratkaistiin kriittiset ongelmat Google-kirjautumisessa, Garmin-synkronoinnissa ja automatisoidun beta-jakelun allekirjoituksessa.
+
+### 1. Google Sign-In (Android) -palautus
+- **Ongelma:** Kirjautuminen epäonnistui Android-laitteilla, koska konfiguraatiossa oli väärä API-avain (Web-avain Android-avaimen sijaan), jolla oli väärät rajoitukset.
+- **Ratkaisu:** Palautettiin Android-kohtainen API-avain (`AIzaSyBG...`) tiedostoihin `firebase_options.dart` ja `google-services.json`. Nyt kirjautuminen toimii natiivisti SHA-1 -varmennuksella.
+
+### 2. Garmin Synkronointi & Tokenit
+- **Ongelma:** Käyttäjän data ei päivittynyt, vaikka kirjautuminen näytti onnistuvan. Syynä oli taustajärjestelmän avainten nimiristiriita (`garth_tokens_encrypted` vs `garth_token_files_encrypted`), mikä esti istuntojen säilymisen.
+- **429 Rate Limit:** Lisättiin bäkendiin tuki Garminin 429-virheelle (Too Many Requests). Sovellus kertoo nyt selkeästi käyttäjälle, jos kokeiluja on liikaa ja pyytää odottamaan 15-30 minuuttia.
+- **MFA (2FA) Tuki:** Päivitettiin mobiilisovelluksen Profile-näkymä tekemään oikea testikirjautuminen. Lisättiin tuki MFA-koodin syöttämiselle suoraan sovelluksessa, mikä varmistaa onnistuneen ensikirjautumisen.
+
+### 3. CI/CD Allekirjoitus (GitHub Actions)
+- **Ongelma:** GitHub Actionsin rakentamat APK:t eivät tukeneet Google-kirjautumista, koska ne oli allekirjoitettu debug-avaimella tuotantoavaimen sijaan.
+- **Ratkaisu:** Päivitettiin `mobile-beta.yml` käyttämään tuotantoallekirjoitusta (`upload-keystore.jks`). Konfiguroitiin GitHub Secretit (Base64-keystore ja salasanat), jolloin beta-versiot ovat nyt täysin toimivia.
+
+**Tiedostot muutettu:**
+- `.github/workflows/mobile-beta.yml` – Allekirjoituslogiikka.
+- `backend/firestore_manager.py` – Token-avainten täsmäytys.
+- `backend/main.py` – 429-käsittely ja MFA-endpointit.
+- `mobile/lib/features/profile/profile_screen.dart` – MFA-tuki ja yhteystesti.
+- `mobile/lib/firebase_options.dart` – API-avaimen palautus.
+
+---
+
 ## 2026-03-24 – Android Build & Runtime Fixes 🚀✅
 
 Tänään tunnistettiin ja korjattiin kaksi kriittistä ongelmaa, jotka estivät Android-sovelluksen toimimisen:
