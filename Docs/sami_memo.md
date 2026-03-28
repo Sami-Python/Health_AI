@@ -112,23 +112,33 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
-## 2026-03-28 – Garmin 429 Rate Limit: Pysyvä Cooldown 🛡️✅
+## 2026-03-28 – Garmin 429 Rate Limit: Kokonainen korjaussarja 🛡️
 
+### Sessio 1: Pysyvä Cooldown (Firestore)
 Korjattiin toistuva ongelma, jossa Garmin-yhteyden 429-suojaus (rate limit throttle) nollautui aina backendin uudelleenkäynnistyksen yhteydessä.
 
-### 1. Juurisyy
-- **Ongelma:** `_garmin_throttle_cache` oli pelkkä in-memory Python-dict. Kun Cloud Run kierrätti kontin tai backend käynnistettiin uudelleen, cooldown hävisi ja käyttäjä pystyi välittömästi yrittämään uutta kirjautumista — mikä johti jälleen Garminin 429-virheeseen. Tämä aiheutti kehäongelman.
-- **Ratkaisu:** Cooldown tallennetaan nyt **Firestoreen** (`rate_limit_until`-kenttä `garmin_credentials/default`-dokumenttiin). Tarkistus tehdään ensin muistista (nopea) ja tarvittaessa Firestoresta (pysyvä). Cooldown säilyy restartien, deployjen ja konttien kierrätysten yli.
+- **Juurisyy:** `_garmin_throttle_cache` oli pelkkä in-memory Python-dict → cooldown hävisi Cloud Run -kontin kierrätyksessä.
+- **Ratkaisu:** Cooldown tallennetaan nyt **Firestoreen** (`rate_limit_until`-kenttä). Tarkistus: ensin muistista (nopea), sitten Firestoresta (pysyvä).
+- **Apufunktiot:** `_check_garmin_cooldown(uid)`, `_set_garmin_cooldown(uid, duration)`
+- **Rate limit:** `/garmin/connect` slowapi-raja: `5/minute` → `3/minute`
 
-### 2. Uudet apufunktiot
-- `_check_garmin_cooldown(uid)` – tarkistaa in-memory + Firestore
-- `_set_garmin_cooldown(uid, duration)` – tallentaa molempiin
+### Sessio 2: Token Resume & Cooldown 60 min ✅
+Ongelman ydin: `/garmin/connect` teki **aina tuoreen salasana-loginin** Garminiin, vaikka validit OAuth-tokenit olivat tallessa Firestoressa. Jokainen salasanayritys nollasi Garminin rate limit -kelloa.
 
-### 3. Rate Limit tiukennus
-- `/garmin/connect` slowapi-raja laskettu `5/minute` → `3/minute`. Kolme yritystä minuutissa riittää, koska jokainen yritys tekee raskaan login-kutsun Garminille.
+**Korjaukset:**
+1. **Token resume ensin** – `/garmin/connect` yrittää nyt **ensin** palauttaa session tallennetuista garth OAuth-tokeneista (sama logiikka kuin `fetch_garmin_data.py`). Jos onnistuu, salasana-loginia ei tarvita → ei rate limit -riskiä.
+2. **Cooldown 15 min → 60 min** – Vastaa Garminin oikeaa rate limit -kestoa (1-24h).
+3. **`POST /garmin/clear-cooldown`** – Admin-endpoint jolla voi tyhjentää oman cooldownin välittömästi.
+4. **`clear_garmin_cooldown.py`** – Utility-skripti suoraan Firestore-tyhjennystä varten.
 
 **Tiedostot muutettu:**
-- `backend/main.py` – Firestore-persisted cooldown, apufunktiot, rate limit tiukennus.
+- `backend/main.py` – Token resume, 60min cooldown, clear-cooldown endpoint
+- `backend/scripts/clear_garmin_cooldown.py` – NEW
+
+### 🔴 TODO (huomenna)
+- **Testaa Garmin-yhteys uudelleen** – Garminin rate limit pitäisi olla vanhentunut yön aikana. Uusi koodi yrittää token-resumea ensin.
+- Jos tokenit ovat vanhentuneet, sovellus pyytää 2FA-koodin ja tallentaa uudet tokenit.
+- Jos login onnistuu, taustasync toimii automaattisesti jatkossa token-resumella ilman salasanakirjautumista.
 
 ---
 
