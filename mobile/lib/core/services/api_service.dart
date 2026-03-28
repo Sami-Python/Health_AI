@@ -29,15 +29,15 @@ class ApiService {
       Uri.parse('$baseUrl$path'),
       headers: headers,
       body: json.encode(body),
-    ).timeout(const Duration(seconds: 15));
+    ).timeout(const Duration(seconds: 60));
   }
 
   Future<http.Response> _get(Uri url, {Map<String, String>? headers}) async {
-    return await http.get(url, headers: headers).timeout(const Duration(seconds: 15));
+    return await http.get(url, headers: headers).timeout(const Duration(seconds: 60));
   }
 
-  Future<http.Response> _post(Uri url, {Map<String, String>? headers, Object? body}) async {
-    return await http.post(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+  Future<http.Response> _post(Uri url, {Map<String, String>? headers, Object? body, Duration timeout = const Duration(seconds: 15)}) async {
+    return await http.post(url, headers: headers, body: body).timeout(timeout);
   }
   
   Future<http.Response> _put(Uri url, {Map<String, String>? headers, Object? body}) async {
@@ -360,6 +360,7 @@ class ApiService {
       Uri.parse('$baseUrl/garmin/connect'),
       headers: headers,
       body: json.encode({'username': username, 'password': password}),
+      timeout: const Duration(seconds: 60),
     );
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
@@ -389,6 +390,7 @@ class ApiService {
       Uri.parse('$baseUrl/garmin/connect/mfa'),
       headers: headers,
       body: json.encode({'session_id': sessionId, 'mfa_code': mfaCode}),
+      timeout: const Duration(seconds: 60),
     );
     if (response.statusCode != 200) {
       final detail = json.decode(utf8.decode(response.bodyBytes))['detail'] ??

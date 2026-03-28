@@ -28,7 +28,7 @@ docker-compose up
 ---
 
 ### 2️⃣ Web Frontend (Next.js)
-Avaa uusi terminaali ja aja:flutter run
+Avaa uusi terminaali ja aja:
 ```bash
 cd frontend
 npm run dev
@@ -111,6 +111,26 @@ cd frontend
 npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
+
+## 2026-03-28 – Garmin 429 Rate Limit: Pysyvä Cooldown 🛡️✅
+
+Korjattiin toistuva ongelma, jossa Garmin-yhteyden 429-suojaus (rate limit throttle) nollautui aina backendin uudelleenkäynnistyksen yhteydessä.
+
+### 1. Juurisyy
+- **Ongelma:** `_garmin_throttle_cache` oli pelkkä in-memory Python-dict. Kun Cloud Run kierrätti kontin tai backend käynnistettiin uudelleen, cooldown hävisi ja käyttäjä pystyi välittömästi yrittämään uutta kirjautumista — mikä johti jälleen Garminin 429-virheeseen. Tämä aiheutti kehäongelman.
+- **Ratkaisu:** Cooldown tallennetaan nyt **Firestoreen** (`rate_limit_until`-kenttä `garmin_credentials/default`-dokumenttiin). Tarkistus tehdään ensin muistista (nopea) ja tarvittaessa Firestoresta (pysyvä). Cooldown säilyy restartien, deployjen ja konttien kierrätysten yli.
+
+### 2. Uudet apufunktiot
+- `_check_garmin_cooldown(uid)` – tarkistaa in-memory + Firestore
+- `_set_garmin_cooldown(uid, duration)` – tallentaa molempiin
+
+### 3. Rate Limit tiukennus
+- `/garmin/connect` slowapi-raja laskettu `5/minute` → `3/minute`. Kolme yritystä minuutissa riittää, koska jokainen yritys tekee raskaan login-kutsun Garminille.
+
+**Tiedostot muutettu:**
+- `backend/main.py` – Firestore-persisted cooldown, apufunktiot, rate limit tiukennus.
+
+---
 
 ## 2026-03-25 – Google Sign-In & Garmin Sync Fixes 🚀✅
 

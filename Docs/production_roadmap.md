@@ -1025,3 +1025,17 @@ Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
   - [ ] Konfiguroi automaattinen puskeminen Firebaseen kera julkaisunuottien (Release Notes), kun `main`-haara päivittyy. (#365)
 - [ ] **Testaajien Kokemus:** (#366)
   - [ ] Testaa kutsuprosessin sujuvuus ja asennus ei-teknisellä käyttäjällä (AppTester / selainlataus). (#367)
+
+## Phase 18: Stability & Production Resilience (2026-03-26) ✅
+> **Status:** COMPLETED (2026-03-26)
+
+- [x] **Garmin 429 Rate Limit Mitigation:** (#900)
+    - [x] **Concurrency Locking:** Added backend locks for both login (`garmin_connect`) and background sync (`execute_refresh_task`) to prevent redundant/simultaneous requests to Garmin.
+    - [x] **Automated Cool-down:** Implemented a 15-minute in-memory throttling period in the backend following any 429 error from Garmin. The server now returns an immediate response with a remaining-time countdown to allow account recovery.
+    - [x] **Error Messaging:** Refined messages to help users distinguish between Garmin-level rate limits and backend issues.
+- [x] **Mobile App Resilience:** (#901)
+    - [x] **Timeout Increase:** Bumped mobile API request timeout from 15 seconds to 60 seconds to support slow Garmin authentication and MFA flows.
+- [x] **Backend Reliability:**
+    - [x] Fixed a critical import order issue (`threading`/`time` initialization) that caused backend crashes during reload.
+
+**Status:** 🟢 **STABLE** - Throttling and concurrency controls are active.

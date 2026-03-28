@@ -16,6 +16,9 @@ import scripts.predict_readiness as predictor
 from notification_service import notification_service
 from datetime import date, timedelta, datetime
 from garmin_client import GarminClient # Handles file uploads
+import threading
+import uuid
+import time as _time
 try:
     from google.cloud import error_reporting
 except ImportError:
@@ -1154,6 +1157,10 @@ def handle_garmin_mfa_required(uid: str):
     except Exception as e:
         logger.error(f"Failed to handle Garmin MFA requirement for {uid}: {e}")
         return False
+        
+# In-memory store for active background tasks (Sync/Refresh)
+_active_refresh_tasks: set = set()
+_refresh_lock = threading.Lock()
 
 def execute_refresh_task(uid: str, mode: str = "incremental"):
     """Background task to fetch data and train model with progress updates."""
@@ -1181,10 +1188,24 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         
         has_credentials = db_manager.check_garmin_credentials_exist(uid)
         
-        if mode == "full":
-            fetch_garmin_data.main(user_id=uid, mode="full")
-        else:
-            fetch_garmin_data.main(user_id=uid, mode=mode)
+        try:
+            if mode == "full":
+                fetch_garmin_data.main(user_id=uid, mode="full")
+            else:
+                fetch_garmin_data.main(user_id=uid, mode=mode)
+        except Exception as e:
+            err_msg = str(e)
+            if "429" in err_msg:
+                from logger import logger
+                logger.warning(f"🛑 Background sync hit Garmin 429 for {uid}. Applying 60-min throttle.")
+                _set_garmin_cooldown(uid, 3600)
+                
+                refresh_statuses[uid]["status"] = "failed"
+                refresh_statuses[uid]["error"] = "Garmin has rate-limited your account. Please wait 15-30 minutes."
+            else:
+                refresh_statuses[uid]["status"] = "failed"
+                refresh_statuses[uid]["error"] = f"Sync failed: {err_msg}"
+            raise
             
         refresh_statuses[uid]["progress"] = 70
         refresh_statuses[uid]["message"] = f"Training XGBoost Model ({mode})..."
@@ -1256,6 +1277,9 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
             handle_garmin_mfa_required(uid)
         else:
             refresh_statuses[uid]["error"] = f"Refresh failed: {error_msg}"
+    finally:
+        with _refresh_lock:
+            _active_refresh_tasks.discard(uid)
 
 @app.post("/system/refresh")
 async def refresh_data(
@@ -1270,9 +1294,12 @@ async def refresh_data(
     if not uid:
         raise HTTPException(status_code=401, detail="User ID missing from token")
 
-    if refresh_statuses.get(uid, {}).get("status") == "in_progress":
-        return {"status": "success", "message": "Refresh already in progress."}
+    with _refresh_lock:
+        if uid in _active_refresh_tasks:
+            return {"status": "already_syncing", "message": "A data sync is already in progress."}
+        _active_refresh_tasks.add(uid)
         
+    logger.info(f"🔄 Triggering background refresh for user {uid} (mode={mode})")
     background_tasks.add_task(execute_refresh_task, uid, mode)
     
     # Initialize status
@@ -1770,17 +1797,56 @@ async def debug_files(user: dict = Depends(verify_admin)):
 # save_garmin_tokens() helpers which encrypt with AES-256 before Firestore.
 # ─────────────────────────────────────────────────────────────────────────────
 
-import uuid
-import threading
-import time as _time
 from typing import Dict, Any
 
 # In-memory MFA session store.
-# Key   : session_id (uuid4 string)
-# Value : {uid, client (Garmin obj), expires_at (epoch float)}
-# Passwords are NOT stored here; only the half-initialised garth login object.
 _garmin_mfa_sessions: Dict[str, Any] = {}
 _sessions_lock = threading.Lock()
+
+# ── NEW: Throttling & Concurrency protection ──
+# Key: uid, Value: expiry (float)
+_garmin_throttle_cache: Dict[str, float] = {}
+# Set of active uids currently in a login thread
+_active_garmin_logins: set = set()
+# ──────────────────────────────────────────────
+
+def _check_garmin_cooldown(uid: str) -> Optional[float]:
+    """Check if user is in Garmin rate-limit cooldown.
+    Returns remaining seconds or None. Checks in-memory first, then Firestore."""
+    now = _time.time()
+    # 1. Fast path: in-memory cache
+    expiry = _garmin_throttle_cache.get(uid, 0)
+    if now < expiry:
+        return expiry - now
+    # 2. Slow path: Firestore (survives restarts / instance recycling)
+    try:
+        creds_doc = db_manager.get_db().collection('users').document(uid)\
+            .collection('garmin_credentials').document('default').get()
+        if creds_doc.exists:
+            rate_limit_until = creds_doc.to_dict().get('rate_limit_until')
+            if rate_limit_until:
+                expiry_ts = rate_limit_until.timestamp() if hasattr(rate_limit_until, 'timestamp') else float(rate_limit_until)
+                if now < expiry_ts:
+                    _garmin_throttle_cache[uid] = expiry_ts  # re-populate memory
+                    return expiry_ts - now
+    except Exception as e:
+        logger.warning(f"Failed to check Garmin cooldown from Firestore: {e}")
+    return None
+
+def _set_garmin_cooldown(uid: str, duration_seconds: int = 3600):
+    """Set Garmin cooldown both in-memory and in Firestore (survives restarts)."""
+    expiry = _time.time() + duration_seconds
+    _garmin_throttle_cache[uid] = expiry
+    try:
+        from datetime import datetime as _dt, timezone as _tz
+        expiry_dt = _dt.fromtimestamp(expiry, tz=_tz.utc)
+        db_manager.get_db().collection('users').document(uid)\
+            .collection('garmin_credentials').document('default')\
+            .set({'rate_limit_until': expiry_dt}, merge=True)
+        logger.info(f"🛡️ Garmin cooldown persisted to Firestore for {uid} until {expiry_dt.isoformat()}")
+    except Exception as e:
+        logger.warning(f"Failed to persist Garmin cooldown to Firestore: {e}")
+
 
 MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
 
@@ -1824,7 +1890,7 @@ class GarminMfaRequest(BaseModel):
 
 
 @app.post("/garmin/connect", tags=["Garmin"])
-@limiter.limit("5/minute")
+@limiter.limit("3/minute")
 async def garmin_connect(
     req: GarminConnectRequest,
     request: Request,
@@ -1832,39 +1898,78 @@ async def garmin_connect(
 ):
     """
     Start Garmin login.
-
-    - If login succeeds without 2FA → saves encrypted credentials & tokens,
-      returns `{status: "connected"}`.
-    - If Garmin requires MFA → returns `{status: "mfa_required", session_id}`.
-      The caller must follow up with POST /garmin/connect/mfa.
     """
     uid = user["uid"]
+    
+    # 1. Check for 429 cool-down (in-memory + Firestore)
+    remaining = _check_garmin_cooldown(uid)
+    if remaining:
+        wait_min = int(remaining / 60) + 1
+        raise HTTPException(
+            status_code=429, 
+            detail=f"Garmin has recently rate-limited your account. Please wait {wait_min} minutes before trying again."
+        )
+    
+    now = _time.time()
+    with _sessions_lock:
+        
+        # 2. Check for active login thread to prevent "double-click" spam
+        if uid in _active_garmin_logins:
+            raise HTTPException(
+                status_code=409, 
+                detail="A login attempt is already in progress. Please wait."
+            )
+        _active_garmin_logins.add(uid)
+
     _purge_expired_sessions()
 
     try:
         from garminconnect import Garmin
         import tempfile
         import json as _json
+        import os as _os
+        import shutil as _shutil
 
+        # ── Step 0: Try token-based resume FIRST (avoids password login rate limits) ──
+        try:
+            logger.info(f"🔑 Attempting token-based Garmin session resume for {uid}...")
+            import sys as _sys
+            scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+            if scripts_dir not in _sys.path:
+                _sys.path.insert(0, scripts_dir)
+            from fetch_garmin_data import get_garmin_client
+            token_client = get_garmin_client(uid)
+            # If we get here, token resume worked! Save credentials & return immediately.
+            db_manager.save_garmin_credentials(uid, req.username, req.password)
+            _save_garth_tokens(token_client, uid)
+            logger.info(f"✅ Garmin connected via token resume (no fresh login needed) for uid={uid}")
+            return {"status": "connected"}
+        except Exception as token_err:
+            token_err_msg = str(token_err)
+            # If token resume hit a 429, don't fall through to fresh login — it'll also 429
+            if "429" in token_err_msg:
+                logger.warning(f"🛑 Token resume also hit Garmin 429 for {uid}. Aborting.")
+                _set_garmin_cooldown(uid, 3600)
+                raise HTTPException(
+                    status_code=429,
+                    detail="Garmin is still rate-limiting your account. Please wait at least 1 hour before trying again."
+                )
+            logger.info(f"ℹ️ Token resume failed for {uid}: {token_err_msg}. Falling back to fresh login.")
+
+        # ── Step 1: Fresh password login (only if token resume failed) ──
+        # Create isolated session directory
+        tmp_session_dir = tempfile.mkdtemp(prefix=f"garmin_session_{uid}_")
+        
         mfa_event = threading.Event()
         mfa_code_holder: Dict[str, str] = {}
-
-        # ── CRITICAL: create code_event BEFORE starting the login thread ──
-        # mfa_callback() runs inside the login thread. If we set _event AFTER
-        # the join() timeout (which is after mfa_callback already ran), the
-        # callback sees _event=None and returns "" immediately — wrong code!
         code_event = threading.Event()
         mfa_code_holder["_event"] = code_event
 
         def mfa_callback() -> str:
-            """Called by garth when Garmin demands a 2FA code."""
             logger.info(f"🔐 Garmin MFA requested for uid={uid}")
-            mfa_event.set()  # Signal the endpoint to stop waiting
-            # Block until the user submits their MFA code (or session expires)
+            mfa_event.set()
             code_event.wait(timeout=MFA_SESSION_TTL_SECONDS)
-            code = mfa_code_holder.get("code", "")
-            logger.info(f"🔐 MFA code received for uid={uid}: {'(empty)' if not code else '***'}")
-            return code
+            return mfa_code_holder.get("code", "")
 
         garmin_client = Garmin(req.username, req.password, prompt_mfa=mfa_callback)
 
@@ -1883,13 +1988,12 @@ async def garmin_connect(
         login_thread = threading.Thread(target=do_login, daemon=True)
         login_thread.start()
 
-        # Wait up to 15 seconds for: login done OR mfa_callback triggered
-        login_thread.join(timeout=15)
+        # Wait up to 20 seconds (slightly longer to avoid false timeouts)
+        login_thread.join(timeout=20)
 
         # ── Case 1: MFA required ──────────────────────────────────────────
         if mfa_event.is_set() and not login_result.get("done"):
             session_id = str(uuid.uuid4())
-            # code_event already created above (mfa_callback is waiting on it)
             with _sessions_lock:
                 _garmin_mfa_sessions[session_id] = {
                     "uid": uid,
@@ -1918,9 +2022,21 @@ async def garmin_connect(
     except Exception as e:
         err_msg = str(e)
         if "429" in err_msg:
-             raise HTTPException(status_code=429, detail="Garmin has rate-limited your login attempts. Please wait 15-30 minutes.")
+             # Apply 60 minute cool-down (persisted to Firestore) — Garmin rate limits last 1+ hours
+             logger.warning(f"🛑 Garmin 429 (Rate Limit) hit for {uid}. Message: {err_msg}. Cool-down active for 60 mins.")
+             _set_garmin_cooldown(uid, 3600)
+             raise HTTPException(
+                 status_code=429, 
+                 detail="Garmin has rate-limited your account. Please wait at least 1 hour before trying again."
+             )
+        
         logger.error(f"❌ Garmin connect error for uid={uid}: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        with _sessions_lock:
+            _active_garmin_logins.discard(uid)
+        # No cleanup of tmp_session_dir here as it might be needed for MFA.
+        # It's cleaned up during _purge_expired_sessions or on completion.
 
 
 @app.post("/garmin/connect/mfa", tags=["Garmin"])
@@ -2025,3 +2141,25 @@ async def garmin_disconnect(request: Request, user: dict = Depends(verify_token)
     except Exception as e:
         logger.error(f"❌ Garmin disconnect error for uid={uid}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/garmin/clear-cooldown", tags=["Garmin"])
+async def garmin_clear_cooldown(user: dict = Depends(verify_admin)):
+    """
+    Admin-only: Clear Garmin rate-limit cooldown so user can retry immediately.
+    """
+    uid = user["uid"]
+    # Clear in-memory
+    _garmin_throttle_cache.pop(uid, None)
+    # Clear Firestore
+    try:
+        from google.cloud.firestore_v1 import DELETE_FIELD
+        db_manager.get_db().collection('users').document(uid)\
+            .collection('garmin_credentials').document('default')\
+            .update({'rate_limit_until': DELETE_FIELD})
+    except Exception as e:
+        logger.warning(f"Firestore cooldown clear failed: {e}")
+    
+    logger.info(f"🔓 Garmin cooldown cleared for uid={uid}")
+    return {"status": "success", "message": "Garmin cooldown cleared. You can retry immediately."}
+
