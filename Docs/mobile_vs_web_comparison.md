@@ -16,11 +16,11 @@
 | Readiness & Sleep Charts | ✅ | ✅ | Mobiilissa glassmorphism |
 | Garmin-yhteysbanneri dashboardilla | ✅ | ✅ | Phase 14.2 ✅ |
 | **Kalenteri (TrainingCalendar)** | ✅ | ✅ | API-data käytössä (`/workouts/history` + `/workouts/next`) |
-| Drag & Drop treenit | ✅ | ❌ | Depriorisoitu |
-| Treenin poisto (roskakori) | ✅ | ❌ | Depriorisoitu |
+| Treenin siirto (Reschedule) | ✅ | ✅ | Mobiilissa painikkeen kautta (korvaa Drag&Dropin) |
+| Treenin poisto (roskakori) | ✅ | ✅ | Toteutettu näkymään `_showWorkoutDetails` |
 | "Send to Garmin" -nappi | ✅ | ✅ | Phase 14.4 ✅ (`POST /workouts/upload`) |
-| Treenin modal-tiedot | ✅ | ❌ | Mobiilissa lista, ei modal |
-| AI-plan generointi kalenterista | ✅ | ❌ | Depriorisoitu |
+| Treenin modal-tiedot | ✅ | ✅ | `_showWorkoutDetails` BottomSheet |
+| AI-plan generointi kalenterista | ✅ | ✅ | Ikonipainike kalenterissa (`POST /plans/generate`) |
 | **Analysis** | ✅ | ✅ | CTL/ATL/TSB, Load, Sleep, Readiness |
 | **Tavoitteiden hallinta** | ✅ | ✅ | Phase 14.1 ✅ – lisää/muokkaa/poista |
 | Lisää tavoite | ✅ | ✅ | `GoalFormSheet` Flutter |
@@ -35,7 +35,7 @@
 | Data export (GDPR) | ✅ | ✅ | `GET /user/export` |
 | Tilin poisto (GDPR) | ✅ | ✅ | `DELETE /account` |
 | Palaute-lomake | ✅ | ✅ | `POST /feedback` |
-| **ML Accuracy Modal** | ✅ | ❌ | Depriorisoitu |
+| **ML Accuracy Modal** | ✅ | ✅ | Indikaattori `AnalysisScreen`issä |
 | **Kirjautuminen (Login)** | ✅ | ✅ | Google Sign-In toimii |
 
 ---

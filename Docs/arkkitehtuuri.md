@@ -147,7 +147,13 @@ graph TD
 ### 8. Mobiilisovellus (Flutter)
 *   **Mobile App (`mobile/`):** Natiivi iOS ja Android -sovellus.
     *   **Teknologia:** Flutter 3.41.2 (Dart).
-    *   **Tila:** Tuotantovalmis (Phase 14 COMPLETED 2026-02-23). AI Chat (Phase 15) koodi valmis, testaus kesken.
-    *   **Näkymät:** Home (Dashboard), Calendar, Analysis, Chat (⚠️ testaus kesken), Profile + Settings.
-    *   **Ominaisuudet:** Goals CRUD, Garmin-tunnusten hallinta, GDPR (data export & account delete), Send to Garmin, AI Chat Coach.
-    *   **Integraatio:** Käyttää samoja Backend API -rajapintoja kuin Web UI (Bearer Token auth).
+    *   **Tila:** Tuotantovalmis 100 % (Phases 14, 15, 16 COMPLETED 03/2026). Web-version täysi ominaisuuspariteetti.
+    *   **Näkymät:** Home (Dashboard), Calendar, Analysis, Chat, Profile + Settings.
+    *   **Ominaisuudet:** Kalenteri-skedulointi (Drag & drop/reschedule), Manuaalinen treenikirjaus, AI Chat Coach fyysisellä laitteella todennettuna, Goals CRUD, Garmin-hallinta, GDPR.
+    *   **Integraatio:** Käyttää samoja Backend API -rajapintoja kuin Web UI (v1.0.0 Bearer Token auth).
+
+### 9. Rajoitteet ja Järjestelmäriskit (Garmin Cloudflare)
+> [!WARNING]
+> Arkkitehtuurissa oleva Python-pääte ("Data Ingestion Layer") nojaa avoimen lähdekoodin `garth` ja `garminconnect` kirjastoihin, koska ohjelmisto ei omista Garminin virallista Developer API -avainta as of v1.2.
+> **Riski:** Garmin päivittää erittäin usein SSO -kirjautumisensa Cloudflare Bot Management -verkkoa, joka heittää välittömän `HTTP 429 Too Many Requests` vastauksen Python-pohjaisille salasana-kirjauksille.
+> **Lievitys (Mitigation):** Token Resume (OAuth1 & OAuth2 -tokenit) varastoidaan käyttäjäkohtaisesti, ja ne selviävät reitityksestä selvästi Cloudflarea paremmin. Tuoreita manuaalisia kirjautumisia varten backendin sisäänrakennettu cooldown (60m -> Firestore `rate_limit_until`) estää loputtomat loopit kirjautumisyrityksissä, kunnes päivitykset asennetaan.

@@ -198,23 +198,43 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
                     client.garth.load(tmpdir)
 
                 # --- PROACTIVE REFRESH ---
-                # Check if tokens are expired or need refresh to avoid "OAuth1 required" errors during API calls
+                # Try to refresh tokens, but DON'T make API calls that trigger 429
                 try:
                     logger.info("Verifying Garmin session validity...")
-                    # garth.refresh() will attempt to refresh OAuth tokens if they are expired or close to it
-                    client.garth.refresh()
-                    logger.info("✅ Garmin session refreshed/verified")
+                    # Check if OAuth2 token is expired before trying to refresh
+                    oauth2_expired = False
+                    try:
+                        if hasattr(client.garth, 'oauth2_token') and client.garth.oauth2_token:
+                            import time as _t
+                            expires_at = getattr(client.garth.oauth2_token, 'expires_at', 0)
+                            if expires_at and _t.time() > expires_at:
+                                oauth2_expired = True
+                                logger.info("OAuth2 token is expired, will attempt refresh")
+                            else:
+                                logger.info("OAuth2 token still valid, skipping refresh")
+                    except Exception:
+                        pass  # If we can't check, try refresh anyway
+
+                    if oauth2_expired:
+                        client.garth.refresh()
+                        logger.info("✅ Garmin session refreshed/verified")
+                    else:
+                        logger.info("✅ Garmin session loaded (token not expired, refresh skipped)")
                 except Exception as refresh_err:
-                    logger.warning(f"⚠️ Proactive garth refresh failed: {refresh_err}")
-                    # If refresh fails, it's likely we need a fresh MFA login
-                    raise GarminMFARequiredError(
-                        "Garmin session expired and could not be refreshed automatically. "
-                        "Please reconnect your Garmin account in the app settings."
-                    )
+                    refresh_err_msg = str(refresh_err)
+                    if "429" in refresh_err_msg:
+                        # Garmin is rate-limiting — DON'T refresh, just use existing tokens as-is
+                        # The tokens may still work for data fetching even if refresh is blocked
+                        logger.warning(f"⚠️ Garmin 429 during token refresh — using existing tokens without refresh")
+                    else:
+                        logger.warning(f"⚠️ Proactive garth refresh failed: {refresh_err}")
+                        # If refresh fails for non-rate-limit reasons, we need fresh MFA login
+                        raise GarminMFARequiredError(
+                            "Garmin session expired and could not be refreshed automatically. "
+                            "Please reconnect your Garmin account in the app settings."
+                        )
 
                 logger.info("✅ Garmin session resumed from saved tokens")
-                
-                pass # Continue to patch display_name below
             except GarminMFARequiredError:
                 raise  # Propagate clearly
             except Exception as token_err:

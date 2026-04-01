@@ -84,7 +84,7 @@ streamlit run dashboard.py
  экспериmental tracking for model training.
 ```bash
 cd backend
-source .venv/Scripts/activate
+ø
 mlflow ui --backend-store-uri sqlite:///data/mlflow.db
 ```
 *UI: http://localhost:5000*
@@ -112,6 +112,71 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-03-31 – Garmin Cloudflare 429 Blokki (Ongelman juurisyy löydetty) 🛑
+
+Tutkittiin jatkuvia `429 Too Many Requests` -virheitä, jotka estivät "Connect Garmin" -toiminnon mobiilisovelluksesta jopa yli vuorokauden odottelun ja IP-osoitteen vaihtamisen (4G Hotspot) jälkeen.
+
+### Havainnot & Diagnostiikka 🔍
+1. Aiemmin (2026-03-29) koodissa korjattu noidankehä korjasi sovelluksen oman tavan spämmätä Garminia, mutta kirjautuminen ei silti mennyt läpi alkuperäisessä asennuksessa kertaakaan.
+2. Kun ajettiin anonyymia (ilman sinun Firebase/Garmin tunnuksiasi) kirjautumistestiä puhtaan 4G-Mobiilitukiaseman kautta suoraan Garminin SSO (Single Sign-On) -kirjautumisendpointtiin pyynnöllä (`POST /sso/signin`), **Garmin (Cloudflare) palautti 429-virheen täysin välittömästi sekunnin sadasosassa**.
+3. Kirjastot (`garminconnect` ja `garth`) päivitettiin uusimpiin olemassa oleviin versioihin, mutta tämä ei ratkaissut ongelmaa.
+
+### Johtopäätös 💡
+Vika **ei ole koodissasi, IP-osoitteessasi tai tunnuksessasi**. Garmin on vastikään päivittänyt Cloudflare Bot Management -sääntöjä ja tiukentanut turva-asetuksiaan viikonlopun aikana. Cloudflare tunnistaa tällä hetkellä asennetun Pythonin `requests` ja `garth` kirjastomuotit pelkästä alkuperäisestä HTTP-sormenjäljestä "boteiksi" ja sulkee niiltä välittömästi ovet 429-virheellä, jotta automaatiot eivät pääse kokeilemaan salasanoja. 
+
+Avoimen lähdekoodin ylläpitäjät (`garminconnect`-yhteisö) luovat varmaankin tällä sekunnilla uutta päivitystä sormenjälkien muuttamiseksi ohittaakseen uuden Cloudflaren!
+
+### Seuraavat askeleet (Myöhemmin) 🚀
+Kun palaamme tähän aiheeseen, valittavana on 2 reittiä:
+1. **Odotus**: Jätetään Garmin-ongelma rauhaan toviksi, kunnes `garth` yhteisö julkaisee ratkaisun Cloudflaren nykyiseen tiukennukseen.
+2. **Kova Injektio ("The Hardcore Way")**: Rakennetaan oma Chromium / Selain-skripti, tai otetaan sinun omalta henkilökohtaiselta tietokone-Chromelta valmiina ja hyväksyttynä haetut Oauth-tokenit (sivumme kautta) ja injektoidaan ne koodilla suoraan Firebase-tietokantaasi salasanan väkisin lähettämisen sijaan. Cloudflare sallii valmiin Tokenin takaa datan hakemisen Pythonilla täysin esteittä!
+
+---
+
+## 2026-03-29 – Garmin 429 Noidankehän korjaus 🔧
+
+Testattiin eilen tehtyä Garmin rate limit -korjaussarjaa fyysisellä Android-laitteella. Löydettiin ja korjattiin kriittinen noidankehä (vicious cycle).
+
+### Juurisyy: Tyhjä Firestore + noidankehä
+Diagnostiikka paljasti, että käyttäjän `garmin_credentials/default`-dokumentissa **ei ollut mitään muuta kuin `rate_limit_until`** — ei tunnuksia, ei tokeneita. Tämä johtui siitä, että tunnukset tallennettiin Firestoreen vasta ONNISTUNEEN loginin jälkeen. Koska login epäonnistui 429-virheeseen, tunnuksia ei koskaan tallennettu.
+
+**Noidankehä oli:**
+```
+1. Käyttäjä painaa "Connect" → Ei tunnuksia Firestoressa
+2. Token resume ohitetaan (ei credentialeja) → Yritetään tuoretta loginia
+3. Garmin palauttaa 429 → Cooldown asetetaan, tunnuksia EI tallenneta
+4. Cooldown nollataan → Palataan kohtaan 1
+```
+
+### Korjaukset
+
+**1. Tunnusten varhainen tallennus (`backend/main.py`)**
+- Tunnukset (username/password) tallennetaan Firestoreen **ENNEN** login-yritystä
+- Tämä varmistaa, että seuraavalla yrityksellä `get_garmin_client()` löytää tunnukset ja voi yrittää token-resumea
+- Rikkoo noidankehän: tunnukset säilyvät vaikka login epäonnistuu
+
+**2. `garth.refresh()` 429-käsittely (`backend/scripts/fetch_garmin_data.py`)**
+- Jos `garth.refresh()` saa 429-vastauksen, koodi **ohittaa** refreshin ja jatkaa nykyisillä tokeneilla
+- Ennen: refresh 429 → `GarminMFARequiredError` → token resume epäonnistui → tuore login → uusi 429
+- Nyt: refresh 429 → ohitetaan → jatketaan olemassa olevilla tokeneilla
+
+**3. Parempi rate-limit tunnistus (`backend/main.py`)**
+- Token resume -virheistä etsitään nyt myös "rate-limit" ja "rate limit" -tekstejä, ei pelkästään "429"
+- Estää turhia fresh login -yrityksiä kun Garmin on jo tunnetusti estänyt tilin
+
+### Tiedostot muutettu
+- `backend/main.py` – Credentials saved early, improved rate-limit detection
+- `backend/scripts/fetch_garmin_data.py` – garth.refresh() 429 graceful handling
+
+### 🔴 TODO (testattava myöhemmin)
+- **Odota Garminin rate limitin loppumista** (arviolta ~klo 18:30-19:00, eli 1-2h viimeisestä yrityksestä)
+- Käynnistä bäkendi uudelleen: `uvicorn main:app --host 0.0.0.0 --port 8000 --reload`
+- Kokeile Garmin-yhteyttä sovelluksesta
+- **Odotettu tulos:** Token resume onnistuu (koska tunnukset on nyt tallessa), tai 2FA-koodi pyydetään
+- Jos login onnistuu → tokenit tallentuvat → jatkossa token resume toimii automaattisesti
+
+---
+
 ## 2026-03-28 – Garmin 429 Rate Limit: Kokonainen korjaussarja 🛡️
 
 ### Sessio 1: Pysyvä Cooldown (Firestore)
@@ -134,11 +199,6 @@ Ongelman ydin: `/garmin/connect` teki **aina tuoreen salasana-loginin** Garminii
 **Tiedostot muutettu:**
 - `backend/main.py` – Token resume, 60min cooldown, clear-cooldown endpoint
 - `backend/scripts/clear_garmin_cooldown.py` – NEW
-
-### 🔴 TODO (huomenna)
-- **Testaa Garmin-yhteys uudelleen** – Garminin rate limit pitäisi olla vanhentunut yön aikana. Uusi koodi yrittää token-resumea ensin.
-- Jos tokenit ovat vanhentuneet, sovellus pyytää 2FA-koodin ja tallentaa uudet tokenit.
-- Jos login onnistuu, taustasync toimii automaattisesti jatkossa token-resumella ilman salasanakirjautumista.
 
 ---
 

@@ -522,6 +522,27 @@ Disconnect Garmin account.
 
 ---
 
+#### `POST /garmin/clear-cooldown`
+Manually clear the active Garmin rate limit cooldown for a specific user (Admin only).
+Allows immediate retry if the user was stuck in an infinite 429 block loop.
+
+**Tags:** Garmin, Admin  
+**Rate Limit:** 5/min  
+**Parameters:**
+- `uid` (query): Target user ID
+
+**Security:** Requires Admin email.
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Garmin cooldown cleared for user uid123"
+}
+```
+
+---
+
 ### System
 
 #### `POST /system/refresh`

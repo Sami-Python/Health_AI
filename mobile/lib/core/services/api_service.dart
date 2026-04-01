@@ -8,7 +8,7 @@ import '../../data/models/goal_model.dart';
 class ApiService {
   static const String baseUrl = kReleaseMode
       ? 'https://health-ai-backend-35976089058.europe-north1.run.app'
-      : 'http://192.168.1.130:8000';
+      : 'http://172.20.10.4:8000'; // IP päivitetty hotspot-verkolle
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 

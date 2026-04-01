@@ -57,6 +57,10 @@ Nykyinen DuckDB/SQLite on tiedostopohjainen ja lukittuu usealla käyttäjällä.
 
 **Security:** Salasanat ovat luettavissa vain oikealla salausavaimella. Admin ei näe salasanoja ilman avainta.
 
+> [!WARNING]
+> **KRIITTINEN HYPER-RISKI (Löydetty 2026-03-31): Garmin Cloudflare Bot Block**
+> Vaikka koodi ja tokenien salaus toimii täydellisesti, Garminin Cloudflare-turvamuuri estää tällä hetkellä *kokonaan* kaikki Python `garth`/`garminconnect` -kirjastojen kautta tulevat `POST /sso/signin` -salasanakirjautumiset (HTTP 429) automaattisina botteina. Tämä tarkoittaa, että "tuore kirjautuminen" salasanalla ei mene läpi miltään verkosta IP-osoitteesta riippumatta. Tokenien manuaalinen injektio selaimesta suoraan Firestoreen (token resume) on toistaiseksi ainoa 100% varma menetelmä, jolla este voidaan ohittaa ilman virallista Garmin Developer API -avainta.
+
 **Completed:** 2026-01-18
 
 **Verification:**
