@@ -1205,7 +1205,6 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         except Exception as e:
             err_msg = str(e)
             if "429" in err_msg:
-                from logger import logger
                 logger.warning(f"🛑 Background sync hit Garmin 429 for {uid}. Applying 60-min throttle.")
                 _set_garmin_cooldown(uid, 3600)
                 
