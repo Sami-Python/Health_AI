@@ -8,7 +8,7 @@ import '../../data/models/goal_model.dart';
 class ApiService {
   static const String baseUrl = kReleaseMode
       ? 'https://health-ai-backend-35976089058.europe-north1.run.app'
-      : 'http://172.20.10.4:8000'; // IP päivitetty hotspot-verkolle
+      : 'http://192.168.1.144:8000'; // Paikallinen WiFi IP
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -36,20 +36,20 @@ class ApiService {
     return await http.get(url, headers: headers).timeout(const Duration(seconds: 60));
   }
 
-  Future<http.Response> _post(Uri url, {Map<String, String>? headers, Object? body, Duration timeout = const Duration(seconds: 15)}) async {
+  Future<http.Response> _post(Uri url, {Map<String, String>? headers, Object? body, Duration timeout = const Duration(seconds: 60)}) async {
     return await http.post(url, headers: headers, body: body).timeout(timeout);
   }
   
   Future<http.Response> _put(Uri url, {Map<String, String>? headers, Object? body}) async {
-    return await http.put(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+    return await http.put(url, headers: headers, body: body).timeout(const Duration(seconds: 60));
   }
 
   Future<http.Response> _patch(Uri url, {Map<String, String>? headers, Object? body}) async {
-    return await http.patch(url, headers: headers, body: body).timeout(const Duration(seconds: 15));
+    return await http.patch(url, headers: headers, body: body).timeout(const Duration(seconds: 60));
   }
 
   Future<http.Response> _delete(Uri url, {Map<String, String>? headers}) async {
-    return await http.delete(url, headers: headers).timeout(const Duration(seconds: 15));
+    return await http.delete(url, headers: headers).timeout(const Duration(seconds: 60));
   }
 
   // ─── System / Refresh ─────────────────────────────────────────
