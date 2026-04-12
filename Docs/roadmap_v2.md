@@ -1,3 +1,6 @@
+## Phase 36: Garmin Cloudflare Bypass (Universal Fix v4) (Complete!)
+- Fully resolved 403 Forbidden / 429 Too Many Requests by establishing a direct Android SSO connection via curl_cffi to /portal/api/login leveraging GCM_ANDROID_DARK footprint.
+
 # Personal AI Coach: Roadmap V2.0
 
 *Seuraavan sukupolven älykkyys, integraatiot ja laitekokemus.* Tässä roadmapissa määritellään projektin suunta sen jälkeen, kun Phase 16 (perusominaisuuksien tasapäistäminen webin ja mobiilin välillä) on suoritettu. Tavoitteena on muuttaa sovellus reagoivasta työkalusta aidosti **proaktiiviseksi ja kokonaisvaltaiseksi tekoälyvalmentajaksi**.

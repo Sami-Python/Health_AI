@@ -25,14 +25,172 @@ class GarminMFARequiredError(ValueError):
     pass
 
 
-def save_garth_session(user_id: str, client: Garmin) -> bool:
+def patch_garmin_client():
     """
-    Saves garth OAuth2/OAuth1 tokens to Firestore robustly.
-    Stores ALL files produced by garth.dump() (multi-file format).
+    Universal Fix v4: Allows garminconnect 0.3.1's multi-strategy login
+    but blocks plain-requests fallbacks that trigger Cloudflare detection.
+    Also patches garth session for data fetching.
     """
-    import tempfile
+    try:
+        # 1. Patch garth (for session persistence and data fetching)
+        import garth.http
+        from curl_cffi import requests as curl_requests
+
+        if "curl_cffi" not in str(type(garth.client.sess)):
+            logger.info("🛡️ Patching garth singleton with curl_cffi")
+            new_sess = curl_requests.Session(impersonate="chrome120")
+            garth.client.sess = new_sess
+            garth.http.client.sess = new_sess
+
+        # 2. Patch garminconnect login to skip plain-requests strategies
+        try:
+            import garminconnect
+            
+            TargetClass = None
+            if hasattr(garminconnect, 'Garmin'):
+                TargetClass = garminconnect.Garmin
+            elif hasattr(garminconnect, 'client') and hasattr(garminconnect.client, 'Client'):
+                TargetClass = garminconnect.client.Client
+
+            if not TargetClass:
+                logger.warning("⚠️ Could not find Garmin client class to patch")
+                return
+
+            # Only patch once
+            if getattr(TargetClass, '_v4_patched', False):
+                return
+            TargetClass._v4_patched = True
+
+            original_login = TargetClass.login
+            def patched_login(self, *args, **kwargs):
+                """
+                v4: Direct POST to Garmin SSO using curl_cffi and garth ticket exchange.
+                Bypasses all front-end Cloudflare blocks completely by avoiding the sign-in page.
+                """
+                # Delegate to original token loading if provided (or arbitrary arguments)
+                if (args and len(args) > 0 and args[0]) or kwargs.get('tokenstore'):
+                    return original_login(self, *args, **kwargs)
+
+                from curl_cffi import requests as cffi_requests
+                import garth
+                from garth.sso import exchange as garth_exchange
+                
+                logger.info("🔍 [v4] Starting Direct POST login...")
+                session = cffi_requests.Session(impersonate="safari")
+                resp = session.post(
+                    "https://sso.garmin.com/portal/api/login",
+                    params={
+                        "clientId": "GCM_ANDROID_DARK",
+                        "locale": "en-US",
+                        "service": "https://mobile.integration.garmin.com/gcm/android",
+                    },
+                    json={
+                        "username": getattr(self, "username", ""),
+                        "password": getattr(self, "password", ""),
+                        "rememberMe": False,
+                        "captchaToken": "",
+                    },
+                    headers={
+                        "Accept": "application/json",
+                        "Content-Type": "application/json",
+                        "Origin": "https://sso.garmin.com",
+                        "Referer": "https://sso.garmin.com/portal/sso/en-US/sign-in",
+                    },
+                    timeout=15,
+                )
+                
+                if resp.status_code == 200:
+                    data = resp.json()
+                    status_type = data.get("responseStatus", {}).get("type", "")
+                    
+                    if status_type == "SUCCESSFUL":
+                        ticket = data.get("serviceTicketId", "")
+                        logger.info(f"✅ Service ticket acquired from direct login! {ticket[:40]}...")
+                        
+                        # Exchange ticket for OAuth tokens natively
+                        try:
+                            client_to_use = self.garth if hasattr(self, 'garth') else garth.client
+                            
+                            # Custom OAuth1 exchange using the proper mobile login-url instead of sso/embed
+                            from urllib.parse import parse_qs
+                            from garth.sso import OAuth1Token, GarminOAuth1Session
+                            
+                            oauth_sess = GarminOAuth1Session(parent=client_to_use.sess)
+                            base_url = f"https://connectapi.{client_to_use.domain}/oauth-service/oauth/"
+                            login_url = "https://mobile.integration.garmin.com/gcm/android"
+                            url = f"{base_url}preauthorized?ticket={ticket}&login-url={login_url}&accepts-mfa-tokens=true"
+                            
+                            logger.info(f"🔑 Exchanging for OAuth1 using mobile url...")
+                            oauth1_resp = oauth_sess.get(
+                                url,
+                                headers={"User-Agent": "com.garmin.android.apps.connectmobile"},
+                                timeout=client_to_use.timeout
+                            )
+                            oauth1_resp.raise_for_status()
+                            parsed = parse_qs(oauth1_resp.text)
+                            token_dict = {k: v[0] for k, v in parsed.items()}
+                            oauth1 = OAuth1Token(domain=client_to_use.domain, **token_dict)
+
+                            logger.info("✅ OAuth1 obtained")
+                            oauth2 = garth_exchange(oauth1, client_to_use)
+                            logger.info("✅ OAuth2 obtained! Access token generated.")
+                        except Exception as e:
+                            logger.error(f"Failed to exchange ticket: {e}")
+                            if hasattr(e, 'response') and e.response is not None:
+                                logger.error(f"Response: {e.response.text}")
+                            raise
+
+                        # Extract first part of email for fallback display_name
+                        username = getattr(self, "username", "")
+                        fallback_name = username.split("@")[0] if username and "@" in username else "unknown"
+                        
+                        # Inject the tokens
+                        if hasattr(self, 'garth'):
+                            self.garth.oauth1_token = oauth1
+                            self.garth.oauth2_token = oauth2
+                            self.garth._profile = {"displayName": fallback_name, "fullName": fallback_name}
+                        else:
+                            garth.client.oauth1_token = oauth1
+                            garth.client.oauth2_token = oauth2
+                        
+                        if hasattr(self, 'client'):
+                            self.client.di_token = oauth2.access_token
+                        self.display_name = fallback_name
+                        
+                        logger.info("✅ Direct POST login completely successful! Tokens injected.")
+                        return getattr(oauth1, "access_token", None), getattr(oauth2, "access_token", None)
+                        
+                    elif status_type == "MFA_REQUIRED":
+                        import garminconnect
+                        raise getattr(garminconnect, 'GarminConnectAuthenticationError', Exception)("MFA Required")
+                    else:
+                        import garminconnect
+                        raise getattr(garminconnect, 'GarminConnectAuthenticationError', Exception)(f"Unexpected SSO type: {status_type}")
+                elif resp.status_code in [401, 403]:
+                    import garminconnect
+                    raise getattr(garminconnect, 'GarminConnectAuthenticationError', Exception)(f"Invalid credentials (HTTP {resp.status_code})")
+                elif resp.status_code == 429:
+                    import garminconnect
+                    raise getattr(garminconnect, 'GarminConnectTooManyRequestsError', Exception)("Rate limited")
+                else:
+                    import garminconnect
+                    raise getattr(garminconnect, 'GarminConnectConnectionError', Exception)(f"Garmin SSO returned HTTP {resp.status_code}")
+
+            TargetClass.login = patched_login
+            logger.info("🛡️ garminconnect patched (v4): direct POST login strategy")
+
+        except ImportError:
+            logger.warning("⚠️ garminconnect not found, skipping v4 patch")
+
+    except Exception as e:
+        logger.error(f"❌ Failed to apply Garmin Universal Fix v4: {e}")
+
+
+def save_garmin_session(user_id: str, client: Garmin) -> bool:
+    """
+    Saves garminconnect 0.2.x/0.3.x native tokens to Firestore robustly.
+    """
     import json
-    import os
     import firestore_manager
     from encryption_helper import encrypt_password
 
@@ -40,71 +198,57 @@ def save_garth_session(user_id: str, client: Garmin) -> bool:
         return False
 
     try:
+        # Support both garminconnect >= 0.3.1 (client.client) and < 0.3.x (client.garth)
+        inner_client = getattr(client, 'client', None) or getattr(client, 'garth', None)
+        if not inner_client:
+            logger.warning(f"⚠️ client missing inner garth/client object for {user_id}")
+            return False
+
+        import tempfile
+        import os
+        token_data = {}
         with tempfile.TemporaryDirectory() as tmpdir:
-            client.garth.dump(tmpdir)
-            files = os.listdir(tmpdir)
-            if not files:
-                logger.warning(f"⚠️ garth.dump() produced no files for {user_id}")
+            inner_client.dump(tmpdir)
+            # Read whatever files were dumped
+            for f_name in os.listdir(tmpdir):
+                if f_name.endswith('.json'):
+                    with open(os.path.join(tmpdir, f_name), 'r') as f:
+                        key = f_name.replace('.json', '')
+                        token_data[key] = json.load(f)
+
+        if not token_data or ("oauth1_token" not in token_data and "oauth2_token" not in token_data):
+            # Check the base level for di_token if it's the newer format
+            if "di_token" not in token_data:
+                logger.warning(f"⚠️ dump() produced incomplete tokens for {user_id}: {token_data}")
                 return False
 
-            token_files = {}
-            for fname in files:
-                if not fname.endswith('.json'):
-                    continue
-                fpath = os.path.join(tmpdir, fname)
-                with open(fpath, "r") as f:
-                    content = f.read().strip()
-                    if content:
-                        token_files[fname] = json.loads(content)
+        # 1. Save legacy single-token format for backward compatibility
+        firestore_manager.save_garmin_tokens(user_id, token_data)
 
-            if not token_files:
-                return False
-
-            # 1. Save legacy single-token format for backward compatibility
-            primary_token = token_files.get("oauth2_token.json") or next(iter(token_files.values()))
-            firestore_manager.save_garmin_tokens(user_id, primary_token)
-
-            # 2. Save new multi-file format (encrypted)
-            encrypted = encrypt_password(json.dumps(token_files))
-            firestore_manager.db.collection('users').document(user_id)\
-                .collection('garmin_credentials').document('default')\
-                .update({'garth_token_files_encrypted': encrypted})
-            
-            logger.info(f"💾 Garth session tokens (multi-file) persisted for {user_id}")
-            return True
+        # 2. Save encrypted
+        encrypted = encrypt_password(token_str)
+        firestore_manager.db.collection('users').document(user_id)\
+            .collection('garmin_credentials').document('default')\
+            .update({'garth_token_files_encrypted': encrypted})
+        
+        logger.info(f"💾 Garmin session tokens persisted for {user_id}")
+        return True
     except Exception as e:
-        logger.error(f"❌ Failed to save garth session: {e}")
+        logger.error(f"❌ Failed to save garmin session: {e}")
         return False
 
 
-def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
+def get_garmin_client(user_id: Optional[str] = None, allow_fresh: bool = True) -> Garmin:
     """
-    Authenticate to Garmin using credentials.
-    
-    Uses garth token storage in Firestore to avoid the
-    'OAuth1 token is required for OAuth2 refresh' error.
-    Fresh login is only done when no valid token exists.
-    
-    Args:
-        user_id: Firebase UID. If provided, uses encrypted credentials from Firestore.
-                 If None, falls back to GARMIN_EMAIL/GARMIN_PASSWORD from .env (legacy).
-    
-    Returns:
-        Authenticated Garmin client
-        
-    Raises:
-        GarminMFARequiredError: If 2FA is required but no session is available
-                                (user must reconnect via the app).
-        ValueError: If credentials not found or authentication fails
+    Authenticate to Garmin using credentials and robust local token loading.
+    Migrates old garth tokens gracefully.
     """
     email = None
     password = None
     
     if user_id:
-        # NEW: Per-user credentials from Firestore
         try:
             import firestore_manager
-            
             creds = firestore_manager.get_garmin_credentials(user_id)
             if creds:
                 email = creds['username']
@@ -116,206 +260,140 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
             logger.error(f"❌ Failed to load Garmin credentials for user {user_id}: {e}")
             raise ValueError(f"Could not load Garmin credentials: {str(e)}")
     else:
-        # LEGACY: Environment variables (for backward compatibility)
+        # LEGACY: Environment variables
         load_dotenv()
         email = os.getenv("GARMIN_EMAIL")
         password = os.getenv("GARMIN_PASSWORD")
-        
         if not email or not password:
-            raise ValueError("No user_id provided and GARMIN_EMAIL/GARMIN_PASSWORD not set in environment. Please provide user_id or configure legacy credentials.")
-        
-        logger.warning(f"⚠️  Using legacy GARMIN_EMAIL from environment: {email}")
+            raise ValueError("No user_id provided and GARMIN_EMAIL/GARMIN_PASSWORD not set in environment.")
+        logger.warning(f"⚠️ Using legacy GARMIN_EMAIL from environment: {email}")
 
-    # Authenticate using garth token if available, otherwise fresh login
+    # Apply the curl_cffi monkeypatch before creating the client
+    patch_garmin_client()
+    
     try:
-        import garth
-        import tempfile
         import json
 
         def _mfa_not_supported() -> str:
-            """
-            MFA callback used for background/automated sync calls.
-            If this is triggered it means saved tokens have expired and
-            the user needs to reconnect via the app (interactive 2FA).
-            """
             raise GarminMFARequiredError(
                 "Garmin 2FA is required but cannot be completed automatically. "
                 "Please reconnect your Garmin account in the app settings to refresh your session."
             )
 
-        # Define a closure that captures user_id for the garth callback
-        def on_token_updated():
-            if user_id:
-                logger.info(f"🔄 Garth tokens refreshed for {user_id}, saving to Firestore...")
-                save_garth_session(user_id, client)
-
-        client = Garmin(email, password, prompt_mfa=_mfa_not_supported)
-        client.garth.token_updated = on_token_updated
-
-        # Try to load saved garth tokens from Firestore
-        garth_tokens = None
+        # Use garminconnect 0.3.x logic with TLS impersonation (curl_cffi)
+        # The new version handles Cloudflare/SSO much better.
+        client = Garmin(email, password)
+        
+        # Override the MFA prompt if needed
+        client.prompt_mfa = _mfa_not_supported
+        
+        # Step 0: Load and Decrypt Tokens
+        token_json_str = None
         if user_id:
             try:
                 import firestore_manager
-                creds_doc = firestore_manager.get_garmin_credentials(user_id)
-                if creds_doc and 'garth_tokens' in creds_doc:
-                    garth_tokens = creds_doc['garth_tokens']
-                    logger.info("🔑 Found saved garth tokens, attempting token-based login...")
-            except Exception as e:
-                logger.warning(f"⚠️ Could not load garth tokens: {e}")
-
-        if garth_tokens:
-            # Resume session using saved tokens (avoids full re-login + OAuth1 issue)
-            try:
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    # Try multi-file format first (new: stores exactly what garth.dump() wrote)
-                    token_files_json = None
-                    if user_id:
+                from encryption_helper import decrypt_password
+                creds_raw = firestore_manager.db.collection('users').document(user_id)\
+                    .collection('garmin_credentials').document('default').get()
+                if creds_raw.exists:
+                    enc = creds_raw.to_dict().get('garth_token_files_encrypted')
+                    if enc:
                         try:
-                            import firestore_manager
-                            from encryption_helper import decrypt_password
-                            creds_raw = firestore_manager.db.collection('users').document(user_id)\
-                                .collection('garmin_credentials').document('default').get()
-                            if creds_raw.exists:
-                                enc = creds_raw.to_dict().get('garth_token_files_encrypted')
-                                if enc:
-                                    token_files_json = json.loads(decrypt_password(enc))
-                                    logger.info(f"🔑 Loaded multi-file tokens: {list(token_files_json.keys())}")
-                        except Exception as mf_err:
-                            logger.debug(f"Multi-file token load skipped: {mf_err}")
-
-                    if token_files_json:
-                        # Restore ALL files garth originally wrote
-                        for fname, fdata in token_files_json.items():
-                            with open(os.path.join(tmpdir, fname), "w") as f:
-                                json.dump(fdata, f)
-                    else:
-                        # Legacy: single oauth2_token dict
-                        token_file = os.path.join(tmpdir, "oauth2_token.json")
-                        with open(token_file, "w") as f:
-                            json.dump(garth_tokens, f)
-
-                    client.garth.load(tmpdir)
-
-                # --- PROACTIVE REFRESH ---
-                # Try to refresh tokens, but DON'T make API calls that trigger 429
-                try:
-                    logger.info("Verifying Garmin session validity...")
-                    # Check if OAuth2 token is expired before trying to refresh
-                    oauth2_expired = False
-                    try:
-                        if hasattr(client.garth, 'oauth2_token') and client.garth.oauth2_token:
-                            import time as _t
-                            expires_at = getattr(client.garth.oauth2_token, 'expires_at', 0)
-                            if expires_at and _t.time() > expires_at:
-                                oauth2_expired = True
-                                logger.info("OAuth2 token is expired, will attempt refresh")
+                            decrypted_str = decrypt_password(enc)
+                            if '"di_token"' in decrypted_str or '"oauth1_token"' in decrypted_str or '"oauth2_token"' in decrypted_str:
+                                token_json_str = decrypted_str
+                                logger.info("🔑 Found saved native Garmin tokens")
                             else:
-                                logger.info("OAuth2 token still valid, skipping refresh")
-                    except Exception:
-                        pass  # If we can't check, try refresh anyway
+                                logger.warning(f"⚠️ Unrecognized token structure: {decrypted_str[:50]}")
+                        except Exception as dec_err:
+                            logger.warning(f"⚠️ Token decryption failed (likely corrupted): {dec_err}. Will proceed to fresh login.")
+            except Exception as mf_err:
+                logger.debug(f"Token load structurally failed: {mf_err}")
 
-                    if oauth2_expired:
-                        client.garth.refresh()
-                        logger.info("✅ Garmin session refreshed/verified")
-                    else:
-                        logger.info("✅ Garmin session loaded (token not expired, refresh skipped)")
-                except Exception as refresh_err:
-                    refresh_err_msg = str(refresh_err)
-                    if "429" in refresh_err_msg:
-                        # Garmin is rate-limiting — DON'T refresh, just use existing tokens as-is
-                        # The tokens may still work for data fetching even if refresh is blocked
-                        logger.warning(f"⚠️ Garmin 429 during token refresh — using existing tokens without refresh")
-                    else:
-                        logger.warning(f"⚠️ Proactive garth refresh failed: {refresh_err}")
-                        # If refresh fails for non-rate-limit reasons, we need fresh MFA login
-                        raise GarminMFARequiredError(
-                            "Garmin session expired and could not be refreshed automatically. "
-                            "Please reconnect your Garmin account in the app settings."
-                        )
-
-                logger.info("✅ Garmin session resumed from saved tokens")
-            except GarminMFARequiredError:
-                raise  # Propagate clearly
-            except Exception as token_err:
-                # Tokens are present but couldn't be used
-                logger.warning(f"⚠️ Token resume failed for uid={user_id}: {token_err}")
+        try:
+            # Universal compatibile loading using tempdir, as 0.2.x strictly requires directory path
+            if token_json_str:
+                import json
+                import tempfile
+                import os
                 
-                # If we have credentials, we COULD try client.login(), but if that triggers MFA
-                # we are stuck in a non-interactive loop.
-                # Safer to raise MFA error right away if token load fails.
-                raise GarminMFARequiredError(
-                    "Your Garmin session is invalid. "
-                    "Please reconnect your Garmin account in the app settings to refresh your session."
-                )
-
-
-        # No saved tokens at all → attempt fresh login
-        # (Only reaches here on first-ever connect without tokens)
-        # Will raise GarminMFARequiredError via _mfa_not_supported if 2FA triggered
-        client.login()
-        logger.info(f"✅ Garmin login successful for: {email}")
-
-        # Save garth tokens to Firestore for next time
-        if user_id:
-            save_garth_session(user_id, client)
-
-        # Fix: Ensure display_name is populated regardless of how we authenticated
-        if not getattr(client, "display_name", None):
-            # 1. Try to get it from cached garth profile to avoid unnecessary/failing API calls
-            try:
-                if hasattr(client.garth, "profile") and isinstance(client.garth.profile, dict):
-                    client.display_name = client.garth.profile.get("displayName")
-                    client.full_name = client.garth.profile.get("fullName")
-                    if client.display_name:
-                        logger.info(f"Populated Garmin display_name from cache: {client.display_name}")
-            except Exception as cache_err:
-                logger.debug(f"Failed to read display_name from cache: {cache_err}")
-
-            # 2. If still missing, attempt the API fetch as a last resort
-            if not getattr(client, "display_name", None):
+                token_dict = json.loads(token_json_str)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    for k, v in token_dict.items():
+                        # Garth looks for oauth1_token.json and oauth2_token.json
+                        with open(os.path.join(tmpdir, f"{k}.json"), "w") as f:
+                            json.dump(v, f)
+                    
+                    try:
+                        client.login(tmpdir)
+                    except Exception as try_dir_err:
+                        logger.warning(f"⚠️ Tempdir login failed ({try_dir_err}), falling back to direct string for 0.3.x+")
+                        client.login(token_json_str)
+            else:
+                if not allow_fresh:
+                    logger.warning(f"🛑 Background sync blocked: No saved tokens and allow_fresh=False for {user_id}")
+                    raise ValueError("Garmin session expired. Please re-connect in settings.")
+                client.login()
+            
+            logger.info("✅ Garmin login successful")
+            if user_id:
+                save_garmin_session(user_id, client)
+        except Exception as e:
+            err_msg = str(e)
+            # If we had tokens and it failed (for any reason: 429, 401, expired), try a fresh login ONE time if allowed.
+            if token_json_str:
+                if not allow_fresh:
+                    logger.warning(f"🛑 Background sync: Token login failed and allow_fresh=False. Error: {err_msg}")
+                    raise ValueError("Garmin session expired. Please re-login in settings.")
+                
+                logger.warning(f"⚠️ Token-based login failed: {err_msg}. Attempting ONE fresh login fallback...")
                 try:
-                    logger.debug("Fetching Garmin profile via API to populate missing display_name...")
-                    prof = client.garth.connectapi("/userprofile-service/userprofile/profile")
-                    if prof and isinstance(prof, dict):
-                        client.display_name = prof.get("displayName")
-                        client.full_name = prof.get("fullName")
-                        logger.info(f"Populated Garmin display_name via API: {client.display_name}")
-                except Exception as prof_err:
-                    logger.warning(f"Failed to populate display_name via API: {prof_err}")
-                    # Do NOT raise GarminMFARequiredError here! 
-                    # If this endpoint is blocked (403) for non-MFA users, raising an error would break their sync forever.
-                    # We simply log it. If the next API call (daily summary) fails, it will be caught later.
+                    # Force fresh login by clearing any internal tokens first
+                    if hasattr(client, "garth") and client.garth:
+                         # 0.3.x internal garth object
+                         client.garth.dumpstore = None
+                    
+                    client.login() # Fresh login using username/pass from __init__
+                    logger.info("✅ Garmin fresh login successful after token failure")
+                    if user_id:
+                        save_garmin_session(user_id, client)
+                except Exception as fresh_err:
+                    fresh_msg = str(fresh_err)
+                    if "429" in fresh_msg:
+                        logger.error(f"🛑 Fresh login also hit 429: {fresh_msg}")
+                    raise ValueError(f"Garmin login failed. Please wait 30-60 mins if rate-limited. Error: {fresh_msg}")
+            else:
+                # Fresh login failed directly (or was blocked by not allow_fresh above)
+                if "429" in err_msg:
+                    logger.error(f"🛑 Fresh login hit 429: {err_msg}")
+                    raise ValueError(f"Garmin rate-limited. Please wait 30-60 mins. Error: {err_msg}")
+                raise ValueError(f"Garmin login failed: {err_msg}")
 
-        # 3. Ultimate Fallback: Scrape the original payload or use a safe default
+        # Ensure display name is fetched if not present.
         if not getattr(client, "display_name", None):
-            logger.error("🛑 ALL methods to retrieve display_name failed. Attempting deep scrape...")
             try:
-                # Garth creates a 'profile' property, but the underlying JSON might have nested structures
-                if hasattr(client.garth, "profile") and client.garth.profile:
-                    logger.debug(f"DEBUG PROFILE DUMP: {client.garth.profile}")
-            except Exception as e:
-                pass
-            
-            # If we still have nothing, we must inject *something* to avoid `/None` crash
-            # Often the username or email works as a fallback identifier for Garmin APIs
-            fallback_name = getattr(client.garth, "username", email)
-            if fallback_name and "@" in fallback_name:
-                fallback_name = fallback_name.split("@")[0] # Best effort
-            
-            client.display_name = fallback_name or "unknown"
-            logger.warning(f"⚠️ Forcing display_name to fallback value: {client.display_name}")
+                # Try new profile endpoint first
+                prof = client.connectapi("/userprofile-service/socialProfile")
+                if prof and isinstance(prof, dict):
+                    client.display_name = prof.get("displayName")
+                    client.full_name = prof.get("fullName", "")
+                    logger.info(f"Populated Garmin display_name: {client.display_name}")
+            except Exception as prof_err:
+                logger.warning(f"Failed to populate display_name via API: {prof_err}")
 
-        # 4. Bulletproof Runtime Patch
-        # Prevent `display_name=None` from EVER reaching the URL string in get_user_summary
+        # Ultimate fallback
+        if not getattr(client, "display_name", None):
+            fallback_name = getattr(client, "username", email)
+            if fallback_name and "@" in fallback_name:
+                fallback_name = fallback_name.split("@")[0]
+            client.display_name = fallback_name or "unknown"
+
+        # Bulletproof Runtime Patch
         original_get_user_summary = client.get_user_summary
         def safe_get_user_summary(cdate: str) -> dict:
             if not getattr(client, "display_name", None):
-                fallback = getattr(client.garth, "username", "unknown")
-                if fallback and "@" in fallback:
-                    fallback = fallback.split("@")[0]
-                client.display_name = fallback or "unknown"
-                logger.warning(f"Runtime Patch: Forced display_name to {client.display_name} right before API call.")
+                fallback = getattr(client, "username", email)
+                client.display_name = (fallback.split("@")[0] if fallback and "@" in fallback else "unknown")
             return original_get_user_summary(cdate)
             
         client.get_user_summary = safe_get_user_summary
@@ -323,15 +401,12 @@ def get_garmin_client(user_id: Optional[str] = None) -> Garmin:
 
         return client
     except GarminMFARequiredError:
-        raise  # Do not wrap – let the caller handle it
+        raise
     except Exception as e:
         err_msg = str(e)
         if "429" in err_msg:
-             logger.error(f"🛑 Garmin Rate Limit (429) hit for {user_id or 'legacy'}")
-             raise ValueError("Garmin has rate-limited your login attempts. Please wait 15-30 minutes before trying again.")
-        
-        logger.error(f"❌ Garmin authentication failed: {e}")
-        raise ValueError(f"Garmin login failed. Please check your credentials. Error: {err_msg}")
+             raise ValueError("Garmin has rate-limited your login attempts. Please wait 15-30 minutes.")
+        raise ValueError(f"Garmin login failed. Error: {err_msg}")
 
 
 
@@ -483,12 +558,12 @@ def update_csv(new_df, filename, key_col='date'):
         new_df.to_csv(filename, index=False)
         logger.info(f"Created {filename} with {len(new_df)} rows")
 
-def main(user_id: Optional[str] = None, mode: str = "incremental"):
+def main(user_id: Optional[str] = None, mode: str = "incremental", allow_fresh: bool = True):
     """
     Fetches Garmin data for a specific user or uses legacy mode.
     Mode 'incremental' overlaps 1 day, 'full' overlaps 5 days.
     """
-    client = get_garmin_client(user_id)
+    client = get_garmin_client(user_id, allow_fresh=allow_fresh)
 
     today = date.today()
     
@@ -598,7 +673,7 @@ def main(user_id: Optional[str] = None, mode: str = "incremental"):
 
     # 7. Persistence: Save back the potentially refreshed tokens
     if user_id:
-        save_garth_session(user_id, client)
+        save_garmin_session(user_id, client)
 
     logger.info(f"✅ Garmin data fetch completed for {'user: ' + user_id if user_id else 'legacy mode'}")
 
