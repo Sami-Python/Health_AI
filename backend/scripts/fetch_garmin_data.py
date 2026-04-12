@@ -1,4 +1,6 @@
 import os
+import json
+import tempfile
 from datetime import date, timedelta
 
 from garminconnect import Garmin
@@ -190,7 +192,6 @@ def save_garmin_session(user_id: str, client: Garmin) -> bool:
     """
     Saves garminconnect 0.2.x/0.3.x native tokens to Firestore robustly.
     """
-    import json
     import firestore_manager
     from encryption_helper import encrypt_password
 
@@ -204,8 +205,6 @@ def save_garmin_session(user_id: str, client: Garmin) -> bool:
             logger.warning(f"⚠️ client missing inner garth/client object for {user_id}")
             return False
 
-        import tempfile
-        import os
         token_data = {}
         with tempfile.TemporaryDirectory() as tmpdir:
             inner_client.dump(tmpdir)
@@ -226,7 +225,7 @@ def save_garmin_session(user_id: str, client: Garmin) -> bool:
         firestore_manager.save_garmin_tokens(user_id, token_data)
 
         # 2. Save encrypted
-        encrypted = encrypt_password(token_str)
+        encrypted = encrypt_password(json.dumps(token_data))
         firestore_manager.db.collection('users').document(user_id)\
             .collection('garmin_credentials').document('default')\
             .update({'garth_token_files_encrypted': encrypted})
@@ -313,10 +312,6 @@ def get_garmin_client(user_id: Optional[str] = None, allow_fresh: bool = True) -
         try:
             # Universal compatibile loading using tempdir, as 0.2.x strictly requires directory path
             if token_json_str:
-                import json
-                import tempfile
-                import os
-                
                 token_dict = json.loads(token_json_str)
                 with tempfile.TemporaryDirectory() as tmpdir:
                     for k, v in token_dict.items():
