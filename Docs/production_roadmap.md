@@ -504,11 +504,11 @@ Streamlit on raskas tuhansille yhtäaikaisille käyttäjille.
 - [x] Google Sign-In laittaminen toimintakuntoon CI/CD SHA-1 -avaimilla. (#371)
 
 - [x] **Garmin 0.3.1 Migration & Logic Hardening:** (#375)
-    - [x] Migrated to `garminconnect 0.3.1` (Native token management).
-    - [x] Implemented resilient fallback (Fresh login if tokens fail).
-    - [x] Removed brittle 1-hour pre-emptive lockouts.
-    - [x] Verified mobile-backend connectivity (IP 192.168.1.130).
-    - [ ] **Current Status:** Final verification pending Garmin SSO 429 expiry.
+    - [x] Migrated to `garminconnect 0.3.1` (Native token management). (#374)
+    - [x] Implemented resilient fallback (Fresh login if tokens fail). (#375)
+    - [x] Removed brittle 1-hour pre-emptive lockouts. (#376)
+    - [x] Verified mobile-backend connectivity (IP 192.168.1.130). (#377)
+    - [ ] **Current Status:** Final verification pending Garmin SSO 429 expiry. (#378)
 
 - **TULOS: Flutter Mobile on 100% feature parityssä webin kanssa.**
 
