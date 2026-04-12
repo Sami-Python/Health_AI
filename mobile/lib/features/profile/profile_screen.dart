@@ -31,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _garminLoading = false;
   bool _garminSaving = false;
   bool _garminPassVisible = false;
+  bool _showReconnectForm = false;
 
   String _appVersion = '';
 
@@ -125,12 +126,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
     setState(() => _garminSaving = true);
     try {
+      debugPrint('🔍 DEBUG: Calling connectGarmin to ${ApiService.baseUrl}/garmin/connect');
       final response = await _apiService.connectGarmin(user, pass);
+      debugPrint('🔍 DEBUG: Response = $response');
       
       if (response['status'] == 'connected') {
         if (mounted) {
           setState(() {
             _garminConnected = true;
+            _showReconnectForm = false;
             _garminPassCtrl.clear();
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -144,6 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
     } catch (e) {
+      debugPrint('🔍 DEBUG: Error = $e');
       if (mounted) {
         String msg = e.toString().replaceAll('Exception:', '').trim();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -197,6 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           setState(() {
             _garminConnected = true;
+            _showReconnectForm = false;
             _garminPassCtrl.clear();
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -363,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 12),
             if (_garminLoading)
               const Center(child: CircularProgressIndicator(color: Colors.greenAccent))
-            else if (_garminConnected)
+            else if (_garminConnected && !_showReconnectForm)
               _garminConnectedCard()
             else
               _garminForm(),
@@ -418,6 +424,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             TextButton(
+              onPressed: () => setState(() => _showReconnectForm = true),
+              child: const Text('Reconnect', style: TextStyle(color: Colors.blueAccent, fontSize: 12)),
+            ),
+            TextButton(
               onPressed: _disconnectGarmin,
               child: const Text('Disconnect', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
             ),
@@ -461,6 +471,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
+          if (_showReconnectForm)
+            TextButton(
+              onPressed: () => setState(() => _showReconnectForm = false),
+              child: const Text('Cancel Update', style: TextStyle(color: Colors.white54)),
+            ),
         ],
       );
 

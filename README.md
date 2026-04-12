@@ -153,18 +153,18 @@ curl -H "Authorization: Bearer YOUR_FIREBASE_TOKEN" \
 
 **Solutions:**
 
-**Backend (Port 8001):**
+**Backend (Port 8000):**
 ```bash
 # Find process using port
-lsof -i :8001  # Mac/Linux
-netstat -ano | findstr :8001  # Windows
+lsof -i :8000  # Mac/Linux
+netstat -ano | findstr :8000  # Windows
 
 # Kill process
 kill -9 <PID>  # Mac/Linux
 taskkill /PID <PID> /F  # Windows
 
 # Or use different port
-uvicorn main:app --port 8002
+uvicorn main:app --port 8001
 ```
 
 **Frontend (Port 3000):**

@@ -123,8 +123,8 @@ async def log_requests(request: Request, call_next):
     import time
     start_time = time.time()
     
-    # Extract request ID if present, otherwise generate one?
-    # For now, just log basic info
+    # LOG AT START OF REQUEST for debugging
+    logger.info(f"📥 [REQUEST] {request.method} {request.url.path}")
     
     response = await call_next(request)
     
@@ -1183,6 +1183,7 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
         import fetch_garmin_data
         import process_garmin_data
         
+        logger.info("🔥🔥🔥 HELLO FROM NEW GARMIN CODE 🔥🔥🔥")
         refresh_statuses[uid]["progress"] = 30
         refresh_statuses[uid]["message"] = "Fetching Garmin Data..."
         
@@ -1194,14 +1195,14 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
             wait_min = int(remaining / 60) + 1
             logger.warning(f"🛑 Background sync blocked for {uid}: Active 429 cooldown ({wait_min}m remaining).")
             refresh_statuses[uid]["status"] = "failed"
-            refresh_statuses[uid]["error"] = f"Garmin has recently rate-limited your account. Please wait {wait_min} minutes."
+            refresh_statuses[uid]["error"] = f"Garmin rate-limit is active. Please wait {wait_min} mins before retrying."
             return
             
         try:
             if mode == "full":
-                fetch_garmin_data.main(user_id=uid, mode="full")
+                fetch_garmin_data.main(user_id=uid, mode="full", allow_fresh=False)
             else:
-                fetch_garmin_data.main(user_id=uid, mode=mode)
+                fetch_garmin_data.main(user_id=uid, mode=mode, allow_fresh=False)
         except Exception as e:
             err_msg = str(e)
             if "429" in err_msg:
@@ -1209,7 +1210,11 @@ def execute_refresh_task(uid: str, mode: str = "incremental"):
                 _set_garmin_cooldown(uid, 3600)
                 
                 refresh_statuses[uid]["status"] = "failed"
-                refresh_statuses[uid]["error"] = "Garmin has rate-limited your account. Please wait 15-30 minutes."
+                refresh_statuses[uid]["error"] = f"Garmin on asettanut rajoituksen (429). Odota 30-60 min. Virhe: {err_msg}"
+            elif "session expired" in err_msg.lower() or "re-login" in err_msg.lower() or "re-connect" in err_msg.lower():
+                logger.info(f"🔑 Background sync stopped: Session expired for {uid}")
+                refresh_statuses[uid]["status"] = "failed"
+                refresh_statuses[uid]["error"] = "Garmin-yhteys on vanhentunut. Ole hyvä ja kirjaudu uudelleen profiiliasetuksissa."
             else:
                 refresh_statuses[uid]["status"] = "failed"
                 refresh_statuses[uid]["error"] = f"Sync failed: {err_msg}"
@@ -1718,7 +1723,7 @@ async def test_garmin_credentials_endpoint(
     except Exception as e:
         err_msg = str(e)
         if "429" in err_msg:
-             raise HTTPException(status_code=429, detail="Garmin has rate-limited your login attempts. Please wait 15-30 minutes.")
+             raise HTTPException(status_code=429, detail=f"Garmin has rate-limited your login attempts. Please wait 15-30 minutes. Error: {err_msg}")
         logger.warning(f"Garmin Test Failed for {user['uid']}: {e}")
         raise HTTPException(status_code=401, detail=f"Authentication failed. Please check your username and password.")
 
@@ -1859,9 +1864,9 @@ def _set_garmin_cooldown(uid: str, duration_seconds: int = 3600):
 MFA_SESSION_TTL_SECONDS = 600  # 10 minutes
 
 
-def _save_garth_tokens(garmin_client, uid: str) -> bool:
+def _save_garmin_tokens(garmin_client, uid: str) -> bool:
     """
-    Saves garth OAuth2 tokens to Firestore after a successful login.
+    Saves garmin native tokens to Firestore after a successful login.
     Uses the shared implementation from fetch_garmin_data.
     """
     try:
@@ -1869,10 +1874,10 @@ def _save_garth_tokens(garmin_client, uid: str) -> bool:
         scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
         if scripts_dir not in sys.path:
             sys.path.insert(0, scripts_dir)
-        from fetch_garmin_data import save_garth_session
-        return save_garth_session(uid, garmin_client)
+        from fetch_garmin_data import save_garmin_session, patch_garmin_client
+        return save_garmin_session(uid, garmin_client)
     except Exception as e:
-        logger.error(f"Failed to load shared save_garth_session: {e}")
+        logger.error(f"Failed to load shared save_garmin_session: {e}")
         return False
 
 
@@ -1908,6 +1913,14 @@ async def garmin_connect(
     Start Garmin login.
     """
     uid = user["uid"]
+    
+    # 0. Apply the curl_cffi monkeypatch before creating any Garmin clients
+    import sys, os
+    scripts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+    if scripts_dir not in sys.path:
+        sys.path.insert(0, scripts_dir)
+    from fetch_garmin_data import patch_garmin_client
+    patch_garmin_client()
     
     # 1. Check for 429 cool-down (in-memory + Firestore)
     remaining = _check_garmin_cooldown(uid)
@@ -1966,9 +1979,12 @@ async def garmin_connect(
                     # Try multi-file format first
                     enc = creds_data.get('garth_token_files_encrypted')
                     if enc:
-                        from encryption_helper import decrypt_password
-                        garth_token_files = _json2.loads(decrypt_password(enc))
-                        logger.info(f"🔑 Found multi-file garth tokens: {list(garth_token_files.keys())}")
+                        try:
+                            decrypted = decrypt_password(enc)
+                            garth_token_files = _json2.loads(decrypted)
+                        except Exception as dec_err:
+                            logger.warning(f"⚠️ Token decryption/parse failed for {uid}: {dec_err}. Falling back to fresh login.")
+                            garth_token_files = None
                     # Try legacy single-token format
                     elif creds_data.get('garth_tokens'):
                         garth_legacy_token = creds_data['garth_tokens']
@@ -1978,17 +1994,20 @@ async def garmin_connect(
 
             if garth_token_files or garth_legacy_token:
                 token_client = _Garmin(req.username, req.password)
-                with _tmpfile.TemporaryDirectory() as tmpdir:
-                    if garth_token_files:
-                        for fname, fdata in garth_token_files.items():
-                            with open(os.path.join(tmpdir, fname), "w") as f:
-                                _json2.dump(fdata, f)
-                    else:
-                        with open(os.path.join(tmpdir, "oauth2_token.json"), "w") as f:
-                            _json2.dump(garth_legacy_token, f)
-                    token_client.garth.load(tmpdir)
+                
+                token_json_str = None
+                if garth_token_files and '"di_token"' in _json2.dumps(garth_token_files):
+                    token_json_str = _json2.dumps(garth_token_files)
+                elif garth_legacy_token and isinstance(garth_legacy_token, dict):
+                    # Skip legacy migration in main connect - better to just login fresh if tokens are old
+                    logger.info("Ignoring legacy garth tokens in main connect, will proceed to fresh login if needed")
 
-                # DON'T call garth.refresh() — just verify by making a lightweight API call
+                if token_json_str:
+                    logger.info("Loading saved native tokens into client...")
+                    # In 0.3.x, we use logic similar to fetch_garmin_data
+                    token_client.login(token_json_str)
+
+                # Just verify by making a lightweight API call
                 # This avoids triggering 429 from Garmin's auth servers
                 try:
                     logger.info("Testing Garmin session with lightweight API call...")
@@ -1996,34 +2015,18 @@ async def garmin_connect(
                     from datetime import date as _date
                     token_client.get_user_summary(_date.today().isoformat())
                     logger.info(f"✅ Garmin session is valid! Connected via token resume for uid={uid}")
-                    _save_garth_tokens(token_client, uid)
+                    _save_garmin_tokens(token_client, uid)
                     token_resume_succeeded = True
                     return {"status": "connected"}
                 except Exception as api_err:
                     api_err_msg = str(api_err)
-                    if "429" in api_err_msg:
-                        logger.warning(f"🛑 Token resume API call hit 429 for {uid}. Setting cooldown.")
-                        _set_garmin_cooldown(uid, 3600)
-                        raise HTTPException(
-                            status_code=429,
-                            detail="Garmin is still rate-limiting your account. Please wait at least 1 hour before trying again."
-                        )
-                    logger.warning(f"⚠️ Token resume API test failed: {api_err_msg}. Tokens may be expired.")
+                    logger.warning(f"⚠️ Token resume API test failed for {uid}: {api_err_msg}. Will attempt fresh login fallback.")
+                    # Do NOT raise here, let it fall through to fresh login logic below
             else:
-                logger.info(f"ℹ️ No saved garth tokens found for {uid}. Will attempt fresh login.")
+                logger.info(f"ℹ️ No valid saved tokens found for {uid}. Proceeding to fresh login.")
 
-        except HTTPException:
-            raise  # Re-raise 429 HTTPExceptions
         except Exception as token_err:
-            token_err_msg = str(token_err).lower()
-            if "429" in token_err_msg or "rate-limit" in token_err_msg or "rate limit" in token_err_msg:
-                logger.warning(f"🛑 Token resume hit Garmin rate limit for {uid}. Aborting.")
-                _set_garmin_cooldown(uid, 3600)
-                raise HTTPException(
-                    status_code=429,
-                    detail="Garmin is still rate-limiting your account. Please wait at least 1 hour before trying again."
-                )
-            logger.info(f"ℹ️ Token resume failed for {uid}: {token_err_msg}. Falling back to fresh login.")
+            logger.info(f"ℹ️ Token resume structurally failed for {uid}: {token_err}. Proceeding to fresh login.")
 
         if token_resume_succeeded:
             return {"status": "connected"}
@@ -2043,7 +2046,9 @@ async def garmin_connect(
             code_event.wait(timeout=MFA_SESSION_TTL_SECONDS)
             return mfa_code_holder.get("code", "")
 
-        garmin_client = Garmin(req.username, req.password, prompt_mfa=mfa_callback)
+        # 0.3.x constructor does not take tokenstore
+        garmin_client = Garmin(req.username, req.password)
+        garmin_client.prompt_mfa = mfa_callback
 
         login_result: Dict[str, Any] = {}
         login_exception: Dict[str, Any] = {}
@@ -2086,24 +2091,26 @@ async def garmin_connect(
 
         # ── Case 3: Login succeeded without MFA ───────────────────────────
         db_manager.save_garmin_credentials(uid, req.username, req.password)
-        _save_garth_tokens(garmin_client, uid)
+        _save_garmin_tokens(garmin_client, uid)
 
         logger.info(f"✅ Garmin connected (no 2FA) for uid={uid}")
         return {"status": "connected"}
 
     except Exception as e:
+        import traceback
         err_msg = str(e)
+        logger.error(f"❌ Garmin connect error for uid={uid}: {err_msg}")
+        logger.error(traceback.format_exc())
+        
+        # Disable aggressive 1-hour lockout for now to allow easier debugging
         if "429" in err_msg:
-             # Apply 60 minute cool-down (persisted to Firestore) — Garmin rate limits last 1+ hours
-             logger.warning(f"🛑 Garmin 429 (Rate Limit) hit for {uid}. Message: {err_msg}. Cool-down active for 60 mins.")
-             _set_garmin_cooldown(uid, 3600)
+             logger.warning(f"⚠️ Garmin 429 (Rate Limit) hit for {uid}. No lockout applied.")
              raise HTTPException(
                  status_code=429, 
-                 detail="Garmin has rate-limited your account. Please wait at least 1 hour before trying again."
+                 detail=f"Garmin is rate-limiting requests. Original error: {err_msg}"
              )
         
-        logger.error(f"❌ Garmin connect error for uid={uid}: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"Garmin connect failed: {err_msg}")
     finally:
         with _sessions_lock:
             _active_garmin_logins.discard(uid)
@@ -2164,7 +2171,7 @@ async def garmin_connect_mfa(
 
         # Save credentials (encrypted) and tokens
         db_manager.save_garmin_credentials(uid, username, password)
-        _save_garth_tokens(garmin_client, uid)
+        _save_garmin_tokens(garmin_client, uid)
 
         # Clean up session
         with _sessions_lock:

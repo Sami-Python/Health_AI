@@ -25,4 +25,12 @@ backend/data/mlflow.db-shm
 backend/data/mlflow.db-wal
 site/
 backend/mlflow.db
-venv/
+/venv/
+.env*
+backend/*.json
+!backend/service_account_key.json
+backend/garth_tokens/
+tmp/
+nul
+**/nul
+backend/nul

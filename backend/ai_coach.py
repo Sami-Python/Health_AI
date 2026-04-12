@@ -275,7 +275,7 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
             prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text, rejected_context=rejected_context)
         
         response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt,
             config={
                 'response_mime_type': 'application/json'
@@ -317,7 +317,7 @@ def generate_trend_analysis(df_recent):
         """
         
         response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt
         )
         return response.text
@@ -350,7 +350,7 @@ def generate_daily_insight(ctx):
     
     try:
         response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt
         )
         return response.text.replace('"', '').strip() # Clean quotes
@@ -391,7 +391,7 @@ def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
     
     try:
         response = ai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )

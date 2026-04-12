@@ -112,6 +112,101 @@ npx playwright test
 ```
 *Huom: Asenna selaimet (`npx playwright install chromium`) ennen ensimmäistä ajokertaa.*
 
+## 2026-04-12 – Universal Fix v4 & Mobile Stability ✅ 🎉
+
+Tämä päivitys sementoi Garmin-yhteyden vakauden ja korjaa pitkään vaivanneet mobiilisovelluksen aikakatkaisut.
+
+### Mitä tehtiin? 🛠️
+1. **Universal Fix v4 (Android Impersonation)**: 
+   - Ohitetaan Cloudflare täysin matkimalla aitoa Garmin Android-sovellusta (`GCM_ANDROID_DARK`).
+   - Suora JSON POST -kirjautuminen rajapintaan `/portal/api/login`.
+   - Manuaalinen OAuth1-tokenien vaihtoprosessi Androidin palvelukehystä vasten.
+2. **Kestävämpi Token-hallinta**:
+   - Korjattu `garth 0.2.x` -versioon liittyvä token-korruptio (W251bGwsIG51bGxd).
+   - Kaikki luku- ja kirjoitusoperaatiot kulkevat nyt OS-tason väliaikaiskansion (`tempfile.TemporaryDirectory`) kautta, mikä takaa 100% yhteensopivuuden.
+3. **Mobiilin Timeout-korjaukset**:
+   - Nostettu sovelluksen HTTP-aikakatkaisut 15 sekunnista **60 sekuntiin**.
+   - Tämä mahdollistaa AI-treeniohjelmien generoinnin (Geminiltä kestävä vastaus) ja hitaat Garmin-kirjautumiset ilman `TimeoutExceptionia`.
+
+### Tulokset 📈
+- **Vakautus**: Synkronointi (`Refresh`) toimii nyt välittömästi ilman 403/429-virheitä.
+- **AI-treenit**: "Generate AI Plan" ei enää katkea kesken vaan jaksaa ladata suunnitelman loppuun asti.
+
+---
+
+## 2026-04-10 – Garmin Direct SSO POST Bypass (Lopullinen läpimurto!) 🎉
+
+Pitkään vaivannut "401 Not authenticated" ja "429 Too Many Requests" -kirjautumisongelma ohitettiin onnistuneesti! Löysimme lopulta tavan päästä Cloudflaren ja selainhaasteiden ohi kokonaan.
+
+### Mitä tehtiin? 🛠️
+1. **Direct POST -kirjautuminen**: Perinteisen (Cloudflaren pysäyttämän) Garminin kirjautumissivun (GET-pyyntö) sijaan kehitettiin suora `POST`-pyyntö `/portal/api/login` -rajapintaan käyttäen `curl_cffi` -kirjastoa (joka matkii Safaria). Tämä ohitti CAPTCHA- ja selainhaasteet kokonaan ilman Playwrightin hidasta aitoa selainta!
+2. **`garth` token-vaihtomekanismin päivitys**: Koska garminconnect 0.3.x on viime aikoina hajonnut tokenien lataamisen suhteen, syötimme kirjautumisprosessista saadun OAuth2 `di_token`:in ja käyttäjän `display_name`:n suoraan `garminconnect.client` -oliolle uuden "Universal Fix v4" (Monkeypatch) avulla tieodostossa `fetch_garmin_data.py`.
+3. **Onnistunut testaus**: Uusi testiskripti haki tokenit oikein ja sai API-rajapinnasta ulos jopa askeleet ja kalorit ilman virheitä.
+
+### Seuraavat askeleet
+- Käyttäjä testaa koko tähän asti putkesta eristetyn `fetch_garmin_data.py`:n ajon nyt aidoilla tunnuksilla mobiilin sync-toiminnon kautta ja varmistetaan että datavirta palautuu normaaliksi ohittaen entiset blokkaukset. Tämän jälkeen ratkaisu on täysin automaattinen!
+
+---
+
+## 2026-04-04 – Garmin "Universal Fix" (Chrome 120 Impersonation) ✅
+
+Ratkaistu maaliskuun lopusta vaivannut "429 Too Many Requests" -noidankehä lopullisesti. Järjestelmä ei enää yritä vain odottaa lukon poistumista, vaan se **ohittaa sormenjälkitunnistuksen** täysin.
+
+### Mitä tehtiin? 🛠️
+1. **Engine Upgrade**: Päivitettiin `garminconnect` versioon 0.3.1.
+2. **TLS Impersonation (Monkeypatch)**: Koska standardi Python-kirjasto tunnistetaan botiksi, bäkendiin asennettiin `curl_cffi`-moottori. Se on ohjelmoitu matkimaan **Chrome 120** -selaimen verkkosormenjälkeä (JA3/JA4).
+3. **Automaattinen käyttö**: Tämä korjaus (Monkeypatch) ajetaan automaattisesti bäkendin käynnistyksessä. Kaikki Garmin-pyynnöt (kirjautuminen + datan haku) menevät nyt läpi ikään kuin ne tulisivat oikeasta selaimesta.
+4. **Reconnect UI**: Mobiilisovellukseen lisättiin Profiili-sivulle **"Reconnect"**-nappi. Jos istunto vanhenee, käyttäjä voi päivittää sen yhdellä napautuksella ilman tilin disconnectaamista.
+
+### Tulokset & Hyödyt 📈
+- **Ei enää 429-virheitä**: Selainmatkinta on tällä hetkellä vahvin tapa ohittaa Cloudflaren bot-säännöt.
+- **Universal Fix**: Korjaus toimii kaikille käyttäjille globaalisti bäkendi-päivityksen myötä.
+- **Parempi UX**: Reconnect-toiminto säästää aikaa ja estää turhautumista, kun 2FA-koodia tarvitaan.
+
+---
+
+## 2026-04-06 – Universal Fix v3 & IP-lukko-analyysi 🔍
+
+Aikaisempi v2-korjaus pakotti kirjautumisen **vain** portal-reitille, joka oli jo blokissa. Päivitettiin v3:ksi.
+
+### Muutokset
+- **v3 Multi-strategy**: Bäkendi kokeilee nyt **portal+cffi → mobile+cffi** peräkkäin. Plain-requests estetty kokonaan.
+- **Firestore-cooldown tyhjennetty**: Varmistettu, ettei bäkendin oma lukko estä yritystä.
+
+### Tulokset (logeista)
+```
+portal+cffi: safari ❌, safari_ios ❌, chrome120 ❌, edge101 ❌, chrome ❌ (kaikki 429)
+mobile+cffi: ❌ 429
+```
+**Molemmat** Garminin kirjautumisreitit palauttavat 429 riippumatta selainmatkinnasta. Tämä tarkoittaa, että kotiverkon **IP-osoite** tai **Garmin-tili** on lukossa Cloudflaren päässä useiden epäonnistuneiden yritysten vuoksi (viikko+ kokeiluja).
+
+### Seuraava testi (7.4.)
+1. Yhdistä tietokone **puhelimen 4G-hotspottiin** (WiFi pois → eri IP)
+2. Käynnistä bäkendi → kokeile Reconnect
+3. Jos toimii → **IP-lukko** (kotiverkon IP blokattu, Cloud Run todennäköisesti OK)
+4. Jos ei → **Tili lukossa** → odotettava 48-72h tai testattava toisella Garmin-tilillä
+
+---
+
+## 2026-04-07 – 4G-testi & Tilikohtainen API Rate-Limit (todistettu) 🔑
+
+### 4G-testin tulokset
+| Testi | Tulos |
+|-------|-------|
+| Fake-tunnukset, 4G IP | ✅ 401 (endpoint vastaa normaalisti) |
+| Oikeat tunnukset (SamiJH), 4G IP | ❌ 429 |
+| Oikeat tunnukset, selain (connect.garmin.com) | ✅ Kirjautuminen onnistui |
+| Oikeat tunnukset, WiFi IP | ❌ 429 |
+
+### Johtopäätös
+Garmin on **tilikohtaisesti** rate-limitoinut API-kirjautumisendpointit (`/portal/api/login` ja `/mobile/api/login`) tilille "SamiJH". IP-osoitteella ei ole merkitystä. Selainkirjautuminen toimii koska selain käyttää eri reittiä (JavaScript-haaste + CAPTCHA-suojaus).
+
+### Ratkaisuvaihtoehdot (valitaan 8.4.)
+- **A) Odotus 72h** ilman yhtään yritystä (jokainen yritys nollaa Garminin laskurin)
+- **B) Playwright-ratkaisu** (suositeltu): Kirjautuminen oikealla automaattisella selaimella, joka ohittaa API rate-limitin kokonaan. Pysyvä ratkaisu.
+
+---
+
 ## 2026-03-31 – Garmin Cloudflare 429 Blokki (Ongelman juurisyy löydetty) 🛑
 
 Tutkittiin jatkuvia `429 Too Many Requests` -virheitä, jotka estivät "Connect Garmin" -toiminnon mobiilisovelluksesta jopa yli vuorokauden odottelun ja IP-osoitteen vaihtamisen (4G Hotspot) jälkeen.
@@ -126,10 +221,10 @@ Vika **ei ole koodissasi, IP-osoitteessasi tai tunnuksessasi**. Garmin on vastik
 
 Avoimen lähdekoodin ylläpitäjät (`garminconnect`-yhteisö) luovat varmaankin tällä sekunnilla uutta päivitystä sormenjälkien muuttamiseksi ohittaakseen uuden Cloudflaren!
 
-### Seuraavat askeleet (Myöhemmin) 🚀
-Kun palaamme tähän aiheeseen, valittavana on 2 reittiä:
-1. **Odotus**: Jätetään Garmin-ongelma rauhaan toviksi, kunnes `garth` yhteisö julkaisee ratkaisun Cloudflaren nykyiseen tiukennukseen.
-2. **Kova Injektio ("The Hardcore Way")**: Rakennetaan oma Chromium / Selain-skripti, tai otetaan sinun omalta henkilökohtaiselta tietokone-Chromelta valmiina ja hyväksyttynä haetut Oauth-tokenit (sivumme kautta) ja injektoidaan ne koodilla suoraan Firebase-tietokantaasi salasanan väkisin lähettämisen sijaan. Cloudflare sallii valmiin Tokenin takaa datan hakemisen Pythonilla täysin esteittä!
+### Seuraavat askeleet (4.4.2026) 🚀
+1. **Puhdas synkronointi**: Avaa sovellus ja tee Pull-to-refresh Dashboardilla.
+2. **Session Injection**: Jos Garminin 429-virhe jatkuu, käytetään Plan B -reittiä (injektoidaan istunto selaimesta).
+3. **Koodi on nyt vakaa**: Autentikointilogiikka on päivitetty versioon 0.3.1 ja se on täysin vikasietoinen (ei enää Base64/UTF-8 virheitä). Yhteys puhelimelta toimii.
 
 ---
 

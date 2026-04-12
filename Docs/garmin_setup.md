@@ -220,8 +220,8 @@ users/
     garmin_credentials/
       default/
         - username: "user@example.com"        (plaintext – email is not sensitive)
-        - password_encrypted: "gAAAAABm..."   (AES-256 encrypted)
-        - garth_tokens_encrypted: "gAAAAABm..." (AES-256 encrypted OAuth2 token, added after first sync)
+        - password: "your_password"           (AES-256 encrypted)
+        - garth_token_files_encrypted: "gAAAAABm..." (AES-256 encrypted OAuth1/2 tokens, added after first sync)
         - tokens_updated_at: timestamp
         - created_at: timestamp
         - last_updated: timestamp

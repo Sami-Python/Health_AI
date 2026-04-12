@@ -7,7 +7,9 @@ requests
 python-dotenv
 pandas
 numpy
-garminconnect
+garminconnect>=0.3.1
+curl_cffi
+ua-generator
 xgboost
 scikit-learn
 joblib

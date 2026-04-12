@@ -1018,20 +1018,20 @@ Tavoitteena nostaa mallin ennustekykyä vaihtamalla ennusteen kohdetta.
 
 ---
 
-## Phase 34: Mobile App Distribution & Beta Testing
-> **Status:** PLANNED
+## Phase 34: Mobile App Distribution & Beta Testing ✅
+> **Status:** COMPLETED
 
 **Tavoite:** Android-mobiilisovelluksen sujuva ja automatisoitu jakelu testikäyttäjille käyttäen olemassa olevaa Firebase-infrastruktuuria.
 
-- [ ] **Firebase App Distribution Setup:** (#359)
-  - [ ] Ota Firebase App Distribution käyttöön Firebase Consolessa. (#360)
-  - [ ] Luo "beta-testaajat" -ryhmä ja kutsu ensimmäiset testaajat sähköpostilla. (#361)
-- [ ] **CI/CD Automatisointi (GitHub Actions):** (#362)
-  - [ ] Valmistele Firebase CLI / Service Account konfiguraatio CI-putkea varten. (#363)
-  - [ ] Laajenna olemassa olevaa GitHub Actionsia kääntämään Flutterista luotettavasti Release `.apk`. (#364)
-  - [ ] Konfiguroi automaattinen puskeminen Firebaseen kera julkaisunuottien (Release Notes), kun `main`-haara päivittyy. (#365)
-- [ ] **Testaajien Kokemus:** (#366)
-  - [ ] Testaa kutsuprosessin sujuvuus ja asennus ei-teknisellä käyttäjällä (AppTester / selainlataus). (#367)
+- [x] **Firebase App Distribution Setup:** (#359)
+  - [x] Ota Firebase App Distribution käyttöön Firebase Consolessa. (#360)
+  - [x] Luo "beta-testaajat" -ryhmä ja kutsu ensimmäiset testaajat sähköpostilla. (#361)
+- [x] **CI/CD Automatisointi (GitHub Actions):** (#362)
+  - [x] Valmistele Firebase CLI / Service Account konfiguraatio CI-putkea varten. (#363)
+  - [x] Laajenna olemassa olevaa GitHub Actionsia kääntämään Flutterista luotettavasti Release `.apk`. (#364)
+  - [x] Konfiguroi automaattinen puskeminen Firebaseen kera julkaisunuottien (Release Notes), kun `main`-haara päivittyy. (#365)
+- [x] **Testaajien Kokemus:** (#366)
+  - [x] Testaa kutsuprosessin sujuvuus ja asennus ei-teknisellä käyttäjällä (AppTester / selainlataus). (#367)
 
 ## Phase 18: Stability & Production Resilience (2026-03-26) ✅
 > **Status:** COMPLETED (2026-03-26)
