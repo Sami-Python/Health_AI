@@ -1438,9 +1438,10 @@ async def get_weekly_summary(request: Request, user: dict = Depends(verify_token
         summary = ai_coach.generate_weekly_summary(uid, metrics_7, goals)
 
         # 5. Cache result
+        from google.cloud.firestore_v1 import SERVER_TIMESTAMP
         db_manager.get_db().collection('users').document(uid)\
             .collection('weekly_summaries').document(monday_str)\
-            .set({'summary': summary, 'created_at': firestore_manager.firestore.SERVER_TIMESTAMP})
+            .set({'summary': summary, 'created_at': SERVER_TIMESTAMP})
 
         return {"summary": summary, "week_start": monday_str, "cached": False}
 
