@@ -8,8 +8,11 @@
 ---
 
 ## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
-Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen.
+## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
+Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen. (Pääosin VALMIS)
 
+- [x] **Morning Briefing (Aamubriefinki):** Tekoäly generoi ja lähettää aamuisin käyttäjän puhelimeen FCM Push-ilmoituksena lyhyen päivän ohjeistuksen perustuen unen määrään, HRV:hen ja suunniteltuun treeniin. (Cloud Scheduler -ohjattu).
+- [x] **Weekly Summary (Voikkoyhteenveto):** Automaattisesti päivittyvä, vahvasti välimuistiin paketoitu sanallinen analyysi edellisestä 7 päivästä Dashboardin pääsivulla.
 - [ ] **Dynamic Re-scheduling:** Jos käyttäjä skippaa treenin, AI ehdottaa automaattisesti push-ilmoituksella uutta ajankohtaa sen sijaan, että odottaisi kalenterin päivitystä.
 
 ---

@@ -275,7 +275,7 @@ def generate_coach_advice(user_id, context, n_days=1, compliance_history="", pre
             prompt = construct_prompt(context, compliance_history, preference_feedback=preference_feedback, active_goals=goals_text, rejected_context=rejected_context)
         
         response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
             config={
                 'response_mime_type': 'application/json'
@@ -317,7 +317,7 @@ def generate_trend_analysis(df_recent):
         """
         
         response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt
         )
         return response.text
@@ -350,7 +350,7 @@ def generate_daily_insight(ctx):
     
     try:
         response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt
         )
         return response.text.replace('"', '').strip() # Clean quotes
@@ -391,7 +391,7 @@ def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
     
     try:
         response = ai_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
             config={'response_mime_type': 'application/json'}
         )
@@ -400,4 +400,121 @@ def generate_rescheduling_suggestion(user_id, missed_workout, current_metrics):
     except Exception as e:
         print(f"Rescheduling AI Error: {e}")
         return None
+
+
+def generate_morning_briefing(ctx: dict) -> dict:
+    """
+    Generates a short, motivating morning briefing for push notification.
+    Returns dict with 'title' and 'body' (max 60 chars each).
+    """
+    if not api_key:
+        return {"title": "Hyvää huomenta!", "body": "Tarkista valmistautumistilasi."}
+
+    bb = ctx.get('readiness', 0)
+    tsb = ctx.get('tsb', 0)
+    next_workout = ctx.get('next_workout', '')
+    sleep_h = ctx.get('sleep_min', 0) / 60
+
+    prompt = f"""
+    Olet henkilökohtainen urheiluvalmentaja. Kirjoita LYHYT aamutervehdys push-ilmoitukseen.
+
+    Urheilijan tilanne:
+    - Body Battery: {bb}/100
+    - TSB (Vireystila): {tsb} (positiivinen = levännyt)
+    - Uni viime yönä: {sleep_h:.1f} h
+    - Seuraava treeni: {next_workout or 'Ei suunniteltua'}
+
+    Palauta JSON-muodossa:
+    {{
+        "title": "Otsikko (max 40 merkkiä, emoji OK)",
+        "body": "Viesti (max 80 merkkiä, konkreettinen neuvot)"
+    }}
+
+    Säännöt:
+    - Body Battery < 40 → Suosittele lepoa
+    - Body Battery 40-59 → Kevyt treeni
+    - Body Battery 60-74 → Kohtalainen treini
+    - Body Battery >= 75 → Kova treeni suositellaan
+    - Mainitse seuraava treeni jos sellainen on
+    - Pysy lyhyenä ja motivoivana
+    - Kieli: Suomi
+    """
+
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt,
+            config={'response_mime_type': 'application/json'}
+        )
+        import json
+        result = json.loads(response.text)
+        # Truncate safety
+        return {
+            "title": result.get('title', 'Hyvää huomenta!')[:60],
+            "body": result.get('body', 'Tarkista treenisi.')[:120]
+        }
+    except Exception as e:
+        print(f"Morning Briefing Error: {e}")
+        # Fallback based on body battery
+        if bb >= 75:
+            return {"title": f"🟢 Päivä alkaa! BB: {bb}/100", "body": "Olet täynnä energiaa – täydellinen päivä kovaan treeniin!"}
+        elif bb >= 60:
+            return {"title": f"🟡 Hyvää huomenta! BB: {bb}/100", "body": "Kohtalainen palautuminen – sopii kohtuulliseen treeniin."}
+        elif bb >= 40:
+            return {"title": f"🟠 Huominen! BB: {bb}/100", "body": "Palautuminen matala – suosi kevyttä liikettä tai lepoa."}
+        else:
+            return {"title": f"🔴 Lepopäivä! BB: {bb}/100", "body": "Keho tarvitsee lepoa – pidä tänään vapaapäivä."}
+
+
+def generate_weekly_summary(user_id: str, metrics_last_7: list, goals: list) -> str:
+    """
+    Generates a weekly training summary (3-5 sentences).
+    """
+    if not api_key:
+        return "Viikkoyhteenveto ei saatavilla (API avain puuttuu)."
+
+    if not metrics_last_7:
+        return "Ei tarpeeksi dataa viikkoyhteenvetoon."
+
+    # Compute averages
+    avg_bb = sum(m.get('readiness', 0) for m in metrics_last_7) / len(metrics_last_7)
+    avg_sleep = sum(m.get('sleep_min', 0) for m in metrics_last_7) / len(metrics_last_7) / 60
+    total_load = sum(m.get('load', 0) for m in metrics_last_7)
+    avg_tsb = sum(m.get('tsb', 0) for m in metrics_last_7) / len(metrics_last_7)
+    latest_ctl = metrics_last_7[-1].get('ctl', 0) if metrics_last_7 else 0
+
+    # Build goals text
+    goals_text = ", ".join(
+        f"{g.get('activity_type','?')} {g.get('target_value','?')} {g.get('target_unit','')/g.get('frequency','vko')}"
+        for g in (goals or [])[:3]
+    ) if goals else "Ei asetettuja tavoitteita"
+
+    prompt = f"""
+    Olet henkilökohtainen urheiluvalmentaja. Kirjoita LYHYT viikkoyhteenveto urheilijalle.
+
+    Viikon (7 pv) tilastot:
+    - Keskimääräinen Body Battery: {avg_bb:.0f}/100
+    - Keskimääräinen uni: {avg_sleep:.1f} h/yö
+    - Viikon kokonaiskuormitus: {total_load:.0f}
+    - Keskimääräinen TSB (vireystila): {avg_tsb:.1f}
+    - Nykyinen kuntotaso (CTL): {latest_ctl:.1f}
+    - Aktiiviset tavoitteet: {goals_text}
+
+    Kirjoita 3-4 lausetta suomeksi:
+    1. Viikon yleisarvio (positiivinen mutta rehellinen)
+    2. Merkittävin havainto (uni, kuormitus tai palautuminen)
+    3. Suositus ensi viikolle
+
+    Pidä se motivoivana ja konkreettisena. Max 80 sanaa.
+    """
+
+    try:
+        response = ai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt
+        )
+        return response.text.strip()
+    except Exception as e:
+        print(f"Weekly Summary Error: {e}")
+        return f"Viikkoyhteenveto: Keskimääräinen palautuminen {avg_bb:.0f}%, uni {avg_sleep:.1f}h/yö, kuormitus {total_load:.0f}."
 

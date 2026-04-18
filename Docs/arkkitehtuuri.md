@@ -17,9 +17,13 @@ graph TD
     Gemini((Gemini 2.5 Flash))
     User((Käyttäjä))
 
+    %% External Schedulers
+    CloudScheduler((Google Cloud Scheduler))
+
     %% Firebase Platform
     subgraph "Firebase Platform"
         FirebaseAuth[Authentication]
+        FCM[Cloud Messaging / Push]
         Firestore[("Firestore DB\nGoals / Workouts / Plans\nMetrics / Insights\nGarmin Credentials")]
     end
 
@@ -83,6 +87,9 @@ graph TD
     GarminClient -->|"Garmin API"| Garmin
     FastAPI -->|"Generoi treeniohjelma"| CoachLogic
     FastAPI -->|"Chat-viesti"| ChatMgr
+    FastAPI -->|"Lähetä Push"| FCM
+
+    CloudScheduler -->|"Automatisoitu HTTP POST (Cron)"| FastAPI
 
     CoachLogic -->|"Prompt + fysiologinen konteksti"| Gemini
     ChatMgr -->|"Prompt + sessiohistoria"| Gemini

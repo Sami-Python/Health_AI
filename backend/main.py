@@ -272,7 +272,8 @@ async def get_metrics_history(user: dict = Depends(verify_token), days: int = 90
                 "tsb": round(row.get('TSB', 0), 1),
                 "load": int(load_val),
                 "readiness": int(row.get('bodyBatteryHighestValue', 0)),
-                "sleep_min": int(row.get('totalSleep_minutes', 0))
+                "sleep_min": int(row.get('totalSleep_minutes', 0)),
+                "hrv": round(float(row.get('avgOvernightHrv', 0) or 0), 1),
             })
             
         return result
@@ -1400,6 +1401,218 @@ async def get_ai_insight(request: Request, user: dict = Depends(verify_token)):
         print(f"Insight Endpoint Error: {e}")
         return {"insight": "Tänään kannattaa kuunnella kehoa."} # Fallback
 
+
+@app.get("/ai/weekly-summary", tags=["AI"])
+@limiter.limit("5/minute")
+async def get_weekly_summary(request: Request, user: dict = Depends(verify_token)):
+    """
+    Generate a weekly training summary using AI.
+
+    Analyzes last 7 days of metrics and generates a motivating, personalized summary.
+    Cached in Firestore under `weekly_summaries/{monday_date}` (regenerated each Monday).
+    """
+    uid = user['uid']
+    try:
+        from datetime import datetime
+        # Use current Monday as cache key
+        today = datetime.now().date()
+        days_since_monday = today.weekday()
+        monday_str = (today - timedelta(days=days_since_monday)).isoformat()
+
+        # 1. Check cache
+        cache_doc = db_manager.get_db().collection('users').document(uid)\
+            .collection('weekly_summaries').document(monday_str).get()
+        if cache_doc.exists:
+            cached = cache_doc.to_dict()
+            return {"summary": cached.get('summary'), "week_start": monday_str, "cached": True}
+
+        # 2. Fetch last 7 days metrics
+        metrics_7 = await get_metrics_history(user, days=7)
+        if not metrics_7:
+            return {"summary": "Ei tarpeeksi dataa viikkoyhteenvetoon.", "week_start": monday_str, "cached": False}
+
+        # 3. Fetch active goals for context
+        goals = db_manager.get_active_goals(uid)
+
+        # 4. Generate summary
+        summary = ai_coach.generate_weekly_summary(uid, metrics_7, goals)
+
+        # 5. Cache result
+        db_manager.get_db().collection('users').document(uid)\
+            .collection('weekly_summaries').document(monday_str)\
+            .set({'summary': summary, 'created_at': firestore_manager.firestore.SERVER_TIMESTAMP})
+
+        return {"summary": summary, "week_start": monday_str, "cached": False}
+
+    except Exception as e:
+        logger.error(f"Weekly Summary Error for uid={uid}: {e}")
+        return {"summary": "Viikkoyhteenveto ei juuri nyt saatavilla.", "week_start": "", "cached": False}
+
+
+@app.post("/ai/morning-briefing", tags=["AI"])
+@limiter.limit("10/minute")
+async def trigger_morning_briefing(request: Request, user: dict = Depends(verify_token)):
+    """
+    Generate and send a morning briefing push notification for the authenticated user.
+
+    Fetches latest metrics, generates a personalized Gemini briefing,
+    and sends it via FCM. Also returns the briefing content.
+    """
+    uid = user['uid']
+    try:
+        # 1. Get latest metrics
+        metrics = await get_metrics_history(user, days=1)
+        ctx = {}
+        if metrics:
+            latest = metrics[-1]
+            ctx = {
+                'readiness': latest.get('readiness', 0),
+                'tsb': latest.get('tsb', 0),
+                'sleep_min': latest.get('sleep_min', 0),
+                'ctl': latest.get('ctl', 0),
+            }
+
+        # 2. Get next workout
+        next_wk = db_manager.get_next_workout(uid)
+        if next_wk:
+            ctx['next_workout'] = next_wk.get('content', {}).get('activity', '')
+
+        # 3. Generate briefing
+        briefing = ai_coach.generate_morning_briefing(ctx)
+
+        # 4. Send push notification (best-effort)
+        sent = notification_service.send_push_notification(
+            uid,
+            title=briefing['title'],
+            body=briefing['body'],
+            data={'type': 'morning_briefing'}
+        )
+
+        return {"title": briefing['title'], "body": briefing['body'], "push_sent": sent}
+
+    except Exception as e:
+        logger.error(f"Morning Briefing Error for uid={uid}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/admin/trigger-morning-briefings", tags=["Admin"])
+async def admin_trigger_morning_briefings(user: dict = Depends(verify_admin)):
+    """
+    Admin-only: Trigger morning briefings for ALL users with Garmin connected.
+
+    Intended to be called via Google Cloud Scheduler every morning at 07:00.
+    Processes up to 100 users per call to avoid Cloud Run timeout.
+    """
+    try:
+        import threading
+
+        # Get all users with Garmin credentials
+        users_docs = db_manager.get_db().collection('users')\
+            .limit(100).stream()
+
+        results = {"sent": 0, "skipped": 0, "errors": 0}
+
+        def process_user(uid: str):
+            try:
+                # Check Garmin connected
+                creds = db_manager.get_garmin_credentials(uid)
+                if not creds:
+                    results['skipped'] += 1
+                    return
+
+                # Get latest metrics
+                latest_metric = firestore_garmin_metrics.get_latest_metric(uid)
+                ctx = {}
+                if latest_metric:
+                    ctx = {
+                        'readiness': int(latest_metric.get('bodyBatteryHighestValue', 0)),
+                        'tsb': round(float(latest_metric.get('TSB', 0) or 0), 1),
+                        'sleep_min': int(latest_metric.get('totalSleep_minutes', 0)),
+                        'ctl': round(float(latest_metric.get('CTL', 0) or 0), 1),
+                    }
+
+                # Get next workout
+                next_wk = db_manager.get_next_workout(uid)
+                if next_wk:
+                    ctx['next_workout'] = next_wk.get('content', {}).get('activity', '')
+
+                briefing = ai_coach.generate_morning_briefing(ctx)
+                sent = notification_service.send_push_notification(
+                    uid,
+                    title=briefing['title'],
+                    body=briefing['body'],
+                    data={'type': 'morning_briefing'}
+                )
+                if sent:
+                    results['sent'] += 1
+                else:
+                    results['skipped'] += 1  # No FCM token
+
+            except Exception as ue:
+                logger.warning(f"Morning briefing failed for uid={uid}: {ue}")
+                results['errors'] += 1
+
+        threads = []
+        for doc in users_docs:
+            t = threading.Thread(target=process_user, args=(doc.id,))
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join(timeout=25)  # Max 25s per user
+
+        logger.info(f"Morning briefings done: {results}")
+        return results
+
+    except Exception as e:
+        logger.error(f"Admin morning briefing trigger error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/user/fcm-token", tags=["User"])
+@limiter.limit("10/minute")
+async def save_fcm_token(request: Request, user: dict = Depends(verify_token)):
+    """
+    Save or update the user's FCM push notification token.
+    Call this from the mobile app and web app after obtaining the FCM token.
+    """
+    uid = user['uid']
+    try:
+        body = await request.json()
+        token = body.get('token', '')
+        if not token:
+            raise HTTPException(status_code=400, detail="FCM token is required")
+        db_manager.save_fcm_token(uid, token)
+        return {"status": "ok", "message": "FCM token saved"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"FCM token save error for uid={uid}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/system/auto-sync/enable", tags=["System"])
+async def enable_auto_sync(request: Request, user: dict = Depends(verify_token)):
+    uid = user['uid']
+    try:
+        data = await request.json()
+        enabled = data.get('enabled', False)
+        db_manager.get_db().collection('users').document(uid).set({'auto_sync_enabled': enabled}, merge=True)
+        return {"status": "ok", "auto_sync_enabled": enabled}
+    except Exception as e:
+        logger.error(f"Auto-sync toggle error for uid={uid}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/system/auto-sync/status", tags=["System"])
+async def get_auto_sync_status(user: dict = Depends(verify_token)):
+    uid = user['uid']
+    try:
+        doc = db_manager.get_db().collection('users').document(uid).get()
+        if doc.exists:
+            return {"auto_sync_enabled": doc.to_dict().get('auto_sync_enabled', False)}
+        return {"auto_sync_enabled": False}
+    except Exception as e:
+        return {"auto_sync_enabled": False}
 
 @app.get("/ai/model-metrics")
 async def get_model_metrics(user: dict = Depends(verify_token)):

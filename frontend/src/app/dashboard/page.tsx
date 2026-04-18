@@ -15,7 +15,7 @@ import UserMenu from "@/components/UserMenu";
 import ChartsSection from "@/components/ChartsSection";
 import TrainingCalendar from "@/components/TrainingCalendar";
 import GeneratePlanModal from "@/components/GeneratePlanModal";
-import { Activity, Battery, Calendar, Brain, RefreshCw, LogOut, ChevronDown, Plus, TrendingUp, History, XCircle, AlertTriangle } from "lucide-react";
+import { Activity, Battery, Calendar, Brain, RefreshCw, LogOut, ChevronDown, Plus, TrendingUp, History, XCircle, AlertTriangle, HeartPulse } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -26,6 +26,8 @@ import AnimateEntry from "@/components/ui/AnimateEntry";
 import { API_BASE_URL, fetchWithRetry } from "@/lib/utils";
 import Skeleton from "@/components/ui/Skeleton";
 import toast from "react-hot-toast";
+import WeeklySummaryCard from "@/components/WeeklySummaryCard";
+import OnboardingWizard from "@/components/OnboardingWizard";
 
 export default function DashboardPage() {
     const { user, loading } = useAuth();
@@ -49,6 +51,8 @@ export default function DashboardPage() {
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [refreshProgress, setRefreshProgress] = useState<{ progress: number; message: string; } | null>(null);
+    const [showOnboarding, setShowOnboarding] = useState(false);
+    const [garminConnected, setGarminConnected] = useState<boolean | null>(null);
 
     // Edit Goal State
     const [editingGoal, setEditingGoal] = useState<any | null>(null);
@@ -119,6 +123,13 @@ export default function DashboardPage() {
                 // 8. Get Gamification Summary
                 const resGamif = await fetchWithRetry(`${API_BASE_URL}/gamification/summary`, { headers });
                 if (resGamif.ok) setGamification(await resGamif.json());
+
+                // 9. Get Garmin Status
+                const resGarmin = await fetchWithRetry(`${API_BASE_URL}/garmin/status`, { headers });
+                if (resGarmin.ok) {
+                    const garminData = await resGarmin.json();
+                    setGarminConnected(garminData.connected);
+                }
 
             } catch (err: any) {
                 console.error("Fetch error", err);
@@ -206,6 +217,20 @@ export default function DashboardPage() {
         fetchData();
     }, [fetchData]);
 
+    useEffect(() => {
+        // Show onboarding logic
+        const dismissed = localStorage.getItem("onboarding_dismissed");
+        if (
+            !dismissed && 
+            goals !== null && 
+            garminConnected !== null
+        ) {
+            if (goals.length === 0 && !garminConnected) {
+                setShowOnboarding(true);
+            }
+        }
+    }, [goals, garminConnected]);
+
     if (loading || !user) {
         return <div className="flex h-screen items-center justify-center text-slate-400">Loading...</div>;
     }
@@ -215,6 +240,9 @@ export default function DashboardPage() {
     const last7Days = fullHistory && fullHistory.length > 0 ? fullHistory.slice(-7) : [];
     const readinessSpark = last7Days.map((m: any) => m.readiness);
     const loadSpark = last7Days.map((m: any) => m.load);
+    const hrvSpark = last7Days.map((m: any) => m.hrv || 0);
+
+    const latestHrv = last7Days.length > 0 ? last7Days[last7Days.length - 1].hrv : null;
 
     // Injury Risk Logic
     const hasHighInjuryRisk = () => {
@@ -260,6 +288,7 @@ export default function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-950 p-8 text-white">
+            {showOnboarding && <OnboardingWizard onComplete={() => setShowOnboarding(false)} />}
             {showGenerateModal && (
                 <GeneratePlanModal
                     onClose={() => setShowGenerateModal(false)}
@@ -381,7 +410,7 @@ export default function DashboardPage() {
 
                 {/* Stats Grid */}
                 <AnimateEntry delay={0.2}>
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
                         <StatCard
                             title="Readiness"
                             value={readiness?.readiness ? `${readiness.readiness}%` : "--"}
@@ -390,6 +419,14 @@ export default function DashboardPage() {
                             trend={readiness?.readiness > 80 ? 'up' : 'neutral'}
                             loading={!readiness}
                             trendData={readinessSpark}
+                        />
+                        <StatCard
+                            title="HRV"
+                            value={latestHrv ? `${latestHrv} ms` : "--"}
+                            description="Avg Overnight HRV"
+                            icon={HeartPulse}
+                            loading={!readiness && nextWorkout !== undefined}
+                            trendData={hrvSpark}
                         />
                         <StatCard
                             title="Weekly Load"
@@ -447,6 +484,11 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     {/* Main Content Area */}
                     <div className="lg:col-span-2 space-y-6">
+
+                        {/* Weekly Summary Card */}
+                        <AnimateEntry delay={0.35}>
+                            <WeeklySummaryCard />
+                        </AnimateEntry>
 
                         {/* 1. Charts Section */}
                         <AnimateEntry delay={0.4}>
