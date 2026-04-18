@@ -9,6 +9,7 @@ import firestore_manager as db_manager # Alias to keep code changes minimal
 # REMOVED: import db_manager as local_db # DuckDB for history/analytics (Phase 7 Migration)
 from fastapi import Depends
 from auth_middleware import verify_token, verify_admin
+from encryption_helper import decrypt_password
 import json
 import ai_coach
 import firestore_garmin_metrics
