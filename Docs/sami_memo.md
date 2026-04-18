@@ -16,7 +16,9 @@ Avaa uusi terminaali ja aja seuraavat komennot:
 Tämä käynnistää backendin niin, että myös samaan WiFiin kytketty puhelin pääsee siihen käsiksi.
 ```bash
 cd backend
-source .venv/Scripts/activate # Windows
+source .venv/Scripts/activate  # Windows (Git Bash)
+# TAI PowerShellissä:
+.venv\Scripts\Activate.ps1
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -81,10 +83,9 @@ streamlit run dashboard.py
 ```
 
 ### 4. MLflow (Experiments)
- экспериmental tracking for model training.
+Experimental tracking for model training.
 ```bash
 cd backend
-ø
 mlflow ui --backend-store-uri sqlite:///data/mlflow.db
 ```
 *UI: http://localhost:5000*

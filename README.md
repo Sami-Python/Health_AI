@@ -18,11 +18,13 @@ Se yhdistää:
 *   **CI/CD Laatu:** Automaattiset yksikkötestit ja koodin laaduntarkistus (GitHub Actions).
 
 ## Teknologiat
-*   **Frontend:** Next.js (React), TypeScript, Tailwind CSS
-*   **Backend / AI:** Python, FastAPI, XGBoost, Google Gemini 1.5 Flash
+*   **Frontend (Web):** Next.js (React), TypeScript, Tailwind CSS
+*   **Backend / AI:** Python 3.12, FastAPI v1.0.0, XGBoost, Google Gemini 2.5 Flash
 *   **Tietokanta:** Firebase Firestore (App Data & Auth)
-*   **Infra:** Docker
-*   **Landing Page:** Static HTML/CSS (Firebase Hosting)
+*   **Garmin Auth:** `curl_cffi` + Android SSO (Universal Fix v4 – Cloudflare bypass)
+*   **Infra:** Docker, Google Cloud Run (`europe-north1`)
+*   **Mobile:** Flutter 3.41.2 (Android & iOS)
+*   **Landing Page:** Static HTML/CSS (Cloudflare Pages)
 
 ## 🌐 Live Landing Page
 
@@ -36,18 +38,20 @@ Modern landing page showcasing features, AI capabilities, and download options. 
 
 ## Käynnistys (Local Development)
 
+> **Huom:** Backend TÄYTYY olla käynnissä ennen mobiili- tai web-käyttöliittymää.
+
 ### 1. Backend (API)
 ```bash
-# Vaihtoehto A: Docker (Suositus)
-docker-compose up backend
-
-# Vaihtoehto B: Manuaalisesti
+# Vaihtoehto A: Lokaalikehitys (Suositeltu)
 cd backend
-# Varmista virtuaaliympäristö
-../.venv/Scripts/activate
-uvicorn main:app --reload
+.venv\Scripts\activate  # Windows
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Vaihtoehto B: Docker
+docker-compose up backend
 ```
-API vastaa osoitteessa: `http://localhost:8000`
+API vastaa osoitteessa: `http://localhost:8000`  
+Swagger UI: `http://localhost:8000/docs`
 
 ### 2. Frontend (Web App)
 ```bash
@@ -56,6 +60,18 @@ npm install # Ensimmäisellä kerralla
 npm run dev
 ```
 Sovellus on käytettävissä: `http://localhost:3000`
+
+### 3. Mobiilisovellus (Flutter)
+> Fyysisen Android-laitteen käyttöä suositellaan emulaattorin sijaan.
+```bash
+# Varmista että puhelin on USB-virheenkorjaustilassa ja näkyy:
+flutter devices
+
+# Käynnistä sovellus
+cd mobile
+flutter run
+```
+> **Huom:** Tarkista että `mobile/lib/core/services/api_service.dart`-tiedoston IP-osoite vastaa tietokoneesi lokaalia IP:tä.
 
 ## Testaus
 
@@ -87,8 +103,6 @@ npx playwright test
     *   **Firestore:** Reaaliaikainen tietokanta käyttäjädatalle (tavoitteet, treenit, **Garmin-metriikka**).
 
 ## 📸 Screenshots
-
-> **Note:** Screenshots coming soon! To see the app in action, run it locally (see [Käynnistys](#käynnistys-local-development)).
 
 **Dashboard:**
 - Recovery metrics and AI insights
@@ -131,8 +145,10 @@ npx playwright test
 
 **Interactive API Docs (Swagger UI):**
 ```
-http://localhost:8001/docs
+http://localhost:8000/docs
 ```
+
+**Production API:** `https://health-ai-backend-35976089058.europe-north1.run.app/docs`
 
 **Full API Reference:** [Docs/API.md](Docs/API.md)
 
@@ -140,7 +156,7 @@ http://localhost:8001/docs
 ```bash
 # Get your goals
 curl -H "Authorization: Bearer YOUR_FIREBASE_TOKEN" \
-     http://localhost:8001/goals
+     http://localhost:8000/goals
 ```
 
 ---
@@ -314,7 +330,11 @@ Lisää teknisiä yksityiskohtia ja arkkitehtuurikuvauksia löydät `Docs/`-kans
 - **[API.md](Docs/API.md)** - Complete API reference, endpoints, examples
 - **[authentication.md](Docs/authentication.md)** - Firebase Authentication toteutus, token flow, multi-user data isolation
 - **[arkkitehtuuri.md](Docs/arkkitehtuuri.md)** - Järjestelmän arkkitehtuuri, komponentit ja datavirrat
-- **[production_roadmap.md](Docs/production_roadmap.md)** - Kehityspolku 0 → 10,000 käyttäjää, skaalautuvuussuunnitelma
-- **[sami_memo.md](Docs/sami_memo.md)** - Kehityspäiväkirja ja muutoshistoria
+- **[garmin_cloudflare_bypass_v4.md](Docs/garmin_cloudflare_bypass_v4.md)** - Universal Fix v4: Garmin Android SSO bypass (Cloudflare)
 - **[garmin_setup.md](Docs/garmin_setup.md)** - Garmin credentials setup and troubleshooting
+- **[production_roadmap.md](Docs/production_roadmap.md)** - Kehityspolku 0 → 10,000 käyttäjää, skaalautuvuussuunnitelma
+- **[roadmap_v2.md](Docs/roadmap_v2.md)** - V2 ominaisuudet: Proactive AI, Platform Agnostic, App Store
+- **[sami_memo.md](Docs/sami_memo.md)** - Kehityspäiväkirja ja muutoshistoria
+- **[testing.md](Docs/testing.md)** - Testausohje (Backend pytest, Frontend Playwright)
+- **[observability.md](Docs/observability.md)** - Monitorointi, Prometheus/Grafana, Cloud Logging
 
