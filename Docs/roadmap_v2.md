@@ -2,8 +2,8 @@
 
 *Seuraavan sukupolven älykkyys, integraatiot ja laitekokemus.* Tässä roadmapissa määritellään projektin suunta sen jälkeen, kun Phase 16 (perusominaisuuksien tasapäistäminen webin ja mobiilin välillä) on suoritettu. Tavoitteena on muuttaa sovellus reagoivasta työkalusta aidosti **proaktiiviseksi ja kokonaisvaltaiseksi tekoälyvalmentajaksi**.
 
-> **Viimeisin valmistunut:** [x] **Phase 36 – Garmin Cloudflare Bypass (Universal Fix v4)** ✅ *(Huhtikuu 2026)*  
-> Ratkaistu täysin 403/429-virheet ottamalla käyttöön suora Android SSO -yhteys `curl_cffi`:llä `/portal/api/login`-rajapintaan `GCM_ANDROID_DARK`-jalanjäljellä. Mobiilin HTTP-timeout nostettu 60 sekuntiin Garmin-kirjautumisten ja Gemini AI -vastausten odottamista varten.
+> **Viimeisin valmistunut:** [x] **Phase 17 – Proaktiivinen Ohjaus & Ominaisuuspariteetti** ✅ *(Huhtikuu 2026)*  
+> Aamubriefing, Weekly Summary, Onboarding Wizard ja HRV-data lisätty 100% tuettuna sekä iOS/Android-sovellukseen (Flutter) että Web-versioon (Next.js). Datan rikastus (HRV ja TrainingLoad fallback) lisätty backendin synkronointiputkeen.
 
 ---
 
@@ -12,7 +12,7 @@
 Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen. (Pääosin VALMIS)
 
 - [x] **Morning Briefing (Aamubriefinki):** Tekoäly generoi ja lähettää aamuisin käyttäjän puhelimeen FCM Push-ilmoituksena lyhyen päivän ohjeistuksen perustuen unen määrään, HRV:hen ja suunniteltuun treeniin. (Cloud Scheduler -ohjattu).
-- [x] **Weekly Summary (Voikkoyhteenveto):** Automaattisesti päivittyvä, vahvasti välimuistiin paketoitu sanallinen analyysi edellisestä 7 päivästä Dashboardin pääsivulla.
+- [x] **Weekly Summary (Voikkoyhteenveto):** Automaattisesti päivittyvä, vahvasti välimuistiin paketoitu sanallinen analyysi edellisestä 7 päivästä Dashboardin pääsivulla (Mobile + Web).
 - [ ] **Dynamic Re-scheduling:** Jos käyttäjä skippaa treenin, AI ehdottaa automaattisesti push-ilmoituksella uutta ajankohtaa sen sijaan, että odottaisi kalenterin päivitystä.
 
 ---

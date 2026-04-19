@@ -249,11 +249,21 @@ class ApiService {
     return null;
   }
 
-  // ─── AI ─────────────────────────────────────────────────────
   Future<Map<String, dynamic>?> fetchAIInsight() async {
     final headers = await _getHeaders();
     final response =
         await _get(Uri.parse('$baseUrl/ai/insight'), headers: headers);
+    if (response.statusCode == 200) {
+      return json.decode(utf8.decode(response.bodyBytes))
+          as Map<String, dynamic>;
+    }
+    return null;
+  }
+
+  Future<Map<String, dynamic>?> fetchWeeklySummary() async {
+    final headers = await _getHeaders();
+    final response =
+        await _get(Uri.parse('$baseUrl/ai/weekly-summary'), headers: headers);
     if (response.statusCode == 200) {
       return json.decode(utf8.decode(response.bodyBytes))
           as Map<String, dynamic>;

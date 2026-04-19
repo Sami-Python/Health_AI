@@ -418,6 +418,15 @@ def fetch_daily_summary(client: Garmin, start: date, end: date) -> pd.DataFrame:
         data = client.get_stats(iso)
         if not data:
             continue
+            
+        # Fetch HRV specifically because it is omitted from get_stats
+        try:
+            hrv_data = client.get_hrv_data(iso)
+            if hrv_data and 'hrvSummary' in hrv_data:
+                data['avgOvernightHrv'] = hrv_data['hrvSummary'].get('lastNightAvg', 0)
+        except Exception as e:
+            logger.warning(f"Could not fetch HRV for {iso}: {e}")
+            
         data["date"] = iso
         records.append(data)
 
@@ -642,10 +651,14 @@ def main(user_id: Optional[str] = None, mode: str = "incremental", allow_fresh: 
                         continue
                     
                     # Map Garmin activity to Firestore workout schema
-                    # Use 'activityTrainingLoad' as load_estimate, fallback to 0
+                    # Use 'activityTrainingLoad' as load_estimate, fallback to calories proxy
                     load_est = row.get('activityTrainingLoad', 0)
-                    if pd.isna(load_est):
-                        load_est = 0
+                    if pd.isna(load_est) or load_est == 0:
+                        calories = row.get('calories', 0)
+                        if not pd.isna(calories) and calories > 200:
+                            load_est = calories * 0.1
+                        else:
+                            load_est = 0
                         
                     workout_doc = {
                         "date": str(pd.to_datetime(row['startTimeLocal']).date()),

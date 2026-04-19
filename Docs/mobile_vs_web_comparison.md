@@ -1,6 +1,6 @@
 # 📱 Mobile (Flutter) vs Web (Next.js) – Feature Vertailu
 
-> **Päivitetty:** 2026-03-07
+> **Päivitetty:** 2026-04-19
 > **Mobiili:** `mobile/lib/features/` (6 näkymää + bottom nav 5 välilehteä)
 > **Web:** `frontend/src/app/` + `components/` (20+ komponenttia)
 
@@ -10,11 +10,13 @@
 
 | Ominaisuus | Web ✅ | Mobiili | Huomio |
 |---|---|---|---|
-| **Dashboard / Etusivu** | ✅ | ✅ | Pariteetti hyvä |
+| **Dashboard / Etusivu** | ✅ | ✅ | Pariteetti 100% |
 | AI Insight -kortti | ✅ | ✅ | Molemmat hakevat `/ai/insight` |
-| Stats Grid (Readiness, Load, Workout, Goals) | ✅ | ✅ | Sama 2x2 rakenne |
+| Weekly Summary -kortti | ✅ | ✅ | Molemmat hakevat `/ai/weekly-summary` |
+| Stats Grid (Readiness, Load, Workout, Goals, HRV) | ✅ | ✅ | 5 statin lista (Mobile Grid / Web Flex) |
 | Readiness & Sleep Charts | ✅ | ✅ | Mobiilissa glassmorphism |
 | Garmin-yhteysbanneri dashboardilla | ✅ | ✅ | Phase 14.2 ✅ |
+| Välitön Onboarding Wizard (Uusille käyttäjille) | ✅ | ✅ | Pop-up / Overlay |
 | **Kalenteri (TrainingCalendar)** | ✅ | ✅ | API-data käytössä (`/workouts/history` + `/workouts/next`) |
 | Treenin siirto (Reschedule) | ✅ | ✅ | Mobiilissa painikkeen kautta (korvaa Drag&Dropin) |
 | Treenin poisto (roskakori) | ✅ | ✅ | Toteutettu näkymään `_showWorkoutDetails` |

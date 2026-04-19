@@ -37,7 +37,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _nextWorkout;
   Map<String, dynamic>? _aiInsight;
   Map<String, dynamic>? _weeklyStats;
+  Map<String, dynamic>? _weeklySummary;
   Map<String, dynamic>? _gamification;
+  
+  bool _hasSeenOnboarding = false;
 
   @override
   void initState() {
@@ -74,6 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _apiService.fetchAIInsight(),
         _apiService.fetchWeeklyStats(),
         _apiService.fetchGamificationSummary(),
+        _apiService.fetchWeeklySummary(),
       ]);
       print('All fetch complete');
 
@@ -90,8 +94,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _aiInsight = results[3] as Map<String, dynamic>?;
           _weeklyStats = results[4] as Map<String, dynamic>?;
           _gamification = results[5] as Map<String, dynamic>?;
+          _weeklySummary = results[6] as Map<String, dynamic>?;
           _isLoading = false;
         });
+
+        // Trigger onboarding logic if needed
+        if (!_hasSeenOnboarding && _goals.isEmpty && !_garminConnected) {
+            _hasSeenOnboarding = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                _showOnboardingWizard();
+            });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -459,6 +472,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
+          // Weekly Summary Card
+          if (_weeklySummary != null && _weeklySummary!['summary'] != null) ...[
+            _buildWeeklySummaryCard(),
+            const SizedBox(height: 24),
+          ],
+
           // AI Insight Card
           if (_aiInsight != null) ...[
             _buildAIInsightCard(),
@@ -514,6 +533,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 subtitle: 'Targets',
                 icon: Icons.flag,
                 color: Colors.orangeAccent,
+              ),
+              _buildStatCard(
+                title: 'Overnight HRV',
+                value: '${_latestMetric?.hrv.round() ?? '--'}',
+                subtitle: 'ms (Avg)',
+                icon: Icons.favorite,
+                color: Colors.pinkAccent,
               ),
             ],
           ),
@@ -649,6 +675,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklySummaryCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B).withOpacity(0.7), // Slate 800
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome, color: Colors.indigoAccent, size: 20),
+              const SizedBox(width: 8),
+              const Text(
+                'Weekly Summary',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _weeklySummary!['week_start'] ?? '',
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            _weeklySummary!['summary'],
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOnboardingWizard() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Welcome to Health AI', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'Let\'s get you set up to receive the best AI coaching.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            SizedBox(height: 16),
+            ListTile(
+              leading: Icon(Icons.watch, color: Colors.blueAccent),
+              title: Text('1. Connect Garmin', style: TextStyle(color: Colors.white)),
+              subtitle: Text('Sync your health metrics automatically.', style: TextStyle(color: Colors.white54)),
+              contentPadding: EdgeInsets.zero,
+            ),
+            ListTile(
+              leading: Icon(Icons.flag, color: Colors.orangeAccent),
+              title: Text('2. Set a Goal', style: TextStyle(color: Colors.white)),
+              subtitle: Text('Tell the AI what you want to achieve.', style: TextStyle(color: Colors.white54)),
+              contentPadding: EdgeInsets.zero,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Skip for now', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _selectedIndex = 4; // Go to Profile to connect Garmin
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigoAccent,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Get Started'),
+          ),
         ],
       ),
     );

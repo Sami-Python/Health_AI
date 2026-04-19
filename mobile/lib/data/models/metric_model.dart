@@ -6,6 +6,7 @@ class Metric {
   final int load;
   final int readiness;
   final int sleepMin;
+  final double hrv;
 
   Metric({
     required this.date,
@@ -15,6 +16,7 @@ class Metric {
     required this.load,
     required this.readiness,
     required this.sleepMin,
+    required this.hrv,
   });
 
   factory Metric.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Metric {
       load: (json['load'] ?? 0),
       readiness: (json['readiness'] ?? 0),
       sleepMin: (json['sleep_min'] ?? 0),
+      hrv: (json['hrv'] ?? 0).toDouble(),
     );
   }
 
