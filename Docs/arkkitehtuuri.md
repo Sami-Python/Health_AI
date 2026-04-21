@@ -8,6 +8,8 @@ Personal AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Gar
 
 ---
 
+> **Tarkempi datavirtojen kuvaus (Sequence Diagrams):** Katso [data_flow.md](data_flow.md)
+
 ## Arkkitehtuurikaavio
 
 ```mermaid
