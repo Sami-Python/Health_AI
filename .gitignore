@@ -12,10 +12,10 @@ logs/
 .vscode/
 *.csv
 *.pkl
-.venv
 .png
 
 backend/service_account_key.json
+service_account_key.json
 
 # MLflow tracking
 mlruns/
@@ -28,7 +28,6 @@ backend/mlflow.db
 /venv/
 .env*
 backend/*.json
-!backend/service_account_key.json
 backend/garth_tokens/
 tmp/
 nul

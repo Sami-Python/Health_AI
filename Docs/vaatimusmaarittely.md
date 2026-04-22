@@ -1,8 +1,8 @@
 # Vaatimusmäärittely – Health AI Coach
 
-**Versio:** 1.2  
+**Versio:** 1.0.0  
 **Status:** Production Ready  
-**API:** v1.2.0
+**API:** v1.0.0
 
 ---
 
@@ -17,7 +17,7 @@ Dataohjautuva valmennusjärjestelmä, joka yhdistää:
 - Frontend: Next.js 14 + TypeScript + Tailwind
 - Backend: Python 3.12 + FastAPI
 - Database: Firebase Firestore
-- AI: Google Gemini 2.5 Flash
+- AI: Google Gemini 2.0 Flash
 - ML: XGBoost + MLflow
 
 ---
@@ -189,4 +189,4 @@ Projekti täyttää kaikki vaatimukset, kun:
 
 ---
 
-**Viimeksi päivitetty:** 2026-03-17
+**Viimeksi päivitetty:** 2026-04-22

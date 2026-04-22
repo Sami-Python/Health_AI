@@ -47,7 +47,7 @@ Nämä metriikat syötetään sekä ML-mallille opetusaineistoksi että käyttö
 
 **MLOps:** Jokainen ajokerta kirjataan MLflow-kokeilurekisteriin (`sqlite:///backend/data/mlflow.db`) parametreineen, metriikoineen ja artefakteineen.
 
-### 4. Tarjoaa henkilökohtaisen AI-valmentajan (Gemini 2.5 Flash)
+### 4. Tarjoaa henkilökohtaisen AI-valmentajan (Gemini 2.0 Flash)
 
 Sovelluksessa on kaksi erillistä Gemini-integraatiota:
 
@@ -83,7 +83,7 @@ Sovelluksessa on kaksi erillistä Gemini-integraatiota:
 | **Tietokanta** | Firebase Firestore | Käyttäjädata, NoSQL |
 | **Auth** | Firebase Authentication | JWT Bearer Token |
 | **ML-malli** | XGBoost + scikit-learn | Palautumisennuste |
-| **AI-valmennus** | Google Gemini 2.5 Flash | LLM-pohjainen coach |
+| **AI-valmennus** | Google Gemini 2.0 Flash | LLM-pohjainen coach |
 | **Garmin Auth** | curl_cffi + Android SSO | Universal Fix v4 |
 | **Seuranta** | MLflow (SQLite) | Koehistoria & versiot |
 | **Monitorointi** | Prometheus + Grafana + Cloud Logging | Observability |

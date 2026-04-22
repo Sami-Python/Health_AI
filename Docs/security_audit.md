@@ -1,16 +1,16 @@
 # Tietoturva & Multi-User Auditointi
 
-**Päivämäärä:** 29.1.2026  
+**Päivämäärä:** 22.4.2026 (Päivitetty, alkuperäinen 29.1.2026)  
 **Projekti:** Health AI Coach  
-**Tila:** VALMIS TUOTANTOON (Multi-User Ready)
+**Tila:** TUOTANNOSSA (Multi-User, Production Ready)
 
 ---
 
 ## Tiivistelmä (Executive Summary)
 
-Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäristössä**. Kaikki kriittiset toiminnot vaativat kirjautumisen, ja jokaisen käyttäjän data on eristetty tiukasti toisistaan.
+Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäristössä**. Kaikki kriittiset toiminnot vaativat kirjautumisen, ja jokaisen käyttäjän data on eristetty tiukasti toisistaan. Salasanat salataan AES-256-algoritmilla ja admin-endpointit vaativat erillisen roolin.
 
-**Yleisarvosana:** **A-** (Tuotantovalmis)
+**Yleisarvosana:** **A** (Tuotantovalmis)
 
 ---
 
@@ -18,10 +18,11 @@ Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäri
 
 | Tarkistuskohde | Tila |
 |---|---|
-| Firebase Auth integraatio | OK |
-| JWT Token Verification | OK |
-| Token expiry (1h + auto-refresh) | OK |
-| Logout (kutsuu `auth.signOut()`) | OK |
+| Firebase Auth integraatio (Google Sign-In) | ✅ OK |
+| JWT Token Verification (kaikki endpointit) | ✅ OK |
+| Token expiry (1h + auto-refresh) | ✅ OK |
+| Logout (kutsuu `auth.signOut()`) | ✅ OK |
+| Apple Sign-In (konfiguraatio) | ✅ OK |
 
 ---
 
@@ -29,13 +30,15 @@ Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäri
 
 | Tarkistuskohde | Tila |
 |---|---|
-| Goals: Filtteröity `user_id`:llä | OK |
-| Workouts: Filtteröity `user_id`:llä | OK |
-| Profile: Tallennettu `users/{uid}` | OK |
-| Insights: Cached per user (`users/{uid}/daily_insights`) | OK |
-| Garmin Credentials: `users/{uid}/garmin_credentials` (AES-256) | OK |
+| Goals: Subcollection `users/{uid}/goals` | ✅ OK |
+| Workouts: Subcollection `users/{uid}/workouts` | ✅ OK |
+| Profile: `users/{uid}/profile` | ✅ OK |
+| Insights: `users/{uid}/daily_insights` (24h cache) | ✅ OK |
+| Garmin Credentials: `users/{uid}/garmin_credentials` (AES-256) | ✅ OK |
+| Weekly Summaries: `users/{uid}/weekly_summaries` | ✅ OK |
+| Garmin Metrics: `users/{uid}/garmin_daily_metrics` | ✅ OK |
 
-**Kriittinen huomio:** Kaikki Firestore-kyselyt käyttävät `user_id`-suodatinta. Ei ole mahdollista hakea toisen käyttäjän dataa API:n kautta.
+**Kriittinen huomio:** Kaikki Firestore-kyselyt käyttävät `user_id`-suodatinta tai käyttäjäkohtaista subkokoelmaa. Ei ole mahdollista hakea toisen käyttäjän dataa API:n kautta.
 
 ---
 
@@ -43,23 +46,50 @@ Sovellus on auditoitu ja todettu **tietoturvalliseksi usean käyttäjän ympäri
 
 | Tarkistuskohde | Tila |
 |---|---|
-| Rate Limiting (slowapi) | OK |
-| CORS rajattu (dev: localhost, prod: app.personalaicoach.ai) | OK |
-| Ei SQL Injection riskiä (Firestore NoSQL) | OK |
-| Garmin-salasanan salaus (AES-256 Fernet) | OK |
+| Rate Limiting (slowapi, endpoint-kohtaiset rajoitukset) | ✅ OK |
+| CORS rajattu ympäristökohtaisesti (dev: localhost, prod: personalaicoach.ai) | ✅ OK |
+| Ei SQL Injection riskiä (Firestore NoSQL) | ✅ OK |
+| Garmin-salasanan salaus (AES-256 Fernet, `cryptography`-kirjasto) | ✅ OK |
+| Garmin-tokenien salaus (AES-256, tallennettu Firestoreen) | ✅ OK |
+| Security event -lokitus (Firestore `security_events`-kokoelma) | ✅ OK |
 
 ---
 
-## 4. Puutteet & Kehityskohteet
+## 4. Admin & Infrastruktuuri
+
+| Tarkistuskohde | Tila |
+|---|---|
+| Admin Role separation (`verify_admin` middleware, ADMIN_EMAILS env) | ✅ Toteutettu |
+| Request audit logging (strukturoitu JSON-loggaus, Cloud Logging) | ✅ Toteutettu |
+| Rate limit -loukkausten kirjaus Firestoreen | ✅ Toteutettu |
+| Google Cloud Error Reporting (tuotanto) | ✅ Toteutettu |
+| Prometheus-monitorointi | ✅ Toteutettu |
+| Encryption Key hallinta (Secret Manager / env var) | ✅ Toteutettu |
+| Service Account Key poistettu Git-historiasta (filter-repo) | ✅ Korjattu 22.4.2026 |
+
+---
+
+## 5. GDPR-yhteensopivuus
+
+| Tarkistuskohde | Tila |
+|---|---|
+| Käyttäjän datan lataus (`GET /user/export`) | ✅ OK |
+| Tilin ja datan poisto (`DELETE /account`) | ✅ OK |
+| Batch delete kaikista subkokoelmista | ✅ OK |
+| Salasana salattu (ei plain text Firestoressa) | ✅ OK |
+
+---
+
+## 6. Kehityskohteet
 
 | Prioriteetti | Kohde | Tila |
 |---|---|---|
-| Korkea | Admin Role separation | TODO |
-| Keskitaso | Request audit logging | TODO |
-| Matala | IP whitelisting | TODO |
+| Matala | IP whitelisting admin-endpointeille | Harkinnassa |
+| Matala | Firestore Security Rules fine-tuning | Harkinnassa |
+| Matala | Pre-commit hooks (ruff, secret scanning) | Harkinnassa |
 
 ---
 
-## 5. Johtopäätös
+## 7. Johtopäätös
 
-Sovellus täyttää tuotannon tietoturvavaatimukset usean käyttäjän ympäristössä. Kaikki data on eristetty ja salattu. **Suositus:** Siirry tuotantoon nykyisellä turvallisuustasolla ja kehitä auditointi- ja admin-ominaisuuksia seuraavissa sprinteissä.
+Sovellus täyttää tuotannon tietoturvavaatimukset usean käyttäjän ympäristössä. Kaikki data on eristetty käyttäjäkohtaisesti, arkaluonteinen data salattu, ja admin-toiminnot vaativat erillisen roolin. Tietoturvaloukkausten seuranta on toteutettu Firestoreen ja Cloud Reportingiin. **Arvosana nostettu A-:sta A:han** alkuperäisten puutteiden (admin-roolit, audit logging) korjausten myötä.

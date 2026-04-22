@@ -48,7 +48,7 @@ sequenceDiagram
 
 ### 2.2 Proaktiivisen Tekoälyvalmentajan Kierto (AI Coach Generation)
 
-Tämä kuvaa, miten Gemini 2.5 Flash muodostaa valmennus- tai viikko-ohjelman hyödyntäen aiemmin tietokantaan tallennettua luotettavaa dataa.
+Tämä kuvaa, miten Gemini 2.0 Flash muodostaa valmennus- tai viikko-ohjelman hyödyntäen aiemmin tietokantaan tallennettua luotettavaa dataa.
 
 ![alt text](pics/image-1.png)
 
@@ -58,7 +58,7 @@ sequenceDiagram
     participant API as FastAPI
     participant DB as Firestore DB
     participant ML as XGBoost Model
-    participant Gemini as Gemini 2.5 Flash
+    participant Gemini as Gemini 2.0 Flash
 
     UI->>API: Pyydä uusi ohjelma (POST /plans/generate)
     API->>DB: Hae profiilitiedot ja uusimmat fysiologiset luotaimet (BB, Uni, TSB)

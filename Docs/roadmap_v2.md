@@ -8,7 +8,6 @@
 ---
 
 ## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
-## Phase 17: Proaktiivinen AI & Automatisoitu Ohjaus (Proactive AI)
 Tekoäly ottaa ohjat omiin käsiin ja ilmoittaa käyttäjälle olennaisista asioista, ennen kuin käyttäjä ehtii edes avata sovelluksen. (Pääosin VALMIS)
 
 - [x] **Morning Briefing (Aamubriefinki):** Tekoäly generoi ja lähettää aamuisin käyttäjän puhelimeen FCM Push-ilmoituksena lyhyen päivän ohjeistuksen perustuen unen määrään, HRV:hen ja suunniteltuun treeniin. (Cloud Scheduler -ohjattu).
@@ -66,5 +65,5 @@ Mobiilisovelluksen paketoiminen ja vieminen Google Playhin sekä Apple App Store
 ---
 
 ## Nice to Have (Tulevaisuuden Visio)
-- [ ] **Aamubriefing (Push-ilmoitukset):** Päivittäinen älykäs aamupusku. *(Tehdään myöhemmin)* *Esimerkki: "Huomenta! Body Batterysi on alhainen (32). Ehdotan, että perumme tänään ohjelmassa olevan vetotreenin ja teemme palauttavan 30 min kävelyn. Vahvistatko?"*
+- [x] **Aamubriefing (Push-ilmoitukset):** ✅ Toteutettu Phase 17:ssä. Päivittäinen älykäs aamupusku FCM-ilmoituksena.
 - [ ] **Reaaliaikainen Voice-ohjaus (Voice AI):** Mahdollisuus kommunikoida AI-valmentajalle äänellä treenin aikana. *Esimerkki: "Kävelen tänään mieluummin hieman kovempaa – kuinka nopeasti minun tulisi mennä, jotta pysyn peruskestävyysalueella?"*

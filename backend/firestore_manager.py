@@ -773,7 +773,7 @@ def delete_all_user_data(user_id: str):
 def get_all_goals(user_id: str):
     """Fetches ALL goals for a user (active and archived) for data export."""
     try:
-        docs = db.collection('goals').where(filter=FieldFilter('user_id', '==', user_id)).stream()
+        docs = db.collection('users').document(user_id).collection('goals').stream()
         goals = []
         for d in docs:
             g = d.to_dict()

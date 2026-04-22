@@ -1,22 +1,21 @@
-garminconnect>=0.3.1
-garth>=0.8.0
-python-dotenv
-pandas
-xgboost
-psycopg2-binary
-requests
-matplotlib
-ipykernel
-google-generativeai
+# Root requirements - Development & Documentation tools
+# For backend production dependencies, see backend/requirements.txt
 
-
-
-shap
-seaborn
-duckdb
-streamlit
-plotly
-streamlit-calendar
+# Documentation
 mkdocs
 mkdocs-material
 
+# Data analysis (notebooks)
+pandas
+xgboost
+matplotlib
+seaborn
+shap
+plotly
+ipykernel
+
+# Garmin data exploration (local)
+garminconnect>=0.3.1
+garth>=0.8.0
+python-dotenv
+google-genai

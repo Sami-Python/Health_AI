@@ -2,7 +2,7 @@
 
 ## Järjestelmän Yleiskuva
 
-Personal AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 2.5 Flash) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.
+Personal AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 2.0 Flash) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.
 
 **Status (2026-04-18):** 🟢 Tuotantovalmis – Universal Fix v4 (Android SSO bypass) käytössä, 100 % Mobile-Web parity, Cloud Run (europe-north1) aktiivinen.
 
@@ -16,7 +16,7 @@ Personal AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Gar
 graph TD
     %% Ulkoiset Palvelut
     Garmin((Garmin Connect API))
-    Gemini((Gemini 2.5 Flash))
+    Gemini((Gemini 2.0 Flash))
     User((Käyttäjä))
 
     %% External Schedulers
@@ -166,7 +166,7 @@ xgb_model.pkl  +  model_metrics.json
 
 ---
 
-### B) Generatiivinen AI-pipeline (Gemini 2.5 Flash)
+### B) Generatiivinen AI-pipeline (Gemini 2.0 Flash)
 
 Sovelluksessa on **kaksi erillistä** Gemini-käyttötapausta:
 
@@ -183,7 +183,7 @@ ai_coach.construct_prompt()
         – Tulkintaohjeet: BB 75–100 = kova treeni, 40–59 = kevyt, <40 = lepo
         – Varoitusohjeet: jos ATL kasvanut >20 % ja uni laskenut → vammariskivaroitus
     ↓
-Gemini 2.5 Flash API
+Gemini 2.0 Flash API
     ↓
 Treeniohjelma JSON (3–7 päivää):
     • Jokaisessa päivässä: type, description, garmin_workout (askeleet: Warmup/Interval/Recovery)
@@ -207,7 +207,7 @@ ai_chat_manager.handle_chat()
     • Ylläpitää session historiaa (max 10 viestiä)
     • System prompt: tiukat guardrailit (vain valmennus)
     ↓
-Gemini 2.5 Flash API
+Gemini 2.0 Flash API
     ↓
 Vastaus käyttäjälle (Web: glassmorphism chat widget / Mobile: chat_screen.dart)
 ```

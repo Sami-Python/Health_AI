@@ -19,7 +19,7 @@ Se yhdistää:
 
 ## Teknologiat
 *   **Frontend (Web):** Next.js (React), TypeScript, Tailwind CSS
-*   **Backend / AI:** Python 3.12, FastAPI v1.0.0, XGBoost, Google Gemini 2.5 Flash
+*   **Backend / AI:** Python 3.12, FastAPI v1.0.0, XGBoost, Google Gemini 2.0 Flash
 *   **Tietokanta:** Firebase Firestore (App Data & Auth)
 *   **Garmin Auth:** `curl_cffi` + Android SSO (Universal Fix v4 – Cloudflare bypass)
 *   **Infra:** Docker, Google Cloud Run (`europe-north1`)

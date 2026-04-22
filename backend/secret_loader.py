@@ -87,10 +87,18 @@ def get_service_account_dict():
     if cred_file and os.path.exists(cred_file):
          return cred_file # Return path string
          
-    # 4. Fallback to default local file in project
+    # 4. Fallback to default local files
     base_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(base_dir)
+    
+    # Check backend/ dir first
     default_path = os.path.join(base_dir, "service_account_key.json")
     if os.path.exists(default_path):
         return default_path
+        
+    # Check project root next
+    root_path = os.path.join(project_root, "service_account_key.json")
+    if os.path.exists(root_path):
+        return root_path
         
     return None

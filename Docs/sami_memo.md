@@ -1131,7 +1131,7 @@ Tänään projekti laajeni pelkästä ennustemallista täysiveriseksi valmennusj
 ### Nykytilanne
 - Data: 360 päivää historiaa.
 - Malli: XGBoost (R² ~0.91).
-- Coach: Gemini 2.5 Flash (Suomenkielinen).
+- Coach: Gemini 2.0 Flash (Suomenkielinen).
 - UI: Streamlit Web App.
 
 

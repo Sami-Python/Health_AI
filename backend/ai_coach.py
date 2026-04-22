@@ -485,7 +485,7 @@ def generate_weekly_summary(user_id: str, metrics_last_7: list, goals: list) -> 
 
     # Build goals text
     goals_text = ", ".join(
-        f"{g.get('activity_type','?')} {g.get('target_value','?')} {g.get('target_unit','')/g.get('frequency','vko')}"
+        f"{g.get('activity_type','?')} {g.get('target_value','?')} {g.get('target_unit','')}/{g.get('frequency','vko')}"
         for g in (goals or [])[:3]
     ) if goals else "Ei asetettuja tavoitteita"
 

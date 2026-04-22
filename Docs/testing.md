@@ -1,21 +1,22 @@
 # Backend & Frontend Testaus – Yleiskatsaus
 
-**Päivitetty:** 2026-02-09  
+**Päivitetty:** 2026-04-22  
 **Tila:** Testit Toteutettu & Dokumentoitu
 
 ---
 
 ## Yhteenveto
 
-Health AI sisältää kattavan testikattavuuden, johon kuuluvat **yksikkötestit** (nopeat, mockatut), **integraatiotestit** (oikeat Firebase-toiminnot) sekä **End-to-End (E2E) testit** (käyttöliittymä).
+Health AI sisältää kattavan testikattavuuden, johon kuuluvat **yksikkötestit** (nopeat, mockatut), **integraatiotestit** (oikeat Firebase-toiminnot) sekä **End-to-End (E2E) testit** (käyttöliittymä Playwright-selaintestinä).
 
 ### Testikattavuus
 
-| Testityyppi | Määrä | Tila | Suoritusaika | Riippuvuudet |
-|-------------|-------|------|--------------|--------------|
-| Unit Tests | 20 | Valmis | ~2s | Ei (mockattu) |
-| Integration Tests | 8 | Valmis | ~5s | Firebase |
-| E2E Tests | 6 | Valmis | ~15s | Selain + Backend |
+| Testityyppi | Tiedostoja | Tila | Suoritusaika | Riippuvuudet |
+|-------------|-----------|------|--------------|--------------|
+| Backend Unit | 6 | Valmis | ~3s | Ei (mockattu) |
+| Backend Integration | 1 | Valmis | ~5s | Firebase |
+| Frontend E2E | 2 | Valmis | ~15s | Selain + Backend |
+| Mobile (Flutter) | – | Puuttuu | – | – |
 
 ---
 
@@ -29,58 +30,44 @@ cd backend
 python -m pytest tests/ -v
 
 # Pelkät yksikkötestit (nopeat, eivät vaadi Firebasea)
-python -m pytest tests/unit/ -v
+python -m pytest tests/ -v -k "not integration"
 
-# Pelkät integraatiotestit (vaativat service_account_key.json)
-python -m pytest tests/integration/ -v
+# Pelkät integraatiotestit (vaativat Firebase-yhteyttä)
+python -m pytest tests/test_integration.py -v
 
 # Yksittäinen testitiedosto
-python -m pytest tests/unit/test_ai_coaching.py -v
+python -m pytest tests/test_endpoints.py -v
 ```
 
 ### Testien rakenne
 
 ```
 backend/tests/
-├── conftest.py              # Jaetut fixturet
-├── unit/                    # Yksikkötestit (mockatut)
-│   ├── test_ai_coaching.py  # AI-valmennus logiikka
-│   ├── test_coaching_routes.py  # API route testit
-│   ├── test_feedback.py     # Feeddback-endpointin testit
-│   └── test_goals.py        # Tavoite-endpointin testit
-└── integration/             # Integraatiotestit (oikea Firebase)
-    └── test_firestore.py    # Firestore CRUD -operaatiot
+├── conftest.py                    # Jaetut fixturet (mockattu Firebase, test client)
+├── conftest_integration.py        # Integraatio-fixturet
+├── conftest_no_emulator.py        # Kiertotapa Javan puuttumiselle
+├── test_admin.py                  # Admin-endpointit (verify_admin, security events)
+├── test_config.py                 # Konfiguraation testit (Settings, env-luokitus)
+├── test_endpoints.py              # API-endpointit (goals, workouts, profile)
+├── test_garmin_2fa.py             # Garmin 2FA -login flow (MFA callback mock)
+├── test_helpers.py                # Helper-funktiot (salaus, tokenit)
+├── test_integration.py            # Firestore CRUD-integraatiotesti
+├── test_workout_rescheduling.py   # AI-treenin uudelleenajoitus
+├── verify_api_auth.py             # Auth-verifiointiskriipti (manuaalinen)
+└── verify_firestore_isolation.py  # Multi-user eristyksen manuaalinen tarkistus
 ```
 
-### Unit Test -esimerkkejä
+### Mitä testataan
 
-```python
-# test_ai_coaching.py
-def test_readiness_calculation():
-    """Testaa vireystilan laskenta mockatulla datalla."""
-    mock_data = {"body_battery": 80, "sleep_score": 85}
-    result = calculate_readiness(mock_data)
-    assert result > 0
-
-def test_insight_caching():
-    """Testaa että oivallukset cachetetaan 24h."""
-    # Ensimmäinen kutsu -> luodaan oivallus
-    # Toinen kutsu -> palautetaan cache
-```
-
-### Integration Test -esimerkkejä
-
-```python
-# test_firestore.py  
-def test_create_and_delete_goal(real_firebase):
-    """CRUD-operaatio oikeaa Firestorea vasten."""
-    goal = {"activity_type": "Running", "target_value": 30}
-    goal_id = db.create_goal(test_uid, goal)
-    assert goal_id is not None
-    
-    # Cleanup
-    db.delete_goal(test_uid, goal_id)
-```
+| Tiedosto | Kattavuus |
+|----------|-----------|
+| `test_admin.py` | Admin middleware, security event logging |
+| `test_config.py` | Settings factory, env-kohtaiset asetukset |
+| `test_endpoints.py` | Goals CRUD, workout CRUD, profile, AI insight |
+| `test_garmin_2fa.py` | Garmin login, MFA flow, token resume |
+| `test_helpers.py` | AES-256 encrypt/decrypt, token generation |
+| `test_workout_rescheduling.py` | Skip-and-reschedule AI logic |
+| `test_integration.py` | Firestore CRUD (oikea yhteys) |
 
 ---
 
@@ -118,23 +105,6 @@ frontend/e2e/
 └── dashboard.spec.ts       # Dashboardin testit
 ```
 
-### E2E Test -esimerkkejä
-
-```typescript
-// login_page.spec.ts
-test('should display login page correctly', async ({ page }) => {
-  await page.goto('/login');
-  await expect(page.getByText('Sign in with Google')).toBeVisible();
-  await expect(page.getByText('Sign in with Apple')).toBeVisible();
-});
-
-// dashboard.spec.ts
-test('should redirect to login if not authenticated', async ({ page }) => {
-  await page.goto('/dashboard');
-  await expect(page).toHaveURL('/login');
-});
-```
-
 ### Konfiguraatio
 
 ```typescript
@@ -153,8 +123,21 @@ export default defineConfig({
 
 ---
 
+## CI/CD-integraatio
+
+Backend-testit ajetaan automaattisesti GitHub Actions CI:ssä jokaisella push/PR:llä (`main`-haaraan):
+
+```yaml
+# .github/workflows/ci.yml
+- name: Run Backend Tests
+  run: python -m pytest tests/
+```
+
+> **Huom:** Playwright E2E -testejä ei ajeta CI:ssä tällä hetkellä. Flutter-testejä ei ole vielä toteutettu.
+
+---
+
 ## Liittyvä dokumentaatio
 
-- [API-dokumentaatio](API.md) – Testattavat endpointit
-- [Autentikaatio](authentication.md) – Token-validoinnin testaus
 - [Arkkitehtuuri](arkkitehtuuri.md) – Testattavat komponentit
+- [Vaatimusmäärittely](vaatimusmaarittely.md) – Hyväksyntäkriteerit
