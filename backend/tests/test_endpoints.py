@@ -36,8 +36,9 @@ def mock_db():
     Patches 'main.db_manager' so that main.py uses OUR mock.
     Yields the mock object for configuration.
     """
-    with patch("main.db_manager") as mock:
-        yield mock
+    import firestore_manager
+    firestore_manager.reset_mock()
+    yield firestore_manager
 
 def test_create_goal_success(mock_db):
     """Test successful goal creation."""
@@ -120,7 +121,7 @@ def test_get_weekly_status(mock_db):
     """Test get_weekly_status endpoint aggregation."""
     # This was failing with ValueError because mock was polluted.
     # Now patch('main.db_manager') ensures we configure the object main.py actually uses.
-    mock_db.get_weekly_load_status.return_value = (500, 600, {})
+    mock_db.get_weekly_load_status.return_value = (500, 600, {}, 120)
     
     response = client.get("/workouts/weekly-status")
     
@@ -128,5 +129,6 @@ def test_get_weekly_status(mock_db):
     assert response.json() == {
         "current_load": 500,
         "planned_load": 600,
-        "breakdown": {}
+        "breakdown": {},
+        "duration_min": 120
     }

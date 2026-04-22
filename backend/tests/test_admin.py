@@ -40,7 +40,7 @@ def test_admin_feedback_access_granted(set_admin_env, admin_user):
     app.dependency_overrides[verify_token] = lambda: admin_user
     
     # Mock DB using patch on main.db_manager
-    with patch("main.db_manager") as mock_db:
+    with patch("routers.admin.db_manager") as mock_db:
         mock_db.get_all_feedback.return_value = [{"message": "Test feedback"}]
         
         response = client.get("/admin/feedback")

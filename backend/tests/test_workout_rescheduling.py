@@ -20,7 +20,7 @@ for mod_name, mock_obj in mock_modules.items():
     if mod_name not in sys.modules:
         sys.modules[mod_name] = mock_obj
 
-import main
+from routers import workouts
 
 class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
@@ -34,10 +34,10 @@ class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
             "type": "planned"
         }
 
-    @patch('main.firestore_garmin_metrics')
-    @patch('main.ai_coach')
-    @patch('main.notification_service')
-    @patch('main.db_manager')
+    @patch('routers.workouts.firestore_garmin_metrics')
+    @patch('routers.workouts.ai_coach')
+    @patch('routers.workouts.notification_service')
+    @patch('routers.workouts.db_manager')
     def test_process_workout_rescheduling_success(self, mock_db, mock_notif, mock_ai, mock_metrics):
         # Setup mocks
         mock_metrics.get_user_daily_metrics.return_value = [
@@ -51,7 +51,7 @@ class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
         }
         
         # Execute
-        suggestion = main._process_workout_rescheduling(self.user_id, self.workout_data)
+        suggestion = workouts._process_workout_rescheduling(self.user_id, self.workout_data)
         
         # Verify
         self.assertIsNotNone(suggestion)
@@ -72,15 +72,15 @@ class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
                 break
         self.assertTrue(update_call_found, "Firestore update({'status': 'SKIPPED'}) was not called")
 
-    @patch('main.db_manager')
+    @patch('routers.workouts.db_manager')
     def test_check_and_reschedule_missed_workout(self, mock_db):
         mock_db.get_last_missed_workout.return_value = self.workout_data
-        with patch('main._process_workout_rescheduling') as mock_process:
-            main.check_and_reschedule_missed_workout(self.user_id)
+        with patch('routers.workouts._process_workout_rescheduling') as mock_process:
+            workouts.check_and_reschedule_missed_workout(self.user_id)
             mock_process.assert_called_with(self.user_id, self.workout_data)
 
-    @patch('main.db_manager')
-    @patch('main.verify_token')
+    @patch('routers.workouts.db_manager')
+    @patch('routers.workouts.verify_token')
     async def test_skip_workout_endpoint_success(self, mock_verify, mock_db):
         mock_doc = MagicMock()
         mock_doc.exists = True
@@ -89,9 +89,9 @@ class TestWorkoutRescheduling(unittest.IsolatedAsyncioTestCase):
         # Setup doc chain
         mock_db.db.collection.return_value.document.return_value.collection.return_value.document.return_value.get.return_value = mock_doc
         
-        with patch('main._process_workout_rescheduling') as mock_process:
+        with patch('routers.workouts._process_workout_rescheduling') as mock_process:
             mock_process.return_value = {"new_date": "2026-03-22"}
-            response = await main.skip_workout_endpoint(self.workout_id, user={'uid': self.user_id})
+            response = await workouts.skip_workout_endpoint(self.workout_id, user={'uid': self.user_id})
             self.assertEqual(response['status'], "success")
             self.assertEqual(response['suggestion']['new_date'], "2026-03-22")
 

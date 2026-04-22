@@ -17,7 +17,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if "firestore_manager" not in sys.modules:
     sys.modules["firestore_manager"] = MagicMock()
 
-from main import app, _garmin_mfa_sessions
+from main import app
+from routers.garmin import _garmin_mfa_sessions
 from auth_middleware import verify_token
 
 client = TestClient(app)
@@ -45,7 +46,7 @@ def test_garmin_connect_success_no_mfa():
     mock_garmin_instance.garth.dump = MagicMock()
 
     with patch("garminconnect.Garmin", return_value=mock_garmin_instance), \
-         patch("main.db_manager") as mock_db:
+         patch("routers.garmin.db_manager") as mock_db:
         mock_db.save_garmin_credentials.return_value = True
         mock_db.save_garmin_tokens.return_value = True
 
@@ -138,7 +139,7 @@ def test_garmin_mfa_session_expired():
 
 def test_garmin_status_connected():
     """Firestore has credentials → {connected: true}."""
-    with patch("main.db_manager") as mock_db:
+    with patch("routers.garmin.db_manager") as mock_db:
         mock_db.get_garmin_credentials.return_value = {
             "username": "athlete@garmin.com",
             "password": "decrypted_pw"
@@ -167,7 +168,7 @@ def test_garmin_status_not_connected():
 
 def test_garmin_disconnect_success():
     """Disconnect deletes credentials and returns success."""
-    with patch("main.db_manager") as mock_db:
+    with patch("routers.garmin.db_manager") as mock_db:
         mock_db.delete_garmin_credentials.return_value = True
         response = client.delete("/garmin/credentials")
 
