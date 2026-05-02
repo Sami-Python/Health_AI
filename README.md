@@ -284,7 +284,7 @@ echo "ENCRYPTION_KEY=your-generated-key" >> .env
    ```
 2. Manually trigger refresh:
    - Dashboard → Click "Refresh" button
-   - Or: `POST http://localhost:8001/system/refresh`
+   - Or: `POST http://localhost:8000/system/refresh`
 3. Check Firestore Console for data
 
 ---
@@ -327,14 +327,23 @@ echo "ENCRYPTION_KEY=your-generated-key" >> .env
 
 Lisää teknisiä yksityiskohtia ja arkkitehtuurikuvauksia löydät `Docs/`-kansiosta:
 
-- **[API.md](Docs/API.md)** - Complete API reference, endpoints, examples
-- **[authentication.md](Docs/authentication.md)** - Firebase Authentication toteutus, token flow, multi-user data isolation
-- **[arkkitehtuuri.md](Docs/arkkitehtuuri.md)** - Järjestelmän arkkitehtuuri, komponentit ja datavirrat
-- **[garmin_cloudflare_bypass_v4.md](Docs/garmin_cloudflare_bypass_v4.md)** - Universal Fix v4: Garmin Android SSO bypass (Cloudflare)
-- **[garmin_setup.md](Docs/garmin_setup.md)** - Garmin credentials setup and troubleshooting
-- **[production_roadmap.md](Docs/production_roadmap.md)** - Kehityspolku 0 → 10,000 käyttäjää, skaalautuvuussuunnitelma
-- **[roadmap_v2.md](Docs/roadmap_v2.md)** - V2 ominaisuudet: Proactive AI, Platform Agnostic, App Store
-- **[sami_memo.md](Docs/sami_memo.md)** - Kehityspäiväkirja ja muutoshistoria
-- **[testing.md](Docs/testing.md)** - Testausohje (Backend pytest, Frontend Playwright)
-- **[observability.md](Docs/observability.md)** - Monitorointi, Prometheus/Grafana, Cloud Logging
+- **[index.md](Docs/index.md)** – Dokumentaation aloitussivu, yleiskatsaus koko järjestelmään
+- **[API.md](Docs/API.md)** – REST API -endpointit, esimerkit, rate limitit
+- **[arkkitehtuuri.md](Docs/arkkitehtuuri.md)** – Järjestelmän arkkitehtuuri, komponentit ja datavirrat
+- **[data_flow.md](Docs/data_flow.md)** – Datan kulku sekvenssikaavioina (Garmin → ML → UI)
+- **[authentication.md](Docs/authentication.md)** – Firebase Auth, token flow, data isolation
+- **[garmin_setup.md](Docs/garmin_setup.md)** – Garmin-tunnusten asennus ja vianmääritys
+- **[garmin_cloudflare_bypass_v4.md](Docs/garmin_cloudflare_bypass_v4.md)** – Universal Fix v4: Android SSO bypass
+- **[deployment.md](Docs/deployment.md)** – Cloud Run, Cloudflare Pages, CI/CD, mobiilijakelu
+- **[testing.md](Docs/testing.md)** – Testausohje (Backend pytest, Frontend Playwright)
+- **[observability.md](Docs/observability.md)** – Monitorointi, Prometheus/Grafana, Cloud Logging
+- **[security_audit.md](Docs/security_audit.md)** – Tietoturva-auditointi ja arvosana
+- **[MLflow.md](Docs/MLflow.md)** – ML-kokeiden seuranta ja malliversiointi
+- **[vaatimusmaarittely.md](Docs/vaatimusmaarittely.md)** – Toiminnalliset vaatimukset ja hyväksyntäkriteerit
+- **[mobile_vs_web_comparison.md](Docs/mobile_vs_web_comparison.md)** – Mobiilin ja webin ominaisuusvertailu
+- **[landing_page.md](Docs/landing_page.md)** – Julkisen markkinointisivun dokumentaatio
+- **[ios_migration_plan.md](Docs/ios_migration_plan.md)** – iOS-julkaisun suunnitelma
+- **[production_roadmap.md](Docs/production_roadmap.md)** – Kehityspolku 0 → 10 000 käyttäjää
+- **[roadmap_v2.md](Docs/roadmap_v2.md)** – V2-ominaisuudet: Proactive AI, App Store
+- **[sami_memo.md](Docs/sami_memo.md)** – Kehityspäiväkirja ja muutoshistoria
 

@@ -1,12 +1,17 @@
 # Implementation Plan: AI Chat with Guardrails
 
-## Goal
-Implement an interactive AI Chat interface using **Gemini 1.5 Flash**. The AI should act as a personal coach, aware of the user's health data, but strictly limited to health/fitness topics (Guardrails).
+> [!NOTE]
+> **TOTEUTETTU.** Tämä suunnitelma on arkistoitu. Ominaisuus on valmis ja tuotannossa (Phase 11 web, Phase 15 mobiili). Alla alkuperäinen suunnitelma viitteeksi – toteutus eroaa hieman yksityiskohdista.
 
-## User Review Required
+## Alkuperäinen tavoite
+Interaktiivinen AI Chat -käyttöliittymä **Gemini Flash** -mallilla (`gemini-flash-latest`). AI toimii henkilökohtaisena valmentajana, joka tuntee käyttäjän terveysdatan mutta on rajattu tiukasti terveys- ja urheiluaiheisiin (Guardrails).
+
+## Toteutustiedot
 > [!IMPORTANT]
-> **Privacy:** Chat history will not be persisted permanently in database for MVP (session-based) to simplify GDPR.
-> **Model:** Using `gemini-1.5-flash` for speed and cost-efficiency.
+> **Endpoint:** `POST /ai/chat` (ei `/chat` kuten alkuperäisessä suunnitelmassa)  
+> **Malli:** `gemini-flash-latest` (ei `gemini-1.5-flash`)  
+> **Backend:** `ai_chat_manager.py` (ei `chat_routes.py`)  
+> **Rate limit:** 10/min (ei 30/min)
 
 ## Proposed Changes
 

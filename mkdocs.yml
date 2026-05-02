@@ -39,12 +39,15 @@ nav:
 
   - Arkkitehtuuri & Suunnittelu:
     - Arkkitehtuurin yleiskuvaus: arkkitehtuuri.md
+    - Datavirrat: data_flow.md
     - Vaatimusmäärittely: vaatimusmaarittely.md
     - Tietoturvaraportti: security_audit.md
     - AI Chat Feature Plan: chat_feature_plan.md
+    - Mobile vs Web: mobile_vs_web_comparison.md
 
   - Kehitysoppaat:
     - Garmin-integraatio: garmin_setup.md
+    - Garmin Cloudflare Bypass: garmin_cloudflare_bypass_v4.md
     - API-viitteet: API.md
 
   - Laadunvarmistus & Testaus:
@@ -55,6 +58,9 @@ nav:
     - MLOps (MLflow): MLflow.md
     - Observability & Monitoring: observability.md
     - Tuotannon Roadmap: production_roadmap.md
+    - Roadmap V2: roadmap_v2.md
+    - iOS-migraatio: ios_migration_plan.md
 
   - Viitteet:
     - Sisäiset muistiot: sami_memo.md
+

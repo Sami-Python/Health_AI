@@ -258,21 +258,20 @@ async def my_endpoint(
 
 ```
 firestore/
-├── goals/
-│   ├── {goal_id}
-│   │   ├── user_id: "abc123"         ← PAKOLLINEN
-│   │   ├── activity_type: "Running"
-│   │   └── ...
-├── workouts/
-│   ├── {workout_id}
-│   │   ├── user_id: "abc123"         ← PAKOLLINEN
-│   │   └── ...
 ├── users/
 │   ├── {uid}/
-│   │   ├── age: 35
-│   │   └── daily_insights/           ← Subcollection
-│   │       └── {date}/
-│   │           └── insight: "..."
+│   │   ├── profile                   ← Ikä, paino, pituus, sykerajat
+│   │   ├── workouts/{id}             ← Treenit (Garmin + manuaaliset)
+│   │   ├── goals/{id}               ← Käyttäjän tavoitteet
+│   │   ├── plans/{id}               ← AI-treenisuunnitelmat
+│   │   ├── daily_insights/{date}    ← AI-oivallukset (24h cache)
+│   │   ├── weekly_summaries/{week}  ← Viikkoyhteenvedot
+│   │   ├── garmin_credentials/      ← AES-256 salatut tunnukset
+│   │   └── garmin_daily_metrics/    ← Fysiologinen päivädata
+├── garmin_metrics/{uid}/daily_metrics/{date}  ← Metriikat (legacy-polku)
+├── model_performance/{uid}/history/{ts}       ← ML-mallin metriikat
+├── feedback/                                  ← Käyttäjäpalautteet
+└── security_events/                           ← Rate limit- ja auth-tapahtumat
 ```
 
 ---
@@ -352,7 +351,7 @@ def delete_goal(user_id: str, goal_id: str):
 
 # 2. Testaa cURL:lla
 curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
-     http://localhost:8001/goals
+     http://localhost:8000/goals
 ```
 
 **Odotettu tulos:**
@@ -366,7 +365,7 @@ curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \
 
 ```bash
 curl -H "Authorization: Bearer invalid_token_123" \
-     http://localhost:8001/goals
+     http://localhost:8000/goals
 ```
 
 **Odotettu tulos:**
@@ -530,8 +529,8 @@ Käy läpi tämä lista ongelmatilanteessa:
 - Firebase Auth integroitu (Google + Apple)
 - Token-validointi toimii
 - Multi-user data isolation (Firestore)
-- **Apple Sign-In:** Koodi valmis, Firebase Console konfiguraatio odottaa
-- **Garmin-data:** Yhteinen CSV kaikille (ei skaalaudu)
+- **Apple Sign-In:** Koodi valmis, Firebase Console -konfiguraatio odottaa
+- **Garmin-data:** Käyttäjäkohtaiset subkokoelmat Firestoressa (skaalautuu)
 
 ### Tulevaisuus (Production Scaling)
 
@@ -575,6 +574,6 @@ Käy läpi tämä lista ongelmatilanteessa:
 > [!NOTE]
 > Tämä dokumentti päivitetään kun uusia autentikointimekanismeja (email/password, admin roles) lisätään.
 
-**Viimeksi päivitetty:** 2026-02-03  
+**Viimeksi päivitetty:** 2026-05  
 **Dokumentaation kattavuus:** Firebase Google Auth + Apple Sign-In (koodi valmis)  
-**TODO:** Apple Firebase Console setup, Garmin OAuth2, Admin Roles
+**TODO:** Apple Firebase Console setup, Admin Roles

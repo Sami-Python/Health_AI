@@ -4,7 +4,7 @@
 
 Personal AI Coach on datalähtöinen valmennusjärjestelmä, joka yhdistää Garminin fysiologisen datan, koneoppimisen (XGBoost) ennustemallit ja generatiivisen tekoälyn (Gemini 2.0 Flash) tarjotakseen personoitua palautumisanalyysiä ja treenisuosituksia.
 
-**Status (2026-04-18):** 🟢 Tuotantovalmis – Universal Fix v4 (Android SSO bypass) käytössä, 100 % Mobile-Web parity, Cloud Run (europe-north1) aktiivinen.
+**Tilanne (2026-05):** Tuotantovalmis. Garmin-synkronointi vakaa (Universal Fix v4, Android SSO bypass), mobiili ja web 100 % ominaisuuspariteetissa, backend modularisoitu APIRouter-rakenteella, Cloud Run (europe-north1) aktiivinen.
 
 ---
 
@@ -67,6 +67,15 @@ graph TD
     %% Backend Services
     subgraph "Backend API (FastAPI v1.0.0 / Cloud Run)"
         FastAPI[FastAPI Service]
+        subgraph "Modular Routers"
+            R_Goals[goals.py]
+            R_Workouts[workouts.py]
+            R_AI[ai.py]
+            R_Garmin[garmin.py]
+            R_Admin[admin.py]
+            R_System[system.py]
+            R_User[user.py]
+        end
         GarminClient[garmin_client.py]
     end
 
@@ -251,9 +260,16 @@ Vastaus käyttäjälle (Web: glassmorphism chat widget / Mobile: chat_screen.dar
 
 ### 3. Backend API (FastAPI v1.0.0 – Cloud Run)
 - **Sijainti:** `https://health-ai-backend-35976089058.europe-north1.run.app`
+- **Arkkitehtuuri:** Modulaarinen APIRouter-rakenne. `main.py` sisältää vain sovelluksen alustuksen, middlewaret ja routerien rekisteröinnin. Endpoint-logiikka on jaettu seitsemään erilliseen tiedostoon `routers/`-kansiossa:
+  - `goals.py` – Tavoitteiden CRUD
+  - `workouts.py` – Treenien hallinta, upload, skip/reschedule
+  - `ai.py` – AI-oivallukset, chat, treeniohjelmat, viikkoyhteenveto, aamubreefing
+  - `garmin.py` – Garmin-yhteys, 2FA, tunnukset
+  - `admin.py` – Admin-endpointit (käyttäjät, palautteet, tietoturvalogit)
+  - `system.py` – Taustasynkronointi, automaattinen data refresh
+  - `user.py` – Profiili, GDPR export/delete, FCM, palaute
 - **Autentikaatio:** `verify_token` (kaikki endpointit) + `verify_admin` (admin-endpointit)
 - **Rate Limiting:** `slowapi` (IP-pohjainen, endpointtikohtaiset rajat)
-- **Key endpointit:**
 
   | Endpoint | Kuvaus |
   |----------|--------|

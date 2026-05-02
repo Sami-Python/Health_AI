@@ -3,7 +3,7 @@
 **Base URL:** `http://localhost:8000` (development)  
 **Production:** `https://health-ai-backend-35976089058.europe-north1.run.app`  
 **API Docs:** `https://health-ai-backend-35976089058.europe-north1.run.app/docs` (Swagger UI)  
-**Version:** 1.2.0
+**Version:** 1.0.0
 
 
 ---
@@ -271,6 +271,39 @@ Get daily AI-powered training insight.
   "insight": "Your recovery is excellent today. Consider a moderate intensity run...",
   "cached": true,
   "generated_at": "2024-01-15T08:00:00Z"
+}
+```
+
+---
+
+#### `GET /ai/weekly-summary`
+Get AI-generated weekly training summary.
+
+**Tags:** AI  
+**Rate Limit:** 5/min  
+**Caching:** Weekly (per user, regenerated each Monday)  
+**Response:**
+```json
+{
+  "summary": "Viikkosi oli tasapainoinen: 4 treeniä, kuormitus nousi 12%...",
+  "week_start": "2024-01-15",
+  "cached": true
+}
+```
+
+---
+
+#### `POST /ai/morning-briefing`
+Generate and send a morning briefing push notification.
+
+**Tags:** AI, Notifications  
+**Rate Limit:** 10/min  
+**Response:**
+```json
+{
+  "title": "🌞 Aamubreefing",
+  "body": "Body Battery 82 – hyvä päivä kovalle treenille.",
+  "push_sent": true
 }
 ```
 
@@ -817,7 +850,7 @@ All resources include:
 
 ### Using Swagger UI
 
-1. Navigate to `http://localhost:8001/docs`
+1. Navigate to `http://localhost:8000/docs`
 2. Click "Authorize" button
 3. Enter your Firebase ID token: `Bearer <token>`
 4. Try endpoints interactively
@@ -827,14 +860,14 @@ All resources include:
 ```bash
 # Get goals
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-     http://localhost:8001/goals
+     http://localhost:8000/goals
 
 # Create goal
 curl -X POST \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"activity_type":"Running","target_value":50,"target_unit":"km","period_type":"weekly"}' \
-  http://localhost:8001/goals
+  http://localhost:8000/goals
 ```
 
 ### Using Postman
@@ -852,5 +885,5 @@ Import collection: `docs/postman_collection.json` (TODO)
 
 ---
 
-**Last Updated:** 2026-03-16  
+**Last Updated:** 2026-05  
 **Maintained by:** Health AI Team

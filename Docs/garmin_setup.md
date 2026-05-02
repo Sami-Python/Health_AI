@@ -154,7 +154,7 @@ def test_encryption_roundtrip():
 3. **Fetch with API:**
    ```bash
    curl -H "Authorization: Bearer YOUR_TOKEN" \
-        http://localhost:8001/garmin/status
+        http://localhost:8000/garmin/status
    ```
    **Expected:**
    ```json
@@ -252,7 +252,7 @@ After the first successful Garmin login, `fetch_garmin_data.py` saves the **gart
 
 ---
 
-**Last Updated:** 2026-03-04  
+**Last Updated:** 2026-05  
 **Security Level:** AES-256 Encryption (Fernet)
 
 ---
