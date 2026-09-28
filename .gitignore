@@ -33,3 +33,14 @@ tmp/
 nul
 **/nul
 backend/nul
+
+# Loppuesitys (ei versionhallintaan)
+Esitys/
+# Yksityiset kehitysdokumentit
+Docs/garmin_cloudflare_bypass_v4.md
+Docs/sami_memo.md
+test_fetch.py
+inspect_data.py
+image.png
+/test
+/legacy/

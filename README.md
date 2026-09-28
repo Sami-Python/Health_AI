@@ -21,7 +21,7 @@ Se yhdistää:
 *   **Frontend (Web):** Next.js (React), TypeScript, Tailwind CSS
 *   **Backend / AI:** Python 3.12, FastAPI v1.0.0, XGBoost, Google Gemini 2.0 Flash
 *   **Tietokanta:** Firebase Firestore (App Data & Auth)
-*   **Garmin Auth:** `curl_cffi` + Android SSO (Universal Fix v4 – Cloudflare bypass)
+*   **Garmin Auth:** `curl_cffi` + Android SSO (AES-256 encrypted credential management)
 *   **Infra:** Docker, Google Cloud Run (`europe-north1`)
 *   **Mobile:** Flutter 3.41.2 (Android & iOS)
 *   **Landing Page:** Static HTML/CSS (Cloudflare Pages)
@@ -333,7 +333,7 @@ Lisää teknisiä yksityiskohtia ja arkkitehtuurikuvauksia löydät `Docs/`-kans
 - **[data_flow.md](Docs/data_flow.md)** – Datan kulku sekvenssikaavioina (Garmin → ML → UI)
 - **[authentication.md](Docs/authentication.md)** – Firebase Auth, token flow, data isolation
 - **[garmin_setup.md](Docs/garmin_setup.md)** – Garmin-tunnusten asennus ja vianmääritys
-- **[garmin_cloudflare_bypass_v4.md](Docs/garmin_cloudflare_bypass_v4.md)** – Universal Fix v4: Android SSO bypass
+- **[garmin_authentication.md](Docs/garmin_authentication.md)** – Garmin-autentikointi: SSO-flow, token-hallinta ja vianmääritys
 - **[deployment.md](Docs/deployment.md)** – Cloud Run, Cloudflare Pages, CI/CD, mobiilijakelu
 - **[testing.md](Docs/testing.md)** – Testausohje (Backend pytest, Frontend Playwright)
 - **[observability.md](Docs/observability.md)** – Monitorointi, Prometheus/Grafana, Cloud Logging
@@ -345,5 +345,4 @@ Lisää teknisiä yksityiskohtia ja arkkitehtuurikuvauksia löydät `Docs/`-kans
 - **[ios_migration_plan.md](Docs/ios_migration_plan.md)** – iOS-julkaisun suunnitelma
 - **[production_roadmap.md](Docs/production_roadmap.md)** – Kehityspolku 0 → 10 000 käyttäjää
 - **[roadmap_v2.md](Docs/roadmap_v2.md)** – V2-ominaisuudet: Proactive AI, App Store
-- **[sami_memo.md](Docs/sami_memo.md)** – Kehityspäiväkirja ja muutoshistoria
 
