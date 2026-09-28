@@ -1,0 +1,2319 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://Samih.github.io/health_ai/vaatimusmaarittely/">
+      
+      
+        <link rel="prev" href="../data_flow/">
+      
+      
+        <link rel="next" href="../security_audit/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Vaatimusmäärittely - Health AI Coach</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vaatimusmaarittely-health-ai-coach" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Health AI Coach" class="md-header__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Health AI Coach
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Vaatimusmäärittely
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Health AI Coach" class="md-nav__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Health AI Coach
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Etusivu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Käytön aloitus
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Käytön aloitus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ympäristö & Julkaisu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autentikaatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../landing_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Landing Page
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arkkitehtuuri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuurin yleiskuvaus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datavirrat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vaatimusmäärittely
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vaatimusmäärittely
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#projektin-kuvaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Projektin Kuvaus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-kayttajahallinta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Käyttäjähallinta
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Käyttäjähallinta">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-rekisteroityminen-ja-kirjautuminen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Rekisteröityminen ja Kirjautuminen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-kayttajaprofiili" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Käyttäjäprofiili
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ai-valmennus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. AI-valmennus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tavoitteiden-hallinta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Tavoitteiden hallinta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-garmin-integraatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Garmin-integraatio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-tietoturva" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Tietoturva
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-kayttoliittyma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Käyttöliittymä
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-devops-infrastruktuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. DevOps &amp; Infrastruktuuri
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Testaus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpointit-yhteenveto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API-endpointit (Yhteenveto)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hyvaksyntakriteerit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hyväksyntäkriteerit
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tietoturvaraportti
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat_feature_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Chat Feature Plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mobile_vs_web_comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile vs Web
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kehitysoppaat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kehitysoppaat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin-integraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_cloudflare_bypass_v4.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin Cloudflare Bypass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-viitteet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Laadunvarmistus & Testaus
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Laadunvarmistus & Testaus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testaus (Unit, Integration, E2E)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting_auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vianmääritys (Auth)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operointi
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operointi
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MLflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLOps (MLflow)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observability & Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../production_roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuotannon Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap V2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ios_migration_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iOS-migraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viitteet
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Viitteet
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sami_memo.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sisäiset muistiot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../itsearviointi_ja_ajankaytto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Itsearviointi ja ajankäyttö
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#projektin-kuvaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Projektin Kuvaus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-kayttajahallinta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Käyttäjähallinta
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Käyttäjähallinta">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-rekisteroityminen-ja-kirjautuminen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Rekisteröityminen ja Kirjautuminen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-kayttajaprofiili" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Käyttäjäprofiili
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-dashboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-ai-valmennus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. AI-valmennus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-tavoitteiden-hallinta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Tavoitteiden hallinta
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-garmin-integraatio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Garmin-integraatio
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-tietoturva" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Tietoturva
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-kayttoliittyma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Käyttöliittymä
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-devops-infrastruktuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. DevOps &amp; Infrastruktuuri
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Testaus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpointit-yhteenveto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API-endpointit (Yhteenveto)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hyvaksyntakriteerit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hyväksyntäkriteerit
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="vaatimusmaarittely-health-ai-coach">Vaatimusmäärittely – Health AI Coach</h1>
+<p><strong>Versio:</strong> 1.0.0<br />
+<strong>Status:</strong> Production Ready<br />
+<strong>API:</strong> v1.0.0</p>
+<hr />
+<h2 id="projektin-kuvaus">Projektin Kuvaus</h2>
+<p>Dataohjautuva valmennusjärjestelmä, joka yhdistää:
+- <strong>Garmin-data</strong> (Body Battery, uni, stressi, treenit)
+- <strong>XGBoost ML-malli</strong> (vireystilan ennustus)
+- <strong>Google Gemini AI</strong> (personoidut treenisuositukset)</p>
+<p><strong>Tech Stack:</strong>
+- Frontend: Next.js 14 + TypeScript + Tailwind
+- Backend: Python 3.12 + FastAPI
+- Database: Firebase Firestore
+- AI: Google Gemini 2.0 Flash
+- ML: XGBoost + MLflow</p>
+<hr />
+<h2 id="1-kayttajahallinta">1. Käyttäjähallinta</h2>
+<h3 id="11-rekisteroityminen-ja-kirjautuminen">1.1 Rekisteröityminen ja Kirjautuminen</h3>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-U1</td>
+<td>Google Sign-In (Firebase Auth)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-U2</td>
+<td>Apple Sign-In</td>
+<td>Valmis (konfiguraatio odottaa)</td>
+</tr>
+<tr>
+<td>REQ-U3</td>
+<td>Protected Routes (Suojatut sivut)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-U4</td>
+<td>Token-pohjainen API-autentikointi</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-kayttajaprofiili">1.2 Käyttäjäprofiili</h3>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-P1</td>
+<td>Profiilin tallennus (ikä, paino, pituus)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-P2</td>
+<td>Garmin-tunnusten syöttö UI:lla</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-P3</td>
+<td>Garmin-salasanan salaus (AES-256)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-P4</td>
+<td>GDPR: Oman datan lataus</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-P5</td>
+<td>GDPR: Tilin ja datan poisto</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-dashboard">2. Dashboard</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-D1</td>
+<td>Päivittäinen AI-oivallus (Readiness Insight)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-D2</td>
+<td>Metriikat: Body Battery, Uni, Stressi, HRV</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-D3</td>
+<td>Treenihistoria (viimeiset 30 päivää)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-D4</td>
+<td>Aktiiviset tavoitteet edistymispalkeilla</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-D5</td>
+<td>Seuraava suositeltu treeni</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-ai-valmennus">3. AI-valmennus</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-A1</td>
+<td>XGBoost-malli: Vireystilan ennustaminen</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-A2</td>
+<td>Gemini AI: Luonnollinen valmentajateksti</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-A3</td>
+<td>Oivalluksen välimuistitus (24h per käyttäjä)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-A4</td>
+<td>AI Chat: Kontekstuaalinen keskustelu</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-A5</td>
+<td>Guardrails: Vain terveys/fitness aihealue</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-tavoitteiden-hallinta">4. Tavoitteiden hallinta</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-G1</td>
+<td>Tavoitteen luominen (aktiviteetti, tavoite, jakso)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-G2</td>
+<td>Tavoitteen muokkaus ja poisto</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-G3</td>
+<td>Automaattinen edistymislaskenta</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-G4</td>
+<td>Visuaalinen edistymispalkki</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-garmin-integraatio">5. Garmin-integraatio</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-I1</td>
+<td>Garmin-datan haku (garminconnect-kirjasto)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-I2</td>
+<td>Tietojen päivitys pyynnöstä (Refresh)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-I3</td>
+<td>Dashboard-banneri jos Garmin ei yhdistetty</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-I4</td>
+<td>Proaktiivinen istunnon uusiminen (Background Refresh)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-I5</td>
+<td>Push-ilmoitus ja UI-varoitus jos MFA vaaditaan</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-tietoturva">6. Tietoturva</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-S1</td>
+<td>Firebase Token Verification (kaikki endpointit)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-S2</td>
+<td>Rate Limiting (slowapi)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-S3</td>
+<td>CORS-rajaukset ympäristökohtaisesti</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-S4</td>
+<td>Garmin-salasanan AES-256 salaus</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-S5</td>
+<td>Admin-endpointit eristetty</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-S6</td>
+<td>Row-level Security (user_id-filtteröinti)</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-kayttoliittyma">7. Käyttöliittymä</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-F1</td>
+<td>Responsiivinen (Mobile + Desktop)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-F2</td>
+<td>Dark Mode -teema</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-F3</td>
+<td>Loading-tilat (Skeletonit)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-F4</td>
+<td>Toast-ilmoitukset (virheet &amp; onnistumiset)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-F5</td>
+<td>Interaktiivinen AI Chat -sivu</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-devops-infrastruktuuri">8. DevOps &amp; Infrastruktuuri</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-X1</td>
+<td>Docker-konttien käyttö</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-X2</td>
+<td>GitHub Actions CI/CD (Cloud Run)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-X3</td>
+<td>MLflow eksperimenttien seuranta</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-X4</td>
+<td>Prometheus + Grafana (monitorointi)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-X5</td>
+<td>Google Cloud Error Reporting</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-X6</td>
+<td>MkDocs-dokumentaatiosivusto</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-testaus">9. Testaus</h2>
+<table>
+<thead>
+<tr>
+<th>Vaatimus</th>
+<th>Kuvaus</th>
+<th>Tila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQ-T1</td>
+<td>Backend Unit Tests (pytest, mockattu)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-T2</td>
+<td>Backend Integration Tests (FirestoreManager)</td>
+<td>Valmis</td>
+</tr>
+<tr>
+<td>REQ-T3</td>
+<td>Frontend E2E Tests (Playwright)</td>
+<td>Valmis</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="api-endpointit-yhteenveto">API-endpointit (Yhteenveto)</h2>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Metodi</th>
+<th>Kuvaus</th>
+<th>Rate Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/health</code></td>
+<td>GET</td>
+<td>Terveystarkistus</td>
+<td>–</td>
+</tr>
+<tr>
+<td><code>/goals</code></td>
+<td>GET/POST/PUT/DELETE</td>
+<td>Tavoitteet</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/workouts/next</code></td>
+<td>GET</td>
+<td>Seuraava suositeltu treeni</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/workouts/history</code></td>
+<td>GET</td>
+<td>Treenihistoria</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/workouts/upcoming</code></td>
+<td>GET</td>
+<td>Tulevat treenit</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/workouts/{id}/skip</code></td>
+<td>POST</td>
+<td>Treenin skippaus (AI)</td>
+<td>5/min</td>
+</tr>
+<tr>
+<td><code>/workouts/manual</code></td>
+<td>POST</td>
+<td>Manuaalinen kirjaus</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/workouts/upload</code></td>
+<td>POST</td>
+<td>Garmin-vienti</td>
+<td>5/min</td>
+</tr>
+<tr>
+<td><code>/next-workout</code></td>
+<td>GET</td>
+<td>Seuraava treeni (legacy)</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/gamification/summary</code></td>
+<td>GET</td>
+<td>Pelillistäminen</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/ai/insight</code></td>
+<td>GET</td>
+<td>AI-oivallus</td>
+<td>10/min</td>
+</tr>
+<tr>
+<td><code>/ai/chat</code></td>
+<td>POST</td>
+<td>AI Chat</td>
+<td>10/min</td>
+</tr>
+<tr>
+<td><code>/plans/generate</code></td>
+<td>POST</td>
+<td>AI-treeniohjelma</td>
+<td>5/min</td>
+</tr>
+<tr>
+<td><code>/profile</code></td>
+<td>GET/PUT</td>
+<td>Käyttäjäprofiili</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/user/export</code></td>
+<td>GET</td>
+<td>GDPR: Data export</td>
+<td>3/h</td>
+</tr>
+<tr>
+<td><code>/account</code></td>
+<td>DELETE</td>
+<td>GDPR: Tilin poisto</td>
+<td>2/min</td>
+</tr>
+<tr>
+<td><code>/notifications/token</code></td>
+<td>POST</td>
+<td>FCM Token</td>
+<td>5/min</td>
+</tr>
+<tr>
+<td><code>/garmin/connect</code></td>
+<td>POST</td>
+<td>Garmin Login (2FA)</td>
+<td>5/min</td>
+</tr>
+<tr>
+<td><code>/garmin/connect/mfa</code></td>
+<td>POST</td>
+<td>Garmin MFA</td>
+<td>10/min</td>
+</tr>
+<tr>
+<td><code>/garmin/status</code></td>
+<td>GET</td>
+<td>Garmin-tila</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/garmin/credentials</code></td>
+<td>POST/DELETE</td>
+<td>Garmin Credentials</td>
+<td>5/h</td>
+</tr>
+<tr>
+<td><code>/system/refresh</code></td>
+<td>POST</td>
+<td>Data refresh</td>
+<td>2/h</td>
+</tr>
+<tr>
+<td><code>/feedback</code></td>
+<td>POST</td>
+<td>Palaute</td>
+<td>5/h</td>
+</tr>
+<tr>
+<td><code>/admin/feedback</code></td>
+<td>GET</td>
+<td>Admin palautteet</td>
+<td>20/min</td>
+</tr>
+<tr>
+<td><code>/admin/security-events</code></td>
+<td>GET</td>
+<td>Admin tietoturva</td>
+<td>50/min</td>
+</tr>
+<tr>
+<td><code>/admin/revoke-tokens/{uid}</code></td>
+<td>POST</td>
+<td>Admin uloskirjaus</td>
+<td>5/min</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="hyvaksyntakriteerit">Hyväksyntäkriteerit</h2>
+<p>Projekti täyttää kaikki vaatimukset, kun:</p>
+<ol>
+<li>Käyttäjä voi kirjautua sisään Google-tilillä</li>
+<li>Dashboard näyttää Garmin-metriikat ja AI-oivalluksen</li>
+<li>Käyttäjä voi luoda, muokata ja poistaa tavoitteita</li>
+<li>AI Chat vastaa vain terveys/fitness-kysymyksiin</li>
+<li>Jokaisen käyttäjän data on eristetty (multi-user)</li>
+<li>API on suojattu (token + rate limiting)</li>
+<li>GDPR: Käyttäjä voi ladata datansa ja poistaa tilinsä</li>
+<li>Testit menevät läpi (unit + integration + E2E)</li>
+<li>Docker-ympäristö toimii yhdellä komennolla</li>
+</ol>
+<hr />
+<p><strong>Viimeksi päivitetty:</strong> 2026-04-22</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.expand", "navigation.indexes", "content.code.copy", "navigation.top"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

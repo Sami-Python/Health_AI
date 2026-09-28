@@ -1,0 +1,3747 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://Samih.github.io/health_ai/API/">
+      
+      
+        <link rel="prev" href="../garmin_setup/">
+      
+      
+        <link rel="next" href="../testing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>API-viitteet - Health AI Coach</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#health-ai-coach-api-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Health AI Coach" class="md-header__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Health AI Coach
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API-viitteet
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Health AI Coach" class="md-nav__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Health AI Coach
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Etusivu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Käytön aloitus
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Käytön aloitus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ympäristö & Julkaisu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autentikaatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../landing_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Landing Page
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arkkitehtuuri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuurin yleiskuvaus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datavirrat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vaatimusmaarittely/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vaatimusmäärittely
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tietoturvaraportti
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat_feature_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Chat Feature Plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mobile_vs_web_comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile vs Web
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kehitysoppaat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kehitysoppaat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin-integraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_cloudflare_bypass_v4.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin Cloudflare Bypass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-viitteet
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-viitteet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goals-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goals Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Goals Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-goalsgoal_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /goals/{goal_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-goalsgoal_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /goals/{goal_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workouts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workouts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsnext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/next
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutslog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsupcoming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/upcoming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsmanual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/manual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsworkout_idskip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/{workout_id}/skip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patch-workoutsworkout_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PATCH /workouts/{workout_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-workoutsworkout_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /workouts/{workout_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsweekly-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/weekly-status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gamificationsummary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /gamification/summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI &amp; Insights
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI &amp; Insights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-aiinsight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/insight
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-aiweekly-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/weekly-summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-aimorning-briefing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /ai/morning-briefing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-plansgenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /plans/generate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-planshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /plans/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analytics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Analytics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-metricshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /metrics/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /readiness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-aimodel-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/model-metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Profile
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /profile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /profile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-notificationstoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /notifications/token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-userexport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /user/export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /account
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garmin-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garmin Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Garmin Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-garmincredentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garmintest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-garminstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /garmin/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminconnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminconnectmfa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/connect/mfa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-garmincredentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /garmin/credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminclear-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/clear-cooldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-systemrefresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /system/refresh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-systemrefreshstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /system/refresh/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminfeedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminsecurity-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/security-events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-adminrevoke-tokensuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /admin/revoke-tokens/{uid}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminusers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/users
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Chat
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Chat">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-aichat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /ai/chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /health
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Responses
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Responses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#400-bad-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        400 Bad Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#401-unauthorized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        401 Unauthorized
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#404-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        404 Not Found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#429-too-many-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        429 Too Many Requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#500-internal-server-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        500 Internal Server Error
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-swagger-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Swagger UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using cURL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-postman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Postman
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Laadunvarmistus & Testaus
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Laadunvarmistus & Testaus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testaus (Unit, Integration, E2E)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting_auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vianmääritys (Auth)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operointi
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operointi
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MLflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLOps (MLflow)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observability & Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../production_roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuotannon Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap V2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ios_migration_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iOS-migraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viitteet
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Viitteet
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sami_memo.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sisäiset muistiot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../itsearviointi_ja_ajankaytto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Itsearviointi ja ajankäyttö
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Endpoints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Endpoints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#goals-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goals Management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Goals Management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-goalsgoal_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /goals/{goal_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-goalsgoal_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /goals/{goal_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workouts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workouts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workouts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsnext" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/next
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutslog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsupcoming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/upcoming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsmanual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/manual
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsupload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-workoutsworkout_idskip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /workouts/{workout_id}/skip
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patch-workoutsworkout_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PATCH /workouts/{workout_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-workoutsworkout_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /workouts/{workout_id}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-workoutsweekly-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /workouts/weekly-status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-gamificationsummary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /gamification/summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI &amp; Insights
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI &amp; Insights">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-aiinsight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/insight
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-aiweekly-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/weekly-summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-aimorning-briefing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /ai/morning-briefing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-plansgenerate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /plans/generate
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-planshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /plans/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analytics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Analytics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-metricshistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /metrics/history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-readiness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /readiness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-aimodel-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /ai/model-metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Profile
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="User Profile">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /profile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#put-profile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PUT /profile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-notificationstoken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /notifications/token
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-userexport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /user/export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /account
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garmin-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garmin Integration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Garmin Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-garmincredentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garmintest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-garminstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /garmin/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminconnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminconnectmfa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/connect/mfa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-garmincredentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE /garmin/credentials
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-garminclear-cooldown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /garmin/clear-cooldown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-systemrefresh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /system/refresh
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-systemrefreshstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /system/refresh/status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminfeedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminsecurity-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/security-events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-adminrevoke-tokensuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /admin/revoke-tokens/{uid}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-adminusers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /admin/users
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ai-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Chat
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI Chat">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-aichat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /ai/chat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-health" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /health
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#response-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Response Models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Response Models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error Responses
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error Responses">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#400-bad-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        400 Bad Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#401-unauthorized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        401 Unauthorized
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#404-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        404 Not Found
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#429-too-many-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        429 Too Many Requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#500-internal-server-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        500 Internal Server Error
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-swagger-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Swagger UI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-curl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using cURL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-postman" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Postman
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="health-ai-coach-api-documentation">Health AI Coach API Documentation</h1>
+<p><strong>Base URL:</strong> <code>http://localhost:8000</code> (development)<br />
+<strong>Production:</strong> <code>https://health-ai-backend-35976089058.europe-north1.run.app</code><br />
+<strong>API Docs:</strong> <code>https://health-ai-backend-35976089058.europe-north1.run.app/docs</code> (Swagger UI)<br />
+<strong>Version:</strong> 1.0.0</p>
+<hr />
+<h2 id="authentication">Authentication</h2>
+<p>All endpoints require Firebase Authentication (except <code>/health</code>).</p>
+<p><strong>Header:</strong></p>
+<pre><code>Authorization: Bearer &lt;firebase-id-token&gt;
+</code></pre>
+<p><strong>Getting a token</strong> (from frontend):</p>
+<pre><code class="language-typescript">const token = await user.getIdToken();
+</code></pre>
+<hr />
+<h2 id="api-endpoints">API Endpoints</h2>
+<h3 id="goals-management">Goals Management</h3>
+<h4 id="get-goals"><code>GET /goals</code></h4>
+<p>Get all active goals for authenticated user.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: &quot;goal123&quot;,
+    &quot;activity_type&quot;: &quot;Running&quot;,
+    &quot;target_value&quot;: 30,
+    &quot;target_unit&quot;: &quot;km&quot;,
+    &quot;period_type&quot;: &quot;weekly&quot;,
+    &quot;status&quot;: &quot;ACTIVE&quot;,
+    &quot;progress&quot;: 65.5
+  }
+]
+</code></pre>
+<hr />
+<h4 id="post-goals"><code>POST /goals</code></h4>
+<p>Create a new training goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;target_value&quot;: 50,
+  &quot;target_unit&quot;: &quot;km&quot;,
+  &quot;period_type&quot;: &quot;weekly&quot;,
+  &quot;frequency&quot;: &quot;Weekly&quot;,
+  &quot;description&quot;: &quot;Marathon prep&quot;
+}
+</code></pre>
+<p><strong>Response:</strong> <code>201 Created</code></p>
+<hr />
+<h4 id="put-goalsgoal_id"><code>PUT /goals/{goal_id}</code></h4>
+<p>Update an existing goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min</p>
+<hr />
+<h4 id="delete-goalsgoal_id"><code>DELETE /goals/{goal_id}</code></h4>
+<p>Delete a goal.</p>
+<p><strong>Tags:</strong> Goals<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong> <code>204 No Content</code></p>
+<hr />
+<h3 id="workouts">Workouts</h3>
+<h4 id="get-workoutsnext"><code>GET /workouts/next</code></h4>
+<p>Get the next recommended workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;duration_min&quot;: 45,
+  &quot;intensity&quot;: &quot;Easy&quot;,
+  &quot;description&quot;: &quot;Recovery run at Zone 2&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-workoutslog"><code>POST /workouts/log</code></h4>
+<p>Log a manual workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;date&quot;: &quot;2024-01-15&quot;,
+  &quot;activity_type&quot;: &quot;Running&quot;,
+  &quot;duration_min&quot;: 60,
+  &quot;distance_km&quot;: 10.5,
+  &quot;notes&quot;: &quot;Felt great!&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-workoutshistory"><code>GET /workouts/history</code></h4>
+<p>Get past completed workouts (status=DONE), ordered by date descending.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Parameters:</strong>
+- <code>limit</code> (optional): Max items (default 50)</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;date&quot;: &quot;2024-01-15&quot;,
+    &quot;activity&quot;: &quot;Running&quot;,
+    &quot;duration_min&quot;: 45,
+    &quot;status&quot;: &quot;DONE&quot;,
+    &quot;source&quot;: &quot;GARMIN&quot;
+  }
+]
+</code></pre>
+<hr />
+<h4 id="get-workoutsupcoming"><code>GET /workouts/upcoming</code></h4>
+<p>Get all future planned (PENDING) workouts.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 20/min</p>
+<hr />
+<h4 id="post-workoutsmanual"><code>POST /workouts/manual</code></h4>
+<p>Log a manual workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;date&quot;: &quot;2024-01-15&quot;,
+  &quot;activity&quot;: &quot;Running&quot;,
+  &quot;duration_min&quot;: 60,
+  &quot;rpe&quot;: 7,
+  &quot;notes&quot;: &quot;Easy run&quot;
+}
+</code></pre>
+<hr />
+<hr />
+<h4 id="post-workoutsupload"><code>POST /workouts/upload</code></h4>
+<p>Upload a structured workout to Garmin Connect.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;workout&quot;: { &quot;...Garmin workout JSON...&quot; },
+  &quot;date&quot;: &quot;2024-01-20&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-workoutsworkout_idskip"><code>POST /workouts/{workout_id}/skip</code></h4>
+<p>Skip a workout and trigger AI rescheduling.</p>
+<p><strong>Tags:</strong> Workouts, AI<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;new_date&quot;: &quot;2024-01-22&quot;,
+  &quot;reasoning&quot;: &quot;Based on your current body battery...&quot;,
+  &quot;push_message&quot;: &quot;Treeni rästissä? 🏃 Tehdään se maanantaina!&quot;
+}
+</code></pre>
+<hr />
+<h4 id="patch-workoutsworkout_id"><code>PATCH /workouts/{workout_id}</code></h4>
+<p>Change a workout's date (reschedule).</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 10/min</p>
+<hr />
+<h4 id="delete-workoutsworkout_id"><code>DELETE /workouts/{workout_id}</code></h4>
+<p>Delete a workout.</p>
+<p><strong>Tags:</strong> Workouts<br />
+<strong>Rate Limit:</strong> 10/min<br />
+<strong>Response:</strong> <code>200 OK</code></p>
+<h4 id="get-workoutsweekly-status"><code>GET /workouts/weekly-status</code></h4>
+<p>Get weekly training status summary.</p>
+<p><strong>Tags:</strong> Workouts, Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;current_load&quot;: 540,
+  &quot;planned_load&quot;: 600,
+  &quot;load_percentage&quot;: 90,
+  &quot;workouts_completed&quot;: 4,
+  &quot;workouts_planned&quot;: 5
+}
+</code></pre>
+<hr />
+<h4 id="get-gamificationsummary"><code>GET /gamification/summary</code></h4>
+<p>Get user gamification metrics and execution score summary.</p>
+<p><strong>Tags:</strong> Gamification, Workouts<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;average_score&quot;: 85.5,
+  &quot;workouts_analyzed&quot;: 10,
+  &quot;streak_days&quot;: 5,
+  &quot;level&quot;: 3
+}
+</code></pre>
+<hr />
+<h3 id="ai-insights">AI &amp; Insights</h3>
+<h4 id="get-aiinsight"><code>GET /ai/insight</code></h4>
+<p>Get daily AI-powered training insight.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 10/min<br />
+<strong>Caching:</strong> 24 hours (per user)<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;insight&quot;: &quot;Your recovery is excellent today. Consider a moderate intensity run...&quot;,
+  &quot;cached&quot;: true,
+  &quot;generated_at&quot;: &quot;2024-01-15T08:00:00Z&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-aiweekly-summary"><code>GET /ai/weekly-summary</code></h4>
+<p>Get AI-generated weekly training summary.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Caching:</strong> Weekly (per user, regenerated each Monday)<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;summary&quot;: &quot;Viikkosi oli tasapainoinen: 4 treeniä, kuormitus nousi 12%...&quot;,
+  &quot;week_start&quot;: &quot;2024-01-15&quot;,
+  &quot;cached&quot;: true
+}
+</code></pre>
+<hr />
+<h4 id="post-aimorning-briefing"><code>POST /ai/morning-briefing</code></h4>
+<p>Generate and send a morning briefing push notification.</p>
+<p><strong>Tags:</strong> AI, Notifications<br />
+<strong>Rate Limit:</strong> 10/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;🌞 Aamubreefing&quot;,
+  &quot;body&quot;: &quot;Body Battery 82 – hyvä päivä kovalle treenille.&quot;,
+  &quot;push_sent&quot;: true
+}
+</code></pre>
+<hr />
+<h4 id="post-plansgenerate"><code>POST /plans/generate</code></h4>
+<p>Generate a training plan with AI (N days ahead).</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Daily Limit:</strong> 5 generations<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;days&quot;: 7,
+  &quot;rejected_plan_details&quot;: null
+}
+</code></pre>
+<hr />
+<h4 id="get-planshistory"><code>GET /plans/history</code></h4>
+<p>Get recent AI-generated training plans.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Parameters:</strong>
+- <code>limit</code> (optional): Max items (default 5)</p>
+<hr />
+<h3 id="analytics">Analytics</h3>
+<h4 id="get-metricshistory"><code>GET /metrics/history</code></h4>
+<p>Get historical recovery metrics (last 90 days).</p>
+<p><strong>Tags:</strong> Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">[
+  {
+    &quot;date&quot;: &quot;2024-01-15&quot;,
+    &quot;sleep_score&quot;: 85,
+    &quot;body_battery&quot;: 78,
+    &quot;hrv&quot;: 65,
+    &quot;training_load&quot;: 120
+  }
+]
+</code></pre>
+<hr />
+<h4 id="get-readiness"><code>GET /readiness</code></h4>
+<p>Get latest readiness/body battery score.</p>
+<p><strong>Tags:</strong> Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;readiness&quot;: &quot;85&quot;,
+  &quot;date&quot;: &quot;2024-01-15&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-aimodel-metrics"><code>GET /ai/model-metrics</code></h4>
+<p>Get current AI model performance metrics.</p>
+<p><strong>Tags:</strong> Analytics<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;mae&quot;: 3.42,
+  &quot;r2&quot;: 0.85,
+  &quot;last_trained&quot;: &quot;2024-01-15&quot;,
+  &quot;top_features&quot;: {
+    &quot;totalSleep_minutes&quot;: 0.35,
+    &quot;averageStressLevel&quot;: 0.25,
+    &quot;totalSteps&quot;: 0.15
+  },
+  &quot;data_points&quot;: 1450
+}
+</code></pre>
+<hr />
+<h3 id="user-profile">User Profile</h3>
+<h4 id="get-profile"><code>GET /profile</code></h4>
+<p>Get user profile data.</p>
+<p><strong>Tags:</strong> User<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;age&quot;: 35,
+  &quot;weight&quot;: 75.0,
+  &quot;height&quot;: 180,
+  &quot;gender&quot;: &quot;male&quot;
+}
+</code></pre>
+<hr />
+<h4 id="put-profile"><code>PUT /profile</code></h4>
+<p>Update user profile.</p>
+<p><strong>Tags:</strong> User<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;age&quot;: 35,
+  &quot;weight&quot;: 75.0,
+  &quot;height&quot;: 180,
+  &quot;gender&quot;: &quot;male&quot;,
+  &quot;resting_heart_rate&quot;: 60,
+  &quot;max_heart_rate&quot;: 190
+}
+</code></pre>
+<hr />
+<h4 id="post-notificationstoken"><code>POST /notifications/token</code></h4>
+<p>Register an FCM token for push notifications.</p>
+<p><strong>Tags:</strong> Notifications<br />
+<strong>Rate Limit:</strong> 5/min</p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;fcm-token-here&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-userexport"><code>GET /user/export</code></h4>
+<p>Export all user data (GDPR compliance).</p>
+<p><strong>Tags:</strong> User, GDPR<br />
+<strong>Rate Limit:</strong> 3/hour<br />
+<strong>Response:</strong> JSON with all user data (goals, workouts, profile, metrics)</p>
+<hr />
+<h4 id="delete-account"><code>DELETE /account</code></h4>
+<p>Delete user account and all associated data (GDPR Right to Erasure).</p>
+<p><strong>Tags:</strong> User, GDPR<br />
+<strong>Rate Limit:</strong> 1/hour<br />
+<strong>Response:</strong> <code>200 OK</code></p>
+<blockquote>
+<p>⚠️ <strong>Irreversible.</strong> Deletes: Firestore data, Firebase Auth user, Garmin credentials, metrics.</p>
+</blockquote>
+<hr />
+<h3 id="garmin-integration">Garmin Integration</h3>
+<h4 id="post-garmincredentials"><code>POST /garmin/credentials</code></h4>
+<p>Save encrypted Garmin credentials.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;username&quot;: &quot;your_username&quot;,
+  &quot;password&quot;: &quot;your_password&quot;
+}
+</code></pre>
+<p><strong>Security:</strong> Password encrypted with AES-256 before storage.</p>
+<hr />
+<h4 id="post-garmintest"><code>POST /garmin/test</code></h4>
+<p>Test Garmin credentials without saving them.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;username&quot;: &quot;your_username&quot;,
+  &quot;password&quot;: &quot;your_password&quot;
+}
+</code></pre>
+<p><strong>Response:</strong> <code>200 OK</code> (if credentials are correct)</p>
+<hr />
+<h4 id="get-garminstatus"><code>GET /garmin/status</code></h4>
+<p>Check Garmin connection status.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;connected&quot;: true,
+  &quot;username&quot;: &quot;your_username&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-garminconnect"><code>POST /garmin/connect</code></h4>
+<p>Initiate Garmin login with MFA support.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/min
+<strong>Response (MFA required):</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;mfa_required&quot;,
+  &quot;session_id&quot;: &quot;uuid-here&quot;
+}
+</code></pre>
+<hr />
+<h4 id="post-garminconnectmfa"><code>POST /garmin/connect/mfa</code></h4>
+<p>Complete Garmin login with MFA code.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 10/min
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;session_id&quot;: &quot;uuid-here&quot;,
+  &quot;mfa_code&quot;: &quot;123456&quot;
+}
+</code></pre>
+<hr />
+<h4 id="delete-garmincredentials"><code>DELETE /garmin/credentials</code></h4>
+<p>Disconnect Garmin account.</p>
+<p><strong>Tags:</strong> Garmin<br />
+<strong>Rate Limit:</strong> 5/hour</p>
+<hr />
+<h4 id="post-garminclear-cooldown"><code>POST /garmin/clear-cooldown</code></h4>
+<p>Manually clear the active Garmin rate limit cooldown for a specific user (Admin only).
+Allows immediate retry if the user was stuck in an infinite 429 block loop.</p>
+<p><strong>Tags:</strong> Garmin, Admin<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Parameters:</strong>
+- <code>uid</code> (query): Target user ID</p>
+<p><strong>Security:</strong> Requires Admin email.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;message&quot;: &quot;Garmin cooldown cleared for user uid123&quot;
+}
+</code></pre>
+<hr />
+<h3 id="system">System</h3>
+<h4 id="post-systemrefresh"><code>POST /system/refresh</code></h4>
+<p>Triggers Garmin data fetch and model retraining asynchronously via BackgroundTasks.</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Query Parameters:</strong>
+- <code>mode</code> (string, optional): Training mode. Accepts <code>incremental</code> (Quick Sync, 1-day API overlap, no grid search) or <code>full</code> (Full Retrain, 360-day fallback or 5-day overlap, full grid search). Defaults to <code>incremental</code>.</p>
+<p><strong>Rate Limit:</strong> 2/hour<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;message&quot;: &quot;Refresh task started in background.&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-systemrefreshstatus"><code>GET /system/refresh/status</code></h4>
+<p>Returns the current status of the background refresh task.</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Rate Limit:</strong> No limit<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;in_progress&quot;,
+  &quot;progress&quot;: 30,
+  &quot;message&quot;: &quot;Fetching Garmin Data...&quot;,
+  &quot;error&quot;: null
+}
+</code></pre>
+<hr />
+<h4 id="post-feedback"><code>POST /feedback</code></h4>
+<p>Submit user feedback.</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Rate Limit:</strong> 10/hour<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;category&quot;: &quot;bug&quot;,
+  &quot;message&quot;: &quot;Dashboard not loading&quot;,
+  &quot;severity&quot;: &quot;medium&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-adminfeedback"><code>GET /admin/feedback</code></h4>
+<p>Get all user feedback (Admin only).</p>
+<p><strong>Tags:</strong> System, Admin<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Parameters:</strong>
+- <code>status</code> (optional): Filter by status (NEW, READ, ARCHIVED)
+- <code>category</code> (optional): Filter by category
+- <code>limit</code> (optional): Max items (default 100)</p>
+<p><strong>Security:</strong> Requires Admin email (verified via <code>verify_admin</code>).</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;total&quot;: 5,
+  &quot;feedback&quot;: [
+    {
+      &quot;category&quot;: &quot;bug&quot;,
+      &quot;message&quot;: &quot;Dashboard error&quot;,
+      &quot;user_id&quot;: &quot;uid123&quot;,
+      &quot;timestamp&quot;: &quot;2024-01-15T12:00:00Z&quot;
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h4 id="get-adminsecurity-events"><code>GET /admin/security-events</code></h4>
+<p>Get security logs (rate limit hits, auth failures).</p>
+<p><strong>Tags:</strong> System, Admin<br />
+<strong>Rate Limit:</strong> 50/min<br />
+<strong>Parameters:</strong>
+- <code>limit</code> (optional): Max items (default 100)
+- <code>type</code> (optional): Filter by event type (e.g., <code>rate_limit_exceeded</code>)</p>
+<p><strong>Security:</strong> Requires Admin email.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;total&quot;: 5,
+  &quot;events&quot;: [
+    {
+      &quot;type&quot;: &quot;rate_limit_exceeded&quot;,
+      &quot;ip&quot;: &quot;1.2.3.4&quot;,
+      &quot;limit&quot;: &quot;5 per minute&quot;,
+      &quot;timestamp&quot;: &quot;2024-01-15T12:05:00Z&quot;
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h4 id="post-adminrevoke-tokensuid"><code>POST /admin/revoke-tokens/{uid}</code></h4>
+<p>Force logout a user by revoking their refresh tokens.</p>
+<p><strong>Tags:</strong> System, Admin<br />
+<strong>Rate Limit:</strong> 5/min<br />
+<strong>Parameters:</strong>
+- <code>uid</code> (path): User UID to logout</p>
+<p><strong>Security:</strong> Requires Admin email.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;message&quot;: &quot;Tokens revoked for uid123&quot;
+}
+</code></pre>
+<hr />
+<h4 id="get-adminusers"><code>GET /admin/users</code></h4>
+<p>List all registered users (Firebase Auth).</p>
+<p><strong>Tags:</strong> System, Admin<br />
+<strong>Rate Limit:</strong> 20/min<br />
+<strong>Security:</strong> Requires Admin email.</p>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;users&quot;: [
+    {
+      &quot;uid&quot;: &quot;user123&quot;,
+      &quot;email&quot;: &quot;user@example.com&quot;,
+      &quot;display_name&quot;: &quot;John Doe&quot;,
+      &quot;disabled&quot;: false,
+      &quot;metadata&quot;: {
+        &quot;last_sign_in&quot;: 1700000000000,
+        &quot;creation_time&quot;: 1690000000000
+      }
+    }
+  ],
+  &quot;total&quot;: 50
+}
+</code></pre>
+<hr />
+<h3 id="ai-chat">AI Chat</h3>
+<h4 id="post-aichat"><code>POST /ai/chat</code></h4>
+<p>Interactive chat with the AI Health Coach.</p>
+<p><strong>Tags:</strong> AI<br />
+<strong>Rate Limit:</strong> 10/min<br />
+<strong>Request Body:</strong></p>
+<pre><code class="language-json">{
+  &quot;message&quot;: &quot;How was my sleep last night?&quot;,
+  &quot;history&quot;: [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello&quot;},
+    {&quot;role&quot;: &quot;model&quot;, &quot;content&quot;: &quot;Hi! How can I help?&quot;}
+  ]
+}
+</code></pre>
+<p><strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;reply&quot;: &quot;Your sleep was excellent! You got 8 hours...&quot;,
+  &quot;history&quot;: [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello&quot;},
+    {&quot;role&quot;: &quot;model&quot;, &quot;content&quot;: &quot;Hi! How can I help?&quot;},
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;How was my sleep last night?&quot;},
+    {&quot;role&quot;: &quot;model&quot;, &quot;content&quot;: &quot;Your sleep was excellent!...&quot;}
+  ]
+}
+</code></pre>
+<h4 id="get-health"><code>GET /health</code></h4>
+<p>Health check endpoint (no auth required).</p>
+<p><strong>Tags:</strong> System<br />
+<strong>Response:</strong></p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;healthy&quot;,
+  &quot;timestamp&quot;: &quot;2024-01-15T12:00:00Z&quot;
+}
+</code></pre>
+<hr />
+<h2 id="response-models">Response Models</h2>
+<h3 id="common-fields">Common Fields</h3>
+<p>All resources include:
+- <code>created_at</code>: ISO 8601 timestamp
+- <code>updated_at</code>: ISO 8601 timestamp (if applicable)
+- <code>user_id</code>: Firebase UID (internal, not returned to client)</p>
+<hr />
+<h2 id="error-responses">Error Responses</h2>
+<h3 id="400-bad-request">400 Bad Request</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid input: target_value must be positive&quot;
+}
+</code></pre>
+<h3 id="401-unauthorized">401 Unauthorized</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid authentication credentials&quot;
+}
+</code></pre>
+<h3 id="404-not-found">404 Not Found</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Goal not found&quot;
+}
+</code></pre>
+<h3 id="429-too-many-requests">429 Too Many Requests</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Rate limit exceeded. Try again in 60 seconds.&quot;
+}
+</code></pre>
+<h3 id="500-internal-server-error">500 Internal Server Error</h3>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;An unexpected error occurred&quot;
+}
+</code></pre>
+<hr />
+<h2 id="rate-limits">Rate Limits</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Standard endpoints</td>
+<td>20 requests/minute</td>
+</tr>
+<tr>
+<td>AI endpoints</td>
+<td>10 requests/minute</td>
+</tr>
+<tr>
+<td>Data refresh</td>
+<td>2 requests/hour</td>
+</tr>
+<tr>
+<td>Garmin credentials</td>
+<td>20 requests/hour</td>
+</tr>
+<tr>
+<td>User data export</td>
+<td>3 requests/hour</td>
+</tr>
+<tr>
+<td>Account deletion</td>
+<td>1 request/hour</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="testing">Testing</h2>
+<h3 id="using-swagger-ui">Using Swagger UI</h3>
+<ol>
+<li>Navigate to <code>http://localhost:8000/docs</code></li>
+<li>Click "Authorize" button</li>
+<li>Enter your Firebase ID token: <code>Bearer &lt;token&gt;</code></li>
+<li>Try endpoints interactively</li>
+</ol>
+<h3 id="using-curl">Using cURL</h3>
+<pre><code class="language-bash"># Get goals
+curl -H &quot;Authorization: Bearer YOUR_TOKEN&quot; \
+     http://localhost:8000/goals
+
+# Create goal
+curl -X POST \
+  -H &quot;Authorization: Bearer YOUR_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;activity_type&quot;:&quot;Running&quot;,&quot;target_value&quot;:50,&quot;target_unit&quot;:&quot;km&quot;,&quot;period_type&quot;:&quot;weekly&quot;}' \
+  http://localhost:8000/goals
+</code></pre>
+<h3 id="using-postman">Using Postman</h3>
+<p>Import collection: <code>docs/postman_collection.json</code> (TODO)</p>
+<hr />
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><a href="../authentication/">Authentication</a> – Firebase Auth setup</li>
+<li><a href="../garmin_setup/">Garmin Setup</a> – Garmin credentials encryption</li>
+<li><a href="../arkkitehtuuri/">Architecture</a> – System architecture</li>
+<li><a href="../mobile/README.md">Mobile App</a> – Flutter mobile app</li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-05<br />
+<strong>Maintained by:</strong> Health AI Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.expand", "navigation.indexes", "content.code.copy", "navigation.top"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

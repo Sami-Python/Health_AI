@@ -1,0 +1,2915 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://Samih.github.io/health_ai/authentication/">
+      
+      
+        <link rel="prev" href="../deployment/">
+      
+      
+        <link rel="next" href="../landing_page/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Autentikaatio - Health AI Coach</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#autentikaatio-monen-kayttajan-toteutus" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Health AI Coach" class="md-header__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Health AI Coach
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Autentikaatio
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="lime"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Health AI Coach" class="md-nav__button md-logo" aria-label="Health AI Coach" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Health AI Coach
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Samih/health_ai" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Samih/health_ai
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Etusivu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Käytön aloitus
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Käytön aloitus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ympäristö & Julkaisu
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autentikaatio
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Autentikaatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sisallysluettelo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sisällysluettelo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arkkitehtuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arkkitehtuuri
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Arkkitehtuuri">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#komponentit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Komponentit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tietoturvaperiaatteet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tietoturvaperiaatteet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kirjautumisvirta-token-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kirjautumisvirta (Token Flow)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kirjautumisvirta (Token Flow)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kirjautuminen-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kirjautuminen (Login)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-api-kutsu-tokenilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. API-kutsu Tokenilla
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-backend-validointi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Backend Validointi
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-toteutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend-toteutus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend-toteutus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authcontext-global-authentication-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AuthContext (Global Authentication State)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#protected-routes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protected Routes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-client-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Client Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-toteutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend-toteutus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backend-toteutus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#middleware-arkkitehtuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Middleware Arkkitehtuuri
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endpoint-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoint Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kayttajadatan-eriyttaminen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Käyttäjädatan eriyttäminen
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Käyttäjädatan eriyttäminen">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#firestore-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firestore Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#firestore-manager-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firestore Manager Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#owner-verification-deleteupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owner Verification (DELETE/UPDATE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testaus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testaus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manuaalinen-testaus-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manuaalinen Testaus (Local Development)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virheellinen-token-testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virheellinen Token (Testaus)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unit-test-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Test Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vianmaaritys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vianmääritys
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vianmääritys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yleiset-virheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yleiset Virheet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Yleiset Virheet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-401-unauthorized-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 401 Unauthorized (Frontend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-authinvalid-api-key-frontend-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. auth/invalid-api-key (Frontend Login)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-authunauthorized-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. auth/unauthorized-domain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cors-error-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CORS Error (Backend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-backend-invalid-token-vaikka-frontend-toimii" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Backend: Invalid token (vaikka frontend toimii)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tietoturvan-parhaat-kaytannot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tietoturvan parhaat käytännöt
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tietoturvan parhaat käytännöt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tee-nain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tee näin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valta-naita" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vältä näitä
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seuraavat-askeleet-monen-kayttajan-skaalautuvuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seuraavat askeleet (Monen käyttäjän skaalautuvuus)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Seuraavat askeleet (Monen käyttäjän skaalautuvuus)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nykyinen-tilanne-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nykyinen Tilanne (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulevaisuus-production-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulevaisuus (Production Scaling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#yhteenveto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yhteenveto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Yhteenveto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teknologiat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teknologiat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../landing_page/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Landing Page
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arkkitehtuuri & Suunnittelu
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../arkkitehtuuri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arkkitehtuurin yleiskuvaus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data_flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Datavirrat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vaatimusmaarittely/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vaatimusmäärittely
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security_audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tietoturvaraportti
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chat_feature_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Chat Feature Plan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mobile_vs_web_comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mobile vs Web
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kehitysoppaat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Kehitysoppaat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin-integraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../garmin_cloudflare_bypass_v4.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Garmin Cloudflare Bypass
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API-viitteet
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Laadunvarmistus & Testaus
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Laadunvarmistus & Testaus
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testaus (Unit, Integration, E2E)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting_auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vianmääritys (Auth)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operointi
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operointi
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MLflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MLOps (MLflow)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../observability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Observability & Monitoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../production_roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tuotannon Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap_v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap V2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ios_migration_plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    iOS-migraatio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Viitteet
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Viitteet
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sami_memo.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sisäiset muistiot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../itsearviointi_ja_ajankaytto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Itsearviointi ja ajankäyttö
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sisallysluettelo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sisällysluettelo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arkkitehtuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arkkitehtuuri
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Arkkitehtuuri">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#komponentit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Komponentit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tietoturvaperiaatteet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tietoturvaperiaatteet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kirjautumisvirta-token-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kirjautumisvirta (Token Flow)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kirjautumisvirta (Token Flow)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-kirjautuminen-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Kirjautuminen (Login)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-api-kutsu-tokenilla" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. API-kutsu Tokenilla
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-backend-validointi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Backend Validointi
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontend-toteutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontend-toteutus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontend-toteutus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#authcontext-global-authentication-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AuthContext (Global Authentication State)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#protected-routes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protected Routes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-client-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Client Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-toteutus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend-toteutus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Backend-toteutus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#middleware-arkkitehtuuri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Middleware Arkkitehtuuri
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#endpoint-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoint Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kayttajadatan-eriyttaminen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Käyttäjädatan eriyttäminen
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Käyttäjädatan eriyttäminen">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#firestore-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firestore Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#firestore-manager-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Firestore Manager Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#owner-verification-deleteupdate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owner Verification (DELETE/UPDATE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testaus
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testaus">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manuaalinen-testaus-local-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manuaalinen Testaus (Local Development)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#virheellinen-token-testaus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Virheellinen Token (Testaus)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unit-test-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Test Pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vianmaaritys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vianmääritys
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Vianmääritys">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#yleiset-virheet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yleiset Virheet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Yleiset Virheet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-401-unauthorized-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 401 Unauthorized (Frontend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-authinvalid-api-key-frontend-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. auth/invalid-api-key (Frontend Login)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-authunauthorized-domain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. auth/unauthorized-domain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cors-error-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CORS Error (Backend)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-backend-invalid-token-vaikka-frontend-toimii" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Backend: Invalid token (vaikka frontend toimii)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debug-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debug Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tietoturvan-parhaat-kaytannot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tietoturvan parhaat käytännöt
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tietoturvan parhaat käytännöt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tee-nain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tee näin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#valta-naita" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vältä näitä
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seuraavat-askeleet-monen-kayttajan-skaalautuvuus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seuraavat askeleet (Monen käyttäjän skaalautuvuus)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Seuraavat askeleet (Monen käyttäjän skaalautuvuus)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nykyinen-tilanne-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nykyinen Tilanne (MVP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tulevaisuus-production-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tulevaisuus (Production Scaling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#yhteenveto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Yhteenveto
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Yhteenveto">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teknologiat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teknologiat
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#token-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Token Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="autentikaatio-monen-kayttajan-toteutus">Autentikaatio &amp; Monen käyttäjän toteutus</h1>
+<p>Tämä dokumentti kuvaa Health AI -sovelluksen käyttäjien tunnistautumisen toteutuksen Firebase Authenticationin avulla.</p>
+<hr />
+<h2 id="sisallysluettelo">Sisällysluettelo</h2>
+<ol>
+<li><a href="#arkkitehtuuri">Arkkitehtuuri</a></li>
+<li><a href="#kirjautumisvirta-token-flow">Kirjautumisvirta (Token Flow)</a></li>
+<li><a href="#frontend-toteutus">Frontend-toteutus</a></li>
+<li><a href="#backend-toteutus">Backend-toteutus</a></li>
+<li><a href="#kayttajadatan-eriyttaminen">Käyttäjädatan eriyttäminen</a></li>
+<li><a href="#testaus">Testaus</a></li>
+<li><a href="#vianmaaritys">Vianmääritys</a></li>
+</ol>
+<hr />
+<h2 id="arkkitehtuuri">Arkkitehtuuri</h2>
+<h3 id="komponentit">Komponentit</h3>
+<pre><code class="language-mermaid">sequenceDiagram
+    participant User
+    participant Frontend as Next.js&lt;br/&gt;(Frontend)
+    participant FirebaseAuth as Firebase Auth
+    participant Backend as FastAPI&lt;br/&gt;(Backend)
+    participant Firestore as Firestore DB
+
+    User-&gt;&gt;Frontend: 1. Klikkaa &quot;Sign in with Google&quot; tai &quot;Sign in with Apple&quot;
+    Frontend-&gt;&gt;FirebaseAuth: 2. signInWithPopup(GoogleAuthProvider/OAuthProvider)
+    FirebaseAuth--&gt;&gt;Frontend: 3. ID Token + User Object
+    Frontend-&gt;&gt;Frontend: 4. Tallenna user-state (AuthContext)
+
+    User-&gt;&gt;Frontend: 5. Pyydä dataa (esim. tavoitteet)
+    Frontend-&gt;&gt;Frontend: 6. user.getIdToken()
+    Frontend-&gt;&gt;Backend: 7. GET /goals&lt;br/&gt;Header: Bearer {token}
+    Backend-&gt;&gt;FirebaseAuth: 8. verify_id_token(token)
+    FirebaseAuth--&gt;&gt;Backend: 9. Decoded Token (uid, email)
+    Backend-&gt;&gt;Firestore: 10. WHERE user_id == uid
+    Firestore--&gt;&gt;Backend: 11. User's Goals
+    Backend--&gt;&gt;Frontend: 12. JSON Response
+    Frontend--&gt;&gt;User: 13. Näytä käyttöliittymässä
+</code></pre>
+<h3 id="tietoturvaperiaatteet">Tietoturvaperiaatteet</h3>
+<ol>
+<li><strong>Zero Trust:</strong> Jokainen API-kutsu validoidaan</li>
+<li><strong>Token-Based Auth:</strong> JWT-tokenin (Firebase ID Token) käyttö</li>
+<li><strong>Row-Level Security:</strong> Kaikki data filtteröidään <code>user_id</code>:llä</li>
+<li><strong>Short-Lived Tokens:</strong> Firebase ID Token vanhenee 1 tunnissa (automaattinen refresh)</li>
+</ol>
+<hr />
+<h2 id="kirjautumisvirta-token-flow">Kirjautumisvirta (Token Flow)</h2>
+<h3 id="1-kirjautuminen-login">1. Kirjautuminen (Login)</h3>
+<p><strong>Frontend (<a href="file:///c:/Users/samih/code/health_ai/frontend/src/context/AuthContext.tsx">AuthContext.tsx</a>):</strong></p>
+<pre><code class="language-typescript">// Google Sign-In
+const signInWithGoogle = async () =&gt; {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+};
+
+// Apple Sign-In
+const signInWithApple = async () =&gt; {
+    const provider = new OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    await signInWithPopup(auth, provider);
+};
+// Firebase SDK hoitaa automaattisesti:
+// - Token-tallennus (IndexedDB)
+// - onAuthStateChanged-tapahtuman
+</code></pre>
+<p><strong>Seuraavat askeleet:</strong>
+1. Firebase palauttaa <code>User</code>-objektin
+2. <code>onAuthStateChanged</code> listener päivittää React state:n
+3. Käyttäjä ohjataan <code>/dashboard</code> -sivulle</p>
+<hr />
+<h3 id="2-api-kutsu-tokenilla">2. API-kutsu Tokenilla</h3>
+<p><strong>Token Haku:</strong></p>
+<p>Jokaisessa API-kutsussa frontend hakee tuoreen tokenin:</p>
+<pre><code class="language-typescript">const token = await user.getIdToken();
+// getIdToken() refreshaa automaattisesti vanhan tokenin tarvittaessa
+</code></pre>
+<p><strong>HTTP Header:</strong></p>
+<pre><code class="language-typescript">const response = await fetch(`${API_BASE_URL}/goals`, {
+    headers: {
+        'Authorization': `Bearer ${token}`
+    }
+});
+</code></pre>
+<blockquote>
+<p>[!IMPORTANT]
+<strong>Turvallisuus:</strong> Token lähetetään AINA headerissa, ei URL-parametrissa tai bodyssä.</p>
+</blockquote>
+<hr />
+<h3 id="3-backend-validointi">3. Backend Validointi</h3>
+<p><strong>Middleware (<a href="file:///c:/Users/samih/code/health_ai/backend/auth_middleware.py">auth_middleware.py</a>):</strong></p>
+<pre><code class="language-python">from fastapi.security import HTTPBearer
+
+security = HTTPBearer()
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token  # {&quot;uid&quot;: &quot;...&quot;, &quot;email&quot;: &quot;...&quot;, ...}
+    except Exception:
+        raise HTTPException(status_code=401, detail=&quot;Invalid token&quot;)
+</code></pre>
+<p><strong>Endpoint-käyttö:</strong></p>
+<pre><code class="language-python">@app.get(&quot;/goals&quot;)
+def get_goals(user: dict = Depends(verify_token)):
+    uid = user['uid']  # Validoitu käyttäjä-ID
+    goals = db_manager.get_active_goals(uid)
+    return goals
+</code></pre>
+<hr />
+<h2 id="frontend-toteutus">Frontend-toteutus</h2>
+<h3 id="authcontext-global-authentication-state">AuthContext (Global Authentication State)</h3>
+<p><strong>Tiedosto:</strong> <a href="file:///c:/Users/samih/code/health_ai/frontend/src/context/AuthContext.tsx"><code>frontend/src/context/AuthContext.tsx</code></a></p>
+<p><strong>Vastuut:</strong>
+- Hallinnoi käyttäjän tila (<code>user: User | null</code>)
+- Tarjoaa kirjautumis- ja uloskirjautumisfunktiot
+- Kuuntelee Firebase auth-tilaa (<code>onAuthStateChanged</code>)</p>
+<p><strong>Käyttö komponenteissa:</strong></p>
+<pre><code class="language-typescript">import { useAuth } from &quot;@/context/AuthContext&quot;;
+
+export default function MyComponent() {
+    const { user, loading, signInWithGoogle, signInWithApple, signOut } = useAuth();
+
+    if (loading) return &lt;p&gt;Loading...&lt;/p&gt;;
+    if (!user) return (
+        &lt;&gt;
+            &lt;button onClick={signInWithGoogle}&gt;Sign in with Google&lt;/button&gt;
+            &lt;button onClick={signInWithApple}&gt;Sign in with Apple&lt;/button&gt;
+        &lt;/&gt;
+    );
+
+    return &lt;p&gt;Welcome, {user.displayName}!&lt;/p&gt;;
+}
+</code></pre>
+<hr />
+<h3 id="protected-routes">Protected Routes</h3>
+<p><strong>Pattern:</strong> Jokainen suojattu sivu tarkistaa autentikaation:</p>
+<pre><code class="language-typescript">// frontend/src/app/dashboard/page.tsx
+useEffect(() =&gt; {
+    if (!loading &amp;&amp; !user) {
+        router.push(&quot;/login&quot;);
+    }
+}, [user, loading, router]);
+</code></pre>
+<hr />
+<h3 id="api-client-pattern">API Client Pattern</h3>
+<p><strong>Esimerkki:</strong> Tavoitteiden hakeminen (<a href="file:///c:/Users/samih/code/health_ai/frontend/src/app/dashboard/page.tsx#L48-L51">dashboard/page.tsx:48-51</a>)</p>
+<pre><code class="language-typescript">const fetchGoals = async () =&gt; {
+    const token = await user.getIdToken();
+    const res = await fetch(`${API_BASE_URL}/goals`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const goals = await res.json();
+    setGoals(goals);
+};
+</code></pre>
+<blockquote>
+<p>[!TIP]
+<strong>Best Practice:</strong> Älä tallenna tokenia state:en – hae aina <code>getIdToken()</code> juuri ennen API-kutsua välttääksesi vanhan tokenin käytön.</p>
+</blockquote>
+<hr />
+<h2 id="backend-toteutus">Backend-toteutus</h2>
+<h3 id="middleware-arkkitehtuuri">Middleware Arkkitehtuuri</h3>
+<p><strong>Flow:</strong></p>
+<ol>
+<li>FastAPI vastaanottaa HTTP-pyynnön</li>
+<li><code>HTTPBearer</code> poimii <code>Authorization: Bearer &lt;token&gt;</code> headerin</li>
+<li><code>verify_token()</code> validoi tokenin Firebase Admin SDK:lla</li>
+<li>Jos validi → <code>decoded_token</code> injektoidaan endpointiin</li>
+<li>Jos ei → <code>401 Unauthorized</code></li>
+</ol>
+<hr />
+<h3 id="endpoint-pattern">Endpoint Pattern</h3>
+<p><strong>Template:</strong></p>
+<pre><code class="language-python">@app.get(&quot;/protected-endpoint&quot;)
+@limiter.limit(&quot;10/minute&quot;)  # Rate limiting
+async def my_endpoint(
+    request: Request, 
+    user: dict = Depends(verify_token)
+):
+    uid = user['uid']
+    # Use uid to filter user-specific data
+    data = db_manager.get_user_data(uid)
+    return data
+</code></pre>
+<p><strong>Kaikki suojatut endpointit:</strong>
+- <code>/goals</code> (GET, POST, PUT, DELETE)
+- <code>/workouts/*</code>
+- <code>/plans/*</code>
+- <code>/profile</code>
+- <code>/ai/insight</code>
+- <code>/user/export</code></p>
+<hr />
+<h2 id="kayttajadatan-eriyttaminen">Käyttäjädatan eriyttäminen</h2>
+<h3 id="firestore-schema">Firestore Schema</h3>
+<p><strong>Rakenne:</strong></p>
+<pre><code>firestore/
+├── users/
+│   ├── {uid}/
+│   │   ├── profile                   ← Ikä, paino, pituus, sykerajat
+│   │   ├── workouts/{id}             ← Treenit (Garmin + manuaaliset)
+│   │   ├── goals/{id}               ← Käyttäjän tavoitteet
+│   │   ├── plans/{id}               ← AI-treenisuunnitelmat
+│   │   ├── daily_insights/{date}    ← AI-oivallukset (24h cache)
+│   │   ├── weekly_summaries/{week}  ← Viikkoyhteenvedot
+│   │   ├── garmin_credentials/      ← AES-256 salatut tunnukset
+│   │   └── garmin_daily_metrics/    ← Fysiologinen päivädata
+├── garmin_metrics/{uid}/daily_metrics/{date}  ← Metriikat (legacy-polku)
+├── model_performance/{uid}/history/{ts}       ← ML-mallin metriikat
+├── feedback/                                  ← Käyttäjäpalautteet
+└── security_events/                           ← Rate limit- ja auth-tapahtumat
+</code></pre>
+<hr />
+<h3 id="firestore-manager-pattern">Firestore Manager Pattern</h3>
+<p><strong>Tiedosto:</strong> <a href="file:///c:/Users/samih/code/health_ai/backend/firestore_manager.py"><code>backend/firestore_manager.py</code></a></p>
+<p><strong>Automaattinen Filtteröinti:</strong></p>
+<pre><code class="language-python">def get_active_goals(user_id: str):
+    docs = db.collection('goals')\
+             .where(filter=FieldFilter('user_id', '==', user_id))\
+             .where(filter=FieldFilter('status', '==', 'ACTIVE'))\
+             .stream()
+    # ... map results
+</code></pre>
+<blockquote>
+<p>[!CAUTION]
+<strong>Kriittinen Turvallisuussääntö:</strong> Älä KOSKAAN palauta dataa ilman <code>user_id</code>-filtteröintiä!</p>
+</blockquote>
+<p><strong>Esimerkki vaarallisesta koodista:</strong></p>
+<pre><code class="language-python"># VÄÄRIN - Palauttaa KAIKKIEN käyttäjien tavoitteet
+def get_all_goals():
+    return db.collection('goals').stream()
+
+# OIKEIN - Palauttaa vain käyttäjän omat
+def get_active_goals(user_id: str):
+    return db.collection('goals')\
+             .where('user_id', '==', user_id)\
+             .stream()
+</code></pre>
+<hr />
+<h3 id="owner-verification-deleteupdate">Owner Verification (DELETE/UPDATE)</h3>
+<p><strong>Pattern:</strong> Varmista omistajuus ennen muokkausta:</p>
+<pre><code class="language-python">def delete_goal(user_id: str, goal_id: str):
+    doc_ref = db.collection('goals').document(goal_id)
+    doc = doc_ref.get()
+
+    if not doc.exists:
+        return False
+
+    # Tarkista että pyytäjä on omistaja
+    if doc.to_dict().get('user_id') != user_id:
+        return False
+
+    doc_ref.delete()
+    return True
+</code></pre>
+<hr />
+<h2 id="testaus">Testaus</h2>
+<h3 id="manuaalinen-testaus-local-development">Manuaalinen Testaus (Local Development)</h3>
+<p><strong>1. Tarkista Token:</strong></p>
+<pre><code class="language-bash"># Browser Dev Tools → Application → IndexedDB → firebaseLocalStorage
+# Key: authUser - Contains user + token
+</code></pre>
+<p><strong>2. Testaa API Bearer Tokenilla:</strong></p>
+<pre><code class="language-bash"># 1. Hae token frontendista (Console):
+# await firebase.auth().currentUser.getIdToken()
+
+# 2. Testaa cURL:lla
+curl -H &quot;Authorization: Bearer YOUR_TOKEN_HERE&quot; \
+     http://localhost:8000/goals
+</code></pre>
+<p><strong>Odotettu tulos:</strong></p>
+<pre><code class="language-json">[{&quot;id&quot;: &quot;...&quot;, &quot;activity_type&quot;: &quot;Running&quot;, ...}]
+</code></pre>
+<hr />
+<h3 id="virheellinen-token-testaus">Virheellinen Token (Testaus)</h3>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer invalid_token_123&quot; \
+     http://localhost:8000/goals
+</code></pre>
+<p><strong>Odotettu tulos:</strong></p>
+<pre><code class="language-json">{
+  &quot;detail&quot;: &quot;Invalid authentication credentials&quot;
+}
+</code></pre>
+<p>HTTP Status: <code>401 Unauthorized</code></p>
+<hr />
+<h3 id="unit-test-pattern">Unit Test Pattern</h3>
+<p><strong>Tulevaisuuden TODO (Phase 7.3):</strong></p>
+<pre><code class="language-python"># tests/test_auth.py
+def test_endpoint_without_token():
+    response = client.get(&quot;/goals&quot;)
+    assert response.status_code == 401
+
+def test_endpoint_with_valid_token(mock_firebase):
+    mock_firebase.verify_id_token.return_value = {&quot;uid&quot;: &quot;test123&quot;}
+    response = client.get(&quot;/goals&quot;, headers={&quot;Authorization&quot;: &quot;Bearer valid&quot;})
+    assert response.status_code == 200
+</code></pre>
+<hr />
+<h2 id="vianmaaritys">Vianmääritys</h2>
+<h3 id="yleiset-virheet">Yleiset Virheet</h3>
+<h4 id="1-401-unauthorized-frontend">1. <code>401 Unauthorized</code> (Frontend)</h4>
+<p><strong>Syyt:</strong>
+- Token vanhentunut (ei pitäisi tapahtua – <code>getIdToken()</code> refreshaa)
+- Väärä header-format
+- Firebase ei ole initalisoitu oikein</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-typescript">// Väärin
+headers: { 'Authorization': token }
+
+// Oikein
+headers: { 'Authorization': `Bearer ${token}` }
+</code></pre>
+<hr />
+<h4 id="2-authinvalid-api-key-frontend-login">2. <code>auth/invalid-api-key</code> (Frontend Login)</h4>
+<p><strong>Syy:</strong> Firebase config väärä (<code>.env.local</code>)</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-bash"># frontend/.env.local
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyC...correct_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=health-ai-....firebaseapp.com
+# ... tarkista Firebase Console
+</code></pre>
+<hr />
+<h4 id="3-authunauthorized-domain">3. <code>auth/unauthorized-domain</code></h4>
+<p><strong>Syy:</strong> Domain ei ole whitelistattu Firebase Consolessa</p>
+<p><strong>Ratkaisu:</strong></p>
+<ol>
+<li>Firebase Console → Authentication → Settings → Authorized Domains</li>
+<li>Lisää:</li>
+<li><code>localhost</code> (kehitys)</li>
+<li><code>192.168.1.XXX</code> (mobiilikehitys)</li>
+<li>Tuotanto-domain (production)</li>
+</ol>
+<hr />
+<h4 id="4-cors-error-backend">4. CORS Error (Backend)</h4>
+<p><strong>Syy:</strong> Frontend domain ei ole sallittu backendissä</p>
+<p><strong>Ratkaisu:</strong></p>
+<pre><code class="language-python"># backend/main.py
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&quot;http://localhost:3000&quot;, &quot;http://192.168.1.130:3000&quot;],
+    allow_credentials=True,
+    allow_methods=[&quot;*&quot;],
+    allow_headers=[&quot;*&quot;],
+)
+</code></pre>
+<hr />
+<h4 id="5-backend-invalid-token-vaikka-frontend-toimii">5. Backend: <code>Invalid token</code> (vaikka frontend toimii)</h4>
+<p><strong>Debugging:</strong></p>
+<pre><code class="language-python"># backend/auth_middleware.py - Lisää loggaus
+try:
+    decoded_token = auth.verify_id_token(token)
+    print(f&quot;Valid token for: {decoded_token.get('email')}&quot;)
+    return decoded_token
+except Exception as e:
+    print(f&quot;Token error: {type(e).__name__} - {str(e)}&quot;)
+    raise HTTPException(...)
+</code></pre>
+<p><strong>Yleiset syyt:</strong>
+- Backend käyttää väärää <code>service_account_key.json</code>
+- Firebase Admin SDK ei ole initalisoitu
+- Token on eri Firebase-projektista</p>
+<hr />
+<h3 id="debug-checklist">Debug Checklist</h3>
+<p>Käy läpi tämä lista ongelmatilanteessa:</p>
+<ul>
+<li>[ ] Frontend: <code>user</code> objekti ei ole <code>null</code></li>
+<li>[ ] Frontend: <code>user.getIdToken()</code> palauttaa stringin</li>
+<li>[ ] Network Tab: <code>Authorization: Bearer abc...</code> header lähtee</li>
+<li>[ ] Backend: <code>service_account_key.json</code> on oikea tiedosto</li>
+<li>[ ] Backend: Port <code>8001</code> vastaa (Docker Up)</li>
+<li>[ ] Firebase Console: Käyttäjä näkyy Authentication → Users</li>
+</ul>
+<hr />
+<h2 id="tietoturvan-parhaat-kaytannot">Tietoturvan parhaat käytännöt</h2>
+<h3 id="tee-nain">Tee näin</h3>
+<ol>
+<li><strong>Käytä HTTPS tuotannossa</strong> (pakollinen Firebase Authille)</li>
+<li><strong>Älä koskaan commitoi <code>.env</code> tai <code>service_account_key.json</code></strong> → <code>.gitignore</code></li>
+<li><strong>Käytä Rate Limiting</strong> → <code>@limiter.limit("10/minute")</code> (slowapi)</li>
+<li><strong>Validoi AINA user_id backendissä</strong> → Älä luota frontend-dataan</li>
+<li><strong>Käytä Bearer Token formatia</strong> → <code>Authorization: Bearer {token}</code></li>
+</ol>
+<h3 id="valta-naita">Vältä näitä</h3>
+<ol>
+<li>Älä tallenna tokenia localStorage:en (Firebase SDK hoitaa turvallisesti)</li>
+<li>Älä lähetä tokenia URL-parametrissa (<code>/api?token=abc</code>)</li>
+<li>Älä jätä test-käyttäjiä tuotantoon (Firebase Console → Users)</li>
+<li>Älä salli <code>allow_origins=["*"]</code> tuotannossa (tarkenna domainit)</li>
+<li>Älä ohita <code>verify_token</code> middleware missään endpointissa</li>
+</ol>
+<hr />
+<h2 id="seuraavat-askeleet-monen-kayttajan-skaalautuvuus">Seuraavat askeleet (Monen käyttäjän skaalautuvuus)</h2>
+<h3 id="nykyinen-tilanne-mvp">Nykyinen Tilanne (MVP)</h3>
+<ul>
+<li>Firebase Auth integroitu (Google + Apple)</li>
+<li>Token-validointi toimii</li>
+<li>Multi-user data isolation (Firestore)</li>
+<li><strong>Apple Sign-In:</strong> Koodi valmis, Firebase Console -konfiguraatio odottaa</li>
+<li><strong>Garmin-data:</strong> Käyttäjäkohtaiset subkokoelmat Firestoressa (skaalautuu)</li>
+</ul>
+<h3 id="tulevaisuus-production-scaling">Tulevaisuus (Production Scaling)</h3>
+<ol>
+<li><strong>User Roles &amp; Admin Panel:</strong></li>
+<li>Lisää <code>role</code> kenttä Firestoreen (<code>admin</code>, <code>user</code>)</li>
+<li>
+<p>Admin-endpointit ainoastaan <code>role == admin</code> käyttäjille</p>
+</li>
+<li>
+<p><strong>OAuth2 Garmin Integration:</strong></p>
+</li>
+<li>Jokainen käyttäjä kirjautuu omaan Garmin-tiiliinsä</li>
+<li>
+<p>Token tallennetaan: <code>users/{uid}/garmin_credentials</code></p>
+</li>
+<li>
+<p><strong>Email/Password Login (Optional):</strong></p>
+</li>
+<li>
+<p>Google/Apple-kirjautumisen lisäksi: <code>signInWithEmailAndPassword</code></p>
+</li>
+<li>
+<p><strong>Session Management:</strong></p>
+</li>
+<li>Näytä aktiiviset sessiot käyttäjälle</li>
+<li>"Sign out all devices" -toiminto</li>
+</ol>
+<hr />
+<h2 id="yhteenveto">Yhteenveto</h2>
+<h3 id="teknologiat">Teknologiat</h3>
+<table>
+<thead>
+<tr>
+<th>Kerros</th>
+<th>Teknologia</th>
+<th>Rooli</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frontend</td>
+<td>Firebase JS SDK</td>
+<td>Token management, Login UI</td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>HTTP Bearer Token</td>
+<td>API Authentication</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Firebase Admin SDK</td>
+<td>Token verification</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Firestore</td>
+<td>Row-level security (<code>user_id</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="token-lifecycle">Token Lifecycle</h3>
+<ol>
+<li><strong>Login:</strong> Firebase Auth → ID Token (1h TTL)</li>
+<li><strong>API Call:</strong> Frontend → <code>getIdToken()</code> → Auto-refresh</li>
+<li><strong>Backend:</strong> Verify → Extract <code>uid</code> → Filter data</li>
+<li><strong>Logout:</strong> Firebase SDK → Clear tokens</li>
+</ol>
+<hr />
+<blockquote>
+<p>[!NOTE]
+Tämä dokumentti päivitetään kun uusia autentikointimekanismeja (email/password, admin roles) lisätään.</p>
+</blockquote>
+<p><strong>Viimeksi päivitetty:</strong> 2026-05<br />
+<strong>Dokumentaation kattavuus:</strong> Firebase Google Auth + Apple Sign-In (koodi valmis)<br />
+<strong>TODO:</strong> Apple Firebase Console setup, Admin Roles</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.expand", "navigation.indexes", "content.code.copy", "navigation.top"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
